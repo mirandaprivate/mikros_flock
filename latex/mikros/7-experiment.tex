@@ -1,0 +1,57 @@
+\section{Experimental Evaluation}
+\label{sec:experiment}
+
+We compare the inner- and Hadamard-product protocols based on
+vector polynomial packing with the small-field-first (SFF)
+baseline at \(N=2^{30}\).
+Table~\ref{table:component} reports prover time, verifier time,
+message payload, and resident set size (RSS).
+The four configurations use base fields stored in 8-, 16-, 32-,
+and 64-bit words, with packing factors \(\kappa=16,8,4,2\),
+respectively.
+These configurations satisfy \(|\Field|\geq\kappa\) and evaluate
+the base-field implementations, not the intermediate-field
+tabulated variant of Section~\ref{sec:hadamard}.
+
+\paragraph{Measurement scope.}
+The benchmarks measure the PIOP components, including packing and
+witness-dependent preprocessing. Commitments, PCS openings, and
+deferred source-oracle evaluations are outside the measured scope.
+All runs use an Intel Xeon Gold 6342 with AVX-512 and 64 Rayon
+workers. RSS is measured in isolated runs separately from timing
+and includes the inputs resident during the prover window.
+The table notes specify the run counts, warmup, and execution-order
+controls for each configuration. In particular, the 8- and 16-bit
+timings and the updated 32-bit Hadamard timings are single-run
+measurements.
+
+\paragraph{Prover time and memory.}
+Packing gives its largest measured benefit in the 8-bit
+configuration: the inner-product prover is \(5.60\times\) faster
+and the Hadamard-product prover is \(4.31\times\) faster than SFF.
+Both use \(4.02\) GiB of measured resident memory, a reduction by a
+factor of approximately \(4.48\).
+The prover speedups decrease to \(3.54\times\) and \(2.82\times\)
+at 16 bits, and to \(2.07\times\) and \(1.82\times\) at 32 bits.
+The updated 32-bit Hadamard implementation reduces RSS from
+\(23.99\) GiB to \(16.00\) GiB; RSS has not been remeasured for
+the updated 32-bit inner-product comparison.
+At 64 bits, packed prover time is slightly higher for both relations
+and RSS is essentially unchanged.
+
+\paragraph{Verifier time and communication.}
+The packed Hadamard verifier is faster in all four configurations,
+with measured speedups from \(1.57\times\) to \(2.41\times\).
+For inner products, verification improves at 8 and 16 bits and is
+slightly slower at 32 and 64 bits.
+Inner-product payloads decrease in every configuration.
+Hadamard packing trades additional auxiliary messages for a shorter
+inner-product proof: its 8-bit payload increases from \(1{,}472\)
+to \(1{,}872\) bytes, while the other three configurations have
+smaller payloads.
+These measurements quantify the reduction-layer tradeoffs;
+the cost of a composed circuit proof also depends on the PCS.
+
+\input{tab/tab-component}
+\input{tab/tab-e2e}
+\input{tab/tab-binary}

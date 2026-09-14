@@ -1,0 +1,1154 @@
+[
+  {
+    "utc": "2026-09-12T14:57:45Z",
+    "competing_processes": [],
+    "available_bytes": 383273803776,
+    "required_bytes": 0,
+    "elapsed_seconds": 0.010678292950615287,
+    "cgroups": [
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-2027.scope",
+        "memory.max": "max",
+        "memory.current": "23085056",
+        "cpu.stat": "usage_usec 537248\nuser_usec 335409\nsystem_usec 201839\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+        "memory.max": "max",
+        "memory.current": "6388699136",
+        "cpu.stat": "usage_usec 281144251040\nuser_usec 250074734957\nsystem_usec 31069516083\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice",
+        "memory.max": "max",
+        "memory.current": "210278916096",
+        "cpu.max": "max 100000",
+        "cpu.stat": "usage_usec 5574989967402\nuser_usec 4214863474442\nsystem_usec 1360126492960\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup",
+        "cpu.stat": "usage_usec 5636645064000\nuser_usec 4244578729000\nsystem_usec 1392066335000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      }
+    ]
+  },
+  {
+    "utc": "2026-09-12T14:57:50Z",
+    "competing_processes": [],
+    "available_bytes": 383225896960,
+    "required_bytes": 0,
+    "elapsed_seconds": 5.028092717984691,
+    "cgroups": [
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-2027.scope",
+        "memory.max": "max",
+        "memory.current": "22253568",
+        "cpu.stat": "usage_usec 549317\nuser_usec 344437\nsystem_usec 204880\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+        "memory.max": "max",
+        "memory.current": "6387957760",
+        "cpu.stat": "usage_usec 281144305128\nuser_usec 250074753000\nsystem_usec 31069552128\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice",
+        "memory.max": "max",
+        "memory.current": "210859814912",
+        "cpu.max": "max 100000",
+        "cpu.stat": "usage_usec 5575072774493\nuser_usec 4214936040423\nsystem_usec 1360136734070\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup",
+        "cpu.stat": "usage_usec 5636728326000\nuser_usec 4244651547000\nsystem_usec 1392076779000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      }
+    ]
+  },
+  {
+    "utc": "2026-09-12T14:57:55Z",
+    "competing_processes": [],
+    "available_bytes": 383529136128,
+    "required_bytes": 0,
+    "elapsed_seconds": 10.047474471153691,
+    "cgroups": [
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-2027.scope",
+        "memory.max": "max",
+        "memory.current": "22265856",
+        "cpu.stat": "usage_usec 563891\nuser_usec 353174\nsystem_usec 210717\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+        "memory.max": "max",
+        "memory.current": "6387970048",
+        "cpu.stat": "usage_usec 281144319105\nuser_usec 250074761975\nsystem_usec 31069557129\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice",
+        "memory.max": "max",
+        "memory.current": "210813923328",
+        "cpu.max": "max 100000",
+        "cpu.stat": "usage_usec 5575156757225\nuser_usec 4215009527930\nsystem_usec 1360147229295\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup",
+        "cpu.stat": "usage_usec 5636812537000\nuser_usec 4244725124000\nsystem_usec 1392087413000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      }
+    ]
+  },
+  {
+    "utc": "2026-09-12T14:57:57Z",
+    "competing_processes": [],
+    "available_bytes": 383627075584,
+    "required_bytes": 0,
+    "elapsed_seconds": 0.01527344691567123,
+    "cgroups": [
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-2027.scope",
+        "memory.max": "max",
+        "memory.current": "25690112",
+        "cpu.stat": "usage_usec 675044\nuser_usec 409777\nsystem_usec 265266\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+        "memory.max": "max",
+        "memory.current": "6391349248",
+        "cpu.stat": "usage_usec 281144430258\nuser_usec 250074818172\nsystem_usec 31069612085\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice",
+        "memory.max": "max",
+        "memory.current": "210204475392",
+        "cpu.max": "max 100000",
+        "cpu.stat": "usage_usec 5575189795947\nuser_usec 4215038633314\nsystem_usec 1360151162633\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup",
+        "cpu.stat": "usage_usec 5636845654000\nuser_usec 4244754244000\nsystem_usec 1392091410000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      }
+    ]
+  },
+  {
+    "utc": "2026-09-12T14:58:02Z",
+    "competing_processes": [],
+    "available_bytes": 383629348864,
+    "required_bytes": 0,
+    "elapsed_seconds": 5.044615929946303,
+    "cgroups": [
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-2027.scope",
+        "memory.max": "max",
+        "memory.current": "25444352",
+        "cpu.stat": "usage_usec 698984\nuser_usec 419786\nsystem_usec 279197\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+        "memory.max": "max",
+        "memory.current": "6391246848",
+        "cpu.stat": "usage_usec 281144494685\nuser_usec 250074842404\nsystem_usec 31069652281\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice",
+        "memory.max": "max",
+        "memory.current": "210421051392",
+        "cpu.max": "max 100000",
+        "cpu.stat": "usage_usec 5575272564170\nuser_usec 4215111415615\nsystem_usec 1360161148554\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup",
+        "cpu.stat": "usage_usec 5636928693000\nuser_usec 4244827139000\nsystem_usec 1392101554000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      }
+    ]
+  },
+  {
+    "utc": "2026-09-12T14:58:07Z",
+    "competing_processes": [],
+    "available_bytes": 383737401344,
+    "required_bytes": 0,
+    "elapsed_seconds": 10.071973148966208,
+    "cgroups": [
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-2027.scope",
+        "memory.max": "max",
+        "memory.current": "25169920",
+        "cpu.stat": "usage_usec 721880\nuser_usec 432732\nsystem_usec 289148\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+        "memory.max": "max",
+        "memory.current": "6390878208",
+        "cpu.stat": "usage_usec 281144516683\nuser_usec 250074854393\nsystem_usec 31069662290\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice",
+        "memory.max": "max",
+        "memory.current": "210766606336",
+        "cpu.max": "max 100000",
+        "cpu.stat": "usage_usec 5575354134737\nuser_usec 4215183445984\nsystem_usec 1360170688752\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup",
+        "cpu.stat": "usage_usec 5637010597000\nuser_usec 4244899321000\nsystem_usec 1392111276000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      }
+    ]
+  },
+  {
+    "utc": "2026-09-12T14:58:39Z",
+    "competing_processes": [],
+    "available_bytes": 382930849792,
+    "required_bytes": 0,
+    "elapsed_seconds": 0.030382517026737332,
+    "cgroups": [
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-2027.scope",
+        "memory.max": "max",
+        "memory.current": "215826432",
+        "cpu.stat": "usage_usec 168389319\nuser_usec 155774549\nsystem_usec 12614769\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+        "memory.max": "max",
+        "memory.current": "6581518336",
+        "cpu.stat": "usage_usec 281312269759\nuser_usec 250230234423\nsystem_usec 31082035335\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice",
+        "memory.max": "max",
+        "memory.current": "210403254272",
+        "cpu.max": "max 100000",
+        "cpu.stat": "usage_usec 5576030448279\nuser_usec 4215784692549\nsystem_usec 1360245755730\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup",
+        "cpu.stat": "usage_usec 5637689523000\nuser_usec 4245501527000\nsystem_usec 1392187996000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      }
+    ]
+  },
+  {
+    "utc": "2026-09-12T14:58:44Z",
+    "competing_processes": [],
+    "available_bytes": 382833516544,
+    "required_bytes": 0,
+    "elapsed_seconds": 5.067805707920343,
+    "cgroups": [
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-2027.scope",
+        "memory.max": "max",
+        "memory.current": "214626304",
+        "cpu.stat": "usage_usec 168421316\nuser_usec 155793544\nsystem_usec 12627772\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+        "memory.max": "max",
+        "memory.current": "6580170752",
+        "cpu.stat": "usage_usec 281312301756\nuser_usec 250230252409\nsystem_usec 31082049347\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice",
+        "memory.max": "max",
+        "memory.current": "210484727808",
+        "cpu.max": "max 100000",
+        "cpu.stat": "usage_usec 5576106634083\nuser_usec 4215851927375\nsystem_usec 1360254706708\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup",
+        "cpu.stat": "usage_usec 5637765962000\nuser_usec 4245568853000\nsystem_usec 1392197109000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      }
+    ]
+  },
+  {
+    "utc": "2026-09-12T14:58:49Z",
+    "competing_processes": [],
+    "available_bytes": 382853120000,
+    "required_bytes": 0,
+    "elapsed_seconds": 10.088367997901514,
+    "cgroups": [
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-2027.scope",
+        "memory.max": "max",
+        "memory.current": "212168704",
+        "cpu.stat": "usage_usec 168438313\nuser_usec 155800538\nsystem_usec 12637774\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+        "memory.max": "max",
+        "memory.current": "6578012160",
+        "cpu.stat": "usage_usec 281312354873\nuser_usec 250230265474\nsystem_usec 31082089399\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice",
+        "memory.max": "max",
+        "memory.current": "210501750784",
+        "cpu.max": "max 100000",
+        "cpu.stat": "usage_usec 5576175205654\nuser_usec 4215911916142\nsystem_usec 1360263289512\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup",
+        "cpu.stat": "usage_usec 5637834818000\nuser_usec 4245628910000\nsystem_usec 1392205908000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      }
+    ]
+  },
+  {
+    "utc": "2026-09-12T14:58:51Z",
+    "competing_processes": [],
+    "available_bytes": 382827831296,
+    "required_bytes": 0,
+    "elapsed_seconds": 0.019254544051364064,
+    "cgroups": [
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-2027.scope",
+        "memory.max": "max",
+        "memory.current": "211845120",
+        "cpu.stat": "usage_usec 168540599\nuser_usec 155870795\nsystem_usec 12669803\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+        "memory.max": "max",
+        "memory.current": "6577688576",
+        "cpu.stat": "usage_usec 281312457160\nuser_usec 250230335704\nsystem_usec 31082121455\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice",
+        "memory.max": "max",
+        "memory.current": "210531147776",
+        "cpu.max": "max 100000",
+        "cpu.stat": "usage_usec 5576196814394\nuser_usec 4215930767985\nsystem_usec 1360266046409\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup",
+        "cpu.stat": "usage_usec 5637856653000\nuser_usec 4245647818000\nsystem_usec 1392208835000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      }
+    ]
+  },
+  {
+    "utc": "2026-09-12T14:58:56Z",
+    "competing_processes": [],
+    "available_bytes": 382779043840,
+    "required_bytes": 0,
+    "elapsed_seconds": 5.04681701795198,
+    "cgroups": [
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-2027.scope",
+        "memory.max": "max",
+        "memory.current": "211148800",
+        "cpu.stat": "usage_usec 168562598\nuser_usec 155883792\nsystem_usec 12678805\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+        "memory.max": "max",
+        "memory.current": "6576992256",
+        "cpu.stat": "usage_usec 281312480159\nuser_usec 250230349696\nsystem_usec 31082130462\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice",
+        "memory.max": "max",
+        "memory.current": "210554896384",
+        "cpu.max": "max 100000",
+        "cpu.stat": "usage_usec 5576252058201\nuser_usec 4215978528557\nsystem_usec 1360273529644\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup",
+        "cpu.stat": "usage_usec 5637912262000\nuser_usec 4245695702000\nsystem_usec 1392216560000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      }
+    ]
+  },
+  {
+    "utc": "2026-09-12T14:59:01Z",
+    "competing_processes": [],
+    "available_bytes": 382305976320,
+    "required_bytes": 0,
+    "elapsed_seconds": 10.07833489193581,
+    "cgroups": [
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-2027.scope",
+        "memory.max": "max",
+        "memory.current": "209924096",
+        "cpu.stat": "usage_usec 168589558\nuser_usec 155899753\nsystem_usec 12689805\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+        "memory.max": "max",
+        "memory.current": "6575685632",
+        "cpu.stat": "usage_usec 281312506119\nuser_usec 250230364651\nsystem_usec 31082141467\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice",
+        "memory.max": "max",
+        "memory.current": "210393223168",
+        "cpu.max": "max 100000",
+        "cpu.stat": "usage_usec 5576320960773\nuser_usec 4216037556830\nsystem_usec 1360283403943\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup",
+        "cpu.stat": "usage_usec 5637982014000\nuser_usec 4245755013000\nsystem_usec 1392227001000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      }
+    ]
+  },
+  {
+    "utc": "2026-09-12T14:59:03Z",
+    "competing_processes": [],
+    "available_bytes": 382401490944,
+    "required_bytes": 0,
+    "elapsed_seconds": 0.01722731115296483,
+    "cgroups": [
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-2027.scope",
+        "memory.max": "max",
+        "memory.current": "218615808",
+        "cpu.stat": "usage_usec 175082931\nuser_usec 161212865\nsystem_usec 13870065\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+        "memory.max": "max",
+        "memory.current": "6584459264",
+        "cpu.stat": "usage_usec 281319034473\nuser_usec 250235684916\nsystem_usec 31083349557\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice",
+        "memory.max": "max",
+        "memory.current": "210385633280",
+        "cpu.max": "max 100000",
+        "cpu.stat": "usage_usec 5576361363601\nuser_usec 4216072739899\nsystem_usec 1360288623702\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup",
+        "cpu.stat": "usage_usec 5638022376000\nuser_usec 4245790150000\nsystem_usec 1392232226000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      }
+    ]
+  },
+  {
+    "utc": "2026-09-12T14:59:08Z",
+    "competing_processes": [],
+    "available_bytes": 382008303616,
+    "required_bytes": 0,
+    "elapsed_seconds": 5.0437908382155,
+    "cgroups": [
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-2027.scope",
+        "memory.max": "max",
+        "memory.current": "217640960",
+        "cpu.stat": "usage_usec 175103760\nuser_usec 161223700\nsystem_usec 13880060\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+        "memory.max": "max",
+        "memory.current": "6583361536",
+        "cpu.stat": "usage_usec 281319055303\nuser_usec 250235695755\nsystem_usec 31083359547\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice",
+        "memory.max": "max",
+        "memory.current": "210749313024",
+        "cpu.max": "max 100000",
+        "cpu.stat": "usage_usec 5576442544002\nuser_usec 4216144193529\nsystem_usec 1360298350473\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup",
+        "cpu.stat": "usage_usec 5638103821000\nuser_usec 4245861694000\nsystem_usec 1392242127000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      }
+    ]
+  },
+  {
+    "utc": "2026-09-12T14:59:13Z",
+    "competing_processes": [],
+    "available_bytes": 382367494144,
+    "required_bytes": 0,
+    "elapsed_seconds": 10.072078464087099,
+    "cgroups": [
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-2027.scope",
+        "memory.max": "max",
+        "memory.current": "215728128",
+        "cpu.stat": "usage_usec 175162130\nuser_usec 161265109\nsystem_usec 13897021\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+        "memory.max": "max",
+        "memory.current": "6581329920",
+        "cpu.stat": "usage_usec 281319114673\nuser_usec 250235738183\nsystem_usec 31083376489\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice",
+        "memory.max": "max",
+        "memory.current": "210681237504",
+        "cpu.max": "max 100000",
+        "cpu.stat": "usage_usec 5576525553871\nuser_usec 4216216972949\nsystem_usec 1360308580921\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup",
+        "cpu.stat": "usage_usec 5638186993000\nuser_usec 4245934531000\nsystem_usec 1392252462000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      }
+    ]
+  },
+  {
+    "utc": "2026-09-12T14:59:50Z",
+    "competing_processes": [],
+    "available_bytes": 382565285888,
+    "required_bytes": 236223201280,
+    "elapsed_seconds": 0.017190821934491396,
+    "cgroups": [
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-2027.scope",
+        "memory.max": "max",
+        "memory.current": "221687808",
+        "cpu.stat": "usage_usec 1886047598\nuser_usec 1772446073\nsystem_usec 113601525\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+        "memory.max": "max",
+        "memory.current": "6587244544",
+        "cpu.stat": "usage_usec 283030124027\nuser_usec 251846951284\nsystem_usec 31183172743\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice",
+        "memory.max": "max",
+        "memory.current": "210526347264",
+        "cpu.max": "max 100000",
+        "cpu.stat": "usage_usec 5578835933697\nuser_usec 4218322100200\nsystem_usec 1360513833497\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup",
+        "cpu.stat": "usage_usec 5640501516000\nuser_usec 4248039284000\nsystem_usec 1392462232000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      }
+    ]
+  },
+  {
+    "utc": "2026-09-12T14:59:55Z",
+    "competing_processes": [],
+    "available_bytes": 382134349824,
+    "required_bytes": 236223201280,
+    "elapsed_seconds": 5.042159814853221,
+    "cgroups": [
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-2027.scope",
+        "memory.max": "max",
+        "memory.current": "219783168",
+        "cpu.stat": "usage_usec 1886067598\nuser_usec 1772460067\nsystem_usec 113607530\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+        "memory.max": "max",
+        "memory.current": "6585327616",
+        "cpu.stat": "usage_usec 283030144027\nuser_usec 251846965279\nsystem_usec 31183178748\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice",
+        "memory.max": "max",
+        "memory.current": "210463301632",
+        "cpu.max": "max 100000",
+        "cpu.stat": "usage_usec 5578918763265\nuser_usec 4218394429222\nsystem_usec 1360524334043\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup",
+        "cpu.stat": "usage_usec 5640584800000\nuser_usec 4248111761000\nsystem_usec 1392473039000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      }
+    ]
+  },
+  {
+    "utc": "2026-09-12T15:00:00Z",
+    "competing_processes": [],
+    "available_bytes": 382204874752,
+    "required_bytes": 236223201280,
+    "elapsed_seconds": 10.068317509954795,
+    "cgroups": [
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-2027.scope",
+        "memory.max": "max",
+        "memory.current": "219189248",
+        "cpu.stat": "usage_usec 1886090679\nuser_usec 1772477139\nsystem_usec 113613540\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+        "memory.max": "max",
+        "memory.current": "6584733696",
+        "cpu.stat": "usage_usec 283030167109\nuser_usec 251846982348\nsystem_usec 31183184761\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice",
+        "memory.max": "max",
+        "memory.current": "210891685888",
+        "cpu.max": "max 100000",
+        "cpu.stat": "usage_usec 5578999919174\nuser_usec 4218465943648\nsystem_usec 1360533975526\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup",
+        "cpu.stat": "usage_usec 5640666194000\nuser_usec 4248183384000\nsystem_usec 1392482810000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      }
+    ]
+  },
+  {
+    "utc": "2026-09-12T15:05:17Z",
+    "competing_processes": [],
+    "available_bytes": 381247451136,
+    "required_bytes": 236223201280,
+    "elapsed_seconds": 0.030312655959278345,
+    "cgroups": [
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-2027.scope",
+        "memory.max": "max",
+        "memory.current": "182759424",
+        "cpu.stat": "usage_usec 15739396755\nuser_usec 13258262081\nsystem_usec 2481134673\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+        "memory.max": "max",
+        "memory.current": "4831408128",
+        "cpu.stat": "usage_usec 296884505836\nuser_usec 263333527954\nsystem_usec 33550977881\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice",
+        "memory.max": "max",
+        "memory.current": "173521022976",
+        "cpu.max": "max 100000",
+        "cpu.stat": "usage_usec 5597931894404\nuser_usec 4234281075541\nsystem_usec 1363650818863\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup",
+        "cpu.stat": "usage_usec 5659613939000\nuser_usec 4263983043000\nsystem_usec 1395630896000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      }
+    ]
+  },
+  {
+    "utc": "2026-09-12T15:05:22Z",
+    "competing_processes": [],
+    "available_bytes": 381509226496,
+    "required_bytes": 236223201280,
+    "elapsed_seconds": 5.065617561107501,
+    "cgroups": [
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-2027.scope",
+        "memory.max": "max",
+        "memory.current": "181919744",
+        "cpu.stat": "usage_usec 15739427629\nuser_usec 13258279960\nsystem_usec 2481147669\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+        "memory.max": "max",
+        "memory.current": "4830855168",
+        "cpu.stat": "usage_usec 296884578670\nuser_usec 263333555763\nsystem_usec 33551022907\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice",
+        "memory.max": "max",
+        "memory.current": "173673750528",
+        "cpu.max": "max 100000",
+        "cpu.stat": "usage_usec 5598014655997\nuser_usec 4234353483933\nsystem_usec 1363661172063\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup",
+        "cpu.stat": "usage_usec 5659696880000\nuser_usec 4264055501000\nsystem_usec 1395641379000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      }
+    ]
+  },
+  {
+    "utc": "2026-09-12T15:05:27Z",
+    "competing_processes": [],
+    "available_bytes": 381730480128,
+    "required_bytes": 236223201280,
+    "elapsed_seconds": 10.101713895099238,
+    "cgroups": [
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-2027.scope",
+        "memory.max": "max",
+        "memory.current": "181805056",
+        "cpu.stat": "usage_usec 15739499554\nuser_usec 13258326713\nsystem_usec 2481172841\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+        "memory.max": "max",
+        "memory.current": "4830740480",
+        "cpu.stat": "usage_usec 296884650596\nuser_usec 263333602563\nsystem_usec 33551048032\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice",
+        "memory.max": "max",
+        "memory.current": "173485649920",
+        "cpu.max": "max 100000",
+        "cpu.stat": "usage_usec 5598084840422\nuser_usec 4234415169899\nsystem_usec 1363669670522\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup",
+        "cpu.stat": "usage_usec 5659767262000\nuser_usec 4264117247000\nsystem_usec 1395650015000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      }
+    ]
+  },
+  {
+    "utc": "2026-09-12T15:05:48Z",
+    "competing_processes": [],
+    "available_bytes": 380704985088,
+    "required_bytes": 236223201280,
+    "elapsed_seconds": 0.022839579032734036,
+    "cgroups": [
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-2027.scope",
+        "memory.max": "max",
+        "memory.current": "186867712",
+        "cpu.stat": "usage_usec 16493342786\nuser_usec 13951960792\nsystem_usec 2541381993\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+        "memory.max": "max",
+        "memory.current": "4835520512",
+        "cpu.stat": "usage_usec 297638542746\nuser_usec 264027464572\nsystem_usec 33611078174\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice",
+        "memory.max": "max",
+        "memory.current": "173670424576",
+        "cpu.max": "max 100000",
+        "cpu.stat": "usage_usec 5599155519922\nuser_usec 4235379669070\nsystem_usec 1363775850852\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup",
+        "cpu.stat": "usage_usec 5660832280000\nuser_usec 4265076228000\nsystem_usec 1395756052000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      }
+    ]
+  },
+  {
+    "utc": "2026-09-12T15:05:53Z",
+    "competing_processes": [],
+    "available_bytes": 380962529280,
+    "required_bytes": 236223201280,
+    "elapsed_seconds": 5.057900568004698,
+    "cgroups": [
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-2027.scope",
+        "memory.max": "max",
+        "memory.current": "184152064",
+        "cpu.stat": "usage_usec 16493372787\nuser_usec 13951979779\nsystem_usec 2541393008\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+        "memory.max": "max",
+        "memory.current": "4832993280",
+        "cpu.stat": "usage_usec 297638613396\nuser_usec 264027495109\nsystem_usec 33611118287\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice",
+        "memory.max": "max",
+        "memory.current": "173679984640",
+        "cpu.max": "max 100000",
+        "cpu.stat": "usage_usec 5599231339069\nuser_usec 4235446323287\nsystem_usec 1363785015781\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup",
+        "cpu.stat": "usage_usec 5660908374000\nuser_usec 4265143008000\nsystem_usec 1395765366000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      }
+    ]
+  },
+  {
+    "utc": "2026-09-12T15:05:58Z",
+    "competing_processes": [],
+    "available_bytes": 381307781120,
+    "required_bytes": 236223201280,
+    "elapsed_seconds": 10.093491683946922,
+    "cgroups": [
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-2027.scope",
+        "memory.max": "max",
+        "memory.current": "184115200",
+        "cpu.stat": "usage_usec 16493503450\nuser_usec 13952076462\nsystem_usec 2541426987\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+        "memory.max": "max",
+        "memory.current": "4832956416",
+        "cpu.stat": "usage_usec 297638745060\nuser_usec 264027592787\nsystem_usec 33611152272\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice",
+        "memory.max": "max",
+        "memory.current": "173352919040",
+        "cpu.max": "max 100000",
+        "cpu.stat": "usage_usec 5599291530244\nuser_usec 4235498679554\nsystem_usec 1363792850690\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup",
+        "cpu.stat": "usage_usec 5660968799000\nuser_usec 4265195461000\nsystem_usec 1395773338000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      }
+    ]
+  },
+  {
+    "utc": "2026-09-12T15:06:16Z",
+    "competing_processes": [],
+    "available_bytes": 383138353152,
+    "required_bytes": 236223201280,
+    "elapsed_seconds": 0.013304186053574085,
+    "cgroups": [
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-2027.scope",
+        "memory.max": "max",
+        "memory.current": "184864768",
+        "cpu.stat": "usage_usec 17177962205\nuser_usec 14572019218\nsystem_usec 2605942986\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+        "memory.max": "max",
+        "memory.current": "4833513472",
+        "cpu.stat": "usage_usec 298323249305\nuser_usec 264647599675\nsystem_usec 33675649629\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice",
+        "memory.max": "max",
+        "memory.current": "172957044736",
+        "cpu.max": "max 100000",
+        "cpu.stat": "usage_usec 5600185764272\nuser_usec 4236297750869\nsystem_usec 1363888013403\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup",
+        "cpu.stat": "usage_usec 5661861066000\nuser_usec 4265992310000\nsystem_usec 1395868756000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      }
+    ]
+  },
+  {
+    "utc": "2026-09-12T15:06:21Z",
+    "competing_processes": [],
+    "available_bytes": 383153905664,
+    "required_bytes": 236223201280,
+    "elapsed_seconds": 5.033893192885444,
+    "cgroups": [
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-2027.scope",
+        "memory.max": "max",
+        "memory.current": "182915072",
+        "cpu.stat": "usage_usec 17177977222\nuser_usec 14572028224\nsystem_usec 2605948998\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+        "memory.max": "max",
+        "memory.current": "4831637504",
+        "cpu.stat": "usage_usec 298323307988\nuser_usec 264647625248\nsystem_usec 33675682739\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice",
+        "memory.max": "max",
+        "memory.current": "173249163264",
+        "cpu.max": "max 100000",
+        "cpu.stat": "usage_usec 5600267729077\nuser_usec 4236369710002\nsystem_usec 1363898019074\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup",
+        "cpu.stat": "usage_usec 5661943426000\nuser_usec 4266064334000\nsystem_usec 1395879092000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      }
+    ]
+  },
+  {
+    "utc": "2026-09-12T15:06:26Z",
+    "competing_processes": [],
+    "available_bytes": 383234572288,
+    "required_bytes": 236223201280,
+    "elapsed_seconds": 10.054407429881394,
+    "cgroups": [
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-2027.scope",
+        "memory.max": "max",
+        "memory.current": "182046720",
+        "cpu.stat": "usage_usec 17177993196\nuser_usec 14572038193\nsystem_usec 2605955002\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+        "memory.max": "max",
+        "memory.current": "4830703616",
+        "cpu.stat": "usage_usec 298323323961\nuser_usec 264647635220\nsystem_usec 33675688741\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice",
+        "memory.max": "max",
+        "memory.current": "173219463168",
+        "cpu.max": "max 100000",
+        "cpu.stat": "usage_usec 5600351340479\nuser_usec 4236442805394\nsystem_usec 1363908535085\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup",
+        "cpu.stat": "usage_usec 5662027279000\nuser_usec 4266137530000\nsystem_usec 1395889749000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      }
+    ]
+  },
+  {
+    "utc": "2026-09-12T15:06:50Z",
+    "competing_processes": [],
+    "available_bytes": 378882101248,
+    "required_bytes": 236223201280,
+    "elapsed_seconds": 0.013614078052341938,
+    "cgroups": [
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-2027.scope",
+        "memory.max": "max",
+        "memory.current": "182648832",
+        "cpu.stat": "usage_usec 17868862402\nuser_usec 14972255847\nsystem_usec 2896606554\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+        "memory.max": "max",
+        "memory.current": "4831498240",
+        "cpu.stat": "usage_usec 299014313512\nuser_usec 265048035209\nsystem_usec 33966278303\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice",
+        "memory.max": "max",
+        "memory.current": "169444941824",
+        "cpu.max": "max 100000",
+        "cpu.stat": "usage_usec 5601437516594\nuser_usec 4237183409407\nsystem_usec 1364254107187\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup",
+        "cpu.stat": "usage_usec 5663116094000\nuser_usec 4266878738000\nsystem_usec 1396237356000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      }
+    ]
+  },
+  {
+    "utc": "2026-09-12T15:06:55Z",
+    "competing_processes": [],
+    "available_bytes": 378956943360,
+    "required_bytes": 236223201280,
+    "elapsed_seconds": 5.0342995470855385,
+    "cgroups": [
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-2027.scope",
+        "memory.max": "max",
+        "memory.current": "181776384",
+        "cpu.stat": "usage_usec 17868879823\nuser_usec 14972266353\nsystem_usec 2896613470\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+        "memory.max": "max",
+        "memory.current": "4830560256",
+        "cpu.stat": "usage_usec 299014330137\nuser_usec 265048045872\nsystem_usec 33966284265\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice",
+        "memory.max": "max",
+        "memory.current": "169006018560",
+        "cpu.max": "max 100000",
+        "cpu.stat": "usage_usec 5601519999284\nuser_usec 4237255944883\nsystem_usec 1364264054401\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup",
+        "cpu.stat": "usage_usec 5663199059000\nuser_usec 4266951337000\nsystem_usec 1396247722000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      }
+    ]
+  },
+  {
+    "utc": "2026-09-12T15:07:00Z",
+    "competing_processes": [],
+    "available_bytes": 379312140288,
+    "required_bytes": 236223201280,
+    "elapsed_seconds": 10.054018734022975,
+    "cgroups": [
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-2027.scope",
+        "memory.max": "max",
+        "memory.current": "181780480",
+        "cpu.stat": "usage_usec 17868895495\nuser_usec 14972274066\nsystem_usec 2896621429\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+        "memory.max": "max",
+        "memory.current": "4830437376",
+        "cpu.stat": "usage_usec 299014346564\nuser_usec 265048054357\nsystem_usec 33966292207\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice",
+        "memory.max": "max",
+        "memory.current": "169096589312",
+        "cpu.max": "max 100000",
+        "cpu.stat": "usage_usec 5601601986729\nuser_usec 4237328091372\nsystem_usec 1364273895356\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup",
+        "cpu.stat": "usage_usec 5663281486000\nuser_usec 4267023539000\nsystem_usec 1396257947000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      }
+    ]
+  },
+  {
+    "utc": "2026-09-12T15:07:37Z",
+    "competing_processes": [],
+    "available_bytes": 380034056192,
+    "required_bytes": 236223201280,
+    "elapsed_seconds": 0.00878033903427422,
+    "cgroups": [
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-2027.scope",
+        "memory.max": "max",
+        "memory.current": "185978880",
+        "cpu.stat": "usage_usec 19372473576\nuser_usec 16313299203\nsystem_usec 3059174373\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+        "memory.max": "max",
+        "memory.current": "4834680832",
+        "cpu.stat": "usage_usec 300518056188\nuser_usec 266389443122\nsystem_usec 34128613066\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice",
+        "memory.max": "max",
+        "memory.current": "169552011264",
+        "cpu.max": "max 100000",
+        "cpu.stat": "usage_usec 5603699006429\nuser_usec 4239181388747\nsystem_usec 1364517617681\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup",
+        "cpu.stat": "usage_usec 5665368971000\nuser_usec 4268868237000\nsystem_usec 1396500734000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      }
+    ]
+  },
+  {
+    "utc": "2026-09-12T15:07:42Z",
+    "competing_processes": [],
+    "available_bytes": 380173910016,
+    "required_bytes": 236223201280,
+    "elapsed_seconds": 5.026236142031848,
+    "cgroups": [
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-2027.scope",
+        "memory.max": "max",
+        "memory.current": "183812096",
+        "cpu.stat": "usage_usec 19372529452\nuser_usec 16313329580\nsystem_usec 3059199871\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+        "memory.max": "max",
+        "memory.current": "4832464896",
+        "cpu.stat": "usage_usec 300518112394\nuser_usec 266389474940\nsystem_usec 34128637453\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice",
+        "memory.max": "max",
+        "memory.current": "169594617856",
+        "cpu.max": "max 100000",
+        "cpu.stat": "usage_usec 5603782641804\nuser_usec 4239254693619\nsystem_usec 1364527948184\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup",
+        "cpu.stat": "usage_usec 5665452790000\nuser_usec 4268941610000\nsystem_usec 1396511180000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      }
+    ]
+  },
+  {
+    "utc": "2026-09-12T15:07:47Z",
+    "competing_processes": [],
+    "available_bytes": 380462489600,
+    "required_bytes": 236223201280,
+    "elapsed_seconds": 10.0512205271516,
+    "cgroups": [
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-2027.scope",
+        "memory.max": "max",
+        "memory.current": "183537664",
+        "cpu.stat": "usage_usec 19372550003\nuser_usec 16313344037\nsystem_usec 3059205966\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+        "memory.max": "max",
+        "memory.current": "4832190464",
+        "cpu.stat": "usage_usec 300518133036\nuser_usec 266389488504\nsystem_usec 34128644532\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice",
+        "memory.max": "max",
+        "memory.current": "169376706560",
+        "cpu.max": "max 100000",
+        "cpu.stat": "usage_usec 5603865592769\nuser_usec 4239327250934\nsystem_usec 1364538341834\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup",
+        "cpu.stat": "usage_usec 5665535973000\nuser_usec 4269014248000\nsystem_usec 1396521725000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      }
+    ]
+  },
+  {
+    "utc": "2026-09-12T15:08:19Z",
+    "competing_processes": [],
+    "available_bytes": 383139799040,
+    "required_bytes": 236223201280,
+    "elapsed_seconds": 0.008765594102442265,
+    "cgroups": [
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-2027.scope",
+        "memory.max": "max",
+        "memory.current": "185622528",
+        "cpu.stat": "usage_usec 20818130461\nuser_usec 17646811522\nsystem_usec 3171318938\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+        "memory.max": "max",
+        "memory.current": "4834275328",
+        "cpu.stat": "usage_usec 301963832900\nuser_usec 267722946635\nsystem_usec 34240886264\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice",
+        "memory.max": "max",
+        "memory.current": "169111601152",
+        "cpu.max": "max 100000",
+        "cpu.stat": "usage_usec 5605838868011\nuser_usec 4241114999694\nsystem_usec 1364723868316\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup",
+        "cpu.stat": "usage_usec 5667505783000\nuser_usec 4270798336000\nsystem_usec 1396707447000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      }
+    ]
+  },
+  {
+    "utc": "2026-09-12T15:08:24Z",
+    "competing_processes": [],
+    "available_bytes": 383164928000,
+    "required_bytes": 236223201280,
+    "elapsed_seconds": 5.035924438154325,
+    "cgroups": [
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-2027.scope",
+        "memory.max": "max",
+        "memory.current": "183709696",
+        "cpu.stat": "usage_usec 20818152483\nuser_usec 17646823523\nsystem_usec 3171328959\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+        "memory.max": "max",
+        "memory.current": "4832362496",
+        "cpu.stat": "usage_usec 301963854922\nuser_usec 267722958646\nsystem_usec 34240896276\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice",
+        "memory.max": "max",
+        "memory.current": "169159086080",
+        "cpu.max": "max 100000",
+        "cpu.stat": "usage_usec 5605920431864\nuser_usec 4241186660557\nsystem_usec 1364733771307\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup",
+        "cpu.stat": "usage_usec 5667587496000\nuser_usec 4270870045000\nsystem_usec 1396717451000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      }
+    ]
+  },
+  {
+    "utc": "2026-09-12T15:08:29Z",
+    "competing_processes": [],
+    "available_bytes": 382843260928,
+    "required_bytes": 236223201280,
+    "elapsed_seconds": 10.067154994001612,
+    "cgroups": [
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-2027.scope",
+        "memory.max": "max",
+        "memory.current": "183259136",
+        "cpu.stat": "usage_usec 20818178483\nuser_usec 17646836499\nsystem_usec 3171341984\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+        "memory.max": "max",
+        "memory.current": "4831911936",
+        "cpu.stat": "usage_usec 301963880922\nuser_usec 267722971633\nsystem_usec 34240909289\ncore_sched.force_idle_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup/user.slice",
+        "memory.max": "max",
+        "memory.current": "169390333952",
+        "cpu.max": "max 100000",
+        "cpu.stat": "usage_usec 5606004978814\nuser_usec 4241260550430\nsystem_usec 1364744428384\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      },
+      {
+        "path": "/sys/fs/cgroup",
+        "cpu.stat": "usage_usec 5667672262000\nuser_usec 4270944015000\nsystem_usec 1396728247000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0"
+      }
+    ]
+  }
+]

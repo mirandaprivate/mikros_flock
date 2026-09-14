@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "python3",
+    "/home/mscong1/mikros-experiments/20260912T-native64/v3/source/mikros/server_experiments/run_server_64.py",
+    "--root",
+    "/home/mscong1/mikros-experiments/20260912T-native64/v3",
+    "--skip-build",
+    "--results-name",
+    "candidate",
+    "--systems",
+    "native,factored,flock",
+    "--logs",
+    "30",
+    "--runs",
+    "6",
+    "--profile"
+  ],
+  "utc": "2026-09-12T08:18:54.068205+00:00"
+}

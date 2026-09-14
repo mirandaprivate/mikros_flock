@@ -1,0 +1,399 @@
+\section{Introduction}
+
+A succinct non-interactive argument of knowledge (SNARK) allows a
+prover to establish knowledge of a witness using a short proof that
+can be verified much faster than the computation it
+certifies~\cite{innovations/BitanskyCCT12}.
+SNARKs enable efficient verification of computations performed by
+untrusted parties; their zero-knowledge variants additionally
+hide the witness (see, \eg,~\cite{tcc/BootleCG20,%
+eurocrypt/BootleCL22,%
+eurocrypt/BuenzFS20,%
+eurocrypt/ChenBBZ23,%
+eurocrypt/ChiesaHMMVW20,%
+eurocrypt/ChiesaOS20,%
+iacr/GabizonWC19,%
+crypto/GolovnevLSTW23,%
+eurocrypt/Groth16,%
+crypto/Setty20,%
+iacr/SettyL20}).
+The prover's cost of producing these SNARK proofs, however, can substantially
+exceed the cost of the computation itself.
+
+The prover's use of a large working field is a major source
+of this proving overhead.
+Many efficient SNARKs combine a polynomial interactive oracle
+proof (PIOP) with a polynomial commitment scheme
+(PCS)~\cite{tcc/Ben-SassonCS16,eurocrypt/BunzFS20,%
+eurocrypt/ChiesaHMMVW20,iacr/GabizonWC19,ccs/MallerBKM19}.
+The circuit-satisfiability (Circ-SAT) relation is encoded as low-degree
+polynomial identities.
+In multilinear constructions, the PIOP uses random challenges
+to reduce these identities to evaluation claims about the
+multilinear extensions (MLEs) of the witness vectors, which
+the PCS then authenticates.
+To achieve the target soundness error, these protocols use
+a challenge field sufficiently large relative to the polynomial
+degrees, even when the witness entries fit in a much smaller field.
+Arithmetic involving these challenges produces intermediate
+values in the larger field, increasing both prover time
+and memory usage.
+
+Small fields and low-bit-width integers arise naturally in many modern
+applications of SNARKs.
+First, a growing body of zero-knowledge machine learning (zkML)
+research generates SNARK proofs for neural-network (NN) computations
+(\eg,~\cite{ccs/Balbas0VRS23,%
+asiacrypt/CCYY25,%
+nips/GhodsiGG17,%
+iacr/GuoGQZ25,%
+esorics/KeufferMC18,%
+uss/Weng0XK021,%
+ccs/LiuXZ21,%
+iacr/FengQZDC21,%
+corr/KangHSS22,%
+ccs/GargGJMMPW23,%
+tifs/WengWTYL23,%
+tdsc/LeeKKO24,%
+ccs/SunLZ24,%
+ccs/AbbaszadehPK024,%
+popets/WangH23,%
+icml/WaiwitlikhitS0H24,%
+sp/QuGYZ26,%
+ccs/RiasiWBVH25,%
+uss/GuoLHQTZ25,%
+uss/0001SLLGCZ25}).
+Modern production-grade NNs commonly use low-precision (\eg, 8-bit)
+representations~\cite{corr/micikevicius22}.
+Second, a recent line of work combines SNARKs with fully homomorphic
+encryption (FHE) to achieve verifiable computation on encrypted
+data (\eg, ~\cite{ccs/FioreGP14,%
+pkc/FioreNP20,%
+pkc/BoisCFK21,%
+joc/GaneshNS23,%
+cic/AtapoorBPS24,%
+wahc/KnabenhansVMH24,%
+crypto/GargGW24,%
+asiacrypt/AranhaCGS25,%
+crypto/CascudoCCFGS25,%
+ccs/ThibaultW25,%
+cic/GamaBKSV25,%
+ccs/ZhangWLXDFL25,%
+iacr/PeshawariaLFT25}).
+FHE schemes often exploit small-field arithmetic, with plaintext
+coordinates in fields such as
+\(\mathbb{F}_{65537}\)~\cite{asiacrypt/AranhaCGS25}
+and ciphertext coefficients represented via the Chinese remainder
+theorem (CRT) over 30--60-bit prime fields.
+
+For computations over small fields, we seek prover time and
+memory usage that scale proportionally with the bit width of the base field
+rather than that of the soundness field, a property we call
+\emph{bitwidth awareness}.
+In elliptic-curve-based PCSs such as KZG, Hyrax, and
+Dory~\cite{asiacrypt/KateZG10,sp/WahbyTSTW18,tcc/Lee21},
+short scalars reduce the number of group operations in the
+multiscalar multiplications used to generate
+commitments~\cite{eurocrypt/SettyTW24}.
+Hash-based constructions exploit binary-field packing and
+ring-switching to commit to small-field polynomials without
+representing each input value as a full extension-field
+element~\cite{eurocrypt/DiamondP25,eurocrypt/DiamondP26}.
+Extending these savings to the PIOP layer is more difficult:
+random challenges turn small-field inputs into extension-field
+intermediate values.
+Small-field-first algorithms, constraint packing, and related
+sum-check optimizations substantially reduce this
+overhead~\cite{iacr/BagadDT24,iacr/DaoT24,iacr/Gruen24,%
+iacr/BagadDDT25,iacr/DaoDBDT26}.
+After \(t\) optimized rounds, a conventional sum-check tail
+operates on tables of length \(N/2^t\) and, for fixed product
+degree \(d\geq2\), performs \(\Theta(N/2^t)\) extension-field
+multiplications~\cite{crypto/Thaler13,iacr/BagadDT24}.
+In a degree-\(\kappa\) extension represented in a polynomial basis,
+schoolbook multiplication uses \(\Theta(\kappa^2)\) base-field
+multiplications~\cite{iacr/BagadDT24}.
+Increasing \(t\) reduces this tail at the expense of the work
+in the optimized phase; \(t\) may depend on \(\kappa\).
+The prover's total cost therefore depends on both phases.
+
+Field agnosticism does not imply bitwidth awareness.
+Field-agnostic constructions such as Brakedown and BaseFold
+remove structural restrictions on the arithmetic field, but not
+the field-size requirements imposed by
+soundness~\cite{crypto/GolovnevLSTW23,crypto/ZeilbergerCF24}.
+Their algebraic checks still rely on a sufficiently large
+challenge field to achieve the target soundness error.
+Supporting a small base field therefore does not by itself
+ensure that challenge-dependent arithmetic and intermediate
+storage retain the cost advantages of the low-bit-width witness~\cite{eurocrypt/DiamondP26,iacr/BagadDDT25}.
+We therefore ask:
+\begin{quote}
+\emph{Can a SNARK achieve bitwidth-aware prover time and memory
+usage while drawing its soundness challenges from a large field?}
+\end{quote}
+
+\smallskip\noindent\textbf{Our result.}
+Let $\lambda$ be the security parameter, and consider an $N$-gate
+arithmetic circuit over a small field of order $q$.
+We choose a packing factor $\kappa\simeq\lambda/\log_2 q$,
+subject to $\kappa\le q$; for fixed $\lambda$, $\kappa$ scales
+inversely with the base-field bit width $\log_2 q$.
+For a single instance, our prover uses
+$O(\kappa N(\log_q N)^2)$ base-field operations and stores
+$O(N\log_q N)$ base-field elements.
+For a batch of $\kappa$ instances of the same circuit, the
+amortized costs decrease to $O(\kappa N)$ base-field operations
+and $O(N)$ base-field elements of memory per instance.
+Under schoolbook arithmetic, multiplication in a degree-$\kappa$
+extension costs $\Theta(\kappa^2)$ base-field operations, while
+each extension-field element occupies $\kappa$ base-field
+coordinates.
+Thus, the amortized per-instance complexity corresponds to
+$O(N/\kappa)$ extension-field multiplication equivalents and
+the storage occupied by $O(N/\kappa)$ extension-field elements.
+
+\smallskip\noindent{\bf Our core technique.}
+Our \methodname framework is built on a novel technique called \emph{vector polynomial
+packing}.
+In the base-field instantiations, we partition a length-\(N=m\kappa\) vector over \(\Field\)
+into \(\kappa\) blocks of length \(m\), and encode these blocks
+as a length-\(m\) vector of polynomials using \(\kappa\)
+linearly independent polynomials in \(\Field[X]\), each of
+degree at most \(\kappa-1\).
+This encoding expresses the original vector relation as a
+low-degree polynomial identity involving length-\(m\) polynomial vectors.
+Evaluating this identity at a uniformly random point
+\(\ext{x}\in\ExtensionField\), where
+\([\ExtensionField:\Field]=\kappa\), reduces it to a
+length-\(m\) vector relation over \(\ExtensionField\).
+For our inner- and Hadamard-product instantiations, an appropriate
+choice of packing polynomials allows the prover to establish
+the reduced claim using \(O(\kappa N)\) base-field operations.
+
+We further show how to commit to a length-\(N\) vector over
+\(\Field\) by packing its entries into a length-\(m\) vector
+over \(\ExtensionField\) and committing to it using any
+compatible PCS over \(\ExtensionField\).
+Combining this packed PCS with our packed inner- and Hadamard-product protocol and
+a bitwidth-aware permutation argument yields a bitwidth-aware
+SNARK for the PLONK constraint system~\cite{iacr/GabizonWC19} of circuit satisfiability.
+
+
+\smallskip\noindent{\bf Concrete performance.}
+Our component benchmarks compare the packed reductions with a
+small-field-first baseline. At \(N=2^{30}\) over an 8-bit base
+field, the measured prover speedups are \(5.60\times\) for inner
+products and \(4.31\times\) for Hadamard products, with a
+\(4.48\times\) reduction in resident memory for both.
+These measurements include packing and witness-dependent
+preprocessing, and exclude commitments and PCS openings.
+Section~\ref{sec:experiment} reports the full comparison across
+8-, 16-, 32-, and 64-bit configurations and the measurement procedure.
+
+
+\subsection{Related Work}
+\label{sec:related-work}
+
+\noindent{\bf PIOP--PCS framework for SNARKs.}
+Mainstream SNARKs combine a polynomial interactive oracle
+proof (PIOP) with a polynomial commitment scheme
+(PCS)~\cite{eurocrypt/BunzFS20,eurocrypt/ChiesaHMMVW20}.
+In this framework, circuit satisfiability is arithmetized as linear
+constraints, such as rank-one constraint systems
+(R1CS)~\cite{eurocrypt/GennaroGP013} or PLONK-style constraints~\cite{iacr/GabizonWC19,eurocrypt/ChenBBZ23},
+which are then encoded as polynomial identities.
+The PIOP uses random verifier challenges to reduce verification
+of these identities to polynomial evaluation claims, and the
+PCS authenticates the claimed evaluations against committed
+polynomials~\cite{asiacrypt/KateZG10,tcc/PapamanthouST13}.
+The Fiat--Shamir transform makes the resulting argument non-interactive in the
+random-oracle model~\cite{crypto/FiatS86,tcc/Ben-SassonCS16}.
+
+Early arithmetizations encoded constraints using univariate
+polynomials~\cite{eurocrypt/GennaroGP013,cacm/ParnoHG016,iacr/GabizonWC19},
+whereas subsequent works increasingly adopted multilinear extensions
+(MLEs) over the Boolean hypercube~\cite{sp/WahbyTSTW18,crypto/XieZZPS19,crypto/Setty20,eurocrypt/ChenBBZ23}.
+At the PIOP layer, polynomial identities arising from MLE-based
+arithmetizations are typically reduced to sumcheck claims.
+The sumcheck protocol was introduced by
+Lund \etal~\cite{jacm/LundFKN92} and subsequently developed into a
+fundamental building block for efficient proof
+systems~\cite{jacm/GoldwasserKR15,crypto/Thaler13}.
+A PCS then binds the prover to the oracle
+polynomials and proves the evaluation claims produced by the PIOP.
+Our work follows this PIOP--PCS framework and develops
+bitwidth-aware techniques for the PIOP layer.
+
+\medskip
+\noindent{\bf Bitwidth-aware PCS constructions.}
+Group-based PCSs~\cite{asiacrypt/KateZG10,tcc/PapamanthouST13,%
+sp/BunzBBPWM18,sp/WahbyTSTW18,tcc/Lee21,asiacrypt/BunzMMTV21}
+commit to polynomial coefficients or evaluation vectors using
+multiscalar multiplications (MSMs).
+MSM algorithms can exploit short integer scalars, making
+commitment generation sensitive to input bit
+width~\cite{eurocrypt/SettyTW24}.
+Opening costs depend on the construction: for a size-$N$ polynomial, Dory requires
+\(O(\sqrt{N})\) group operations and \(O(N)\) scalar-field
+operations~\cite{tcc/Lee21,eurocrypt/SettyTW24}, where
+multiplications between short witness entries and full-width
+weights can benefit from bitwidth-aware arithmetic.
+
+Hash-based PCSs~\cite{icalp/Ben-SassonBHR18,crypto/ArnonCFY24,%
+eurocrypt/ArnonCFY25,iacr/KohritaT23,ccs/AmesHIYM17,%
+focs/Ben-SassonCIKS20,crypto/GolovnevLSTW23,crypto/XieZS22,%
+crypto/BlockFK24,iacr/LiLXYY26,crypto/ZeilbergerCF24,%
+usenix/GuoLHQTZ25,eurocrypt/BrehmCFRRZ25,%
+asiacrypt/NariST25,iacr/BunzFRW25}
+commit to linear encodings of polynomial coefficient or
+evaluation vectors using Merkle trees.
+Their opening protocols combine algebraic consistency checks
+with authenticated queries to the encoded vectors, using
+code distance to detect inconsistencies.
+When encoding is performed over a large field, short inputs
+can produce full-width codeword symbols, so commitment
+generation does not automatically benefit from low input
+bit width.
+Recent constructions avoid this large-field embedding
+overhead for small-field polynomials.
+Binius~\cite{eurocrypt/DiamondP25} adapts Brakedown to
+multilinear commitments over binary towers without
+coefficient-wise embedding overhead.
+FRI-Binius~\cite{iacr/BenjaminDP24} combines the binary tower of Binius with binary-field FRI and BaseFold,
+achieving polylogarithmic proof size and verifier complexity.
+Ring-switching generalizes this approach by reducing small-field
+multilinear openings to openings of packed polynomials over
+an extension field.
+By packing \(\kappa\) base-field coordinates into each element
+of a degree-\(\kappa\) extension, it transforms an extension-field
+multilinear PCS into a small-field PCS whose commitment cost
+matches that of the underlying scheme on inputs of the same
+bit size.
+
+\input{tab/tab-hadamard}
+\medskip
+\noindent{\bf Low-bit-width PIOP optimizations.}
+In sumcheck-based PIOPs, random challenges produce
+extension-field intermediate values even when the witnesses
+lie in a small base field.
+Existing approaches reduce this overhead in several ways.
+
+Small-field-first methods precompute products over the base
+field and postpone extension-field arithmetic, but switching
+to conventional sumcheck after \(t\) optimized rounds still
+leaves \(\Theta(N/2^t)\) extension-field multiplications for
+fixed product degree \(d\geq 2\), while increasing \(t\)
+requires more base-field
+preprocessing~\cite{iacr/BagadDT24,iacr/BagadDDT25,iacr/DaoDBDT26}.
+Gruen's univariate-skipping technique replaces several initial
+rounds with one higher-degree check, reducing prover work
+at the cost of higher-degree verifier
+interpolation~\cite{iacr/Gruen24}.
+Flock applies univariate skipping to batched Boolean computations
+and computes binary-input low-degree extensions using chunked
+lookup tables~\cite{iacr/BunzRW26}. It compresses these tables
+using translation invariance, improving cache locality without
+changing the number of vector XORs. Its zerocheck also uses
+fixed equality weights and aggregates the linear output term
+before interpolation.
+
+Binary-tower constraint packing combines base-field constraints
+using linearly independent extension-field
+weights~\cite{eurocrypt/DiamondP25,iacr/DaoT24}.
+Dao and Thaler~\cite{iacr/DaoT24} use inexpensive multiplication
+by tower generators to reduce equality-table construction to
+approximately \(N/\kappa\) general extension-field multiplications,
+but their direct variable elimination requires individual
+degree one and therefore does not yield the same bound for
+proving general quadratic relations.
+Liu and Zhang~\cite{iacr/LiuZ25} specialize sumcheck to Boolean
+inputs over binary towers, achieving \(O(\kappa^{3/2}N)\)
+prover time under quadratic multiplication costs, but this
+bound relies on the binary tower structure over
+\(\mathbb{F}_2\).
+
+
+Reverse multiplication-friendly embeddings allow coordinatewise
+Boolean products to be recovered from packed extension-field
+products, but the resulting Boolean R1CS protocols also require
+specialized checks of linear relations modulo a
+subspace~\cite{iacr/CascudoG21}.
+
+Packed sumcheck instead keeps computation in a small prime
+field by combining parallel repetition with folding, but
+the larger soundness error of individual small-field checks
+requires additional work for soundness amplification and
+for combining the repeated
+claims~\cite{iacr/WeiWXZDWZ25}.
+
+
+\medskip
+\noindent{\bf Relation to our work.}
+Our work combines packing at the relation and commitment layers.
+For inner and Hadamard products, vector polynomial packing
+encodes operand blocks as row polynomials and uses auxiliary
+polynomials to account for cross-column products.
+In the base-field instantiations, the prover computes row
+products over \(\Field\), then evaluates at a random point in
+\(\ExtensionField\) to reduce
+the length-\(N\) claim to a length-\(N/\kappa\) inner-product
+claim.
+Our packed opening protocol authenticates these
+challenge-dependent operands against a fixed-basis witness
+commitment.
+Together with a packed permutation argument, these components
+support PLONK constraints while maintaining compact witness
+representations.
+Sections~\ref{sec:overview} and~\ref{sec:pcs} describe the
+reductions and their commitment interface.
+For \(|\Field|<\kappa\) and power-of-two \(\kappa\), our
+univariate Hadamard construction
+uses an intermediate field and interpolates only after weighted
+aggregation. Combining blockwise linear-map tables, as used for
+binary LDEs in Flock~\cite{iacr/BunzRW26}, with intermediate-field
+multiplication tables yields \(O(N\kappa+\kappa^3)\) online
+base-field operations. The construction and its table costs
+are given in Section~\ref{sec:hadamard}.
+
+
+\subsection{Our Contributions}
+
+\noindent\textbf{Vector polynomial packing.}
+    We introduce a technique that reduces length-\(N=m\kappa\)
+    inner- and Hadamard-product relations over \(\Field\) to
+    length-\(m\) inner-product relations over a degree-\(\kappa\)
+    extension \(\ExtensionField\).
+    In the base-field instantiations, the prover multiplies row polynomials over \(\Field\) before
+    evaluating them at an extension-field challenge.
+    This keeps the polynomial-product computation in the small field
+    and confines the ensuing extension-field proof to vectors shorter
+    by a factor of \(\kappa\).
+
+\medskip \noindent \textbf{End-to-end bitwidth-aware construction.}
+    We compose our packed reductions and permutation argument with
+    a compatible bitwidth-aware PCS through ring-switching-based
+    openings to obtain arguments for PLONK-style circuit satisfiability.
+    We give constructions for both a single instance and a batch of
+    instances of the same circuit.
+    Packing across instances preserves the shared linear constraints,
+    yielding lower amortized prover costs.
+    Section~\ref{sec:together} gives soundness and efficiency bounds
+    for both compositions, including their dependence on the
+    underlying PCS.
+
+\medskip\noindent \textbf{Independently useful Hadamard-product and permutation proofs.}
+    Our bitwidth-aware protocols for coordinatewise multiplication
+    and multiset equality apply beyond the circuit arithmetization
+    considered here.
+    For \(q=|\Field|<\kappa\), a tabulated intermediate-field
+    Hadamard reduction uses \(O(N\kappa)\) online base-field
+    operations and \(O(N)\) working base-field coordinates,
+    assuming \(\kappa\) is a power of two and \(N\geq\kappa^2\).
+    It retains the original witness commitments; its reusable
+    tables and their preprocessing costs are accounted for
+    separately in Section~\ref{sec:hadamard}.
+    The permutation proof uses packed Hadamard checks to verify
+    grand-product identities while retaining compact witness storage.
+    It also provides a reusable component for permutation-based
+    lookup arguments.

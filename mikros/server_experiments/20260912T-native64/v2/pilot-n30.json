@@ -1,0 +1,273 @@
+{
+  "schema_version": 1,
+  "metadata": {
+    "arch": "x86_64",
+    "compiled_target_features": [
+      "aes",
+      "pclmulqdq",
+      "sse4.1",
+      "gfni",
+      "avx2",
+      "avx512f",
+      "avx512bw",
+      "avx512vbmi",
+      "vpclmulqdq"
+    ],
+    "cpu": "Intel(R) Xeon(R) Gold 6342 CPU @ 2.80GHz",
+    "git_dirty": null,
+    "git_revision": null,
+    "git_status": null,
+    "grinding": "disabled for both; no equal-128-bit-security claim",
+    "input": "deterministic packed uniform a,b; c=a&b; same per-run triple and observed BLAKE3 input digest for all systems",
+    "logs": [
+      30
+    ],
+    "measured_setup": {
+      "isolated_table_setup_ms": null,
+      "policy": "warmup samples include first-proof setup; no setup costs subtracted from prover timing"
+    },
+    "memory": "Linux-only process VmHWM after prove and before verify/input checks; includes inputs, runtime and tables; requires --rss with one system/dimension in a fresh process; unavailable elsewhere",
+    "mikros_kernel_variants": "reference: scalar oracle; lookup: original per-row LUT; packed8: eight-row blocks; packed: selected packed blocks; both packed variants use fused binding and fused IP tail",
+    "mikros_phase_profiling": true,
+    "mikros_sources_blake3": "8ffd7c29d07672e89acc7ab6cb443558c9c6553c46c8fdc719ed2e405103371e",
+    "mode": "paired_warm_timing",
+    "native_ablation_variants": "legacy: old64; stream: streamed tensor; simd: GFNI tensor; wide: plus VPCLMUL IP; fused: plus packing/initial-message and C projection; native: plus blocked row weights; reuse: native with persistent allocation capacity",
+    "os": "linux",
+    "proof_digest": "BLAKE3 of bincode proof outside all timings; identical Mikros kernels must have identical digests on paired input",
+    "rayon_actual_threads": 64,
+    "repository_default_rustflags": "-C target-cpu=native",
+    "runs": 1,
+    "rustc": "rustc 1.96.0-nightly (ac7f9ec7d 2026-03-20); binary: rustc; commit-hash: ac7f9ec7da74d37fd28667c86bf117a39ba5b02a; commit-date: 2026-03-20; host: x86_64-unknown-linux-gnu; release: 1.96.0-nightly; LLVM version: 22.1.0",
+    "scope": "PIOP reductions only; no PCS commitments or openings; every returned claim checked directly against original input outside timings",
+    "scratch_policy": "only reuse retains buffers across proofs; warmup stores first allocation; all witness/challenge-dependent contents rebuilt within prove; every other Mikros variant allocates fresh scratch per proof",
+    "systems": [
+      "native",
+      "reuse",
+      "flock"
+    ],
+    "threads": 64,
+    "timing": "input generation, digest, challenger initialization, serialization, direct input claim checks excluded; all per-proof work inside prove included",
+    "transcript_hash": "blake3",
+    "tuning_environment": {},
+    "unix_timestamp_seconds": 1789199541,
+    "warmups_per_system_per_dimension": 1
+  },
+  "summaries": [
+    {
+      "log_n": 30,
+      "constraints": 1073741824,
+      "system": "native",
+      "runs": 1,
+      "prover_ms": {
+        "median": 319.975217,
+        "min": 319.975217,
+        "max": 319.975217
+      },
+      "verifier_ms": {
+        "median": 0.153858,
+        "min": 0.153858,
+        "max": 0.153858
+      },
+      "input_claim_check_ms": {
+        "median": 13989.05295,
+        "min": 13989.05295,
+        "max": 13989.05295
+      },
+      "payload_field_elements": 2236,
+      "payload_field_bytes": 35776,
+      "bincode_bytes": 35800
+    },
+    {
+      "log_n": 30,
+      "constraints": 1073741824,
+      "system": "reuse",
+      "runs": 1,
+      "prover_ms": {
+        "median": 110.132814,
+        "min": 110.132814,
+        "max": 110.132814
+      },
+      "verifier_ms": {
+        "median": 0.222155,
+        "min": 0.222155,
+        "max": 0.222155
+      },
+      "input_claim_check_ms": {
+        "median": 13981.463883,
+        "min": 13981.463883,
+        "max": 13981.463883
+      },
+      "payload_field_elements": 2236,
+      "payload_field_bytes": 35776,
+      "bincode_bytes": 35800
+    },
+    {
+      "log_n": 30,
+      "constraints": 1073741824,
+      "system": "flock",
+      "runs": 1,
+      "prover_ms": {
+        "median": 143.926863,
+        "min": 143.926863,
+        "max": 143.926863
+      },
+      "verifier_ms": {
+        "median": 0.370644,
+        "min": 0.370644,
+        "max": 0.370644
+      },
+      "input_claim_check_ms": {
+        "median": 9266.076758000001,
+        "min": 9266.076758000001,
+        "max": 9266.076758000001
+      },
+      "payload_field_elements": 179,
+      "payload_field_bytes": 2864,
+      "bincode_bytes": 2896
+    }
+  ],
+  "warmups": [
+    {
+      "log_n": 30,
+      "system": "native",
+      "run": 0,
+      "order": 0,
+      "input_digest": "e527f65e39324179c618aa7530540274238543700a629a71045fa4afbc09fd34",
+      "prover_ms": 301.319606,
+      "verifier_ms": 0.143011,
+      "input_claim_check_ms": 14109.047031999999,
+      "payload_field_elements": 2236,
+      "payload_field_bytes": 35776,
+      "bincode_bytes": 35800,
+      "proof_digest": "8710edc4ff7a3dcb19be7982f6df1b054a973f07afbac485e2bb3a2d46c0388f",
+      "vm_rss_before_prove_kib": null,
+      "vm_hwm_after_prove_kib": null,
+      "mikros_phases": {
+        "setup_ms": 54.782467000000004,
+        "tensor_aggregate_ms": 43.611967,
+        "certificate_split_ms": 0.011745,
+        "c_pack_project_ms": 3.569988,
+        "transcript_challenge_ms": 0.132661,
+        "ab_pack_ms": 116.212703,
+        "b_weight_ms": 0.000141,
+        "inner_product_ms": 61.998505,
+        "terminal_claims_ms": 0.005784999999999999
+      }
+    },
+    {
+      "log_n": 30,
+      "system": "reuse",
+      "run": 0,
+      "order": 1,
+      "input_digest": "e527f65e39324179c618aa7530540274238543700a629a71045fa4afbc09fd34",
+      "prover_ms": 307.33856599999996,
+      "verifier_ms": 0.125101,
+      "input_claim_check_ms": 13976.143263000002,
+      "payload_field_elements": 2236,
+      "payload_field_bytes": 35776,
+      "bincode_bytes": 35800,
+      "proof_digest": "8710edc4ff7a3dcb19be7982f6df1b054a973f07afbac485e2bb3a2d46c0388f",
+      "vm_rss_before_prove_kib": null,
+      "vm_hwm_after_prove_kib": null,
+      "mikros_phases": {
+        "setup_ms": 52.887280000000004,
+        "tensor_aggregate_ms": 69.64789400000001,
+        "certificate_split_ms": 0.013329,
+        "c_pack_project_ms": 4.13197,
+        "transcript_challenge_ms": 0.254744,
+        "ab_pack_ms": 118.0458,
+        "b_weight_ms": 0.000139,
+        "inner_product_ms": 62.349119,
+        "terminal_claims_ms": 0.006204
+      }
+    },
+    {
+      "log_n": 30,
+      "system": "flock",
+      "run": 0,
+      "order": 2,
+      "input_digest": "e527f65e39324179c618aa7530540274238543700a629a71045fa4afbc09fd34",
+      "prover_ms": 148.162793,
+      "verifier_ms": 0.431282,
+      "input_claim_check_ms": 9389.383441,
+      "payload_field_elements": 179,
+      "payload_field_bytes": 2864,
+      "bincode_bytes": 2896,
+      "proof_digest": "d1aaab710df5abd68673c112a00a27bb5148da264477bb8df1a320673303f0ab",
+      "vm_rss_before_prove_kib": null,
+      "vm_hwm_after_prove_kib": null
+    }
+  ],
+  "samples": [
+    {
+      "log_n": 30,
+      "system": "native",
+      "run": 1,
+      "order": 0,
+      "input_digest": "39d3cf518d8882fa078aa71dc65075fe307de85adf9a5a057bd519bdf3c78499",
+      "prover_ms": 319.975217,
+      "verifier_ms": 0.153858,
+      "input_claim_check_ms": 13989.05295,
+      "payload_field_elements": 2236,
+      "payload_field_bytes": 35776,
+      "bincode_bytes": 35800,
+      "proof_digest": "ab1b91fd8b82c599dee1762760db1523ca492c27574d3eab495730be7fb4b9ed",
+      "vm_rss_before_prove_kib": null,
+      "vm_hwm_after_prove_kib": null,
+      "mikros_phases": {
+        "setup_ms": 54.110736,
+        "tensor_aggregate_ms": 57.393435,
+        "certificate_split_ms": 0.021973,
+        "c_pack_project_ms": 4.222295,
+        "transcript_challenge_ms": 0.225432,
+        "ab_pack_ms": 115.342791,
+        "b_weight_ms": 0.000143,
+        "inner_product_ms": 62.647967,
+        "terminal_claims_ms": 0.0055910000000000005
+      }
+    },
+    {
+      "log_n": 30,
+      "system": "reuse",
+      "run": 1,
+      "order": 1,
+      "input_digest": "39d3cf518d8882fa078aa71dc65075fe307de85adf9a5a057bd519bdf3c78499",
+      "prover_ms": 110.132814,
+      "verifier_ms": 0.222155,
+      "input_claim_check_ms": 13981.463883,
+      "payload_field_elements": 2236,
+      "payload_field_bytes": 35776,
+      "bincode_bytes": 35800,
+      "proof_digest": "ab1b91fd8b82c599dee1762760db1523ca492c27574d3eab495730be7fb4b9ed",
+      "vm_rss_before_prove_kib": null,
+      "vm_hwm_after_prove_kib": null,
+      "mikros_phases": {
+        "setup_ms": 2.586858,
+        "tensor_aggregate_ms": 62.69277600000001,
+        "certificate_split_ms": 0.013533,
+        "c_pack_project_ms": 4.260846000000001,
+        "transcript_challenge_ms": 0.2298,
+        "ab_pack_ms": 16.611933,
+        "b_weight_ms": 0.000732,
+        "inner_product_ms": 23.724424000000003,
+        "terminal_claims_ms": 0.00774
+      }
+    },
+    {
+      "log_n": 30,
+      "system": "flock",
+      "run": 1,
+      "order": 2,
+      "input_digest": "39d3cf518d8882fa078aa71dc65075fe307de85adf9a5a057bd519bdf3c78499",
+      "prover_ms": 143.926863,
+      "verifier_ms": 0.370644,
+      "input_claim_check_ms": 9266.076758000001,
+      "payload_field_elements": 179,
+      "payload_field_bytes": 2864,
+      "bincode_bytes": 2896,
+      "proof_digest": "7046e06b71b4177a747011f3feaaa5ac528b2d4b95b24b7c9db24a6d587501e0",
+      "vm_rss_before_prove_kib": null,
+      "vm_hwm_after_prove_kib": null
+    }
+  ]
+}

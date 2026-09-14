@@ -1,0 +1,96 @@
+{
+  "metadata": {
+    "arch": "x86_64",
+    "build_configuration_blake3": "cf6b3d7e00e2656f6c7e59dc47db0a7f6141344dd7f4f065edacbf2cae37b876",
+    "compiled_target_features": [
+      "gfni",
+      "avx512f",
+      "avx512bw",
+      "avx512vbmi",
+      "vpclmulqdq",
+      "pclmulqdq",
+      "avx2",
+      "sse4.1"
+    ],
+    "cpu": "Intel(R) Xeon(R) Gold 6342 CPU @ 2.80GHz",
+    "extension_coordinates": 16,
+    "flock_skip_rounds": 7,
+    "flock_sources_blake3": "448ffdfa0646285bf27012c2af2b3ced1b146e1d312c592a194ffb15150065bb",
+    "grinding": "disabled; no equal-security claim",
+    "intermediate_field_bits": 8,
+    "kappa": 128,
+    "kernel_scope": "reference/lookup/native/tiled/basis select the first aggregation only; native/reuse preserve the v5 kernel; tiled/tiledreuse use the tiled candidate, basis/basisreuse use its new GF256 basis; all share native packing, C projection, weights and IP with hardware fallbacks",
+    "latex": "latex/4-block.tex",
+    "logs": [
+      30
+    ],
+    "memory": "VmHWM read immediately after prove, before verify and source checks; includes input and runtime",
+    "mikros_sources_blake3": "2559f90d19ae6edc3ee042730228253267eb598bf6c8390f5fc7c4fae48844db",
+    "mode": "fresh_process_rss_cold_proof",
+    "native_backend": "gfni-avx512",
+    "os": "linux",
+    "position_balanced": true,
+    "profile": false,
+    "protocol": "mikros-univariate-gf256-v1",
+    "rayon_actual_threads": 64,
+    "runs": 1,
+    "rustc": "rustc 1.96.0-nightly (ac7f9ec7d 2026-03-20); binary: rustc; commit-hash: ac7f9ec7da74d37fd28667c86bf117a39ba5b02a; commit-date: 2026-03-20; host: x86_64-unknown-linux-gnu; release: 1.96.0-nightly; LLVM version: 22.1.0",
+    "scope": "Direct packed-opening PIOP only; no extra column-to-tensor aggregation or PCS; all source claims independently checked outside timings",
+    "scratch": "reuse/tiledreuse/basisreuse retain independent per-system allocation capacity, reset for each dimension; other Mikros modes allocate and deallocate per proof; all dynamic values rebuilt; Flock uses its production pool",
+    "setup": "fixed tables initialized inside first proof and included in warmup/cold timing; no costs subtracted",
+    "systems": [
+      "basisreuse"
+    ],
+    "threads": 64,
+    "timing": "input generation/digest, challenger creation, serialization and source claim checks excluded; verifier is reduction replay only",
+    "unix_timestamp_seconds": 1789210389
+  },
+  "samples": [
+    {
+      "bincode_bytes": 4888,
+      "input_claim_check_ms": 13756.95674,
+      "input_digest": "e527f65e39324179c618aa7530540274238543700a629a71045fa4afbc09fd34",
+      "log_n": 30,
+      "mikros_phases": null,
+      "order": 0,
+      "payload_field_bytes": 4864,
+      "payload_field_elements": 304,
+      "proof_digest": "517d8b26bf487af6c16d9464bbad4bad4511a679091f368ba192ce2fd042d1fe",
+      "prover_ms": 111.221262,
+      "run": 0,
+      "source_claims_verified": true,
+      "system": "basisreuse",
+      "transcript_matched": true,
+      "verifier_ms": 0.032929,
+      "verifier_passed": true,
+      "vm_hwm_after_prove_kib": 945192,
+      "vm_rss_before_prove_kib": 405336
+    }
+  ],
+  "schema_version": 1,
+  "summaries": [
+    {
+      "bincode_bytes": 4888,
+      "input_claim_check_ms": {
+        "max": 13756.95674,
+        "median": 13756.95674,
+        "min": 13756.95674
+      },
+      "log_n": 30,
+      "payload_field_bytes": 4864,
+      "prover_ms": {
+        "max": 111.221262,
+        "median": 111.221262,
+        "min": 111.221262
+      },
+      "runs": 1,
+      "system": "basisreuse",
+      "verifier_ms": {
+        "max": 0.032929,
+        "median": 0.032929,
+        "min": 0.032929
+      }
+    }
+  ],
+  "warmups": []
+}

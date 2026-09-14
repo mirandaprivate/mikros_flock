@@ -1,0 +1,497 @@
+{
+  "schema_version": 1,
+  "metadata": {
+    "arch": "x86_64",
+    "compiled_target_features": [
+      "aes",
+      "pclmulqdq",
+      "gfni",
+      "avx2",
+      "avx512f",
+      "avx512bw",
+      "vpclmulqdq"
+    ],
+    "cpu": "Intel(R) Xeon(R) Gold 6342 CPU @ 2.80GHz",
+    "git_dirty": null,
+    "git_revision": null,
+    "git_status": null,
+    "grinding": "disabled for both; no equal-128-bit-security claim",
+    "input": "deterministic packed uniform a,b; c=a&b; same per-run triple and observed BLAKE3 input digest for all systems",
+    "logs": [
+      24,
+      30
+    ],
+    "measured_setup": {
+      "isolated_table_setup_ms": null,
+      "policy": "warmup samples include first-proof setup; no setup costs subtracted from prover timing"
+    },
+    "memory": "Linux-only process VmHWM after prove and before verify/input checks; includes inputs, runtime and tables; requires --rss with one system/dimension in a fresh process; unavailable elsewhere",
+    "mikros_kernel_variants": "reference: scalar oracle; lookup: original per-row LUT; packed8: eight-row blocks; packed: selected packed blocks; both packed variants use fused binding and fused IP tail",
+    "mikros_phase_profiling": true,
+    "mikros_sources_blake3": "8b3e1454063885e319f23b7d51ef16b53619d8c33491aa488967c4f19b168956",
+    "mode": "paired_warm_timing",
+    "os": "linux",
+    "proof_digest": "BLAKE3 of bincode proof outside all timings; identical Mikros kernels must have identical digests on paired input",
+    "rayon_actual_threads": 64,
+    "repository_default_rustflags": "-C target-cpu=native",
+    "runs": 3,
+    "rustc": "rustc 1.96.0-nightly (ac7f9ec7d 2026-03-20); binary: rustc; commit-hash: ac7f9ec7da74d37fd28667c86bf117a39ba5b02a; commit-date: 2026-03-20; host: x86_64-unknown-linux-gnu; release: 1.96.0-nightly; LLVM version: 22.1.0",
+    "scope": "PIOP reductions only; no PCS commitments or openings; every returned claim checked directly against original input outside timings",
+    "systems": [
+      "packed",
+      "flock"
+    ],
+    "threads": 64,
+    "timing": "input generation, digest, challenger initialization, serialization, direct input claim checks excluded; all per-proof work inside prove included",
+    "transcript_hash": "blake3",
+    "tuning_environment": {},
+    "unix_timestamp_seconds": 1789198245,
+    "warmups_per_system_per_dimension": 1
+  },
+  "summaries": [
+    {
+      "log_n": 24,
+      "constraints": 16777216,
+      "system": "packed",
+      "runs": 3,
+      "prover_ms": {
+        "median": 23.530784999999998,
+        "min": 23.069346,
+        "max": 23.618598000000002
+      },
+      "verifier_ms": {
+        "median": 0.119861,
+        "min": 0.11935,
+        "max": 0.141547
+      },
+      "input_claim_check_ms": {
+        "median": 209.846431,
+        "min": 207.70630300000002,
+        "max": 210.813909
+      },
+      "payload_field_elements": 2224,
+      "payload_field_bytes": 35584,
+      "bincode_bytes": 35608
+    },
+    {
+      "log_n": 24,
+      "constraints": 16777216,
+      "system": "flock",
+      "runs": 3,
+      "prover_ms": {
+        "median": 3.717659,
+        "min": 3.673963,
+        "max": 6.096747
+      },
+      "verifier_ms": {
+        "median": 0.218472,
+        "min": 0.21506,
+        "max": 0.21946
+      },
+      "input_claim_check_ms": {
+        "median": 142.88913300000002,
+        "min": 142.25486600000002,
+        "max": 143.140672
+      },
+      "payload_field_elements": 167,
+      "payload_field_bytes": 2672,
+      "bincode_bytes": 2704
+    },
+    {
+      "log_n": 30,
+      "constraints": 1073741824,
+      "system": "packed",
+      "runs": 3,
+      "prover_ms": {
+        "median": 420.157553,
+        "min": 395.527366,
+        "max": 422.53419199999996
+      },
+      "verifier_ms": {
+        "median": 0.150226,
+        "min": 0.14715299999999998,
+        "max": 0.155714
+      },
+      "input_claim_check_ms": {
+        "median": 13677.078064,
+        "min": 13592.736308,
+        "max": 13694.962365
+      },
+      "payload_field_elements": 2236,
+      "payload_field_bytes": 35776,
+      "bincode_bytes": 35800
+    },
+    {
+      "log_n": 30,
+      "constraints": 1073741824,
+      "system": "flock",
+      "runs": 3,
+      "prover_ms": {
+        "median": 80.256492,
+        "min": 80.15457300000001,
+        "max": 134.56259
+      },
+      "verifier_ms": {
+        "median": 0.303425,
+        "min": 0.25535800000000003,
+        "max": 0.331435
+      },
+      "input_claim_check_ms": {
+        "median": 9210.789545000001,
+        "min": 9194.600246,
+        "max": 9339.554266000001
+      },
+      "payload_field_elements": 179,
+      "payload_field_bytes": 2864,
+      "bincode_bytes": 2896
+    }
+  ],
+  "warmups": [
+    {
+      "log_n": 24,
+      "system": "packed",
+      "run": 0,
+      "order": 0,
+      "input_digest": "e556f27f26f883a676924621242dd025e583dde1d1e9431071a61c9402206b4b",
+      "prover_ms": 23.356064,
+      "verifier_ms": 0.232118,
+      "input_claim_check_ms": 224.72716400000002,
+      "payload_field_elements": 2224,
+      "payload_field_bytes": 35584,
+      "bincode_bytes": 35608,
+      "proof_digest": "a8d61f03813fd2370ef2edb7f6d11a9066e11a6ff2fa85288c32d415ef6cb665",
+      "vm_rss_before_prove_kib": null,
+      "vm_hwm_after_prove_kib": null,
+      "mikros_phases": {
+        "setup_ms": 2.619628,
+        "tensor_aggregate_ms": 15.598383,
+        "certificate_split_ms": 0.009290999999999999,
+        "c_pack_project_ms": 0.336155,
+        "transcript_challenge_ms": 0.472759,
+        "ab_pack_ms": 0.868136,
+        "b_weight_ms": 0.0008150000000000001,
+        "inner_product_ms": 3.236563,
+        "terminal_claims_ms": 0.006771
+      }
+    },
+    {
+      "log_n": 24,
+      "system": "flock",
+      "run": 0,
+      "order": 1,
+      "input_digest": "e556f27f26f883a676924621242dd025e583dde1d1e9431071a61c9402206b4b",
+      "prover_ms": 3.931925,
+      "verifier_ms": 0.224471,
+      "input_claim_check_ms": 144.184926,
+      "payload_field_elements": 167,
+      "payload_field_bytes": 2672,
+      "bincode_bytes": 2704,
+      "proof_digest": "8e1c0c57fd94c3657887076cd1525b31b77f2b61ecdf3aa02f55403a82ede224",
+      "vm_rss_before_prove_kib": null,
+      "vm_hwm_after_prove_kib": null
+    },
+    {
+      "log_n": 30,
+      "system": "packed",
+      "run": 0,
+      "order": 0,
+      "input_digest": "e527f65e39324179c618aa7530540274238543700a629a71045fa4afbc09fd34",
+      "prover_ms": 419.74374800000004,
+      "verifier_ms": 0.151885,
+      "input_claim_check_ms": 13626.573377,
+      "payload_field_elements": 2236,
+      "payload_field_bytes": 35776,
+      "bincode_bytes": 35800,
+      "proof_digest": "8710edc4ff7a3dcb19be7982f6df1b054a973f07afbac485e2bb3a2d46c0388f",
+      "vm_rss_before_prove_kib": null,
+      "vm_hwm_after_prove_kib": null,
+      "mikros_phases": {
+        "setup_ms": 28.07661,
+        "tensor_aggregate_ms": 279.98378,
+        "certificate_split_ms": 0.018026,
+        "c_pack_project_ms": 2.4798760000000004,
+        "transcript_challenge_ms": 0.134358,
+        "ab_pack_ms": 9.702089,
+        "b_weight_ms": 0.000324,
+        "inner_product_ms": 90.057248,
+        "terminal_claims_ms": 0.00761
+      }
+    },
+    {
+      "log_n": 30,
+      "system": "flock",
+      "run": 0,
+      "order": 1,
+      "input_digest": "e527f65e39324179c618aa7530540274238543700a629a71045fa4afbc09fd34",
+      "prover_ms": 109.58180100000001,
+      "verifier_ms": 0.27518600000000004,
+      "input_claim_check_ms": 9450.670969,
+      "payload_field_elements": 179,
+      "payload_field_bytes": 2864,
+      "bincode_bytes": 2896,
+      "proof_digest": "d1aaab710df5abd68673c112a00a27bb5148da264477bb8df1a320673303f0ab",
+      "vm_rss_before_prove_kib": null,
+      "vm_hwm_after_prove_kib": null
+    }
+  ],
+  "samples": [
+    {
+      "log_n": 24,
+      "system": "packed",
+      "run": 1,
+      "order": 0,
+      "input_digest": "fd0f1b45ee82cdf45134f0795347861f1a256c43754d7754b707e2ea1ecc4f6c",
+      "prover_ms": 23.530784999999998,
+      "verifier_ms": 0.141547,
+      "input_claim_check_ms": 209.846431,
+      "payload_field_elements": 2224,
+      "payload_field_bytes": 35584,
+      "bincode_bytes": 35608,
+      "proof_digest": "4ef745ed206d86f946153653c0678d67d756937aa3f431060d0c4a377e6507c7",
+      "vm_rss_before_prove_kib": null,
+      "vm_hwm_after_prove_kib": null,
+      "mikros_phases": {
+        "setup_ms": 3.537599,
+        "tensor_aggregate_ms": 15.78243,
+        "certificate_split_ms": 0.019683000000000003,
+        "c_pack_project_ms": 0.625404,
+        "transcript_challenge_ms": 0.120129,
+        "ab_pack_ms": 0.997335,
+        "b_weight_ms": 0.00026,
+        "inner_product_ms": 2.443065,
+        "terminal_claims_ms": 0.00376
+      }
+    },
+    {
+      "log_n": 24,
+      "system": "flock",
+      "run": 1,
+      "order": 1,
+      "input_digest": "fd0f1b45ee82cdf45134f0795347861f1a256c43754d7754b707e2ea1ecc4f6c",
+      "prover_ms": 3.673963,
+      "verifier_ms": 0.21946,
+      "input_claim_check_ms": 143.140672,
+      "payload_field_elements": 167,
+      "payload_field_bytes": 2672,
+      "bincode_bytes": 2704,
+      "proof_digest": "815bbd4c7d64a5617bd768a35ca0d83cc459449712d076aca0d3d0e45429b10a",
+      "vm_rss_before_prove_kib": null,
+      "vm_hwm_after_prove_kib": null
+    },
+    {
+      "log_n": 24,
+      "system": "flock",
+      "run": 2,
+      "order": 0,
+      "input_digest": "25beeceac5f79b55cc3b1d44ff6f9b7a43e956653102c90ac74d1a6db1bd27fb",
+      "prover_ms": 3.717659,
+      "verifier_ms": 0.218472,
+      "input_claim_check_ms": 142.25486600000002,
+      "payload_field_elements": 167,
+      "payload_field_bytes": 2672,
+      "bincode_bytes": 2704,
+      "proof_digest": "4fd5c08dc1dd825571aac05389748fdb26c98674d54654e7e4b0ea8f8bc7616f",
+      "vm_rss_before_prove_kib": null,
+      "vm_hwm_after_prove_kib": null
+    },
+    {
+      "log_n": 24,
+      "system": "packed",
+      "run": 2,
+      "order": 1,
+      "input_digest": "25beeceac5f79b55cc3b1d44ff6f9b7a43e956653102c90ac74d1a6db1bd27fb",
+      "prover_ms": 23.618598000000002,
+      "verifier_ms": 0.119861,
+      "input_claim_check_ms": 210.813909,
+      "payload_field_elements": 2224,
+      "payload_field_bytes": 35584,
+      "bincode_bytes": 35608,
+      "proof_digest": "59353cbb89cdd646784bb87feccf9e97b4f137743eeaa398c28db740a617dfcc",
+      "vm_rss_before_prove_kib": null,
+      "vm_hwm_after_prove_kib": null,
+      "mikros_phases": {
+        "setup_ms": 3.443676,
+        "tensor_aggregate_ms": 15.605454,
+        "certificate_split_ms": 0.021813,
+        "c_pack_project_ms": 0.657376,
+        "transcript_challenge_ms": 0.163376,
+        "ab_pack_ms": 1.083472,
+        "b_weight_ms": 0.00025600000000000004,
+        "inner_product_ms": 2.638648,
+        "terminal_claims_ms": 0.003355
+      }
+    },
+    {
+      "log_n": 24,
+      "system": "flock",
+      "run": 3,
+      "order": 0,
+      "input_digest": "e75274088b288e30015e808037a9ed0244337afa2bea060b9fc88daddfefe7fb",
+      "prover_ms": 6.096747,
+      "verifier_ms": 0.21506,
+      "input_claim_check_ms": 142.88913300000002,
+      "payload_field_elements": 167,
+      "payload_field_bytes": 2672,
+      "bincode_bytes": 2704,
+      "proof_digest": "865ffb7b07c8427070e1ba7096a4db0cd263b70e8c96b2b9dfb6fbde550ed3ce",
+      "vm_rss_before_prove_kib": null,
+      "vm_hwm_after_prove_kib": null
+    },
+    {
+      "log_n": 24,
+      "system": "packed",
+      "run": 3,
+      "order": 1,
+      "input_digest": "e75274088b288e30015e808037a9ed0244337afa2bea060b9fc88daddfefe7fb",
+      "prover_ms": 23.069346,
+      "verifier_ms": 0.11935,
+      "input_claim_check_ms": 207.70630300000002,
+      "payload_field_elements": 2224,
+      "payload_field_bytes": 35584,
+      "bincode_bytes": 35608,
+      "proof_digest": "9a43144075ca8e6ed2b8c0f230538f24b82832d5553dd0eed9ab8d9e093b811a",
+      "vm_rss_before_prove_kib": null,
+      "vm_hwm_after_prove_kib": null,
+      "mikros_phases": {
+        "setup_ms": 3.432039,
+        "tensor_aggregate_ms": 15.383275,
+        "certificate_split_ms": 0.021247,
+        "c_pack_project_ms": 0.403822,
+        "transcript_challenge_ms": 0.128352,
+        "ab_pack_ms": 0.910099,
+        "b_weight_ms": 0.000273,
+        "inner_product_ms": 2.785485,
+        "terminal_claims_ms": 0.003437
+      }
+    },
+    {
+      "log_n": 30,
+      "system": "packed",
+      "run": 1,
+      "order": 0,
+      "input_digest": "39d3cf518d8882fa078aa71dc65075fe307de85adf9a5a057bd519bdf3c78499",
+      "prover_ms": 395.527366,
+      "verifier_ms": 0.155714,
+      "input_claim_check_ms": 13694.962365,
+      "payload_field_elements": 2236,
+      "payload_field_bytes": 35776,
+      "bincode_bytes": 35800,
+      "proof_digest": "ab1b91fd8b82c599dee1762760db1523ca492c27574d3eab495730be7fb4b9ed",
+      "vm_rss_before_prove_kib": null,
+      "vm_hwm_after_prove_kib": null,
+      "mikros_phases": {
+        "setup_ms": 18.010707,
+        "tensor_aggregate_ms": 268.31134899999995,
+        "certificate_split_ms": 0.039316000000000004,
+        "c_pack_project_ms": 2.6332679999999997,
+        "transcript_challenge_ms": 0.32182700000000003,
+        "ab_pack_ms": 9.979443,
+        "b_weight_ms": 0.000233,
+        "inner_product_ms": 88.482884,
+        "terminal_claims_ms": 0.013323999999999999
+      }
+    },
+    {
+      "log_n": 30,
+      "system": "flock",
+      "run": 1,
+      "order": 1,
+      "input_digest": "39d3cf518d8882fa078aa71dc65075fe307de85adf9a5a057bd519bdf3c78499",
+      "prover_ms": 134.56259,
+      "verifier_ms": 0.25535800000000003,
+      "input_claim_check_ms": 9194.600246,
+      "payload_field_elements": 179,
+      "payload_field_bytes": 2864,
+      "bincode_bytes": 2896,
+      "proof_digest": "7046e06b71b4177a747011f3feaaa5ac528b2d4b95b24b7c9db24a6d587501e0",
+      "vm_rss_before_prove_kib": null,
+      "vm_hwm_after_prove_kib": null
+    },
+    {
+      "log_n": 30,
+      "system": "flock",
+      "run": 2,
+      "order": 0,
+      "input_digest": "b4638163dbd1bea08443d8b4f632c4df53016c7edb6a5624c35ca7fc462ec002",
+      "prover_ms": 80.256492,
+      "verifier_ms": 0.331435,
+      "input_claim_check_ms": 9210.789545000001,
+      "payload_field_elements": 179,
+      "payload_field_bytes": 2864,
+      "bincode_bytes": 2896,
+      "proof_digest": "644e7330655969c7c0eab206a382f48515d1fc4f4fa62c01d1944724e6f0062c",
+      "vm_rss_before_prove_kib": null,
+      "vm_hwm_after_prove_kib": null
+    },
+    {
+      "log_n": 30,
+      "system": "packed",
+      "run": 2,
+      "order": 1,
+      "input_digest": "b4638163dbd1bea08443d8b4f632c4df53016c7edb6a5624c35ca7fc462ec002",
+      "prover_ms": 420.157553,
+      "verifier_ms": 0.150226,
+      "input_claim_check_ms": 13592.736308,
+      "payload_field_elements": 2236,
+      "payload_field_bytes": 35776,
+      "bincode_bytes": 35800,
+      "proof_digest": "4abea233487f223c015e63c306a21d84ced108b483974fd734a60bae2fc6012c",
+      "vm_rss_before_prove_kib": null,
+      "vm_hwm_after_prove_kib": null,
+      "mikros_phases": {
+        "setup_ms": 19.524353,
+        "tensor_aggregate_ms": 282.113658,
+        "certificate_split_ms": 0.021979000000000002,
+        "c_pack_project_ms": 2.615624,
+        "transcript_challenge_ms": 0.12124900000000001,
+        "ab_pack_ms": 9.868053,
+        "b_weight_ms": 0.000322,
+        "inner_product_ms": 97.13373899999999,
+        "terminal_claims_ms": 0.013013
+      }
+    },
+    {
+      "log_n": 30,
+      "system": "flock",
+      "run": 3,
+      "order": 0,
+      "input_digest": "282b92ec4261b92dcc18316326edf9235863b523a46fab96e363c76cacb422fa",
+      "prover_ms": 80.15457300000001,
+      "verifier_ms": 0.303425,
+      "input_claim_check_ms": 9339.554266000001,
+      "payload_field_elements": 179,
+      "payload_field_bytes": 2864,
+      "bincode_bytes": 2896,
+      "proof_digest": "518aa5731ec360d65b41bccb7f0edb96e77e3ab9f31a7674945bc8680ac72b30",
+      "vm_rss_before_prove_kib": null,
+      "vm_hwm_after_prove_kib": null
+    },
+    {
+      "log_n": 30,
+      "system": "packed",
+      "run": 3,
+      "order": 1,
+      "input_digest": "282b92ec4261b92dcc18316326edf9235863b523a46fab96e363c76cacb422fa",
+      "prover_ms": 422.53419199999996,
+      "verifier_ms": 0.14715299999999998,
+      "input_claim_check_ms": 13677.078064,
+      "payload_field_elements": 2236,
+      "payload_field_bytes": 35776,
+      "bincode_bytes": 35800,
+      "proof_digest": "bf8a6bbb7fb521396c0b4a6ebdd6d761930f652825ce3b6b30dcfe3980437b7d",
+      "vm_rss_before_prove_kib": null,
+      "vm_hwm_after_prove_kib": null,
+      "mikros_phases": {
+        "setup_ms": 19.85165,
+        "tensor_aggregate_ms": 280.45027300000004,
+        "certificate_split_ms": 0.039511000000000004,
+        "c_pack_project_ms": 2.705372,
+        "transcript_challenge_ms": 0.123337,
+        "ab_pack_ms": 11.076205999999999,
+        "b_weight_ms": 0.000343,
+        "inner_product_ms": 99.472563,
+        "terminal_claims_ms": 0.06717
+      }
+    }
+  ]
+}

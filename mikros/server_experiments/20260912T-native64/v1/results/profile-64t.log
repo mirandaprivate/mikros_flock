@@ -1,0 +1,23 @@
+PIOP reductions, BLAKE3 transcript, no grinding, 64 thread(s)
+Generation/digest and original-input claim checks excluded from prove/verify time.
+  warmup n=2^24 legacy   : 16.865 ms
+  warmup n=2^24 stream   : 10.227 ms
+  warmup n=2^24 simd     : 11.420 ms
+  warmup n=2^24 native   : 9.266 ms
+  n=2^24 run=1 legacy   : prove 24.044 ms, verify 0.122 ms, 35608 bytes
+  n=2^24 run=1 stream   : prove 12.959 ms, verify 0.122 ms, 35608 bytes
+  n=2^24 run=1 simd     : prove 11.320 ms, verify 0.121 ms, 35608 bytes
+  n=2^24 run=1 native   : prove 8.735 ms, verify 0.120 ms, 35608 bytes
+  n=2^24 run=2 native   : prove 10.453 ms, verify 0.121 ms, 35608 bytes
+  n=2^24 run=2 simd     : prove 12.562 ms, verify 0.121 ms, 35608 bytes
+  n=2^24 run=2 stream   : prove 11.159 ms, verify 0.120 ms, 35608 bytes
+  n=2^24 run=2 legacy   : prove 24.343 ms, verify 0.120 ms, 35608 bytes
+  n=2^24 run=3 stream   : prove 11.000 ms, verify 0.119 ms, 35608 bytes
+  n=2^24 run=3 simd     : prove 11.972 ms, verify 0.118 ms, 35608 bytes
+  n=2^24 run=3 native   : prove 9.827 ms, verify 0.122 ms, 35608 bytes
+  n=2^24 run=3 legacy   : prove 24.252 ms, verify 0.124 ms, 35608 bytes
+  median n=2^24 legacy   : 24.252 ms prove [24.044, 24.343], 0.122 ms verify
+  median n=2^24 stream   : 11.159 ms prove [11.000, 12.959], 0.120 ms verify
+  median n=2^24 simd     : 11.972 ms prove [11.320, 12.562], 0.121 ms verify
+  median n=2^24 native   : 9.827 ms prove [8.735, 10.453], 0.121 ms verify
+JSON: /home/mscong1/mikros-experiments/20260912T-native64/v1/results/profile-64t.json

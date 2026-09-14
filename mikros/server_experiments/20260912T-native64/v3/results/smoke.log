@@ -1,0 +1,42 @@
+PIOP reductions, BLAKE3 transcript, no grinding, 64 thread(s)
+Generation/digest and original-input claim checks excluded from prove/verify time.
+  warmup n=2^20 lookup   : 5.520 ms
+  warmup n=2^20 legacy   : 2.691 ms
+  warmup n=2^20 stream   : 1.762 ms
+  warmup n=2^20 simdv1   : 1.901 ms
+  warmup n=2^20 simd     : 1.741 ms
+  warmup n=2^20 wide     : 1.973 ms
+  warmup n=2^20 fused    : 2.437 ms
+  warmup n=2^20 native   : 1.779 ms
+  warmup n=2^20 reuse    : 1.606 ms
+  warmup n=2^20 factored : 1.734 ms
+  warmup n=2^20 factoredreuse: 1.816 ms
+  warmup n=2^20 packed   : 1.828 ms
+  warmup n=2^20 flock    : 2.607 ms
+  n=2^20 run=1 lookup   : prove 6.597 ms, verify 0.170 ms, 35480 bytes
+  n=2^20 run=1 legacy   : prove 3.921 ms, verify 0.124 ms, 35480 bytes
+  n=2^20 run=1 stream   : prove 2.805 ms, verify 0.161 ms, 35480 bytes
+  n=2^20 run=1 simdv1   : prove 2.226 ms, verify 0.118 ms, 35480 bytes
+  n=2^20 run=1 simd     : prove 2.366 ms, verify 0.117 ms, 35480 bytes
+  n=2^20 run=1 wide     : prove 2.142 ms, verify 0.118 ms, 35480 bytes
+  n=2^20 run=1 fused    : prove 2.104 ms, verify 0.501 ms, 35480 bytes
+  n=2^20 run=1 native   : prove 1.605 ms, verify 0.119 ms, 35480 bytes
+  n=2^20 run=1 reuse    : prove 1.664 ms, verify 0.118 ms, 35480 bytes
+  n=2^20 run=1 factored : prove 1.802 ms, verify 0.119 ms, 35480 bytes
+  n=2^20 run=1 factoredreuse: prove 2.132 ms, verify 0.248 ms, 35480 bytes
+  n=2^20 run=1 packed   : prove 1.844 ms, verify 0.310 ms, 35480 bytes
+  n=2^20 run=1 flock    : prove 1.702 ms, verify 0.202 ms, 2576 bytes
+  median n=2^20 lookup   : 6.597 ms prove [6.597, 6.597], 0.170 ms verify
+  median n=2^20 legacy   : 3.921 ms prove [3.921, 3.921], 0.124 ms verify
+  median n=2^20 stream   : 2.805 ms prove [2.805, 2.805], 0.161 ms verify
+  median n=2^20 simdv1   : 2.226 ms prove [2.226, 2.226], 0.118 ms verify
+  median n=2^20 simd     : 2.366 ms prove [2.366, 2.366], 0.117 ms verify
+  median n=2^20 wide     : 2.142 ms prove [2.142, 2.142], 0.118 ms verify
+  median n=2^20 fused    : 2.104 ms prove [2.104, 2.104], 0.501 ms verify
+  median n=2^20 native   : 1.605 ms prove [1.605, 1.605], 0.119 ms verify
+  median n=2^20 reuse    : 1.664 ms prove [1.664, 1.664], 0.118 ms verify
+  median n=2^20 factored : 1.802 ms prove [1.802, 1.802], 0.119 ms verify
+  median n=2^20 factoredreuse: 2.132 ms prove [2.132, 2.132], 0.248 ms verify
+  median n=2^20 packed   : 1.844 ms prove [1.844, 1.844], 0.310 ms verify
+  median n=2^20 flock    : 1.702 ms prove [1.702, 1.702], 0.202 ms verify
+JSON: /home/mscong1/mikros-experiments/20260912T-native64/v3/results/smoke.json

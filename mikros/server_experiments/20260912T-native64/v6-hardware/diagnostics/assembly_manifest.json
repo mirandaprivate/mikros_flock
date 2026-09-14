@@ -1,0 +1,51 @@
+{
+  "v5": {
+    "executable": "/home/mscong1/mikros-experiments/20260912T-native64/v5-univariate/source/target/release/deps/univariate_vs_flock-22020f7b8413c02d",
+    "executable_sha256": "b08be2b84e6e1ce1b6f6b592b89a1b4fbacd3658e9cd1b3ba005918ec733a49f",
+    "functions": [
+      {
+        "file": "v5-function-0.asm",
+        "header": "000000000062e960 <_RINvNvNtNtCsgA7WsSuASij_5rayon4iter8plumbing24bridge_producer_consumer6helperINtNtB8_5range12IterProducerjEINtNtB6_4fold12FoldConsumerINtNtB6_3map11MapConsumerINtNtB6_6reduce14ReduceConsumerNCNvNtNtNtCs3dS8gfMgR2U_10flock_core9zerocheck25univariate_skip_optimized7skip12842round1_shift_reduce_extract_c_packed_skip7s2_0NCB34_s1_0ENCB34_s0_0ENvMB36_NtB36_6Worker3newNCB34_s_0EEB3c_>:",
+        "lines": 1011,
+        "gfni_mul_instructions": 4,
+        "gfni_affine_instructions": 2
+      },
+      {
+        "file": "v5-function-1.asm",
+        "header": "000000000064ccc0 <_RINvNvNtNtCsgA7WsSuASij_5rayon4iter8plumbing24bridge_producer_consumer6helperINtNtB6_3zip11ZipProducerIB1e_INtNtNtB8_5slice6chunks14ChunksProducerhEB1H_EIB1I_NtNtCskPVWNEMsUTt_11flock_field7gf2_1284F128EEINtNtB6_3map11MapConsumerINtNtB6_6reduce14ReduceConsumerNCNvNtCs5Palesvl9wF_6mikros10univariate9aggregates0_0NCB4c_s_0ENCB4c_0EEB4g_>:",
+        "lines": 1739,
+        "gfni_mul_instructions": 6,
+        "gfni_affine_instructions": 0
+      }
+    ]
+  },
+  "v6": {
+    "executable": "/home/mscong1/mikros-experiments/20260912T-native64/v6-hardware/source/target/release/deps/univariate_vs_flock-22020f7b8413c02d",
+    "executable_sha256": "74b8a341c3c845d54f5f654ee66b57b4afff598c10a02479af2a485077001b28",
+    "functions": [
+      {
+        "file": "v6-function-0.asm",
+        "header": "00000000006333e0 <_RINvNvNtNtCsgA7WsSuASij_5rayon4iter8plumbing24bridge_producer_consumer6helperINtNtB8_5range12IterProducerjEINtNtB6_4fold12FoldConsumerINtNtB6_3map11MapConsumerINtNtB6_6reduce14ReduceConsumerNCNvNtNtNtCs3dS8gfMgR2U_10flock_core9zerocheck25univariate_skip_optimized7skip12842round1_shift_reduce_extract_c_packed_skip7s2_0NCB34_s1_0ENCB34_s0_0ENvMB36_NtB36_6Worker3newNCB34_s_0EEB3c_>:",
+        "lines": 1011,
+        "gfni_mul_instructions": 4,
+        "gfni_affine_instructions": 2
+      },
+      {
+        "file": "v6-function-1.asm",
+        "header": "0000000000651740 <_RINvNvNtNtCsgA7WsSuASij_5rayon4iter8plumbing24bridge_producer_consumer6helperINtNtB6_3zip11ZipProducerIB1e_INtNtNtB8_5slice6chunks14ChunksProducerhEB1H_EIB1I_NtNtCskPVWNEMsUTt_11flock_field7gf2_1284F128EEINtNtB6_3map11MapConsumerINtNtB6_6reduce14ReduceConsumerNCNvNtCs5Palesvl9wF_6mikros10univariate9aggregates0_0NCB4c_s_0ENCB4c_0EEB4g_>:",
+        "lines": 2756,
+        "gfni_mul_instructions": 8,
+        "gfni_affine_instructions": 16
+      },
+      {
+        "file": "v6-function-2.asm",
+        "header": "00000000006677d0 <_RNvNtNtCs5Palesvl9wF_6mikros10univariate5tiled12consume_four>:",
+        "lines": 106,
+        "gfni_mul_instructions": 8,
+        "gfni_affine_instructions": 0
+      }
+    ]
+  },
+  "perf_event_paranoid": "4",
+  "perf_returncode": 255
+}

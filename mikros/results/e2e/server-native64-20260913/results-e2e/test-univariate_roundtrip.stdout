@@ -1,0 +1,15 @@
+
+running 10 tests
+test univariate_product_preserving_forgery_needs_source_authentication ... ok
+test univariate_source_checks_all_inputs_and_preserves_weighted_b_factors ... ok
+test univariate_rejects_wrong_lengths_and_truncated_or_extended_messages ... ok
+test univariate_reused_scratch_does_not_retain_witness_or_shape_state ... ok
+test univariate_profiling_preserves_proofs_and_transcripts ... ok
+test univariate_rejects_h_challenges_then_accepts_lambda_or_extension_point ... ok
+test univariate_kernels_have_identical_bytes_claims_and_transcripts ... ok
+test univariate_binds_every_message_class_and_rejects_false_c ... ok
+test univariate_structured_rows_and_boundary_bits ... ok
+test univariate_one_and_four_threads_produce_identical_proofs ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.46s
+

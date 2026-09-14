@@ -1,0 +1,61 @@
+{
+  "lasso": {
+    "proof_bytes": 448161,
+    "prover_ms": 7.5544,
+    "statement_bytes": 256,
+    "stats": {
+      "aggregation_challenges": 0,
+      "randomized_tuple": false,
+      "trees": {
+        "left": {
+          "compact_bytes": 1024,
+          "extension_bytes": 1008,
+          "max_coefficient_bits": 128,
+          "subfield_bits": 32,
+          "switch_level": 2
+        },
+        "right": {
+          "compact_bytes": 1024,
+          "extension_bytes": 1008,
+          "max_coefficient_bits": 128,
+          "subfield_bits": 32,
+          "switch_level": 2
+        }
+      },
+      "tuple_bits": 18
+    },
+    "verified": true,
+    "verifier_ms": 7.6121,
+    "whir_openings": 5
+  },
+  "permutation": {
+    "proof_bytes": 177160,
+    "prover_ms": 33.1544,
+    "statement_bytes": 224,
+    "tree_stats": {
+      "left": {
+        "compact_bytes": 256,
+        "extension_bytes": 112,
+        "max_coefficient_bits": 128,
+        "subfield_bits": 8,
+        "switch_level": 4
+      },
+      "right": {
+        "compact_bytes": 256,
+        "extension_bytes": 112,
+        "max_coefficient_bits": 128,
+        "subfield_bits": 8,
+        "switch_level": 4
+      }
+    },
+    "verified": true,
+    "verifier_ms": 3.1776999999999997,
+    "whir_openings": 2
+  },
+  "profile": "GHASH F128 / additive RS / WHIR Unique rate 1/2 / 96-bit diagnostic / non-ZK / zero PoW",
+  "rows": 64,
+  "samples": 1,
+  "table_rows": 8,
+  "timing_scope": "input generation excluded; prover includes PCS construction, commitments, auxiliary witness, PIOP, Booleanity and all openings; fresh verifier includes public covector generation",
+  "value_bits": 8
+}

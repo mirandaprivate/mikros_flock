@@ -1,0 +1,24 @@
+{
+  "utc": "2026-09-12T08:26:19Z",
+  "stage": "complete",
+  "threads": 64,
+  "systems": [
+    "native",
+    "factored",
+    "flock"
+  ],
+  "logs": [
+    30
+  ],
+  "measured_runs": 6,
+  "profile_runs": 3,
+  "validated_proof_records": 62,
+  "reports": [
+    "smoke.json",
+    "comparison-64t.json",
+    "profile-64t.json",
+    "rss-native-n30-64t.json",
+    "rss-factored-n30-64t.json",
+    "rss-flock-n30-64t.json"
+  ]
+}

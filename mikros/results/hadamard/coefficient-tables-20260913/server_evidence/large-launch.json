@@ -1,0 +1,26 @@
+{
+  "pid": 3665023,
+  "argv": [
+    "python3",
+    "/home/mscong1/mikros-experiments/20260912T-native64/v9-coefficient-v2/source/mikros/server_experiments/run_aggregate_64.py",
+    "--root",
+    "/home/mscong1/mikros-experiments/20260912T-native64/v9-coefficient-v2",
+    "--systems",
+    "pairreuse,coefflookupreuse,coeffnativereuse,flock128",
+    "--smoke-systems",
+    "reference,pairreuse,coefflookupreuse,coeffnativereuse,flock128",
+    "--required-tests",
+    "triangular_schoolbook_matches_full_product_and_native_boundaries,weighted_aggregate_matches_lookup_and_pair_quotients_at_worker_boundaries,sparse_quotient_matches_full_extension_long_division,univariate_kernels_have_identical_bytes_claims_and_transcripts",
+    "--min-tests",
+    "96",
+    "--logs",
+    "30",
+    "--runs",
+    "8",
+    "--profile",
+    "--rss",
+    "--results-name",
+    "large",
+    "--skip-build"
+  ]
+}

@@ -1,0 +1,13 @@
+[package]
+name = "mikros-permutation-snapshot"
+version = "0.1.0"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+[workspace]
+[dependencies]
+flock-field = { path = "../crates/flock-field" }
+flock-transcript = { path = "../crates/flock-transcript" }
+flock-multilinear = { path = "../crates/flock-multilinear" }
+blake3 = "1.5"
+serde = { version = "1", features = ["derive"] }
+rayon = "1.10"

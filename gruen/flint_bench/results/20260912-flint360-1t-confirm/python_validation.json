@@ -1,0 +1,38 @@
+{
+  "passed": true,
+  "method": "Python arbitrary-precision Miller-Rabin and Rabin polynomial test",
+  "fields": [
+    {
+      "name": "F241",
+      "p": "241",
+      "degree": 16,
+      "polynomial": "X^16-7",
+      "prime64": true,
+      "rabin_irreducible": true
+    },
+    {
+      "name": "F61441",
+      "p": "61441",
+      "degree": 8,
+      "polynomial": "X^8-11",
+      "prime64": true,
+      "rabin_irreducible": true
+    },
+    {
+      "name": "KoalaBear",
+      "p": "2130706433",
+      "degree": 4,
+      "polynomial": "X^4-3",
+      "prime64": true,
+      "rabin_irreducible": true
+    },
+    {
+      "name": "Goldilocks",
+      "p": "18446744069414584321",
+      "degree": 2,
+      "polynomial": "X^2-7",
+      "prime64": true,
+      "rabin_irreducible": true
+    }
+  ]
+}

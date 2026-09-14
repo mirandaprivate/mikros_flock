@@ -1,0 +1,5 @@
+KoalaBear n=30 gruen_2eval                   8501.157 ms [8234.101,8583.968]
+KoalaBear n=30 gruen_skip_kappa              6138.586 ms [6068.744,6421.280]
+KoalaBear n=30 mikros_lagrange_reference     4877.221 ms [4809.987,5182.367]
+KoalaBear n=30 mikros_lagrange_optimized     4770.459 ms [4741.730,4827.707]
+Verified 36 proofs; saved /home/mscong1/mikros-experiments/20260912T-native64/gruen-20260913-n30/results-v2/KoalaBear-n30-64t-attempt1

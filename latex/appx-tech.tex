@@ -1,0 +1,230 @@
+\clearpage
+\section{Deferred Technical Details}
+\label{appx:tech}
+
+\subsection{Pseudocode}
+\label{appx:pseudocode}
+
+We give the protocols in order of composition:
+Algorithms~\ref{alg:ip}, \ref{alg:hadamard}, and
+\ref{alg:permutation} implement the packed reductions of
+Section~\ref{sec:blocks}; Algorithm~\ref{alg:packed-pcs}
+authenticates their terminal evaluations as in Section~\ref{sec:pcs};
+and Algorithms~\ref{alg:single-instance-packing} and
+\ref{alg:multiple-instance-packing} compose these components
+for the two settings of Section~\ref{sec:together}.
+For the intermediate-field variant of Section~\ref{sec:hadamard},
+Algorithm~\ref{alg:hadamard} uses the Lagrange basis over
+\(\mathbb K\) and computes its quotient via
+Eq.~\eqref{eq:hadamard-small-field-aggregation}.
+Tabulation changes this computation, not the messages or checks.
+
+\input{alg/alg-ip}
+\input{alg/alg-hadamard}
+\input{alg/alg-permutation}
+\input{alg/alg-pcs}
+\input{alg/alg-single-instance}
+\input{alg/alg-multiple-instance}
+
+\clearpage
+
+\subsection{Packed Polynomial Commitment Scheme}
+\label{appx:pcs}
+
+\input{5-pcs}
+
+\clearpage
+
+\iffalse
+\subsection{Complexity Bounds for the Hadamard Comparison}
+\label{appx:hadamard-comparison}
+
+Table~\ref{tab:hadamard-comparison} compares proofs of
+\(\bm a\circ\bm b=\bm c\) for length-\(N\) vectors.
+The constraint \(a_i b_i-c_i\) has degree two. Costs include equality
+weights, the linear output check, witness-dependent preprocessing, and all reduction
+rounds, but exclude commitments and openings. The derived upper bounds
+use schoolbook arithmetic: multiplication in
+\(\Field\times\Field\), \(\Field\times\ExtensionField\), and
+\(\ExtensionField\times\ExtensionField\) costs \(O(1)\),
+\(O(\kappa)\), and \(O(\kappa^2)\), respectively, where
+\(\kappa=[\ExtensionField:\Field]\). RAM counts base-field elements
+including inputs and read-only tables, not measured RSS.
+Public field and basis preprocessing is separate; lookup-table
+construction is accounted for below. Table accesses are charged
+per base-field coordinate, as in Section~\ref{sec:notation}.
+
+\smallskip\noindent\textbf{Optimized rounds and omitted terms.}
+Let \(0\leq t\leq\log_2N\) count optimized or skipped rounds.
+For small-field-first~\cite{iacr/BagadDT24,iacr/BagadDDT25,iacr/DaoDBDT26},
+streamed prefix binding and a weighted \(3^t\)-entry quadratic grid give:
+\begin{equation}
+\begin{aligned}
+\text{Arithmetic:}\quad&
+O\!\left(\kappa N(3/2)^t+\kappa^2N/2^t+\kappa^2 3^t\right),\\
+\text{RAM:}\quad& O\!\left(N+\kappa N/2^t+\kappa 3^t\right).
+\end{aligned}
+\label{eq:hadamard-sff-full-cost}
+\end{equation}
+The last terms account for grid contractions and storage.
+For \(N\geq6^t\), they are absorbed by the corresponding
+\(N/2^t\) terms, yielding the table entries.
+For univariate skip~\cite{iacr/Gruen24}, including FFT interpolation,
+weighting, binding, first-round processing, and the sumcheck tail gives:
+\begin{equation}
+\begin{aligned}
+\text{Arithmetic:}\quad&
+O\!\left(Nt+\kappa N+\kappa^2N/2^t+\kappa^2 2^t\right),\\
+\text{RAM:}\quad& O\!\left(N+\kappa N/2^t+\kappa 2^t\right).
+\end{aligned}
+\label{eq:hadamard-skip-full-cost}
+\end{equation}
+Here \(N\geq4^t\) suffices to absorb the last terms.
+The \(Nt\) term uses FFT interpolation on suitable subgroup
+and off-domain evaluation sets. The protocol also admits general
+interpolation sets~\cite[Section~5.1, footnote~18]{iacr/Gruen24},
+with their interpolation cost accounted for separately. When supported,
+\(2^t=\Theta(\kappa)\) and \(N=\Omega(\kappa^2)\) give
+\(O(\kappa N)\) arithmetic and \(O(N)\) RAM.
+For \(t\) fixed by \(\kappa\), the omitted terms are independent of
+\(N\). If the absorption conditions fail, use the full bounds in
+Eq.~\eqref{eq:hadamard-sff-full-cost} and
+Eq.~\eqref{eq:hadamard-skip-full-cost}.
+For degree-two constraints, the off-domain first-round values in
+Gruen's protocol and the quotient coefficients in our Hadamard
+reduction represent the same vanishing residual. Its known zeros
+on the interpolation set determine the conversion between the two
+representations~\cite[Section~6]{iacr/Gruen24}.
+
+\smallskip\noindent\textbf{Flock's lookup-based skip.}
+We re-cost the degree-two zerocheck of
+Flock~\cite[Sections~4.2--4.4]{iacr/BunzRW26} with a conventional
+sumcheck tail. Fix its byte-sized chunks and subfield
+\(\mathbb F_{256}\subseteq\ExtensionField\), and let
+\(3\leq t\leq7\) be the number of skipped variables.
+Each row has \(2^t\) input bits and \(2^t\) off-domain samples.
+Its LDE uses \(2^t/8\) lookups of length-\(2^t\) byte vectors,
+so all rows cost \(O(N2^t)\) bit operations, including reads
+and XORs. Byte-field products cost \(O(N)\).
+In compatible \(\ExtensionField/\mathbb F_{256}\) coordinates,
+weighted aggregation costs \(O(\kappa N)\), as do binding at
+the skip challenge and the linear output check.
+The conventional tail and its equality weights cost
+\(O(\kappa^2N/2^t)\). Including parameter-only message
+processing and fixed lookup tables gives:
+\begin{equation}
+\begin{aligned}
+\text{Arithmetic:}\quad&
+O\!\left(N2^t+\kappa N+\kappa^2N/2^t+\kappa^2 2^t\right),\\
+\text{RAM:}\quad&
+O\!\left(N+\kappa N/2^t+\kappa 2^t\right).
+\end{aligned}
+\label{eq:hadamard-flock-full-cost}
+\end{equation}
+The last terms are absorbed when \(N\geq4^t\).
+This bound covers Flock's algebraic reduction to evaluation claims.
+Its implementation uses \(t=6\), \(\kappa=128\),
+a 16\,KiB compressed LDE table, and a 64\,KiB table for its
+fixed equality weights. Compression improves table storage and
+cache locality, not the asymptotic LDE operation count.
+The admissible skip length is bounded by the byte-field domain,
+independently of \(\kappa\).
+
+\smallskip\noindent\textbf{Binary-tower instantiations.}
+Assume \(N\geq\kappa\). The Dao--Thaler row pairs its reduction
+with conventional sumcheck~\cite{iacr/DaoT24}.
+The Liu--Zhang row uses every other level of a Wiedemann
+tower~\cite{iacr/LiuZ25}, with mixed subfield/top-field multiplication
+and streamed deterministic weights~\cite{iacr/DaoT24}.
+RAM retains folded inputs and random-suffix weight tables.
+
+\smallskip\noindent\textbf{Packing assumptions.}
+The RMFE--Aurora bound~\cite{iacr/CascudoG21} includes sparse Boolean
+R1CS and Reed--Solomon encoding. It assumes constant-rate packing and
+codes, linear-space quasilinear FFTs, security \(O(\kappa)\), and a
+packed instance large enough to absorb security padding.
+Packed sumcheck~\cite{iacr/WeiWXZDWZ25} uses total packed length \(N\),
+packing/repetition parameter \(r\), and \(|\Field|>3(2r-1)\).
+Streaming forward differences retains \(O(r^2)\) first-round data.
+This term remains in the table because \(r\) is independent of
+\(\kappa\); it is absorbed if \(N\geq r^2\).
+For the base-field \methodname{} row, \(|\Field|\geq\kappa\),
+\(N=m\kappa\), \(m\geq\kappa\), and precomputed
+bases give \(O(\kappa N)\) arithmetic and
+\(O(N+\kappa^2)=O(N)\) RAM, including the linear output check.
+All parameter choices must satisfy the target soundness bound.
+In particular, \(r=\Theta(\kappa)\) is not assumed, and univariate
+skip's error depends on \(2^t\).
+
+\smallskip\noindent\textbf{Intermediate-field accounting.}
+Let
+\(t_{\mathbb K}=[\mathbb K:\Field]\) be the degree chosen in
+Section~\ref{sec:hadamard}. Without lookup tables, multiplication in
+\(\Field\times\mathbb K\) costs \(O(t_{\mathbb K})\)
+base-field operations, whereas multiplication in \(\mathbb K\)
+costs \(O(t_{\mathbb K}^2)\).
+In Eq.~\eqref{eq:hadamard-small-field-aggregation}, computing
+\(\bm A\bm P\) and \(\bm B\bm P\) therefore costs
+\(O(N\kappa t_{\mathbb K})\), and their entrywise product costs
+\(O(Nt_{\mathbb K}^2)\).
+The contraction with \(\bm L\) uses
+\(O(N\kappa/t_{\mathbb K})\) multiplications in \(\mathbb K\),
+or \(O(N\kappa t_{\mathbb K})\) base-field operations.
+Only the \(\kappa/t_{\mathbb K}\) aggregate coordinate tables
+are interpolated. Dense interpolation and division on each cost
+\(O(\kappa^2)\) operations in \(\mathbb K\), for a total of
+\(O(\kappa^3t_{\mathbb K})\) base-field operations.
+The column claims, subsequent inner-product reduction, and linear
+output check cost \(O(N\kappa+\kappa^3)\).
+Thus Eq.~\eqref{eq:hadamard-small-field-cost} includes the
+online parameter-only work; \(N\geq\kappa^2\) gives the
+untabulated bound \(O(N\kappa\log_q\kappa)\).
+
+For the space bound, generate one column of \(\bm P\) at a time
+using prefix and suffix products of the node differences, and
+scan the original rows to accumulate its column of \(\bm U\).
+With the public Lagrange denominators precomputed, generating all
+columns costs \(O(\kappa^2)\) operations in \(\mathbb K\),
+absorbed by the bounds above. The witness and \(\bm L\) use
+\(O(N)\) base-field coordinates, and \(\bm U\) uses
+\(O(\kappa^2)\). Interpolation basis polynomials can likewise
+be generated one at a time from the public vanishing polynomial,
+so no dense interpolation matrix is stored.
+Fixed conversions between the tower coordinates and the original
+commitment basis take at most \(O(N\kappa+\kappa^3)\) operations
+and \(O(\kappa^2)\) additional coordinates.
+The resulting RAM bound is \(O(N+\kappa^2)\), with the witness
+still stored over \(\Field\).
+
+\smallskip\noindent\textbf{Tabulated intermediate-field implementation.}
+The second \methodname{} row uses
+Eq.~\eqref{eq:hadamard-block-tabulated-cost}.
+Choose \(\tau=\lfloor\log_q\kappa\rfloor\), so
+\(q^\tau\leq\kappa\) and \(t_{\mathbb K}/\tau=O(1)\).
+The block tables of Eq.~\eqref{eq:hadamard-block-table}
+form all samples in \(O(N\kappa t_{\mathbb K}/\tau)
+=O(N\kappa)\) base-field operations.
+Each multiplication-table lookup reads and writes
+\(O(t_{\mathbb K})\) coordinates. Thus the
+\(O(N\kappa/t_{\mathbb K})\) products in the contraction
+cost \(O(N\kappa)\), and aggregate interpolation and division
+cost \(O(\kappa^3)\). Samplewise products and the remaining
+reduction steps are absorbed in these bounds. Hence:
+\begin{equation}
+\begin{aligned}
+T_{\mathrm{online}}&=O(N\kappa+\kappa^3),\\
+T_{\mathrm{pre}}&=O(\kappa^3+t_{\mathbb K}^2q^{2t_{\mathbb K}}),\\
+S_{\mathrm{total}}&=O(N+\kappa^3+t_{\mathbb K}q^{2t_{\mathbb K}}).
+\end{aligned}
+\label{eq:hadamard-tabulation-full-cost}
+\end{equation}
+The multiplication table has \(q^{2t_{\mathbb K}}\) entries;
+schoolbook construction costs \(O(t_{\mathbb K}^2)\) per entry.
+The block tables use \(O(\kappa^3)\) coordinates and operations:
+precompute scalar multiples of the sample-map rows, then enumerate
+input blocks by extending prefixes. Both tables depend only on
+public field and interpolation parameters and are reused across
+witnesses. Streaming witness rows leaves \(O(N+\kappa^2)\)
+working coordinates. For \(N\geq\kappa^2\), the online time is
+\(O(N\kappa)\), but the read-only tables remain in the RAM entry.
+\fi

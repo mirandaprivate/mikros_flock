@@ -1,0 +1,116 @@
+[
+  {
+    "case": "smoke-w1-n20-64t",
+    "width": 1,
+    "log_n": 20,
+    "systems": [
+      "previous",
+      "optimized",
+      "flock"
+    ],
+    "runs": 1,
+    "warmups": 1,
+    "seed": 0,
+    "file": "smoke-w1-n20-64t-attempt1.json",
+    "proof_records": 6
+  },
+  {
+    "case": "screening-w1-n26-64t",
+    "width": 1,
+    "log_n": 26,
+    "systems": [
+      "previous",
+      "optimized",
+      "flock"
+    ],
+    "runs": 6,
+    "warmups": 1,
+    "seed": 0,
+    "file": "screening-w1-n26-64t-attempt1.json",
+    "proof_records": 21
+  },
+  {
+    "case": "main-w1-n30-64t",
+    "width": 1,
+    "log_n": 30,
+    "systems": [
+      "previous",
+      "optimized",
+      "flock"
+    ],
+    "runs": 6,
+    "warmups": 1,
+    "seed": 0,
+    "file": "main-w1-n30-64t-attempt1.json",
+    "proof_records": 21
+  },
+  {
+    "case": "cold-rss-w1-n30-64t-previous",
+    "width": 1,
+    "log_n": 30,
+    "systems": [
+      "previous"
+    ],
+    "runs": 1,
+    "warmups": 0,
+    "seed": 1,
+    "file": "cold-rss-w1-n30-64t-previous-attempt1.json",
+    "proof_records": 1
+  },
+  {
+    "case": "cold-rss-w1-n30-64t-optimized",
+    "width": 1,
+    "log_n": 30,
+    "systems": [
+      "optimized"
+    ],
+    "runs": 1,
+    "warmups": 0,
+    "seed": 1,
+    "file": "cold-rss-w1-n30-64t-optimized-attempt1.json",
+    "proof_records": 1
+  },
+  {
+    "case": "cold-rss-w1-n30-64t-flock",
+    "width": 1,
+    "log_n": 30,
+    "systems": [
+      "flock"
+    ],
+    "runs": 1,
+    "warmups": 0,
+    "seed": 1,
+    "file": "cold-rss-w1-n30-64t-flock-attempt1.json",
+    "proof_records": 1
+  },
+  {
+    "case": "smoke-w8-n20-64t",
+    "width": 8,
+    "log_n": 20,
+    "systems": [
+      "previous",
+      "optimized",
+      "flock"
+    ],
+    "runs": 1,
+    "warmups": 1,
+    "seed": 0,
+    "file": "smoke-w8-n20-64t-attempt1.json",
+    "proof_records": 6
+  },
+  {
+    "case": "screening-w8-n26-64t",
+    "width": 8,
+    "log_n": 26,
+    "systems": [
+      "previous",
+      "optimized",
+      "flock"
+    ],
+    "runs": 6,
+    "warmups": 1,
+    "seed": 0,
+    "file": "screening-w8-n26-64t-attempt1.json",
+    "proof_records": 21
+  }
+]

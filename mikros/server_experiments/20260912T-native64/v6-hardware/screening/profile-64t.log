@@ -1,0 +1,32 @@
+n=26 run=0 reuse: 13.683 ms, 4736 bytes (warmup)
+n=26 run=0 tiledreuse: 6.004 ms, 4736 bytes (warmup)
+n=26 run=0 basisreuse: 28.036 ms, 4736 bytes (warmup)
+[zc-timing] round1 URM: 4.24 ms
+[zc-timing] gates: sparse=false single_run=true runs=1 n_mlv=19 compact_k=false r2_la=false
+[zc-timing] round2 fused fold: 2.16 ms
+[zc-timing] rounds 3+ tail: 2.03 ms
+n=26 run=0 flock128: 8.720 ms, 4752 bytes (warmup)
+n=26 run=1 tiledreuse: 28.466 ms, 4736 bytes
+n=26 run=1 basisreuse: 18.440 ms, 4736 bytes
+[zc-timing] round1 URM: 10.98 ms
+[zc-timing] gates: sparse=false single_run=true runs=1 n_mlv=19 compact_k=false r2_la=false
+[zc-timing] round2 fused fold: 4.04 ms
+[zc-timing] rounds 3+ tail: 3.90 ms
+n=26 run=1 flock128: 19.572 ms, 4752 bytes
+n=26 run=1 reuse: 16.774 ms, 4736 bytes
+n=26 run=2 basisreuse: 5.634 ms, 4736 bytes
+[zc-timing] round1 URM: 9.57 ms
+[zc-timing] gates: sparse=false single_run=true runs=1 n_mlv=19 compact_k=false r2_la=false
+[zc-timing] round2 fused fold: 2.30 ms
+[zc-timing] rounds 3+ tail: 1.91 ms
+n=26 run=2 flock128: 14.083 ms, 4752 bytes
+n=26 run=2 reuse: 7.413 ms, 4736 bytes
+n=26 run=2 tiledreuse: 34.293 ms, 4736 bytes
+[zc-timing] round1 URM: 8.66 ms
+[zc-timing] gates: sparse=false single_run=true runs=1 n_mlv=19 compact_k=false r2_la=false
+[zc-timing] round2 fused fold: 9.19 ms
+[zc-timing] rounds 3+ tail: 9.60 ms
+n=26 run=3 flock128: 27.985 ms, 4752 bytes
+n=26 run=3 reuse: 13.899 ms, 4736 bytes
+n=26 run=3 tiledreuse: 9.585 ms, 4736 bytes
+n=26 run=3 basisreuse: 22.923 ms, 4736 bytes

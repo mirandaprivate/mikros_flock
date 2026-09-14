@@ -77,6 +77,7 @@ use crate::{
         univariate_skip::{SplitEqGhash, build_eq, pack_bits},
     },
 };
+mod dense_skip7;
 mod kernels;
 
 /// Returns `(pair_in_block_mask, useful_pairs_inclusive)` for the round-2
@@ -495,7 +496,7 @@ impl UniSkipFoldTable {
 ///
 /// To run single-threaded for debugging, set `RAYON_NUM_THREADS=1`.
 ///
-/// `k_skip = 6` is currently hardcoded (the protocol headline).
+/// Supports the original `k_skip = 6` path and dense `k_skip = 7`.
 pub fn uni_skip_fold_and_round_pair_optimized_packed(
     a_packed: &[u8],
     b_packed: &[u8],
@@ -528,6 +529,18 @@ pub fn uni_skip_fold_and_round_pair_optimized_packed_padded(
     mlv_challenges: &[F128],
     padding: &PaddingSpec,
 ) -> (Vec<F128>, Vec<F128>, F128, F128) {
+    if k_skip == 7 {
+        assert!(
+            m > 7 && m < usize::BITS as usize,
+            "invalid dense skip-7 dimension"
+        );
+        assert_eq!(
+            *padding,
+            PaddingSpec::dense(m),
+            "skip-7 optimized fold requires dense padding"
+        );
+        return dense_skip7::fold(a_packed, b_packed, m, table, mlv_challenges);
+    }
     match padding.as_single_run() {
         // Single run: the block structure is periodic, so a pair is dead iff
         // its WITHIN-BLOCK index is past the useful prefix.

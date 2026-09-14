@@ -1,0 +1,23 @@
+{
+  "utc": "2026-09-12T08:31:16Z",
+  "stage": "complete",
+  "threads": 64,
+  "systems": [
+    "reuse",
+    "factoredreuse",
+    "flock"
+  ],
+  "logs": [
+    30
+  ],
+  "measured_runs": 6,
+  "profile_runs": 0,
+  "validated_proof_records": 50,
+  "reports": [
+    "smoke.json",
+    "comparison-64t.json",
+    "rss-reuse-n30-64t.json",
+    "rss-factoredreuse-n30-64t.json",
+    "rss-flock-n30-64t.json"
+  ]
+}

@@ -1,0 +1,44 @@
+    Finished `release` profile [optimized] target(s) in 0.03s
+     Running unittests src/lib.rs (target/release/deps/flock_core-3ba28222483ac645)
+
+running 37 tests
+test zerocheck::tests::block_coverage_and_cleanse ... ok
+test zerocheck::tests::padding_spec_rejects_oversized_useful_prefix - should panic ... ok
+test zerocheck::tests::padding_spec_run_list_accessors ... ok
+test zerocheck::tests::skip7_domain_is_distinct_and_skip6_domain_is_unchanged ... ok
+test zerocheck::tests::skip7_prover_rejects_dimension_below_minimum - should panic ... ok
+test element_r1cs::zerocheck::tests::round_messages_match_brute_force_on_random_instances ... ok
+test element_r1cs::zerocheck::tests::verify_rejects_bad_round_count ... ok
+test element_r1cs::zerocheck::tests::dirty_dummy_row_rejected ... ok
+test element_r1cs::zerocheck::tests::unsatisfying_witness_rejected ... ok
+test element_r1cs::zerocheck::tests::audit_final_claims_bound_to_transcript ... ok
+test element_r1cs::zerocheck::tests::verify_rejects_mutations ... ok
+test zerocheck::tests::prove_padded_multi_run_matches_dense ... ok
+test zerocheck::tests::audit_round_msg_1_tamper_rejected ... ok
+test element_r1cs::zerocheck::tests::prove_verify_roundtrip_honest ... ok
+test zerocheck::tests::per_challenge_grinding_roundtrip_and_tape ... ok
+test element_r1cs::zerocheck::tests::satisfying_witness_has_zero_eq_weighted_sum ... ok
+test zerocheck::tests::audit_final_ab_claims_bound_to_transcript ... ok
+test zerocheck::tests::prove_padded_sparse_multi_run_matches_dense ... ok
+test zerocheck::tests::audit_last_round_inf_constrained ... ok
+test zerocheck::tests::skip7_grinding_roundtrip_and_tape ... ok
+test zerocheck::tests::verify_rejects_shape_errors ... ok
+test element_r1cs::zerocheck::tests::fold_low_matches_serial_kernel ... ok
+test zerocheck::tests::prove_deterministic ... ok
+test zerocheck::tests::audit_false_statement_rejected ... ok
+test zerocheck::tests::compact_k_degen_b_transcript_identical ... ok
+test zerocheck::tests::audit_round_msg_inf_tamper_rejected ... ok
+test zerocheck::tests::lookahead_tail_transcript_identical_to_classic ... ok
+test zerocheck::tests::skip7_rejects_shapes_dimensions_and_wrong_domain ... ok
+test zerocheck::tests::verify_rejects_mutations ... ok
+test zerocheck::tests::prove_padded_single_run_matches_dense ... ok
+test zerocheck::tests::prove_verify_roundtrip_honest ... ok
+test zerocheck::tests::compact_k_transcript_identical_to_classic ... ok
+test zerocheck::tests::prove_runs_end_to_end ... ok
+test zerocheck::tests::skip7_honest_roundtrip_matches_source_claims ... ok
+test zerocheck::tests::skip7_rejects_corrupt_messages_and_false_witness ... ok
+test zerocheck::tests::audit_many_false_statements_rejected ... ok
+test zerocheck::tests::prove_sparse_fragmented_multi_run_matches_dense ... ok
+
+test result: ok. 37 passed; 0 failed; 0 ignored; 0 measured; 418 filtered out; finished in 0.12s
+

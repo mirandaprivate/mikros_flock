@@ -1,0 +1,239 @@
+{
+  "metadata": {
+    "record": "aggregate_metadata",
+    "log_rows": 21,
+    "threads": 64,
+    "reps": 6,
+    "low_weight_log": 13,
+    "online_weight_conversion_included": true,
+    "native_kernels_compiled": true
+  },
+  "measured_samples": 72,
+  "warmup_samples": 12,
+  "all_verified": true,
+  "groups": [
+    {
+      "kernel": "baseline",
+      "columns": 4,
+      "degree": 4,
+      "median_ms": 15.048719,
+      "range_ms": [
+        14.471161,
+        18.786893
+      ],
+      "repetitions": 6,
+      "warmup_ms": 18.747971,
+      "over_baseline": 1.0,
+      "speedup_vs_baseline": 1.0
+    },
+    {
+      "kernel": "gfni",
+      "columns": 4,
+      "degree": 4,
+      "median_ms": 2.2406385,
+      "range_ms": [
+        1.8882919999999999,
+        2.41366
+      ],
+      "repetitions": 6,
+      "warmup_ms": 2.524344,
+      "over_baseline": 0.14889230771070947,
+      "speedup_vs_baseline": 6.716263690015145
+    },
+    {
+      "kernel": "tower",
+      "columns": 4,
+      "degree": 4,
+      "median_ms": 2.319978,
+      "range_ms": [
+        2.03817,
+        2.493856
+      ],
+      "repetitions": 6,
+      "warmup_ms": 2.688148,
+      "over_baseline": 0.15416448403349148,
+      "speedup_vs_baseline": 6.48657832100132
+    },
+    {
+      "kernel": "baseline",
+      "columns": 3,
+      "degree": 4,
+      "median_ms": 10.765089,
+      "range_ms": [
+        10.663446,
+        13.56006
+      ],
+      "repetitions": 6,
+      "warmup_ms": 18.663619,
+      "over_baseline": 1.0,
+      "speedup_vs_baseline": 1.0
+    },
+    {
+      "kernel": "gfni",
+      "columns": 3,
+      "degree": 4,
+      "median_ms": 1.4707,
+      "range_ms": [
+        1.370778,
+        2.048711
+      ],
+      "repetitions": 6,
+      "warmup_ms": 2.2362710000000003,
+      "over_baseline": 0.13661754213086394,
+      "speedup_vs_baseline": 7.319704222479092
+    },
+    {
+      "kernel": "tower",
+      "columns": 3,
+      "degree": 4,
+      "median_ms": 1.3692125000000002,
+      "range_ms": [
+        1.229594,
+        1.9247800000000002
+      ],
+      "repetitions": 6,
+      "warmup_ms": 3.9119960000000003,
+      "over_baseline": 0.12719007710944147,
+      "speedup_vs_baseline": 7.862248555282688
+    },
+    {
+      "kernel": "baseline",
+      "columns": 4,
+      "degree": 2,
+      "median_ms": 6.6574665,
+      "range_ms": [
+        6.619186,
+        6.739367
+      ],
+      "repetitions": 6,
+      "warmup_ms": 7.187291999999999,
+      "over_baseline": 1.0,
+      "speedup_vs_baseline": 1.0
+    },
+    {
+      "kernel": "gfni",
+      "columns": 4,
+      "degree": 2,
+      "median_ms": 0.8823055,
+      "range_ms": [
+        0.831612,
+        1.003672
+      ],
+      "repetitions": 6,
+      "warmup_ms": 1.04083,
+      "over_baseline": 0.13252871794398063,
+      "speedup_vs_baseline": 7.545534398232812
+    },
+    {
+      "kernel": "tower",
+      "columns": 4,
+      "degree": 2,
+      "median_ms": 0.9130214999999999,
+      "range_ms": [
+        0.852107,
+        1.004745
+      ],
+      "repetitions": 6,
+      "warmup_ms": 1.005925,
+      "over_baseline": 0.13714248505794208,
+      "speedup_vs_baseline": 7.291686449880973
+    },
+    {
+      "kernel": "baseline",
+      "columns": 3,
+      "degree": 2,
+      "median_ms": 5.059513,
+      "range_ms": [
+        4.99981,
+        5.269887
+      ],
+      "repetitions": 6,
+      "warmup_ms": 5.453272,
+      "over_baseline": 1.0,
+      "speedup_vs_baseline": 1.0
+    },
+    {
+      "kernel": "gfni",
+      "columns": 3,
+      "degree": 2,
+      "median_ms": 0.765821,
+      "range_ms": [
+        0.578335,
+        0.7824709999999999
+      ],
+      "repetitions": 6,
+      "warmup_ms": 0.724149,
+      "over_baseline": 0.15136259161701926,
+      "speedup_vs_baseline": 6.606652207239028
+    },
+    {
+      "kernel": "tower",
+      "columns": 3,
+      "degree": 2,
+      "median_ms": 0.7130265,
+      "range_ms": [
+        0.696681,
+        0.914185
+      ],
+      "repetitions": 6,
+      "warmup_ms": 0.745682,
+      "over_baseline": 0.14092789167653091,
+      "speedup_vs_baseline": 7.095827434183723
+    }
+  ],
+  "scope": "Coefficient aggregation microbenchmark only; preparation of challenge-dependent weights is online. Medians exclude one warmup per kernel and shape. Results do not establish whole-proof or E2E speedups.",
+  "source_manifest_sha256": "a0a178740b09c2503d7a30bc9a53b4f8d2db6bb8932ab0bd8ef8c4cf425dd25a",
+  "binary_sha256": "23537a49d704f8a7d5a4459e705557469852899f4faeb67986846a47a1a64def",
+  "source_and_binary_verified_before_and_after": true,
+  "native_target_features": [
+    "adx",
+    "aes",
+    "avx",
+    "avx2",
+    "avx512bitalg",
+    "avx512bw",
+    "avx512cd",
+    "avx512dq",
+    "avx512f",
+    "avx512ifma",
+    "avx512vbmi",
+    "avx512vbmi2",
+    "avx512vl",
+    "avx512vnni",
+    "avx512vpopcntdq",
+    "bmi1",
+    "bmi2",
+    "cmpxchg16b",
+    "ermsb",
+    "f16c",
+    "fma",
+    "fxsr",
+    "gfni",
+    "lahfsahf",
+    "lzcnt",
+    "movbe",
+    "pclmulqdq",
+    "popcnt",
+    "prfchw",
+    "rdrand",
+    "rdseed",
+    "sha",
+    "sse",
+    "sse2",
+    "sse3",
+    "sse4.1",
+    "sse4.2",
+    "ssse3",
+    "vaes",
+    "vpclmulqdq",
+    "x87",
+    "xsave",
+    "xsavec",
+    "xsaveopt",
+    "xsaves"
+  ],
+  "library_tests_passed": 42,
+  "library_tests_ignored": 1,
+  "samples_sha256": "461a83266348293c19d1b6b245745cc160d1d7b8e9c66c23b20fe1d9a92482e4",
+  "stdout_sha256": "3d5b9a4d257d133f228c136c3519465496ba5746c7e403b0c322fa049942bb9e"
+}

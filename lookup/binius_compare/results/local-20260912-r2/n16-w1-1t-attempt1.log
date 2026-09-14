@@ -1,0 +1,10 @@
+n=16 w=1 run=0/4 Mikros: prove=101.68ms verify=6.37ms bytes=153612
+n=16 w=1 run=0/4 Flock: prove=19.30ms verify=4.15ms bytes=145756
+n=16 w=1 run=1/4 Flock: prove=20.22ms verify=4.05ms bytes=145756
+n=16 w=1 run=1/4 Mikros: prove=67.20ms verify=5.55ms bytes=153612
+n=16 w=1 run=2/4 Mikros: prove=61.64ms verify=4.70ms bytes=153612
+n=16 w=1 run=2/4 Flock: prove=19.80ms verify=4.34ms bytes=145756
+n=16 w=1 run=3/4 Flock: prove=20.22ms verify=5.17ms bytes=145756
+n=16 w=1 run=3/4 Mikros: prove=64.07ms verify=4.83ms bytes=153612
+n=16 w=1 run=4/4 Mikros: prove=63.95ms verify=5.94ms bytes=153612
+n=16 w=1 run=4/4 Flock: prove=22.45ms verify=4.04ms bytes=145756

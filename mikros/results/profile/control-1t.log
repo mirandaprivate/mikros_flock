@@ -1,0 +1,31 @@
+PIOP reductions, BLAKE3 transcript, no grinding, 1 thread(s)
+Generation/digest and original-input claim checks excluded from prove/verify time.
+  warmup n=2^20 lookup   : 13.196 ms
+  warmup n=2^20 flock    : 4.875 ms
+  n=2^20 run=1 lookup   : prove 17.031 ms, verify 0.126 ms, 35480 bytes
+  n=2^20 run=1 flock    : prove 4.414 ms, verify 0.163 ms, 2576 bytes
+  n=2^20 run=2 flock    : prove 4.994 ms, verify 0.179 ms, 2576 bytes
+  n=2^20 run=2 lookup   : prove 13.714 ms, verify 0.110 ms, 35480 bytes
+  n=2^20 run=3 flock    : prove 4.856 ms, verify 0.199 ms, 2576 bytes
+  n=2^20 run=3 lookup   : prove 14.253 ms, verify 0.208 ms, 35480 bytes
+  n=2^20 run=4 lookup   : prove 14.173 ms, verify 0.109 ms, 35480 bytes
+  n=2^20 run=4 flock    : prove 4.499 ms, verify 0.163 ms, 2576 bytes
+  n=2^20 run=5 lookup   : prove 13.712 ms, verify 0.109 ms, 35480 bytes
+  n=2^20 run=5 flock    : prove 4.521 ms, verify 0.163 ms, 2576 bytes
+  median n=2^20 lookup   : 14.173 ms prove [13.712, 17.031], 0.110 ms verify
+  median n=2^20 flock    : 4.521 ms prove [4.414, 4.994], 0.163 ms verify
+  warmup n=2^24 lookup   : 222.922 ms
+  warmup n=2^24 flock    : 66.207 ms
+  n=2^24 run=1 lookup   : prove 235.690 ms, verify 0.221 ms, 35608 bytes
+  n=2^24 run=1 flock    : prove 55.791 ms, verify 0.170 ms, 2704 bytes
+  n=2^24 run=2 flock    : prove 67.225 ms, verify 0.196 ms, 2704 bytes
+  n=2^24 run=2 lookup   : prove 222.942 ms, verify 0.232 ms, 35608 bytes
+  n=2^24 run=3 flock    : prove 62.208 ms, verify 0.173 ms, 2704 bytes
+  n=2^24 run=3 lookup   : prove 214.736 ms, verify 0.111 ms, 35608 bytes
+  n=2^24 run=4 lookup   : prove 226.494 ms, verify 0.112 ms, 35608 bytes
+  n=2^24 run=4 flock    : prove 57.366 ms, verify 0.187 ms, 2704 bytes
+  n=2^24 run=5 lookup   : prove 207.835 ms, verify 0.116 ms, 35608 bytes
+  n=2^24 run=5 flock    : prove 56.341 ms, verify 0.188 ms, 2704 bytes
+  median n=2^24 lookup   : 222.942 ms prove [207.835, 235.690], 0.116 ms verify
+  median n=2^24 flock    : 57.366 ms prove [55.791, 67.225], 0.187 ms verify
+JSON: /mnt/c/Users/miranda/git/mikros_flock/mikros/results/profile/control-1t.json

@@ -1,0 +1,554 @@
+{
+  "common": [
+    {
+      "metadata": {
+        "all_core_threads": 64,
+        "commit_layout": "full padded natural bit order; common to both; separate production Flock dense baseline",
+        "compression_kappa": 128,
+        "fixture": "sha256-binary-tree",
+        "flock_skip": 7,
+        "log_leaves": 6,
+        "logical_bit_log": 22,
+        "native_root_u32": [
+          410962969,
+          3158024733,
+          2529001739,
+          1670759730,
+          4188808585,
+          1001862083,
+          1860085090,
+          3516020995
+        ],
+        "offline_circuit_ms": 1844.754425,
+        "offline_flock_sigma_tag_bytes": 4194304,
+        "offline_flock_value_bytes": 4194304,
+        "offline_mikros_coefficients_ms": 9.417939,
+        "offline_mikros_coefficients_resident_bytes": 6316032,
+        "offline_mikros_sigma_tag_bytes": 4194304,
+        "offline_wiring_ms": 13.446151,
+        "offline_witness_ms": 2.6897159999999998,
+        "pcs_params": {
+          "log_batch_size": 6,
+          "log_inv_rate": 1,
+          "m": 22,
+          "merkle_hash": "blake3",
+          "num_lanes": null,
+          "profile": "fast"
+        },
+        "pcs_policy": "unchanged embedded Fast config and OpeningGrinding",
+        "piop_policy": "Boolean challenges PoW8; permutation fingerprint PoW log2(bit count), Flock native tail policy, Mikros cubic PoW2; per-event work factors, no total-128 claim",
+        "record": "metadata",
+        "row_log": 7,
+        "schema_version": 1,
+        "sha_compressions": 127,
+        "systems": [
+          "Flock",
+          "Mikros"
+        ],
+        "target_features": [
+          "pclmulqdq",
+          "avx2",
+          "avx512f",
+          "avx512bw",
+          "gfni",
+          "vpclmulqdq"
+        ],
+        "threads": 64,
+        "timing": "offline prepared inputs and clones excluded; prover=commit+parallel Boolean and bit-wiring PIOPs+all gather conversions+common PCS opening",
+        "verifier": "public data and proof only; all terminal claims authenticated",
+        "wiring_bit_log": 18,
+        "wiring_bits": 262144,
+        "zero_knowledge": false
+      },
+      "flock": {
+        "boolean_ms": 19.4039,
+        "commit_ms": 8.326402999999999,
+        "parallel_piops_ms": 41.507121,
+        "pcs_open_ms": 82.94785999999999,
+        "prover_ms": 136.270564,
+        "tensor_claims": 11,
+        "wiring_ms": 41.407571,
+        "verify_ms": 45.346125,
+        "proof_bytes": 372125,
+        "range_ms": [
+          119.947962,
+          139.756869
+        ],
+        "other_ms": 0.07115299999998115,
+        "pcs_fraction": 0.6429178947905595
+      },
+      "mikros": {
+        "boolean_ms": 23.943941,
+        "commit_ms": 9.117574999999999,
+        "parallel_piops_ms": 27.503166,
+        "pcs_open_ms": 125.080895,
+        "prover_ms": 161.324849,
+        "tensor_claims": 20,
+        "wiring_ms": 27.414712,
+        "verify_ms": 52.703632,
+        "proof_bytes": 408413,
+        "range_ms": [
+          160.09311300000002,
+          163.154201
+        ],
+        "other_ms": 0.07154700000000958,
+        "pcs_fraction": 0.7729947204975739
+      },
+      "ratio": 1.1838569113135835,
+      "both_process_peak_rss_gib": 0.6615180969238281
+    },
+    {
+      "metadata": {
+        "all_core_threads": 64,
+        "commit_layout": "full padded natural bit order; common to both; separate production Flock dense baseline",
+        "compression_kappa": 128,
+        "fixture": "sha256-binary-tree",
+        "flock_skip": 7,
+        "log_leaves": 10,
+        "logical_bit_log": 26,
+        "native_root_u32": [
+          1924194390,
+          3593322017,
+          328607640,
+          985220448,
+          2650157426,
+          2210325345,
+          625041528,
+          504269321
+        ],
+        "offline_circuit_ms": 1844.041899,
+        "offline_flock_sigma_tag_bytes": 67108864,
+        "offline_flock_value_bytes": 67108864,
+        "offline_mikros_coefficients_ms": 48.971048,
+        "offline_mikros_coefficients_resident_bytes": 100687872,
+        "offline_mikros_sigma_tag_bytes": 67108864,
+        "offline_wiring_ms": 148.315405,
+        "offline_witness_ms": 14.367499,
+        "pcs_params": {
+          "log_batch_size": 6,
+          "log_inv_rate": 1,
+          "m": 26,
+          "merkle_hash": "blake3",
+          "num_lanes": null,
+          "profile": "fast"
+        },
+        "pcs_policy": "unchanged embedded Fast config and OpeningGrinding",
+        "piop_policy": "Boolean challenges PoW8; permutation fingerprint PoW log2(bit count), Flock native tail policy, Mikros cubic PoW2; per-event work factors, no total-128 claim",
+        "record": "metadata",
+        "row_log": 11,
+        "schema_version": 1,
+        "sha_compressions": 2047,
+        "systems": [
+          "Flock",
+          "Mikros"
+        ],
+        "target_features": [
+          "pclmulqdq",
+          "avx2",
+          "avx512f",
+          "avx512bw",
+          "gfni",
+          "vpclmulqdq"
+        ],
+        "threads": 64,
+        "timing": "offline prepared inputs and clones excluded; prover=commit+parallel Boolean and bit-wiring PIOPs+all gather conversions+common PCS opening",
+        "verifier": "public data and proof only; all terminal claims authenticated",
+        "wiring_bit_log": 22,
+        "wiring_bits": 4194304,
+        "zero_knowledge": false
+      },
+      "flock": {
+        "boolean_ms": 54.049993,
+        "commit_ms": 10.848951000000001,
+        "parallel_piops_ms": 168.641344,
+        "pcs_open_ms": 340.318867,
+        "prover_ms": 519.167687,
+        "tensor_claims": 11,
+        "wiring_ms": 168.53683999999998,
+        "verify_ms": 126.36003200000002,
+        "proof_bytes": 441029,
+        "range_ms": [
+          516.062217,
+          559.010365
+        ],
+        "other_ms": 0.1636559999999463,
+        "pcs_fraction": 0.6555085678897423
+      },
+      "mikros": {
+        "boolean_ms": 51.913453999999994,
+        "commit_ms": 10.761199000000001,
+        "parallel_piops_ms": 96.475167,
+        "pcs_open_ms": 556.7455,
+        "prover_ms": 664.669553,
+        "tensor_claims": 20,
+        "wiring_ms": 96.369651,
+        "verify_ms": 60.0323,
+        "proof_bytes": 482965,
+        "range_ms": [
+          608.511838,
+          700.970707
+        ],
+        "other_ms": 0.19509900000002744,
+        "pcs_fraction": 0.837627506009742
+      },
+      "ratio": 1.2802598652485087,
+      "both_process_peak_rss_gib": 1.6688690185546875
+    },
+    {
+      "metadata": {
+        "all_core_threads": 64,
+        "commit_layout": "full padded natural bit order; common to both; separate production Flock dense baseline",
+        "compression_kappa": 128,
+        "fixture": "sha256-binary-tree",
+        "flock_skip": 7,
+        "log_leaves": 14,
+        "logical_bit_log": 30,
+        "native_root_u32": [
+          1957218190,
+          1192003454,
+          3625557042,
+          707911360,
+          3172928051,
+          296820167,
+          1114072261,
+          2962463137
+        ],
+        "offline_circuit_ms": 1874.896063,
+        "offline_flock_sigma_tag_bytes": 1073741824,
+        "offline_flock_value_bytes": 1073741824,
+        "offline_mikros_coefficients_ms": 292.20853,
+        "offline_mikros_coefficients_resident_bytes": 1610645504,
+        "offline_mikros_sigma_tag_bytes": 1073741824,
+        "offline_wiring_ms": 2061.757167,
+        "offline_witness_ms": 78.21641799999999,
+        "pcs_params": {
+          "log_batch_size": 6,
+          "log_inv_rate": 1,
+          "m": 30,
+          "merkle_hash": "blake3",
+          "num_lanes": null,
+          "profile": "fast"
+        },
+        "pcs_policy": "unchanged embedded Fast config and OpeningGrinding",
+        "piop_policy": "Boolean challenges PoW8; permutation fingerprint PoW log2(bit count), Flock native tail policy, Mikros cubic PoW2; per-event work factors, no total-128 claim",
+        "record": "metadata",
+        "row_log": 15,
+        "schema_version": 1,
+        "sha_compressions": 32767,
+        "systems": [
+          "Flock",
+          "Mikros"
+        ],
+        "target_features": [
+          "pclmulqdq",
+          "avx2",
+          "avx512f",
+          "avx512bw",
+          "gfni",
+          "vpclmulqdq"
+        ],
+        "threads": 64,
+        "timing": "offline prepared inputs and clones excluded; prover=commit+parallel Boolean and bit-wiring PIOPs+all gather conversions+common PCS opening",
+        "verifier": "public data and proof only; all terminal claims authenticated",
+        "wiring_bit_log": 26,
+        "wiring_bits": 67108864,
+        "zero_knowledge": false
+      },
+      "flock": {
+        "boolean_ms": 321.381234,
+        "commit_ms": 60.436335,
+        "parallel_piops_ms": 1146.176098,
+        "pcs_open_ms": 2487.563431,
+        "prover_ms": 3721.268363,
+        "tensor_claims": 11,
+        "wiring_ms": 1146.1034350000002,
+        "verify_ms": 1216.530447,
+        "proof_bytes": 515773,
+        "range_ms": [
+          3674.6237260000003,
+          3973.316237
+        ],
+        "other_ms": 25.688790000000154,
+        "pcs_fraction": 0.6715049462094955
+      },
+      "mikros": {
+        "boolean_ms": 304.426633,
+        "commit_ms": 64.793766,
+        "parallel_piops_ms": 532.803602,
+        "pcs_open_ms": 4177.786176,
+        "prover_ms": 4748.426768,
+        "tensor_claims": 20,
+        "wiring_ms": 532.748612,
+        "verify_ms": 107.462581,
+        "proof_bytes": 564509,
+        "range_ms": [
+          4687.503565,
+          4833.952304
+        ],
+        "other_ms": 1.7859090000001743,
+        "pcs_fraction": 0.8642588741603767
+      },
+      "ratio": 1.2760237383610595,
+      "both_process_peak_rss_gib": 15.982200622558594
+    }
+  ],
+  "production": [
+    {
+      "metadata": {
+        "all_core_threads": 64,
+        "architecture": "x86_64",
+        "cell_log": 11,
+        "circuit_digest_blake3": "0d874729a71cd00e26cf74ad5368ed816a7b3443e34dd3fb05956c2f602197b2",
+        "dense_m": 22,
+        "fixture": "sha256-binary-tree",
+        "fixture_digest_blake3": "f0cae336612716bca5421bbd56846fbeb0eb8f34bf627072135bae14ae2c1c37",
+        "gate_count": 127,
+        "leaves": 64,
+        "log_leaves": 6,
+        "native_root_u32": [
+          410962969,
+          3158024733,
+          2529001739,
+          1670759730,
+          4188808585,
+          1001862083,
+          1860085090,
+          3516020995
+        ],
+        "offline_fixture_ms": 1838.566338,
+        "offline_prepared_bytes": 2097152,
+        "offline_witness_ms": 2.751639,
+        "padded_m": 22,
+        "pcs_config_blake3": "3550bfc61301548320bf4067a2ac67462bb6a520922f7caad644a80aa491e52b",
+        "pcs_fold_grinding_bits": [
+          0,
+          0,
+          0
+        ],
+        "pcs_params": {
+          "log_batch_size": 6,
+          "log_inv_rate": 1,
+          "m": 22,
+          "merkle_hash": "blake3",
+          "num_lanes": 50,
+          "profile": "fast"
+        },
+        "pcs_queries": [
+          244,
+          79,
+          48
+        ],
+        "pcs_query_grinding_bits": [
+          16,
+          16,
+          16
+        ],
+        "proof_encoding": "bincode serialize((Commitment, R1csProofCircuitMerged)); full bundle including cap and PCS",
+        "public_words": 260,
+        "record": "metadata",
+        "reps": 3,
+        "row_log": 7,
+        "schema_version": 1,
+        "seed": 6494266865122166094,
+        "system": "flock-circuit-e2e",
+        "target_features": [
+          "aes",
+          "pclmulqdq",
+          "avx2",
+          "avx512f",
+          "avx512bw",
+          "gfni",
+          "vpclmulqdq"
+        ],
+        "threads": 64,
+        "timing_boundary": "prepare clone excluded; prove includes union assembly, compaction, commitment, Hadamard, lincheck, wiring, and merged PCS; no pure-online claim",
+        "verification": "complete non-deferred verifier; no witness input; matrix and sigma obligations discharged",
+        "warmups": 1,
+        "zero_knowledge_claim": false
+      },
+      "prover_ms": 81.24489,
+      "range_ms": [
+        72.298232,
+        97.848146
+      ],
+      "verify_ms": 12.667194,
+      "proof_bytes": 298099
+    },
+    {
+      "metadata": {
+        "all_core_threads": 64,
+        "architecture": "x86_64",
+        "cell_log": 15,
+        "circuit_digest_blake3": "d9baacc28b42f11afeddf160d9cb297e6aa346a75b94919e35475ee8657ff78a",
+        "dense_m": 26,
+        "fixture": "sha256-binary-tree",
+        "fixture_digest_blake3": "1b79e83ca46569680c6976093114e827f5ec6c43b1a972d3776485973304d96c",
+        "gate_count": 2047,
+        "leaves": 1024,
+        "log_leaves": 10,
+        "native_root_u32": [
+          1924194390,
+          3593322017,
+          328607640,
+          985220448,
+          2650157426,
+          2210325345,
+          625041528,
+          504269321
+        ],
+        "offline_fixture_ms": 1836.7213150000002,
+        "offline_prepared_bytes": 33554432,
+        "offline_witness_ms": 14.517555999999999,
+        "padded_m": 26,
+        "pcs_config_blake3": "6fe79c263a03f9708bd281249739804d5b9b1e6d9dc1c1d8cd2f376c52a0d7cb",
+        "pcs_fold_grinding_bits": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "pcs_params": {
+          "log_batch_size": 6,
+          "log_inv_rate": 1,
+          "m": 26,
+          "merkle_hash": "blake3",
+          "num_lanes": 50,
+          "profile": "fast"
+        },
+        "pcs_queries": [
+          244,
+          79,
+          48,
+          35
+        ],
+        "pcs_query_grinding_bits": [
+          16,
+          16,
+          16,
+          16
+        ],
+        "proof_encoding": "bincode serialize((Commitment, R1csProofCircuitMerged)); full bundle including cap and PCS",
+        "public_words": 4100,
+        "record": "metadata",
+        "reps": 3,
+        "row_log": 11,
+        "schema_version": 1,
+        "seed": 6494266865122166094,
+        "system": "flock-circuit-e2e",
+        "target_features": [
+          "aes",
+          "pclmulqdq",
+          "avx2",
+          "avx512f",
+          "avx512bw",
+          "gfni",
+          "vpclmulqdq"
+        ],
+        "threads": 64,
+        "timing_boundary": "prepare clone excluded; prove includes union assembly, compaction, commitment, Hadamard, lincheck, wiring, and merged PCS; no pure-online claim",
+        "verification": "complete non-deferred verifier; no witness input; matrix and sigma obligations discharged",
+        "warmups": 1,
+        "zero_knowledge_claim": false
+      },
+      "prover_ms": 152.03202,
+      "range_ms": [
+        139.538006,
+        154.151643
+      ],
+      "verify_ms": 19.528553000000002,
+      "proof_bytes": 366523
+    },
+    {
+      "metadata": {
+        "all_core_threads": 64,
+        "architecture": "x86_64",
+        "cell_log": 19,
+        "circuit_digest_blake3": "61cb88aade1d8214c743bbab2b43184b15e7f6772d185ffb7a76f894c195ab8e",
+        "dense_m": 30,
+        "fixture": "sha256-binary-tree",
+        "fixture_digest_blake3": "01bae321f6948696ac270b10562d6203afcc5d9e25a46f3c4737356e5d1d098c",
+        "gate_count": 32767,
+        "leaves": 16384,
+        "log_leaves": 14,
+        "native_root_u32": [
+          1957218190,
+          1192003454,
+          3625557042,
+          707911360,
+          3172928051,
+          296820167,
+          1114072261,
+          2962463137
+        ],
+        "offline_fixture_ms": 1896.734938,
+        "offline_prepared_bytes": 536870912,
+        "offline_witness_ms": 83.069292,
+        "padded_m": 30,
+        "pcs_config_blake3": "06d11ed4524024ace37847a3a2e8171082764d57aa6ca6c158069607da47b10e",
+        "pcs_fold_grinding_bits": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "pcs_params": {
+          "log_batch_size": 6,
+          "log_inv_rate": 1,
+          "m": 30,
+          "merkle_hash": "blake3",
+          "num_lanes": 50,
+          "profile": "fast"
+        },
+        "pcs_queries": [
+          244,
+          79,
+          48,
+          35,
+          29
+        ],
+        "pcs_query_grinding_bits": [
+          16,
+          16,
+          16,
+          16,
+          16
+        ],
+        "proof_encoding": "bincode serialize((Commitment, R1csProofCircuitMerged)); full bundle including cap and PCS",
+        "public_words": 65540,
+        "record": "metadata",
+        "reps": 3,
+        "row_log": 15,
+        "schema_version": 1,
+        "seed": 6494266865122166094,
+        "system": "flock-circuit-e2e",
+        "target_features": [
+          "aes",
+          "pclmulqdq",
+          "avx2",
+          "avx512f",
+          "avx512bw",
+          "gfni",
+          "vpclmulqdq"
+        ],
+        "threads": 64,
+        "timing_boundary": "prepare clone excluded; prove includes union assembly, compaction, commitment, Hadamard, lincheck, wiring, and merged PCS; no pure-online claim",
+        "verification": "complete non-deferred verifier; no witness input; matrix and sigma obligations discharged",
+        "warmups": 1,
+        "zero_knowledge_claim": false
+      },
+      "prover_ms": 572.61712,
+      "range_ms": [
+        533.0975420000001,
+        576.0004
+      ],
+      "verify_ms": 25.089135,
+      "proof_bytes": 440787
+    }
+  ],
+  "negative_tests": {
+    "flock": 18,
+    "mikros": 28
+  },
+  "native_tests_passed": 44
+}

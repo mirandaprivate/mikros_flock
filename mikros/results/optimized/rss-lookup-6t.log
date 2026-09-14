@@ -1,0 +1,6 @@
+PIOP reductions, BLAKE3 transcript, no grinding, 6 thread(s)
+Generation/digest and original-input claim checks excluded from prove/verify time.
+RSS mode: one cold proof in this process, no warmup; VmHWM read before verification/input checks.
+  n=2^24 run=1 lookup   : prove 53.389 ms, verify 0.211 ms, 35608 bytes
+  median n=2^24 lookup   : 53.389 ms prove [53.389, 53.389], 0.211 ms verify
+JSON: /mnt/c/Users/miranda/git/mikros_flock/mikros/results/optimized/rss-lookup-6t.json

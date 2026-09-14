@@ -1,0 +1,6 @@
+N=2^10 width=8+10 run=0 mikros_compact total=1.669 core=1.483 verify=0.043 ms
+N=2^10 width=8+10 run=0 mikros_full total=0.548 core=0.363 verify=0.042 ms
+N=2^10 width=8+10 run=0 flock total=0.235 core=0.224 verify=0.067 ms
+N=2^10 width=8+10 run=1 mikros_compact total=0.829 core=0.644 verify=0.042 ms
+N=2^10 width=8+10 run=1 mikros_full total=0.537 core=0.361 verify=0.042 ms
+N=2^10 width=8+10 run=1 flock total=0.233 core=0.222 verify=0.068 ms

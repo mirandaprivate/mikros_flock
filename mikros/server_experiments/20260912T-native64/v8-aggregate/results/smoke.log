@@ -1,0 +1,18 @@
+n=14 run=0 reference: 10.152 ms, 4352 bytes (warmup)
+n=14 run=0 lookup: 0.730 ms, 4352 bytes (warmup)
+n=14 run=0 basis: 0.462 ms, 4352 bytes (warmup)
+n=14 run=0 split: 0.464 ms, 4352 bytes (warmup)
+n=14 run=0 half: 0.467 ms, 4352 bytes (warmup)
+n=14 run=0 pair: 0.429 ms, 4352 bytes (warmup)
+n=14 run=0 affine: 0.441 ms, 4352 bytes (warmup)
+n=14 run=0 joint: 0.447 ms, 4352 bytes (warmup)
+n=14 run=0 flock128: 1.208 ms, 4368 bytes (warmup)
+n=14 run=1 lookup: 0.613 ms, 4352 bytes
+n=14 run=1 basis: 0.424 ms, 4352 bytes
+n=14 run=1 split: 0.386 ms, 4352 bytes
+n=14 run=1 half: 0.381 ms, 4352 bytes
+n=14 run=1 pair: 0.384 ms, 4352 bytes
+n=14 run=1 affine: 0.389 ms, 4352 bytes
+n=14 run=1 joint: 0.383 ms, 4352 bytes
+n=14 run=1 flock128: 0.994 ms, 4368 bytes
+n=14 run=1 reference: 0.841 ms, 4352 bytes

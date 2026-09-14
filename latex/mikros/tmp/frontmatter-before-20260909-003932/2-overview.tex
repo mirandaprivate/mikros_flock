@@ -1,0 +1,307 @@
+\section{Technical Overview}
+\label{sec:overview}
+
+Polynomial packing reduces the dimension of the relation processed
+over the challenge field. For \(N=m\kappa\) and
+\([\ExtensionField:\Field]=\kappa\), we encode a length-\(N\)
+relation over \(\Field\) as a low-degree identity on length-\(m\)
+vector polynomials. A random evaluation then yields a length-\(m\)
+relation over \(\ExtensionField\).
+The construction has two parts: an encoding that preserves the
+relation and an opening protocol that binds its evaluated operands
+to the original witness. We describe each in turn.
+
+\subsection{Polynomial Packing of Vector Relations}
+\label{sec:dualPhase}
+
+Assume \(m,\kappa\) are powers of two and \(\kappa\geq2\).
+Arrange the committed vectors \(\bm a,\bm b\in\Field^N\) as
+\(\kappa\) columns of length \(m\):
+\[
+    \bm A=\concat{\bm a^{(1)},\ldots,\bm a^{(\kappa)}},
+    \qquad
+    \bm B=\concat{\bm b^{(1)},\ldots,\bm b^{(\kappa)}}
+    \in\Field^{m\times\kappa}.
+\]
+Encode each row by a polynomial of degree below \(\kappa\).
+For a basis
+\(\bm\phi(X)=(\phi_1(X),\ldots,\phi_\kappa(X))^\top\), with
+\(\phi_j\in\Field[X]\) of degree below \(\kappa\), define:
+\begin{equation}
+    \bm g_A(X)=\bm A\bm\phi(X),
+    \qquad
+    \bm g_B(X)=\bm B\bm\phi(X)
+    \in\Field[X]^m.
+\label{eq:overview-packing}
+\end{equation}
+Evaluation at \(\ext x\in\ExtensionField\) replaces each row of
+\(\kappa\) base-field elements by one extension-field element:
+\[
+    \bm A\in\Field^{m\times\kappa}
+    \quad\longmapsto\quad
+    \bm g_A(X)
+    \quad\xrightarrow{X=\ext x}\quad
+    \ext{\bm a}=\bm g_A(\ext x)\in\ExtensionField^m.
+\]
+The basis determines how the original relation is recovered from
+these polynomials. This leads to a two-step reduction.
+
+\paragraph{Encode the relation as a polynomial identity.}
+Choose the basis so that designated coefficients or interpolation
+values of an expression in \(\bm g_A\) and \(\bm g_B\) encode
+the original claim.
+The prover supplies \(O(\kappa)\) auxiliary coefficients to specify
+the remaining terms. Their prescribed form leaves the designated
+coefficients or values unchanged.
+We use monomial bases for inner products and Lagrange bases for
+Hadamard products.
+
+\paragraph{Evaluate to obtain the shorter relation.}
+Once the auxiliary coefficients are fixed, the verifier samples an
+extension-field challenge. Evaluating the identity gives a single
+inner-product claim on length-\(m\) vectors, with a target computed
+from the auxiliary polynomials.
+An incorrect identity has a nonzero residual of degree \(O(\kappa)\)
+after clearing negative powers, so it passes the random evaluation
+with probability \(O(\kappa/|\ExtensionField|)\).
+The inner-product proof uses \(O(m)\) extension-field operations
+and leaves two multilinear-evaluation (MLE) claims on the packed
+operands~\cite{asiacrypt/CCYY25}. Our opening protocol authenticates
+these claims against the witness commitment.
+
+\subsection{Instantiating the Packed Reduction}
+
+\paragraph{Inner products.}
+To encode \(c=\langle\bm a,\bm b\rangle\), assign opposite monomial
+powers to matching columns. Choose
+\(\bm\phi(X)=(1,X,\ldots,X^{\kappa-1})^\top\) and pair
+\(\bm g_A(X)\) with \(\bm g_B(X^{-1})\).
+For two blocks:
+\[
+\begin{aligned}
+ &\langle\bm a^{(1)}+X\bm a^{(2)},
+          \bm b^{(1)}+X^{-1}\bm b^{(2)}\rangle\\
+ &\quad=
+   \langle\bm a^{(1)},\bm b^{(1)}\rangle
+   +\langle\bm a^{(2)},\bm b^{(2)}\rangle\\
+ &\qquad\quad
+   +X\langle\bm a^{(2)},\bm b^{(1)}\rangle
+   +X^{-1}\langle\bm a^{(1)},\bm b^{(2)}\rangle.
+\end{aligned}
+\]
+The constant coefficient is the inner product, and every
+cross-column term has a nonzero exponent.
+For arbitrary \(\kappa\), the claim therefore holds if and only if
+there exist
+\(h_+,h_-\in\Field[X]\), each of degree at most \(\kappa-2\), satisfying:
+\begin{equation*}
+    \langle\bm g_A(X),\bm g_B(X^{-1})\rangle
+    =c+Xh_+(X)+X^{-1}h_-(X^{-1}).
+\end{equation*}
+The degree bounds ensure that the auxiliary terms do not affect
+the constant coefficient. After receiving \(h_+\) and \(h_-\),
+the verifier samples
+\(\ext x\in\ExtensionField^\times\).
+Writing \(\ext{\bm a}=\bm g_A(\ext x)\) and
+\(\ext{\bm b}=\bm g_B(\ext x^{-1})\), it remains to prove:
+\[
+    \langle\ext{\bm a},\ext{\bm b}\rangle
+    =c+\ext xh_+(\ext x)+\ext x^{-1}h_-(\ext x^{-1}).
+\]
+The right-hand side is known to the verifier, and the auxiliary
+coefficients are sums of base-field cross-column products.
+
+\paragraph{Hadamard products.}
+For Hadamard products, the encoding must preserve each
+matching-column product separately.
+Given a committed \(\bm C\in\Field^{m\times\kappa}\), project
+\(\bm C=\bm A\circ\bm B\) with random tensor weights
+\(\ext{\bm l}\in\ExtensionField^m\) and
+\(\ext{\bm r}\in\ExtensionField^\kappa\).
+Each weight is a Kronecker product of two-entry MLE vectors.
+The projection is thus a random evaluation of the residual's
+multilinear extension, with error at most
+\(\log_2N/|\ExtensionField|\).
+We authenticate \(\ext c=\ext{\bm l}^{\top}\bm C\ext{\bm r}\) and prove:
+\[
+    \ext c=\ext{\bm l}^{\top}(\bm A\circ\bm B)\ext{\bm r}.
+\]
+The prover supplies claimed column products
+\(\ext c_j=\langle\ext{\bm l},
+\bm a^{(j)}\circ\bm b^{(j)}\rangle\), and the verifier checks
+\(\ext c=\ext{\bm c}^{\top}\ext{\bm r}\).
+
+Encode these column claims at distinct interpolation nodes.
+Choose \(\kappa\) distinct nodes
+\(\mathcal H=\{\alpha_1,\ldots,\alpha_\kappa\}\subseteq\Field\)
+and the Lagrange basis satisfying
+\(\psi_j(\alpha_i)=1\) for \(i=j\) and \(0\) otherwise.
+Use \(\bm\phi=(\psi_1,\ldots,\psi_\kappa)^\top\) in
+Eq.~\eqref{eq:overview-packing}, and set
+\(g_C(X)=\sum_{j=1}^{\kappa}\ext c_j\psi_j(X)\) and
+\(\Psi(X)=\prod_{j=1}^{\kappa}(X-\alpha_j)\).
+At \(\alpha_j\), the packed vectors recover column \(j\).
+All column claims therefore hold if and only if the residual is
+divisible by \(\Psi\):
+\begin{equation*}
+    \ext{\bm l}^{\top}
+      \bigl(\bm g_A(X)\circ\bm g_B(X)\bigr)-g_C(X)
+    =\Psi(X)h(X),
+    \qquad \deg h\leq\kappa-2,
+\end{equation*}
+where \(h\in\ExtensionField[X]\).
+Multiplication by \(\Psi\) fixes the residual at the interpolation
+nodes, playing the role of the nonzero powers in the inner-product
+encoding.
+After \(\ext{\bm c}\) and \(h\) are fixed, the verifier samples
+\(\ext x\in\ExtensionField\setminus\mathcal H\).
+With \(\ext{\bm a}=\bm g_A(\ext x)\) and
+\(\ext{\bm b}=\bm g_B(\ext x)\), the reduced claim is:
+\[
+    \langle\ext{\bm a},\ext{\bm b}\circ\ext{\bm l}\rangle
+    =g_C(\ext x)+\Psi(\ext x)h(\ext x).
+\]
+
+Both constructions terminate in a length-\(m\) inner product over
+\(\ExtensionField\), and hence use the same extension-field proof
+and commitment interface.
+
+\subsection{Prover Complexity}
+\label{sec:highLevelEfficiency}
+
+The saving depends on computing polynomial products before
+evaluation. For inner products, the prover computes \(h_+\) and
+\(h_-\) entirely over \(\Field\).
+For Hadamard products, it first multiplies the row polynomials over
+\(\Field\), then accumulates their coefficients with the
+extension-field weights \(\ext{\bm l}\) and divides the residual
+by \(\Psi\).
+This order keeps the row multiplications over the base field even
+though the weighted identity has extension-field coefficients.
+
+With precomputed bases, these steps cost
+\(O(m\kappa^2)=O(\kappa N)\) base-field operations and \(O(N)\)
+mixed-field operations. Evaluating the packed vectors also costs
+\(O(N)\) mixed-field operations, followed by \(O(m)\) extension-field
+operations for the inner-product reduction.
+Let \(\bb,\be,\ee\) denote the respective multiplication costs.
+Under schoolbook arithmetic,
+\(\be=\kappa\bb\) and \(\ee=\kappa^2\bb\).
+For the bases above and \(m\geq\kappa\), the reduction costs:
+\[
+    O(\kappa N)\,\bb+O(N)\,\be+O(N/\kappa)\,\ee
+    =O(\kappa N)\,\bb.
+\]
+The prover accumulates row products directly into the auxiliary
+coefficients. It stores the witness, a constant number of
+length-\(m\) extension-field vectors, and \(O(\kappa)\) auxiliary
+coefficients, using \(O(N+\kappa^2)=O(N)\) base-field coordinates.
+The uncompressed extension-field proof uses
+\(O(N\kappa^2)\) base-field operations and \(O(N\kappa)\) coordinates.
+These bounds exclude the commitment scheme.
+
+\subsection{Authenticating Packed Evaluations}
+\label{sec:highlevelPCS}
+
+The relation reductions use operands \(\bm A\ext{\bm\rho}\) whose
+packing weights depend on verifier challenges.
+The witness commitment must be fixed before these challenges.
+We therefore commit using a fixed basis and reduce
+challenge-dependent evaluations to openings of that commitment.
+Fix an \(\Field\)-basis
+\(\ext{\bm\beta}=(\ext\beta_1,\ldots,\ext\beta_\kappa)^\top\)
+of \(\ExtensionField\), and commit to
+\(\ext{\bm a}=\bm A\ext{\bm\beta}\in\ExtensionField^m\).
+This packing is injective over \(\Field^{m\times\kappa}\), so the
+commitment binds every column of \(\bm A\).
+
+\paragraph{From extension-field claims to base-field coordinates.}
+A terminal claim has the form
+\(\ext u=\langle\bm A\ext{\bm\rho},\ext{\bm\chi}\rangle\),
+where \(\ext{\bm\rho}\in\ExtensionField^\kappa\) gives the public
+packing weights and \(\ext{\bm\chi}\) is a public tensor query.
+For the weighted Hadamard operand, absorb \(\ext{\bm l}\) into the query;
+coordinatewise multiplication preserves its tensor structure.
+The prover supplies \(\ext{\bm v}=\bm A^\top\ext{\bm\chi}\), and
+the verifier checks \(\ext u=\ext{\bm\rho}^{\top}\ext{\bm v}\).
+
+It remains to authenticate \(\ext{\bm v}\).
+Its entries lie in \(\ExtensionField\), where the map that combines
+them with \(\ext{\bm\beta}\) is no longer injective.
+Instead, express the query and claimed values in base-field
+coordinates:
+\[
+    \ext{\bm\chi}=\bm\Xi\ext{\bm\beta},
+    \qquad
+    \ext{\bm v}=\bm V\ext{\bm\beta},
+    \qquad
+    \bm\Xi\in\Field^{m\times\kappa},
+    \quad \bm V\in\Field^{\kappa\times\kappa}.
+\]
+The column claims now form a base-field matrix identity.
+Packing its rows is injective and exposes the committed vector:
+\begin{equation*}
+    \bm V=\bm A^\top\bm\Xi
+    \quad\Longleftrightarrow\quad
+    \ext{\bm\beta}^{\top}\bm V
+    =\ext{\bm a}^{\top}\bm\Xi.
+\end{equation*}
+After \(\bm V\) is fixed, a uniform
+\(\ext{\bm r}\in\ExtensionField^\kappa\) reduces this row identity
+to one scalar claim, with error at most \(1/|\ExtensionField|\):
+\[
+    \ext{\bm\beta}^{\top}\bm V\ext{\bm r}
+    =\langle\ext{\bm a},\bm\Xi\ext{\bm r}\rangle.
+\]
+An extension-field inner-product proof leaves an MLE opening of
+\(\ext{\bm a}\) and a query-side claim
+\(\ext w=\ext{\bm\xi}^{\top}\bm\Xi\ext{\bm r}\), where
+\(\ext{\bm\xi}\in\ExtensionField^m\) is its terminal tensor weight.
+
+\paragraph{Checking the public query.}
+The columns of \(\bm\Xi\) need not retain the tensor structure of
+\(\ext{\bm\chi}\). We therefore cannot check the query-side claim
+by evaluating those columns succinctly.
+Our solution is to reduce it to inner products whose terminal
+weights lie in \(\Field\). For such weights, contraction commutes
+with taking base-field coordinates, allowing us to recover the
+required values from tensor evaluations.
+Decompose \(\ext{\bm\xi}=\bm U\ext{\bm\beta}\), with
+\(\bm U\in\Field^{m\times\kappa}\).
+The prover sends a claimed product
+\(\bm W=\bm U^\top\bm\Xi\in\Field^{\kappa\times\kappa}\);
+the verifier checks \(\ext w=\ext{\bm\beta}^{\top}\bm W\ext{\bm r}\).
+To check this base-field matrix product, the verifier independently
+samples uniform
+\(\bm s_{(i)},\bm t_{(i)}\in\Field^\kappa\) in each of \(k\)
+repetitions after \(\bm W\) is fixed. The prover proves:
+\[
+    \bm s_{(i)}^\top\bm W\bm t_{(i)}
+    =\langle\bm U\bm s_{(i)},\bm\Xi\bm t_{(i)}\rangle.
+\]
+Using base-field challenges in the inner-product reduction ensures
+that its terminal tensor weight \(\bm l_{(i)}\) lies in \(\Field^m\).
+The verifier recovers the two required rows as the coordinates of:
+\[
+    \langle\bm l_{(i)},\ext{\bm\xi}\rangle
+       =(\bm l_{(i)}^\top\bm U)\ext{\bm\beta},
+    \qquad
+    \langle\bm l_{(i)},\ext{\bm\chi}\rangle
+       =(\bm l_{(i)}^\top\bm\Xi)\ext{\bm\beta}.
+\]
+Each left-hand side is an inner product of tensor vectors and
+costs \(O(\log m)\) extension-field operations to evaluate.
+The verifier combines the recovered rows with \(\bm s_{(i)}\) and
+\(\bm t_{(i)}\) to check the terminal values, without constructing
+the full matrices \(\bm U\) and \(\bm\Xi\).
+
+One repetition has error at most \((2\log_2m+2)/|\Field|\),
+including the matrix projection and inner-product reduction.
+For security parameter \(\lambda\), choose \(k\) so that
+\(((2\log_2m+2)/|\Field|)^k\leq2^{-\lambda}\), assuming
+\(|\Field|>2\log_2m+2\).
+For \(m\geq\kappa\), the prover computes \(\bm W\) in
+\(O(\kappa N)\) base-field operations and spends \(O(kN)\) on the
+repetitions.
+Sequential repetition uses \(O(N+\kappa^2)\) base-field coordinates
+and requires no additional witness commitment.

@@ -1,0 +1,66 @@
+{"stage": "waiting_for_idle", "utc": "2026-09-12T12:05:47Z", "competing_processes": [], "available_bytes": 389864751104, "required_bytes": 0, "quiet_checks": 0}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T12:05:52Z", "competing_processes": [], "available_bytes": 389865349120, "required_bytes": 0, "quiet_checks": 1}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T12:05:57Z", "competing_processes": [], "available_bytes": 389870600192, "required_bytes": 0, "quiet_checks": 2}
+{"stage": "fetch", "utc": "2026-09-12T12:06:02Z"}
+{"stage": "fetch", "utc": "2026-09-12T12:06:02Z", "pid": 3539282}
+{"stage": "native-tests", "utc": "2026-09-12T12:06:04Z"}
+{"stage": "native-tests", "utc": "2026-09-12T12:06:04Z", "pid": 3539299}
+{"stage": "native-build", "utc": "2026-09-12T12:06:32Z"}
+{"stage": "native-build", "utc": "2026-09-12T12:06:32Z", "pid": 3541294}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T12:06:34Z", "competing_processes": [], "available_bytes": 388918525952, "required_bytes": 0, "quiet_checks": 0}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T12:06:39Z", "competing_processes": [], "available_bytes": 389064654848, "required_bytes": 0, "quiet_checks": 1}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T12:06:44Z", "competing_processes": [], "available_bytes": 389190508544, "required_bytes": 0, "quiet_checks": 2}
+{"stage": "smoke-n20-48t-attempt1", "utc": "2026-09-12T12:06:49Z"}
+{"stage": "smoke-n20-48t-attempt1", "utc": "2026-09-12T12:06:49Z", "pid": 3541310}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T12:06:51Z", "competing_processes": [], "available_bytes": 389498695680, "required_bytes": 0, "quiet_checks": 0}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T12:06:56Z", "competing_processes": [], "available_bytes": 389526757376, "required_bytes": 0, "quiet_checks": 1}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T12:07:01Z", "competing_processes": [], "available_bytes": 389555236864, "required_bytes": 0, "quiet_checks": 2}
+{"stage": "main-n26-48t-attempt1", "utc": "2026-09-12T12:07:06Z"}
+{"stage": "main-n26-48t-attempt1", "utc": "2026-09-12T12:07:06Z", "pid": 3541417}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T12:07:30Z", "competing_processes": [], "available_bytes": 387381231616, "required_bytes": 236223201280, "quiet_checks": 0}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T12:07:35Z", "competing_processes": [], "available_bytes": 387407839232, "required_bytes": 236223201280, "quiet_checks": 1}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T12:07:40Z", "competing_processes": [], "available_bytes": 387423539200, "required_bytes": 236223201280, "quiet_checks": 2}
+{"stage": "main-n30-24t-attempt1", "utc": "2026-09-12T12:07:45Z"}
+{"stage": "main-n30-24t-attempt1", "utc": "2026-09-12T12:07:45Z", "pid": 3541541}
+{"stage": "retry_after_interference", "utc": "2026-09-12T12:15:03Z", "excluded_stage": "main-n30-24t-attempt1"}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T12:15:03Z", "competing_processes": [], "available_bytes": 388961894400, "required_bytes": 236223201280, "quiet_checks": 0}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T12:15:08Z", "competing_processes": [], "available_bytes": 389006028800, "required_bytes": 236223201280, "quiet_checks": 1}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T12:15:13Z", "competing_processes": [], "available_bytes": 389046915072, "required_bytes": 236223201280, "quiet_checks": 2}
+{"stage": "main-n30-24t-attempt2", "utc": "2026-09-12T12:15:18Z"}
+{"stage": "main-n30-24t-attempt2", "utc": "2026-09-12T12:15:18Z", "pid": 3545386}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T12:22:36Z", "competing_processes": [], "available_bytes": 385647906816, "required_bytes": 236223201280, "quiet_checks": 0}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T12:22:41Z", "competing_processes": [], "available_bytes": 385709756416, "required_bytes": 236223201280, "quiet_checks": 1}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T12:22:46Z", "competing_processes": [], "available_bytes": 385763110912, "required_bytes": 236223201280, "quiet_checks": 2}
+{"stage": "cold-rss-n30-24t-previous-attempt1", "utc": "2026-09-12T12:22:51Z"}
+{"stage": "cold-rss-n30-24t-previous-attempt1", "utc": "2026-09-12T12:22:51Z", "pid": 3546747}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T12:23:17Z", "competing_processes": [], "available_bytes": 383295614976, "required_bytes": 236223201280, "quiet_checks": 0}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T12:23:22Z", "competing_processes": [], "available_bytes": 383467483136, "required_bytes": 236223201280, "quiet_checks": 1}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T12:23:27Z", "competing_processes": [], "available_bytes": 383564128256, "required_bytes": 236223201280, "quiet_checks": 2}
+{"stage": "cold-rss-n30-24t-optimized-attempt1", "utc": "2026-09-12T12:23:32Z"}
+{"stage": "cold-rss-n30-24t-optimized-attempt1", "utc": "2026-09-12T12:23:32Z", "pid": 3546873}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T12:23:58Z", "competing_processes": [], "available_bytes": 383572955136, "required_bytes": 236223201280, "quiet_checks": 0}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T12:24:03Z", "competing_processes": [], "available_bytes": 383471144960, "required_bytes": 236223201280, "quiet_checks": 1}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T12:24:08Z", "competing_processes": [], "available_bytes": 383600848896, "required_bytes": 236223201280, "quiet_checks": 2}
+{"stage": "cold-rss-n30-24t-flock-attempt1", "utc": "2026-09-12T12:24:13Z"}
+{"stage": "cold-rss-n30-24t-flock-attempt1", "utc": "2026-09-12T12:24:13Z", "pid": 3546966}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T12:24:35Z", "competing_processes": [], "available_bytes": 385781837824, "required_bytes": 236223201280, "quiet_checks": 0}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T12:24:40Z", "competing_processes": [], "available_bytes": 385861820416, "required_bytes": 236223201280, "quiet_checks": 1}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T12:24:45Z", "competing_processes": [], "available_bytes": 385809981440, "required_bytes": 236223201280, "quiet_checks": 2}
+{"stage": "main-n30-48t-attempt1", "utc": "2026-09-12T12:24:50Z"}
+{"stage": "main-n30-48t-attempt1", "utc": "2026-09-12T12:24:51Z", "pid": 3547032}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T12:30:46Z", "competing_processes": [], "available_bytes": 388189118464, "required_bytes": 236223201280, "quiet_checks": 0}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T12:30:51Z", "competing_processes": [], "available_bytes": 388240961536, "required_bytes": 236223201280, "quiet_checks": 1}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T12:30:56Z", "competing_processes": [], "available_bytes": 388293476352, "required_bytes": 236223201280, "quiet_checks": 2}
+{"stage": "cold-rss-n30-48t-previous-attempt1", "utc": "2026-09-12T12:31:01Z"}
+{"stage": "cold-rss-n30-48t-previous-attempt1", "utc": "2026-09-12T12:31:01Z", "pid": 3548034}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T12:31:23Z", "competing_processes": [], "available_bytes": 386249150464, "required_bytes": 236223201280, "quiet_checks": 0}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T12:31:28Z", "competing_processes": [], "available_bytes": 386358820864, "required_bytes": 236223201280, "quiet_checks": 1}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T12:31:33Z", "competing_processes": [], "available_bytes": 386445955072, "required_bytes": 236223201280, "quiet_checks": 2}
+{"stage": "cold-rss-n30-48t-optimized-attempt1", "utc": "2026-09-12T12:31:38Z"}
+{"stage": "cold-rss-n30-48t-optimized-attempt1", "utc": "2026-09-12T12:31:38Z", "pid": 3548165}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T12:31:58Z", "competing_processes": [], "available_bytes": 385937920000, "required_bytes": 236223201280, "quiet_checks": 0}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T12:32:03Z", "competing_processes": [], "available_bytes": 386087145472, "required_bytes": 236223201280, "quiet_checks": 1}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T12:32:08Z", "competing_processes": [], "available_bytes": 386227564544, "required_bytes": 236223201280, "quiet_checks": 2}
+{"stage": "cold-rss-n30-48t-flock-attempt1", "utc": "2026-09-12T12:32:13Z"}
+{"stage": "cold-rss-n30-48t-flock-attempt1", "utc": "2026-09-12T12:32:13Z", "pid": 3548336}
+{"stage": "complete", "utc": "2026-09-12T12:32:35Z", "accepted_cases": 10}

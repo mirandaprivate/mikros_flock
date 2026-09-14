@@ -1,0 +1,17 @@
+{
+  "pid": 3673412,
+  "argv": [
+    "python3",
+    "/home/mscong1/mikros-experiments/20260912T-native64/gruen-20260913-n30/source/run_server.py",
+    "--out",
+    "/home/mscong1/mikros-experiments/20260912T-native64/gruen-20260913-n30/results",
+    "--n",
+    "20,30",
+    "--threads",
+    "64",
+    "--cpus",
+    "0-47,48-55,72-79",
+    "--reps",
+    "8"
+  ]
+}

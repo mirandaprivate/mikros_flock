@@ -1,0 +1,205 @@
+% !TEX root = main.tex
+\begin{table*}[p]
+\resizebox{\linewidth}{!}{
+\begin{threeparttable}
+\caption{Comparison of zkSNARKs for Arithmetic Circuit Satisfaction}
+\label{table:compare}
+\begin{tabular}
+% {@{}l@{}c c c c c}
+	{>{\arraybackslash}p{2.3cm}
+	>{\centering\arraybackslash}p{2.cm}>{\centering\arraybackslash}p{2.cm}
+	% >{\centering\arraybackslash}p{1.1cm}|
+	>{\centering\arraybackslash}p{2.cm}
+	>{\centering\arraybackslash}p{1.cm}
+	>{\centering\arraybackslash}p{1.7cm}
+	}
+	\toprule
+	%\multirow{2}{*}{Protocol}	& \multirow{2}{*}{\makecell{Proof Size}} 
+	%& \multicolumn{2}{c}{ \makecell{ Timing}} 
+	%\\ 
+	% % \cline{3-4}
+	% & & \makecell{Prover }& \makecell{Verifier } \\
+	Protocol
+	 & Prover Time
+	 & Proof Size
+	 & \makecell{Verifier Time}
+	 & \makecell{Arith.}
+	 & \makecell{Assump.}
+	%\\
+	%\midrule
+	%\multicolumn{6}{l}{\bf Asymptotic efficiency}
+	\\
+	\hline
+	Groth16~\cite{eurocrypt/Groth16}
+	 & $O(m)\exps$
+	 & $O(1)\Group$
+	 & $O(1)\pairing$
+	 & QAP
+	 & $q$-type, RO
+	\\
+	\hline
+	SuperSonic~\cite{eurocrypt/BunzFS20}
+	 & $O(m\log m)\exps$
+	 & $O(\log m)\Group$
+	 & $O(\log m)\exps$
+	 & QAP
+	 & UOG, RO
+	\\
+	\hline
+	Hyrax~\cite{sp/WahbyTSTW18}
+	 & \makecell[c]{$O(N+$					\\$d \log \frac{N}{d})\exps$}
+	 & \makecell[c]{$O(\sqrt{N})\Field + $			 \\$ O(d \log \frac{N}{d})\Group$}
+	 & \makecell[c]{$O( \sqrt{N})\muls + $			\\$ O(d \log \frac{N}{d})\exps$}
+	 & LC
+	 & DLOG, RO
+	\\
+	\hline
+	Virgo~\cite{sp/ZhangX0S20}
+	 & \makecell[c]{$O(N +$					 \\ $ \frac{N}{d}\log \frac{N}{d})$\\ $(\muls+\hashes)$}
+	 & \makecell[c]{$O(d\log N+ $			 \\$\log^2 \frac{N}{d})\Field$}
+	 & \makecell[c]{$O(d\log N+ $			 \\$\log^2 \frac{N}{d})\hashes$}
+	 & LC
+	 & RO										\\
+	\hline
+	Libra~\cite{crypto/XieZZPS19}
+	 & $O(N)\exps$
+	 & $O(d\log N)\Group$
+	 & $O(d\log N)\pairing$
+	 & LC
+	 & $q$-type, RO
+	\\
+	\hline
+	Plonk~\cite{iacr/GabizonWC19}
+	 & \makecell[c]{$O(N)\exps+$ \\ $O(N\log N)\muls$}
+	 & $O(1)\Group$
+	 & $O(1)\pairing$
+	 & Plonk
+	 & $q$-type, RO
+	\\
+	\hline
+	HyperPlonk~\cite{eurocrypt/ChenBBZ23}
+	 & \makecell[c]{$O(N)(\muls+\hashes)$	 \\$+O(\sqrt{N})\exps$}
+	 & $O(\log N)\Group$
+	 & $O(\log N)\pairing$
+	 & Plonk
+	 & SXDH, RO
+	\\
+	\hline
+	Poppins~\cite{iacr/KothapalliMP20}
+	 & $O(N)\exps$
+	 & $O(1)\Group$
+	 & $O(1)\pairing$
+	 & ACS
+	 & $q$-type, RO
+	\\
+	\hline
+	Sonic~\cite{ccs/MallerBKM19}
+	 & $O(N)\exps$
+	 & $O(1)\Group$
+	 & $O(1)\pairing$
+	 & R1CS
+	 & AGM, RO
+	\\
+	\hline
+	Marlin~\cite{eurocrypt/ChiesaHMMVW20}
+	 & \makecell[c]{$O(N)\exps+$				\\$O(N\log N)\muls$}
+	 & $O(\log N)\Field$
+	 & $O(\log N)\muls$
+	 & R1CS
+	 & AGM, RO
+	\\
+	\hline
+	Spartan~\cite{crypto/Setty20}
+	 & $O(N)\exps$
+	 & $O(\log^2 N)\Group$
+	 & $O(\sqrt{N})\muls$
+	 & R1CS
+	 & DLOG, RO
+	\\
+	\hline
+	Xiphos~\cite{iacr/SettyL20}
+	 & $O(N)\exps$
+	 & $O(\log N)\Group$
+	 & $O(\log N)\exps$
+	 & R1CS
+	 & SXDH, RO
+	\\
+	\hline
+	Fractal~\cite{eurocrypt/ChiesaOS20}
+	 & \makecell[c]{$O(N\log N)$				\\$(\muls + \hashes)$}
+	 & $O(\log^2 N)\Field$
+	 & $O(\log^2 N)\hashes$
+	 & R1CS
+	 & RO
+	\\
+	\hline
+	BCG20~\cite{tcc/BootleCG20}
+	 & $O(N)(\muls+\hashes)$
+	 & $O(N^{1/\epsilon})\Field$
+	 & $ O(N^{1/\epsilon})\hashes$
+	 & R1CS
+	 & RO
+	\\
+	\hline
+	BCL22~\cite{eurocrypt/BootleCL22}
+	 & $O(N)(\muls+\hashes)$
+	 & $O(\log^\epsilon N)\Field$
+	 & $ O(\log ^\epsilon N)\hashes$
+	 & R1CS
+	 & RO
+	\\
+	\midrule
+	Brakedown~\cite{crypto/GolovnevLSTW23}
+	 & $O(N)(\muls+\hashes)$
+	 & $O(\log^2 N)\Field$
+	 & $ O(\log^2 N)\hashes$
+	 & R1CS
+	 & RO
+	\\
+	% \hline
+	% This work
+	%  & $O(N)(\muls+\hashes)$
+	%  & $O(\log^2 N)\Field$
+	%  & $ O(\log^2 N)\hashes$
+	%  & R1CS
+	%  & RO
+	% \\
+	% \hline
+	% \hline
+	% \multicolumn{6}{l}{\bf Concrete efficiency}
+	% \\
+	% \hline
+	% Brakedown~\cite{crypto/GolovnevLSTW23}
+	%  & \makecell[c]{$ \simeq (20m $			 \\$+ 3N) \mathbb{M}$ $+\pccost$}
+	%  & \makecell[c]{$\simeq 7 \log_2 m\Field$ \\$ + \zkcost + \pccost$}
+	%  & \makecell[c]{$ \simeq 7 \log_2 m \muls $ \\$ +\zkcost+\pccost$}
+	%  & R1CS
+	%  & RO										\\
+	% \hline
+	% This work
+	%  & \makecell[c]{$ \simeq (12 m $			\\$ + 3N) \mathbb{M}$ $ + \pccost$}
+	%  & \makecell[c]{$\simeq 4\log_2 m\Field$	\\$ +\zkcost + \pccost$}
+	%  & \makecell[c]{ $ \simeq 4 \log_2 m \muls$ \\$+\zkcost +\pccost$}
+	%  & R1CS
+	%  & RO										\\
+	\bottomrule
+\end{tabular}
+\begin{tablenotes}
+	\item[Note]
+	Costs are based on a size-$N$ arithmetic circuit with $m$ multiplication gates, divided into $d$ layers in some methods.
+	$\epsilon \ge 2$ is a positive constant integer.
+	$\lambda$ is the security parameter.
+	Only dominant terms are shown.
+	$\Field$ and $\Group$ represent 
+	%the number of 
+	field elements and DLOG/pairing group elements.
+	$\muls$, $\hashes$, $\exps$, and $\pairing$ denote field multiplications, hashes, scalar multiplications, and pairings.
+	QAP, LC, ACS, and R1CS stand for the arithmetization (Arith.) methods of quadratic assignment problem, layered circuit, algebraic constraint satisfiability, and rank-1 constraint system.
+	RO, AGM, DLOG, UOG, SXDH, and $q$-type indicate assumptions (Assump.) of random oracle, algebraic group model, discrete logarithm, unknown-order group, symmetric external Diffie-Hellman, and the $q$-type (bilinear) Diffie-Hellman/knowledge of exponent.
+\end{tablenotes}
+\end{threeparttable}
+}
+\end{table*}
+	% Asymptotic efficiency of zkSNARKs for arithmetic circuits.
+	% $\zkcost$ and $\pccost$ represent the costs of zk transformations and MLPCs.
+	% Since $\zkcost$ is linear with proof size, it is higher for Brakedown than for our approach, while $\pccost$ remains the same for both.

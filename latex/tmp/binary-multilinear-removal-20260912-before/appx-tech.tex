@@ -1,0 +1,485 @@
+\clearpage
+\section{Deferred Technical Details}
+\label{appx:tech}
+
+\subsection{Pseudocode}
+\label{appx:pseudocode}
+
+We give the protocols in order of composition:
+Algorithms~\ref{alg:ip}, \ref{alg:hadamard}, and
+\ref{alg:permutation} implement the packed reductions of
+Section~\ref{sec:blocks}; Algorithm~\ref{alg:packed-pcs}
+authenticates their terminal evaluations as in Section~\ref{sec:pcs};
+and Algorithms~\ref{alg:single-instance-packing} and
+\ref{alg:multiple-instance-packing} compose these components
+for the two settings of Section~\ref{sec:together}.
+For the intermediate-field variant of Section~\ref{sec:hadamard},
+Algorithm~\ref{alg:hadamard} uses the Lagrange basis over
+\(\mathbb K\) and computes its quotient via
+Eq.~\eqref{eq:hadamard-small-field-aggregation}.
+Tabulation changes this computation, not the messages or checks.
+
+\input{alg/alg-ip}
+\input{alg/alg-hadamard}
+\input{alg/alg-permutation}
+\input{alg/alg-pcs}
+\input{alg/alg-single-instance}
+\input{alg/alg-multiple-instance}
+
+\clearpage
+
+\subsection{Packed Polynomial Commitment Scheme}
+\label{appx:pcs}
+
+\input{5-pcs}
+
+\clearpage
+
+\subsection{Binary Hadamard Packing in a Mixed Tensor Basis}
+\label{appx:binary-hadamard}
+
+Let \(\Field=\mathbb F_2\), \(\kappa=2^s\), and
+\(N=m\kappa\), with \([\ExtensionField:\Field]=\kappa\).
+We give a direct construction of the \(s\) quotient polynomials
+in Eq.~\eqref{eq:overview-multivariate-hadamard} for the Boolean
+grid. Unlike the intermediate-field variant of
+Section~\ref{sec:hadamard}, this construction keeps the row
+polynomials over \(\mathbb F_2\).
+The construction retains the quotients in a mixed tensor
+basis and uses no general extension-field multiplication.
+The row weights \(\ext{\bm l}\in\ExtensionField^m\) are assumed
+to have been computed already.
+
+Order the columns of \(\bm A,\bm B\in\Field^{m\times\kappa}\)
+lexicographically by \(\{0,1\}^s\), and use the Boolean
+Lagrange basis:
+\[
+    \bm\psi(\bm X)=
+       \bigotimes_{\ell=1}^s
+       \begin{pmatrix}1-X_\ell\\X_\ell\end{pmatrix},
+    \qquad
+    \bm g_A(\bm X)=\bm A\bm\psi(\bm X),
+    \quad
+    \bm g_B(\bm X)=\bm B\bm\psi(\bm X).
+\]
+For the claimed column products \(\ext{\bm c}\), set
+\(g_C(\bm X)=\ext{\bm c}^{\top}\bm\psi(\bm X)\).
+The weighted residual and the required certificate are:
+\begin{equation}
+\begin{aligned}
+    f(\bm X)
+      &\coloneqq\ext{\bm l}^{\top}
+          \bigl(\bm g_A(\bm X)\circ\bm g_B(\bm X)\bigr)
+          -g_C(\bm X),\\
+    f(\bm X)&=\sum_{j=1}^s(X_j^2-X_j)h_j(\bm X).
+\end{aligned}
+\label{eq:binary-hadamard-certificate}
+\end{equation}
+Indeed, \(I(\{0,1\}^s)=
+\langle X_1^2-X_1,\ldots,X_s^2-X_s\rangle\).
+Thus there are \(s\) quotients rather than a single univariate
+quotient.
+
+\smallskip\noindent\textbf{A three-term product identity.}
+For \(A(X)=(1-X)a_0+Xa_1\) and
+\(B(X)=(1-X)b_0+Xb_1\), the following identity holds over any
+characteristic-two coefficient ring:
+\begin{equation}
+\begin{aligned}
+    A(X)B(X)
+      &=(1-X)a_0b_0+Xa_1b_1\\
+      &\quad +(X^2-X)(a_0+a_1)(b_0+b_1).
+\end{aligned}
+\label{eq:binary-three-term-product}
+\end{equation}
+Define the quadratic basis and the binary transform matrix:
+\[
+    \begin{pmatrix}\chi_0(X)\\\chi_1(X)\\\chi_2(X)\end{pmatrix}
+       =\begin{pmatrix}1-X\\X\\X^2-X\end{pmatrix},
+    \qquad
+    \bm T=\begin{pmatrix}1&0\\0&1\\1&1\end{pmatrix}.
+\]
+Eq.~\eqref{eq:binary-three-term-product} says that the
+coefficient vector of \(A B\) in this basis is
+\(\bm T(a_0,a_1)^\top\circ\bm T(b_0,b_1)^\top\).
+Tensorizing over all variables gives:
+\begin{equation}
+\begin{aligned}
+    \bm U_A&=\bm A(\bm T^{\otimes s})^{\top},
+    &\bm U_B&=\bm B(\bm T^{\otimes s})^{\top}
+        \in\Field^{m\times3^s},\\
+    \ext{\bm H}&=(\bm U_A\circ\bm U_B)^{\top}\ext{\bm l},
+    &\bm\chi(\bm X)&=\bigotimes_{\ell=1}^s
+        \begin{pmatrix}
+          \chi_0(X_\ell)\\\chi_1(X_\ell)\\\chi_2(X_\ell)
+        \end{pmatrix},\\
+    \ext{\bm l}^{\top}
+        \bigl(\bm g_A(\bm X)\circ\bm g_B(\bm X)\bigr)
+      &=\ext{\bm H}^{\top}\bm\chi(\bm X).
+\end{aligned}
+\label{eq:binary-tensor-product}
+\end{equation}
+The entries of \(\bm U_A\) and \(\bm U_B\) are bits.
+Their coordinatewise products require only AND, and weighting
+each product by \(\ext l_i\) means either adding \(\ext l_i\)
+or adding zero. These are coefficient transforms, not evaluations
+at a third Boolean-field point.
+
+\smallskip\noindent\textbf{Quotient coefficients.}
+Index \(\ext{\bm H}\) by
+\(\bm t\in\{0,1,2\}^s\).
+The \(2^s\) entries with \(\bm t\in\{0,1\}^s\) are exactly
+the weighted column products on the Boolean grid. In an honest
+execution, they equal \(\ext{\bm c}\) and cancel with \(g_C\).
+Assign every remaining entry to the first coordinate \(j\) for
+which \(t_j=2\). This defines all quotients directly:
+\begin{equation}
+    h_j(\bm X)=
+    \sum_{\substack{\bm t\in\{0,1,2\}^s\\
+                    t_j=2,\ t_1,\ldots,t_{j-1}\in\{0,1\}}}
+        \ext H_{\bm t}
+        \prod_{\ell<j}\chi_{t_\ell}(X_\ell)
+        \prod_{\ell>j}\chi_{t_\ell}(X_\ell).
+\label{eq:binary-mixed-quotients}
+\end{equation}
+In particular, \(h_j\) is independent of \(X_j\), uses the
+two-term Lagrange basis in earlier variables, and the three-term
+quadratic basis in later variables. Its coefficient slots and
+total degree satisfy:
+\[
+    \text{slots in }h_j=2^{j-1}3^{s-j},
+    \qquad
+    \deg h_j\leq(j-1)+2(s-j)=2s-j-1.
+\]
+The total number of coefficient slots is:
+\begin{equation}
+    Q\coloneqq\sum_{j=1}^s2^{j-1}3^{s-j}
+      =3^s-2^s=\kappa^{\log_2 3}-\kappa.
+\label{eq:binary-quotient-size}
+\end{equation}
+For example, \(Q=19,65,665,2059\) for
+\(\kappa=8,16,64,128\), respectively.
+Grouping the terms of Eq.~\eqref{eq:binary-tensor-product} in
+this way gives Eq.~\eqref{eq:binary-hadamard-certificate}
+without expanding into monomials or performing polynomial division.
+
+\smallskip\noindent\textbf{Construction cost and storage.}
+Apply \(\bm T^{\otimes s}\) recursively rather than as a dense
+matrix. Splitting an input into two halves requires \(2^{s-1}\)
+XORs to form their sum, followed by three transforms on
+\(s-1\) variables. The number \(T_s\) of bit XORs per input row is:
+\[
+    T_0=0,
+    \qquad T_s=3T_{s-1}+2^{s-1},
+    \qquad T_s=3^s-2^s=Q.
+\]
+For each row, compute the transformed bits, AND the corresponding
+entries needed by the quotients, and XOR \(\ext l_i\) into each
+accumulator whose bit is one. Process rows sequentially; the
+matrices \(\bm U_A,\bm U_B\) need not be stored in full.
+The counts for generating all quotient coefficients are:
+\begin{center}
+\begin{tabular}{@{}l@{\quad}r@{\quad}l@{}}
+\toprule
+Step & Count & Unit \\
+\midrule
+Transform both inputs & \(2mQ\) & bit XORs \\
+Form quotient product coefficients & \(mQ\) & bit ANDs \\
+Accumulate weighted coefficients & at most \(mQ\) & extension-field XORs \\
+Store all quotients & \(Q\) & extension-field elements \\
+\bottomrule
+\end{tabular}
+\end{center}
+Quotient construction uses \(O(m\kappa^{\log_2 3})\) bit
+operations. The extension-field XOR count has the same bound;
+no general extension-field multiplication is needed.
+Equivalently, both counts are
+\(O(N\kappa^{\log_2 3-1})\).
+If the column products \(\ext{\bm c}\) have not already been
+computed, they require another \(m\kappa\) bit ANDs and at most
+\(m\kappa\) extension-field XORs, which fit the same asymptotic
+bounds. Besides the inputs, supplied weights, and column-claim
+vector, a row-streamed implementation stores \(Q\)
+extension-field accumulators and
+\(O(3^s)\) bits of transform workspace.
+
+An extension-field XOR is not a single-bit operation.
+Since an element of \(\ExtensionField\) has \(\kappa\) binary
+coordinates, the quotient-construction bound in single-bit units is:
+\[
+    \text{XORs}\leq(\kappa+2)mQ,
+    \qquad
+    \text{ANDs}=mQ.
+\]
+With \(w\)-bit words, accumulation uses at most
+\(mQ\lceil\kappa/w\rceil\) word XORs.
+These counts exclude loads, selection masks, and writes.
+Retaining the mixed tensor representation is part of the bound;
+conversion to monomial coefficients would require a separate cost.
+
+\smallskip\noindent\textbf{Reduction after the quotients are fixed.}
+The verifier keeps the column-claim check
+\(\ext c=\ext{\bm c}^{\top}\ext{\bm r}\) from
+Section~\ref{sec:hadamard}.
+The prover sends \(\ext{\bm c}\) and all \(Q\) quotient
+coefficients before the verifier samples independent uniform
+coordinates \(\ext{\bm x}\in\ExtensionField^s\).
+The allowed mixed bases enforce the degree bounds above.
+Evaluating Eq.~\eqref{eq:binary-hadamard-certificate} yields:
+\[
+    \left\langle\bm g_A(\ext{\bm x}),
+      \bm g_B(\ext{\bm x})\circ\ext{\bm l}\right\rangle
+      =g_C(\ext{\bm x})+
+       \sum_{j=1}^s(\ext x_j^2-\ext x_j)h_j(\ext{\bm x}).
+\]
+A false column claim leaves a nonzero residual on the Boolean
+grid, regardless of the quotient coefficients. Its total degree
+is at most \(2s\), so the identity test has error at most
+\(2s/|\ExtensionField|\).
+The resulting length-\(m\) inner product and terminal openings
+use the existing interfaces. The costs above concern quotient
+generation only: generating the row weights, evaluating at the
+challenge, and executing the subsequent proof and openings are
+separate stages and may require extension-field multiplications.
+
+\begin{proposition}[Binary Hadamard proof: total complexity]
+\label{proposition:binary-hadamard-complexity}
+Let \(\Field=\mathbb F_2\), \(\kappa=2^s\geq2\), and
+\(N=m\kappa\), where \(m\) is a power of two.
+Let \(\ExtensionField/\Field\) have degree \(\kappa\), represented
+in a polynomial basis with schoolbook arithmetic.
+For committed matrices
+\(\bm A,\bm B,\bm C\in\Field^{m\times\kappa}\), the mixed-tensor
+construction above, followed by Fact~\ref{fact:ip} and three
+packed openings from Proposition~\ref{proposition:packed-pcs},
+gives a complete proof of \(\bm A\circ\bm B=\bm C\).
+Including weight generation and all packed-opening reductions,
+but excluding the underlying PCS commitments and openings, its
+costs are:
+\[
+\begin{aligned}
+    \text{Prover time}
+      &:\quad O\bigl(N\kappa^{\log_2 3}+\kappa^3\bigr)
+          \text{ bit operations},\\
+    \text{Verifier time}
+      &:\quad O\bigl(\kappa^{2+\log_2 3}
+              +\kappa^3(1+\log_2m)\bigr)
+          \text{ bit operations},\\
+    \text{Communication}
+      &:\quad O\bigl(\kappa^{\log_2 3}+\log_2m\bigr)
+          \text{ extension-field elements},\\
+    \text{Prover RAM}
+      &:\quad O\bigl(N+\kappa^{1+\log_2 3}\bigr)
+          \text{ bits}.
+\end{aligned}
+\]
+If the underlying PCS has evaluation-soundness error
+\(\epsilon_{\mathsf{PCS}}\) for adaptively chosen claims, the
+soundness error is at most:
+\[
+    3\epsilon_{\mathsf{PCS}}
+    +\frac{3\log_2N+6\log_2m+3}{|\ExtensionField|}.
+\]
+The excluded costs are those of three underlying commitments and
+three underlying openings, including their workspace.
+In particular, the prover time is
+\(O(N\kappa^{\log_2 3})\) when \(m\geq\kappa\), and the
+prover RAM is \(O(N)\) bits when \(m\geq\kappa^{\log_2 3}\).
+\end{proposition}
+
+We prove Proposition~\ref{proposition:binary-hadamard-complexity}
+in Appendix~\ref{appx:proof-binary-hadamard}.
+
+\clearpage
+
+\subsection{Complexity Bounds for the Hadamard Comparison}
+\label{appx:hadamard-comparison}
+
+Table~\ref{tab:hadamard-comparison} compares proofs of
+\(\bm a\circ\bm b=\bm c\) for length-\(N\) vectors.
+The constraint \(a_i b_i-c_i\) has degree two. Costs include equality
+weights, the linear output check, witness-dependent preprocessing, and all reduction
+rounds, but exclude commitments and openings. The derived upper bounds
+use schoolbook arithmetic: multiplication in
+\(\Field\times\Field\), \(\Field\times\ExtensionField\), and
+\(\ExtensionField\times\ExtensionField\) costs \(O(1)\),
+\(O(\kappa)\), and \(O(\kappa^2)\), respectively, where
+\(\kappa=[\ExtensionField:\Field]\). RAM counts base-field elements
+including inputs and read-only tables, not measured RSS.
+Public field and basis preprocessing is separate; lookup-table
+construction is accounted for below. Table accesses are charged
+per base-field coordinate, as in Section~\ref{sec:notation}.
+
+\smallskip\noindent\textbf{Optimized rounds and omitted terms.}
+Let \(0\leq t\leq\log_2N\) count optimized or skipped rounds.
+For small-field-first~\cite{iacr/BagadDT24,iacr/BagadDDT25,iacr/DaoDBDT26},
+streamed prefix binding and a weighted \(3^t\)-entry quadratic grid give:
+\begin{equation}
+\begin{aligned}
+\text{Arithmetic:}\quad&
+O\!\left(\kappa N(3/2)^t+\kappa^2N/2^t+\kappa^2 3^t\right),\\
+\text{RAM:}\quad& O\!\left(N+\kappa N/2^t+\kappa 3^t\right).
+\end{aligned}
+\label{eq:hadamard-sff-full-cost}
+\end{equation}
+The last terms account for grid contractions and storage.
+For \(N\geq6^t\), they are absorbed by the corresponding
+\(N/2^t\) terms, yielding the table entries.
+For univariate skip~\cite{iacr/Gruen24}, including FFT interpolation,
+weighting, binding, first-round processing, and the sumcheck tail gives:
+\begin{equation}
+\begin{aligned}
+\text{Arithmetic:}\quad&
+O\!\left(Nt+\kappa N+\kappa^2N/2^t+\kappa^2 2^t\right),\\
+\text{RAM:}\quad& O\!\left(N+\kappa N/2^t+\kappa 2^t\right).
+\end{aligned}
+\label{eq:hadamard-skip-full-cost}
+\end{equation}
+Here \(N\geq4^t\) suffices to absorb the last terms.
+The \(Nt\) term uses FFT interpolation on suitable subgroup
+and off-domain evaluation sets. The protocol also admits general
+interpolation sets~\cite[Section~5.1, footnote~18]{iacr/Gruen24},
+with their interpolation cost accounted for separately. When supported,
+\(2^t=\Theta(\kappa)\) and \(N=\Omega(\kappa^2)\) give
+\(O(\kappa N)\) arithmetic and \(O(N)\) RAM.
+For \(t\) fixed by \(\kappa\), the omitted terms are independent of
+\(N\). If the absorption conditions fail, use the full bounds in
+Eq.~\eqref{eq:hadamard-sff-full-cost} and
+Eq.~\eqref{eq:hadamard-skip-full-cost}.
+For degree-two constraints, the off-domain first-round values in
+Gruen's protocol and the quotient coefficients in our Hadamard
+reduction represent the same vanishing residual. Its known zeros
+on the interpolation set determine the conversion between the two
+representations~\cite[Section~6]{iacr/Gruen24}.
+
+\smallskip\noindent\textbf{Flock's lookup-based skip.}
+We re-cost the degree-two zerocheck of
+Flock~\cite[Sections~4.2--4.4]{iacr/BunzRW26} with a conventional
+sumcheck tail. Fix its byte-sized chunks and subfield
+\(\mathbb F_{256}\subseteq\ExtensionField\), and let
+\(3\leq t\leq7\) be the number of skipped variables.
+Each row has \(2^t\) input bits and \(2^t\) off-domain samples.
+Its LDE uses \(2^t/8\) lookups of length-\(2^t\) byte vectors,
+so all rows cost \(O(N2^t)\) bit operations, including reads
+and XORs. Byte-field products cost \(O(N)\).
+In compatible \(\ExtensionField/\mathbb F_{256}\) coordinates,
+weighted aggregation costs \(O(\kappa N)\), as do binding at
+the skip challenge and the linear output check.
+The conventional tail and its equality weights cost
+\(O(\kappa^2N/2^t)\). Including parameter-only message
+processing and fixed lookup tables gives:
+\begin{equation}
+\begin{aligned}
+\text{Arithmetic:}\quad&
+O\!\left(N2^t+\kappa N+\kappa^2N/2^t+\kappa^2 2^t\right),\\
+\text{RAM:}\quad&
+O\!\left(N+\kappa N/2^t+\kappa 2^t\right).
+\end{aligned}
+\label{eq:hadamard-flock-full-cost}
+\end{equation}
+The last terms are absorbed when \(N\geq4^t\).
+This bound covers Flock's algebraic reduction to evaluation claims.
+Its implementation uses \(t=6\), \(\kappa=128\),
+a 16\,KiB compressed LDE table, and a 64\,KiB table for its
+fixed equality weights. Compression improves table storage and
+cache locality, not the asymptotic LDE operation count.
+The admissible skip length is bounded by the byte-field domain,
+independently of \(\kappa\).
+
+\smallskip\noindent\textbf{Binary-tower instantiations.}
+Assume \(N\geq\kappa\). The Dao--Thaler row pairs its reduction
+with conventional sumcheck~\cite{iacr/DaoT24}.
+The Liu--Zhang row uses every other level of a Wiedemann
+tower~\cite{iacr/LiuZ25}, with mixed subfield/top-field multiplication
+and streamed deterministic weights~\cite{iacr/DaoT24}.
+RAM retains folded inputs and random-suffix weight tables.
+
+\smallskip\noindent\textbf{Packing assumptions.}
+The RMFE--Aurora bound~\cite{iacr/CascudoG21} includes sparse Boolean
+R1CS and Reed--Solomon encoding. It assumes constant-rate packing and
+codes, linear-space quasilinear FFTs, security \(O(\kappa)\), and a
+packed instance large enough to absorb security padding.
+Packed sumcheck~\cite{iacr/WeiWXZDWZ25} uses total packed length \(N\),
+packing/repetition parameter \(r\), and \(|\Field|>3(2r-1)\).
+Streaming forward differences retains \(O(r^2)\) first-round data.
+This term remains in the table because \(r\) is independent of
+\(\kappa\); it is absorbed if \(N\geq r^2\).
+For the base-field \methodname{} row, \(|\Field|\geq\kappa\),
+\(N=m\kappa\), \(m\geq\kappa\), and precomputed
+bases give \(O(\kappa N)\) arithmetic and
+\(O(N+\kappa^2)=O(N)\) RAM, including the linear output check.
+All parameter choices must satisfy the target soundness bound.
+In particular, \(r=\Theta(\kappa)\) is not assumed, and univariate
+skip's error depends on \(2^t\).
+
+\smallskip\noindent\textbf{Intermediate-field accounting.}
+Let
+\(t_{\mathbb K}=[\mathbb K:\Field]\) be the degree chosen in
+Section~\ref{sec:hadamard}. Without lookup tables, multiplication in
+\(\Field\times\mathbb K\) costs \(O(t_{\mathbb K})\)
+base-field operations, whereas multiplication in \(\mathbb K\)
+costs \(O(t_{\mathbb K}^2)\).
+In Eq.~\eqref{eq:hadamard-small-field-aggregation}, computing
+\(\bm A\bm P\) and \(\bm B\bm P\) therefore costs
+\(O(N\kappa t_{\mathbb K})\), and their entrywise product costs
+\(O(Nt_{\mathbb K}^2)\).
+The contraction with \(\bm L\) uses
+\(O(N\kappa/t_{\mathbb K})\) multiplications in \(\mathbb K\),
+or \(O(N\kappa t_{\mathbb K})\) base-field operations.
+Only the \(\kappa/t_{\mathbb K}\) aggregate coordinate tables
+are interpolated. Dense interpolation and division on each cost
+\(O(\kappa^2)\) operations in \(\mathbb K\), for a total of
+\(O(\kappa^3t_{\mathbb K})\) base-field operations.
+The column claims, subsequent inner-product reduction, and linear
+output check cost \(O(N\kappa+\kappa^3)\).
+Thus Eq.~\eqref{eq:hadamard-small-field-cost} includes the
+online parameter-only work; \(N\geq\kappa^2\) gives the
+untabulated bound \(O(N\kappa\log_q\kappa)\).
+
+For the space bound, generate one column of \(\bm P\) at a time
+using prefix and suffix products of the node differences, and
+scan the original rows to accumulate its column of \(\bm U\).
+With the public Lagrange denominators precomputed, generating all
+columns costs \(O(\kappa^2)\) operations in \(\mathbb K\),
+absorbed by the bounds above. The witness and \(\bm L\) use
+\(O(N)\) base-field coordinates, and \(\bm U\) uses
+\(O(\kappa^2)\). Interpolation basis polynomials can likewise
+be generated one at a time from the public vanishing polynomial,
+so no dense interpolation matrix is stored.
+Fixed conversions between the tower coordinates and the original
+commitment basis take at most \(O(N\kappa+\kappa^3)\) operations
+and \(O(\kappa^2)\) additional coordinates.
+The resulting RAM bound is \(O(N+\kappa^2)\), with the witness
+still stored over \(\Field\).
+
+\smallskip\noindent\textbf{Tabulated intermediate-field implementation.}
+The second \methodname{} row uses
+Eq.~\eqref{eq:hadamard-block-tabulated-cost}.
+Choose \(\tau=\lfloor\log_q\kappa\rfloor\), so
+\(q^\tau\leq\kappa\) and \(t_{\mathbb K}/\tau=O(1)\).
+The block tables of Eq.~\eqref{eq:hadamard-block-table}
+form all samples in \(O(N\kappa t_{\mathbb K}/\tau)
+=O(N\kappa)\) base-field operations.
+Each multiplication-table lookup reads and writes
+\(O(t_{\mathbb K})\) coordinates. Thus the
+\(O(N\kappa/t_{\mathbb K})\) products in the contraction
+cost \(O(N\kappa)\), and aggregate interpolation and division
+cost \(O(\kappa^3)\). Samplewise products and the remaining
+reduction steps are absorbed in these bounds. Hence:
+\begin{equation}
+\begin{aligned}
+T_{\mathrm{online}}&=O(N\kappa+\kappa^3),\\
+T_{\mathrm{pre}}&=O(\kappa^3+t_{\mathbb K}^2q^{2t_{\mathbb K}}),\\
+S_{\mathrm{total}}&=O(N+\kappa^3+t_{\mathbb K}q^{2t_{\mathbb K}}).
+\end{aligned}
+\label{eq:hadamard-tabulation-full-cost}
+\end{equation}
+The multiplication table has \(q^{2t_{\mathbb K}}\) entries;
+schoolbook construction costs \(O(t_{\mathbb K}^2)\) per entry.
+The block tables use \(O(\kappa^3)\) coordinates and operations:
+precompute scalar multiples of the sample-map rows, then enumerate
+input blocks by extending prefixes. Both tables depend only on
+public field and interpolation parameters and are reused across
+witnesses. Streaming witness rows leaves \(O(N+\kappa^2)\)
+working coordinates. For \(N\geq\kappa^2\), the online time is
+\(O(N\kappa)\), but the read-only tables remain in the RAM entry.

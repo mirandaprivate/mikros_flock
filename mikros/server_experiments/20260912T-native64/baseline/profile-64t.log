@@ -1,0 +1,23 @@
+PIOP reductions, BLAKE3 transcript, no grinding, 64 thread(s)
+Generation/digest and original-input claim checks excluded from prove/verify time.
+  warmup n=2^24 packed   : 23.356 ms
+  warmup n=2^24 flock    : 3.932 ms
+  n=2^24 run=1 packed   : prove 23.531 ms, verify 0.142 ms, 35608 bytes
+  n=2^24 run=1 flock    : prove 3.674 ms, verify 0.219 ms, 2704 bytes
+  n=2^24 run=2 flock    : prove 3.718 ms, verify 0.218 ms, 2704 bytes
+  n=2^24 run=2 packed   : prove 23.619 ms, verify 0.120 ms, 35608 bytes
+  n=2^24 run=3 flock    : prove 6.097 ms, verify 0.215 ms, 2704 bytes
+  n=2^24 run=3 packed   : prove 23.069 ms, verify 0.119 ms, 35608 bytes
+  median n=2^24 packed   : 23.531 ms prove [23.069, 23.619], 0.120 ms verify
+  median n=2^24 flock    : 3.718 ms prove [3.674, 6.097], 0.218 ms verify
+  warmup n=2^30 packed   : 419.744 ms
+  warmup n=2^30 flock    : 109.582 ms
+  n=2^30 run=1 packed   : prove 395.527 ms, verify 0.156 ms, 35800 bytes
+  n=2^30 run=1 flock    : prove 134.563 ms, verify 0.255 ms, 2896 bytes
+  n=2^30 run=2 flock    : prove 80.256 ms, verify 0.331 ms, 2896 bytes
+  n=2^30 run=2 packed   : prove 420.158 ms, verify 0.150 ms, 35800 bytes
+  n=2^30 run=3 flock    : prove 80.155 ms, verify 0.303 ms, 2896 bytes
+  n=2^30 run=3 packed   : prove 422.534 ms, verify 0.147 ms, 35800 bytes
+  median n=2^30 packed   : 420.158 ms prove [395.527, 422.534], 0.150 ms verify
+  median n=2^30 flock    : 80.256 ms prove [80.155, 134.563], 0.303 ms verify
+JSON: /home/mscong1/mikros-experiments/20260912T-native64/baseline/profile-64t.json

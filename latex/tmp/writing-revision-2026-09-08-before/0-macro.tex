@@ -1,0 +1,291 @@
+% !TEX root = main.tex
+\newcommand{\methodname}{{\tt Mikros}\xspace}
+\newcommand{\qafold}{{\tt QAFold}\xspace}
+\newcommand{\zkSNARK}{{zkSNARK}\xspace}
+\newcommand{\zkSNARKs}{{\tt zkSNARKs}\xspace}
+\newcommand{\litebullet}{{\tt LiteBullet}\xspace}
+\newcommand{\codeswitch}{{\tt CodeSwitch}\xspace}
+% Define custom commands for Dirac notation
+\newcommand{\bra}[1]{\langle #1|}
+\newcommand{\ket}[1]{|#1\rangle}
+\newcommand{\braket}[2]{\langle \, #1 \,|\,	#2 \,\rangle}
+\newcommand{\dirac}[3]{\langle \, #1 \,|\,	#2 \,|\,	#3 \,\rangle}
+\newcommand{\diracbra}[2]{\langle \, #1 \,|\,	#2 \,|}
+\newcommand{\diracket}[2]{|\,	#2 \,|\,	#1 \,\rangle}
+\newcommand{\diracbraket}[4]{\langle \, #1 \,|\,	#2 \,|\,	#3 \,|\, #4 \, \rangle}
+\newcommand{\ExtensionDegree}[2]{[ \, #1 : #2 \,]}
+\newcommand{\ext}[1]{\overline{#1}}
+\ExplSyntaxOn
+\NewDocumentCommand{\concat}{m}
+ {
+  \left[\, \clist_use:nn { #1 } { \mid } \,\right]
+ }
+\ExplSyntaxOff
+\newcommand{\blockmat}[4]{
+    \begin{pmatrix}
+     #1 &\ \ \ & #2 \\
+     #3 &\ \ \ & #4 \\
+    \end{pmatrix}
+}
+\newcommand{\foldmat}[2]{
+    \begin{pmatrix}
+     \begin{pmatrix}
+     #1 \\
+     #1 \\
+     \end{pmatrix}
+     &
+     \ \ 
+     #2
+    \begin{pmatrix}
+     #1 \\
+     #1 \\
+     \end{pmatrix}
+    \end{pmatrix}
+}
+
+\newcommand{\eg}{{\it e.g.}\xspace}
+\newcommand{\etc}{{\it etc.}\xspace}
+\newcommand{\ie}{{\it i.e.}\xspace}
+\newcommand{\cf}{{\it cf.}\xspace}
+\newcommand{\etal}{{\it et~al.}\xspace}
+\newcommand{\ifandonlyif}{{\it iff}\xspace}
+\newcommand{\resp}{{\it resp.}\xspace}
+
+\newcommand{\bb}{\mathsf{bb}}
+\newcommand{\be}{\mathsf{be}}
+\newcommand{\ee}{\mathsf{ee}}
+
+\newcommand{\trace}{\mathsf{Tr}_{\ExtensionField/\Field}}
+
+
+
+\newcommand{\EqOrNot}{\mathrel{\overset{\mathrm{?}}{=}}}
+%\DeclareUnicodeCharacter{\ast}{\op}
+
+%\newcommand{\OP}{{\mathcal{O}\mathcal{P}}}
+\newcommand{\op}{{\mathbin{\circledast}}}
+\newcommand{\gtimes}{\mathbin{\odot}}
+\newcommand{\gadd}{\mathbin{\oplus}}
+\newcommand{\gminus}{\mathbin{\ominus}}
+\newcommand{\gsum}{\mathop{\bigoplus}}
+\newcommand{\kronecker}{\mathbin{\otimes}}
+\newcommand{\notationmapsto}{\mathrel{\Rrightarrow}}
+\newcommand{\notationmapsfrom}{\mathrel{\Lleftarrow}}
+
+\newcommand{\gzero}{{O}}
+
+\newcommand{\Group}{{\mathbb{G}}}
+\newcommand{\Field}{{\mathbb{F}}}
+\newcommand{\BaseField}{\mathbb{F}}
+\newcommand{\ExtensionField}{\mathbb{E}}
+\newcommand{\FieldMinusZO}{{\mathbb{F}\setminus\{0,1\}}}
+\newcommand{\CodeSpace}{{\mathbb{C}}}
+\newcommand{\Code}{{\mathcal{C}}}
+\newcommand{\Zp}{{\mathbb{Z}}_p}
+\newcommand{\TensorSpace}{\mathbb{T}}
+\newcommand{\IndexSet}{{\mathcal{I}}}
+\newcommand{\Root}{{\mathcal{R}}}
+\newcommand{\Oracle}{{\mathcal{O}}}
+\newcommand{\AFunc}{{\mathcal{F}}}
+
+
+\newcommand{\ComSpace}{\mathbb{C}}
+\newcommand{\HashSpace}{\mathbb{H}}
+\newcommand{\PolySpace}{\mathbb{P}}
+\newcommand{\FieldStar}{{\Field^*}}
+\newcommand{\MSpace}{\mathbb{M}}
+\newcommand{\QSpace}{\mathbb{Q}}
+
+\newcommand{\ExpressionSpace}{\mathcal{E}} %only used in 4-expression
+
+\newcommand{\security}{{1^{\lambda}}}
+
+\newcommand{\slice}{{\langle:\rangle}}
+
+\newcommand{\ChooseRandom}{\mathrel{\xleftarrow{\$}}}
+\newcommand{\sample}{\mathrel{\xleftarrow{\$}}}
+\newcommand{\Definition}{\mathrel{\overset{\text{def}}{=}}}
+
+\newcommand{\Partition}{\xleftarrow{{\sf part}}}
+\newcommand{\Round}{\xleftarrow{{\sf round}}}
+\newcommand{\Flatten}{\xleftarrow{{\sf flat}}}
+\newcommand{\Fold}{\xleftarrow{{\sf fold}}}
+\newcommand{\Half}{\xleftarrow{{\sf half}}}
+\newcommand{\Broadcast}{\xleftarrow{{\sf broadcast}}}
+\newcommand{\Adversary}{\mathcal{A}}
+\newcommand{\Prover}{\mathcal{P}}
+\newcommand{\Verifier}{\mathcal{V}}
+\newcommand{\Emulator}{\mathcal{E}}
+\newcommand{\Simulator}{\mathcal{S}}
+\newcommand{\Relation}{\mathcal{R}}
+\newcommand{\Language}{\mathcal{L}}
+\newcommand{\Extractor}{\mathcal{E}}
+\newcommand{\Algorithm}{\mathcal{O}}
+\newcommand{\Expect}{\mathbb{E}}
+\newcommand{\Distinguisher}{\mathcal{D}}
+\newcommand{\interact}{{\rightleftharpoons}}
+\newcommand{\PVinteract}{{(\mathcal{P} \rightleftharpoons \mathcal{V})}}
+\newcommand{\PtoV}{{\mathcal{P} \rightarrow \mathcal{V}}}
+\newcommand{\VtoP}{{\mathcal{V} \rightarrow \mathcal{P}}}
+\newcommand{\myParbox}[1]{\parbox{0.9\textwidth}{#1}}
+
+\newcommand{\RelationExp}[3]{{\left\{~#1~:~#2~\left|~#3~\right.\right\}}}
+
+%\newcommand{\flag}{{\sf flag}}
+%\newcommand{\OpSet}{\mathcal{OP}}
+
+\newcommand{\vectorize}[1]{{\sf vec}(#1)}
+\newcommand{\Enc}{{\sf Enc}} %encoding
+\newcommand{\diag}{{\sf diag}}
+\newcommand{\tr}{{\sf tr}}
+\newcommand{\rank}{{\sf rank}}
+\newcommand{\col}{{\sf Col}}
+\newcommand{\im}{{\sf Im}}
+% \newcommand{\det}{{\sf det}}
+\newcommand{\trans}{{\sf T}}
+
+\newcommand{\Merkle}{{\sf Merkle}}
+
+
+\newcommand{\trapdoor}{{\sf trap}} % only in appx-preliminary
+
+\newcommand{\muls}{\mathbb{M}}
+\newcommand{\hashes}{\mathsf{H}}
+\newcommand{\mpath}{\mathsf{MP}}
+
+\newcommand{\pccost}{{\sf pc}}
+\newcommand{\zkcost}{{\sf zk}}
+\newcommand{\exps}{\mathbb{E}}
+\newcommand{\pairing}{\mathbb{P}} % only in table-evalyn-vs-zkml, table-appx-comp and table-appx-pcs
+
+%\newcommand{\st}{\textrm{s.t.}}
+
+\newcommand{\TRUE}{{\sf true}}
+\newcommand{\FALSE}{{\sf false}}
+\newcommand{\Accept}{{\sf Accept}}
+
+\newcommand{\pc}{{\sf pc}}
+\newcommand{\Polycom}{{\sf pc}}
+%only keep \Polycom?
+
+\newcommand{\io}{\bm{io}}
+\newcommand{\vk}{{\sf vk}}
+\newcommand{\pk}{{\sf pk}}
+
+\newcommand{\tensorspan}[1]{ {\sf ts}(#1)}
+\newcommand{\FS}{{\sf FS}}
+\newcommand{\Setup}{{\sf Setup}}
+\newcommand{\Open}{{\sf Open}}
+\newcommand{\Query}{{\sf Query}}
+\newcommand{\Prove}{{\sf Prove}}
+\newcommand{\Verify}{{\sf Verify}}
+\newcommand{\Eval}{{\sf EvalProof}}
+\newcommand{\Com}{{\sf Comm}}
+\newcommand{\Hash}{{\sf Hash}} %only in appx-preliminary
+\newcommand{\Poly}{{\sf poly}}
+\newcommand{\Negl}{{\sf negl}}
+\newcommand{\pp}{{\sf pp}}
+\newcommand{\rand}{{\sf rand}}
+\newcommand{\bit}{{\sf bit}}
+
+\newcommand{\suchthat}{\textrm{s.t.}}
+
+%\newcommand{\params}{{\sf params}}
+%\newcommand{\ID}{{\sf ID}}
+%\newcommand{\len}{{\sf len}}
+%\newcommand{\thread}{{\sf thread}}
+%\newcommand{\Dec}{{\sf Dec}}
+%\newcommand{\VerifyEval}{{\sf VerifyEval}}
+%\newcommand{\VerifyPoly}{{\sf VerifyPoly}}
+%\newcommand{\VerifyQuery}{{\sf VerifyQuery}}
+%\newcommand{\VerifyCom}{{\sf VerifyCom}}
+%\newcommand{\TP}{{\sf TP}}
+%\newcommand{\TV}{{\sf TV}}
+%\newcommand{\Solve}{{\sf Solve}}
+%\newcommand{\range}{{\sf range}}
+%\newcommand{\Coin}{{\sf Coin}}
+%\newcommand{\HCom}{{\sf HComm}}
+%\newcommand{\Time}{{\sf Time}}
+%\newcommand{\Dist}{{\sf Dist}}
+%\newcommand{\vp}{{\sf vp}}
+
+\newcommand{\baseline}{{\#[{\sf baseline}]}}
+\newcommand{\baselineAlg}[1]{{\#[{\sf baseline, alg{#1}}]}}
+
+\newcommand{\mcircle}[1]{\mathop{\text{\textcircled{#1}}}}
+
+% \makeatletter
+% \newcommand\xleftrightarrow[2][]{%
+% 	\ext@arrow 9999{\longleftrightarrowfill@}{#1}{#2}}
+% \newcommand\longleftrightarrowfill@{%
+% 	\arrowfill@\leftarrow\relbar\rightarrow}
+% \makeatother
+
+\newcommand{\customarrow}[1]{\xrightarrow{\makebox[#1]{}}}
+
+\newtheorem{assumption}{Assumption}
+\newtheorem{myclaim}{Claim}
+\newtheorem{fact}{Fact}
+
+\newtcolorbox{compactbox}[1][]{%
+	colback=gray!5!white, % Background color
+	colframe=black,		% Border color
+	rounded corners,	% Rounded corners
+	boxrule=0.5pt,		% Border thickness
+	top=2pt,			% Top padding reduced
+	bottom=2pt,		% Bottom padding reduced
+	left=2pt,			% Left padding reduced
+	right=2pt,		% Right padding reduced
+	before skip=5pt,	% Space before the box reduced
+	after skip=5pt,		% Space after the box reduced
+	fonttitle=\bfseries,	% Title font bold
+	title={\textbf{#1}},	% Use \textbf to make sure the title is bold
+	attach title to upper, % Attach title inline
+	% boxed title style={%
+	%colback=gray!20!white, % Slightly darker background for title
+	%colframe=black,	% Title frame color
+	%top=-2pt,				% Title position adjustment
+	%bottom=0pt,
+	%left=4pt,
+	%right=4pt,
+	% },
+	coltitle=black,		% Title text color
+ % #1						% Additional user-defined options
+}
+
+\newtcolorbox{coloredalgo}[1][]{
+	colback=gray!5!white, % Background color
+	colframe=black, % Frame color
+	boxrule=0.5pt, % Frame thickness
+	#1 % Allows for further customizations passed at the environment call
+}
+
+\definecolor{mydarkblue}{HTML}{16468d}
+\definecolor{mydarkgreen}{HTML}{226e4b}
+\definecolor{myblue}{HTML}{bce2f5}
+\definecolor{mygreen}{HTML}{bbead5}
+\definecolor{myyellow}{HTML}{fff1dd}
+\definecolor{mygrey}{HTML}{d9d9d9}
+
+%\makeatletter
+%\renewcommand\@cite[1]%{\leavevmode\unskip[\nobreakspace#1]\unskip\linebreak[0]}
+%\makeatother
+
+\newmdenv[
+	backgroundcolor=gray!5,	% light gray background
+	linecolor=white,		 % no border color
+	innerleftmargin=0pt,	 % adjust inner margins
+	innerrightmargin=0pt,
+	innertopmargin=0pt,
+	innerbottommargin=0pt,
+	skipabove=5pt,			 % space above the box
+	skipbelow=5pt,			% space below the box
+        outermargin=0pt,
+]{algorithmbackground}
+
+
+\SetKwInput{KwPubIn}{Public input}
+\SetKwInput{KwPriIn}{Private input}
+
+\newlist{tightitemize}{itemize}{1}
+\setlist[tightitemize]{label=\textbullet, leftmargin=*, topsep=0pt, partopsep=0pt, itemsep=0pt, parsep=0pt}

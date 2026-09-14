@@ -1,0 +1,157 @@
+\section{Structured Batching for Interleaved Codeword}
+\label{sec:interleave}
+
+In this section,
+we discuss code switching from an interleaved code $\Code^t: \Field^{k\times t} \mapsto \Field^{\mu \times t}$ to a second code $\Code':\Field^{k} \mapsto \Field^{\mu'}$.
+This requires batching the interleaved code $\bm{C} \in \Field^{\mu \times t}$ to $\bm{u} = \bm{C}\bm{r}$ using some random $\bm{r} \in \Field^t$ before code switching.
+The proximity between $\bm{u}$ and $\bm{C}\bm{r}$ are ensured by checking random $\ell$ rows of $\bm{C}$, denoted by $\bm{C}_\mathcal{I}$ with the selected index set $\mathcal{I}$.
+This idea was first proposed by Blaze~\cite{eurocrypt/BrehmCFRRZ25}.
+Unlike Blaze, we use a tensor-span vector $\bm{r} \in \TensorSpace(t)$ for batching.
+The advantage is that the proximity check is reduced to checking an MLE evaluation of $\bm{C}_\mathcal{I}$,
+allowing it to be verified via another MLE oracle.
+
+
+
+
+\subsection{MLE Oracle for Interleaved Code}
+\label{sec:interleaveOracle}
+
+Form Lemma~\ref{lemma:odd},
+to obtain an MLE oracle for an interleaved code $\Code^t$,
+we just need to design and MLE-ODD-IOPP for the relation in Eq.~\ref{eq:relationMLEoddiopp}.
+
+Such an IOPP can achieved by structured batching the codeword $\bm{C}\in \Field^{\mu \times t}$
+into a single column vector $\bm{u}:=\bm{C}\tilde{\bm{r}} \in \Field^\mu$,
+and check the proximity of $\bm{u}$ to the codeword of $\bm{M}\tilde{\bm{r}}$.
+
+Following this idea, we present the protocol of such MLE-ODD-IOPP in Algorithm~\ref{alg:interleave}
+with the following security guarantees.
+
+We ensure the proximity such that $\Code^t$ is list decodable:
+\[
+    \delta^{\odot t}(\bm{C}, \Enc[\Code^t](\bm{M})) \le \epsilon,
+\]
+
+% Here, $\delta_\mathsf{row}$ denotes the row-wise relative distance, meaning that $\bm{C}$ and $\Enc[\Code^t](\bm{M})$ differ in at most $\epsilon \cdot \mu$ rows.
+% The  distance is at least the relative Hamming distance:
+% \[
+%     \delta^{\odot t}(\bm{C}, \Enc[\Code^t](\bm{M}))
+%     \ge \delta_H(\bm{C}, \Enc[\Code^t](\bm{M})),
+% \]
+% since a single disagreeing row is counted as one full unit in the row-wise distance.
+
+\begin{theorem}[Interleaved MLE-ODD-IOPP]
+\label{theorem:interleavedIOPP}
+Algorithm~\ref{alg:interleave} functions as an IOPP for the following relation:
+\begin{equation*}
+% \label{eq:relationMLEoddiopp}
+\Relation_{\mathsf{MLE\mbox{-}ODD\mbox{-}IOPP}}[\epsilon]
+=
+\RelationExp{
+\begin{aligned}
+    &\Code,\, \bm{C},\, \epsilon \\
+    &\hat{v}, \hat{\bm{l}}, \hat{\bm{r}}, v, \bm{l}, \bm{r}
+\end{aligned}
+}{\bm{M}}{
+\begin{aligned}
+    &\hat{v} = \hat{\bm{l}}^{\top}\bm{M}\hat{\bm{r}}
+    \;\wedge\;
+    v = \bm{l}^{\top}\bm{M}\bm{r} \\
+    &\wedge\;
+    \delta^{\otimes t}(\bm{C}, \Enc[\Code^t](\bm{M})) \le \epsilon
+\end{aligned}
+}
+\end{equation*}
+with computational soundness error and knowledge soundness error bounded by:
+\begin{equation}
+\label{eq:interleaveError}
+      (1-\epsilon)^\ell + \frac{(\mu+2)\log_2 t + 2 \log_2 \ell +3}{|\Field|-2}.
+\end{equation}
+\end{theorem}
+
+Proof of Theorem~\ref{theorem:interleavedIOPP} is provided in Appendix~\ref{appx:proofInterleavedIOPP}.
+
+\input{alg/alg-interleave}
+
+Combining Theorem~\ref{theorem:interleavedIOPP} with Lemma~\ref{lemma:odd} and Theorem~\ref{theorem:iop},
+we obtain an MLE oracle for interleaved codes by modifying the protocol of Algorithm~\ref{alg:interleave} as follows.
+\begin{itemize}
+    \item First, in Line~\ref{line:interleaveQueryC}, instead of directly retrieving the entries of $\bm{C}_{\mathcal{I}}$,
+the verifier issues point-oracle queries to $\Oracle{\mathsf{P}}(\bm{C})$.
+    \item Second, in Line~\ref{line:interleaveSendv}, rather than sending the vector $\bm{v}$ explicitly, the prover supplies an MLE oracle for a suitable auxiliary code, $\Oracle_{\mathsf{MLE}}[\Code']( \bm{v} )$.
+    \item Accordingly, the verification check in Line~\ref{line:interleaveCheckV} is replaced by matrix-function queries to the MLE oracle $\Oracle_{\mathsf{MLE}[\Code']}( \bm{v} )$.
+\end{itemize}
+
+As we will see in the next section, choosing different pairs of codes
+$\Code$ and $\Code'$ yields a wide range of MLE oracles for product codes.
+
+\medskip
+\noindent
+{\bf Query complexity.}
+In the soundness bound in Eq.~\eqref{eq:interleaveError},
+the last term depends on the codeword dimension, which is proportional to the witness size.
+By choosing a field of size at least $2^\lambda \cdot \mu \cdot \log_2 t$,
+this term can be bounded by $2^{-\lambda}$.
+
+To bound the first term, it suffices to require:
+\[
+    (1-\delta_\mathsf{LD})^{\ell} \le 2^{-\lambda}
+    \quad\Longleftrightarrow\quad
+    \ell \ge \frac{\lambda}{-\log_2(1-\delta_\mathsf{LD})}.
+\]
+For the rate-$1/4$ RAA code, $\delta = 0.19$~\cite{eurocrypt/BrehmCFRRZ25} and $\delta_\mathsf{LD} \ge 0.19/2$,
+which yields:
+\[
+    \ell
+    = \left\lceil \frac{1}{-\log_2(1-0.19/2)} \right\rceil \cdot \lambda
+    = 7\,\lambda.
+\]
+Therefore, setting $\ell = 7\lambda$ suffices to achieve $2^{-\lambda}$ security.
+
+Since each row of $\bm{C}_{\mathcal{I}}$ consists of $t$ entries,
+the verifier must first compute the Merkle root of these $t$ entries using $t$ hash evaluations,
+and then verify the resulting row Merkle root using $\log_2 \mu$ additional hash evaluations along the Merkle path.
+Thus, by choosing $t \le \log_2(\mu t^2)$, \eg, $t=32$ when $kt = 2^{30}$ and using a rate-$1/4$ RAA code,
+the verifier performs $(\log_2 \mu + t)\cdot 7\lambda \le 2\log_2 (\mu t)\cdot 7\lambda$ hash evaluations, less than $14\lambda$ full Merkle authentication paths in $\Oracle_\mathsf{P}(\bm{C})$.
+
+\medskip
+\noindent
+\textbf{Comparison with Blaze~\cite{eurocrypt/BrehmCFRRZ25}.}
+Our construction of interleaved-code MLE oracles is conceptually related to
+Blaze~\cite{eurocrypt/BrehmCFRRZ25}, but differs in several key aspects:
+\begin{itemize}
+    \item We use a \emph{structured} batching vector
+    $\tilde{\bm{r}} \in \TensorSpace(t)$,
+    whereas Blaze samples an unstructured vector
+    $\tilde{\bm{r}} \in \Field^t$.
+    \item Blaze requires the proximity parameter to satisfy
+    $\epsilon \le \delta/3$~\cite[Lemma~6.1]{eurocrypt/BrehmCFRRZ25},
+    while our construction only requires
+    $\epsilon \le \delta_{\mathsf{LD}}$ due to the use of OOD sampling.
+    % \item As a consequence, our approach supports product codes as the base code $\Code$,
+    % even when their unique decoding radius is small, provided their list-decoding
+    % radius is sufficiently large.
+\end{itemize}
+
+Due to these differences, we refer to our interleaved MLE oracle as
+\blazeplus.
+
+\iffalse
+\medskip
+\noindent
+{\bf Interleaved Code as the Base Code.}
+In the next section, we will instantiate $\Code$ in Algorithm~\ref{alg:interleave}
+as the interleaved code $\Code_{\mathsf{base}}^{\gamma}$ for some
+$\gamma \in \mathbb{N}$.
+In this case, the generator matrix of $\Code$, denoted by $\bm{G}$,
+can be written as:
+\[
+    \bm{G} = \bm{G}_{\mathsf{base}} \kronecker \bm{I}_{\gamma},
+\]
+where $\bm{G}_{\mathsf{base}}$ is the generator matrix of
+$\Code_{\mathsf{base}}$ and $\bm{I}_{\gamma}$ is the
+$\gamma \times \gamma$ identity matrix.
+By Corollary~\ref{corollary:mleGeneratorInterleave},
+this generator matrix admits efficient code switching.
+\fi
+

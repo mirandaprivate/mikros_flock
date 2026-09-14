@@ -1,0 +1,610 @@
+{
+  "metadata": {
+    "affinity": [
+      "Cpus_allowed_list:\t0-47",
+      "Mems_allowed_list:\t0-1"
+    ],
+    "generator": "4-round balanced Feistel public permutation; SplitMix64 byte witness; full data digest bound before challenges",
+    "log_n": 20,
+    "memory_scope": "VmHWM at prover return is process-lifetime cumulative; use separate cold one-system process for comparable RSS",
+    "runs": 1,
+    "rustc": "rustc 1.96.0-nightly (ac7f9ec7d 2026-03-20); binary: rustc; commit-hash: ac7f9ec7da74d37fd28667c86bf117a39ba5b02a; commit-date: 2026-03-20; host: x86_64-unknown-linux-gnu; release: 1.96.0-nightly; LLVM version: 22.1.0",
+    "scope": "Same public relation f[sigma[i]]=g[i]; PIOP with every source claim authenticated; no PCS/grinding. Same-message optimization, not a new batched protocol. Pool reuse enabled for Mikros and Flock.",
+    "seed": 0,
+    "start_unix_seconds": 1789209656,
+    "systems": [
+      "previous",
+      "release",
+      "optimized",
+      "previous_full",
+      "full",
+      "flock"
+    ],
+    "target_features": [
+      "aes",
+      "pclmulqdq",
+      "avx2",
+      "gfni",
+      "avx512f",
+      "vpclmulqdq"
+    ],
+    "threads": 48,
+    "warmups": 1,
+    "width": 8
+  },
+  "samples": [
+    {
+      "input_digest": "8b14bd8692ea86667e0e2efdf5ef87df6c29303be4bbd0d4a3cb9337dc570b93",
+      "log_n": 20,
+      "memory_at_prover_end_kib": {
+        "VmHWM": 84104,
+        "VmRSS": 84104,
+        "VmSize": 6869652
+      },
+      "order": 0,
+      "phases": {
+        "coefficient_eval_ms": 1.710009,
+        "compact_build_ms": 3.03995,
+        "decode_ms": 2.2926230000000003,
+        "equality_ms": 0.42643199999999987,
+        "extension_build_ms": 1.68124,
+        "fold_and_message_ms": 8.044692999999999,
+        "folds_ms": 0.0,
+        "layer_materialize_ms": 4.016381,
+        "messages_ms": 3.177035,
+        "source_checks_ms": 1.238715
+      },
+      "prepare_ms": 4.814671000000001,
+      "proof_bytes": 19888,
+      "proof_digest": "b3967648a2f901970e33ba62e99fc4a81ddc24bac41faf8d93e67383981ae9e8",
+      "prover_core_ms": 29.339287,
+      "prover_total_ms": 34.154235,
+      "run": 0,
+      "source_check_ms": 3.1746589999999997,
+      "system": "previous",
+      "tree_stats": {
+        "left": {
+          "compact_bytes": 8388608,
+          "extension_bytes": 8388592,
+          "max_coefficient_bits": 128,
+          "subfield_bits": 32,
+          "switch_level": 2
+        },
+        "right": {
+          "compact_bytes": 8388608,
+          "extension_bytes": 8388592,
+          "max_coefficient_bits": 128,
+          "subfield_bits": 32,
+          "switch_level": 2
+        }
+      },
+      "tuple_bits": 28,
+      "value_bits": 8,
+      "verified": true,
+      "verifier_ms": 0.20072399999999999,
+      "warmup": true
+    },
+    {
+      "input_digest": "8b14bd8692ea86667e0e2efdf5ef87df6c29303be4bbd0d4a3cb9337dc570b93",
+      "log_n": 20,
+      "memory_at_prover_end_kib": {
+        "VmHWM": 89456,
+        "VmRSS": 89456,
+        "VmSize": 6874764
+      },
+      "order": 1,
+      "phases": {
+        "coefficient_eval_ms": 0.549204,
+        "compact_build_ms": 4.871602,
+        "decode_ms": 3.095519,
+        "equality_ms": 0.4401920000000001,
+        "extension_build_ms": 1.124493,
+        "fold_and_message_ms": 7.682850999999998,
+        "folds_ms": 0.0,
+        "layer_materialize_ms": 3.0961239999999997,
+        "layer_release_ms": 0.010369999999999999,
+        "messages_ms": 3.2952989999999995,
+        "scratch_setup_ms": 0.0029950000000000003,
+        "source_checks_ms": 1.271934
+      },
+      "prepare_ms": 4.049052,
+      "proof_bytes": 19888,
+      "proof_digest": "b3967648a2f901970e33ba62e99fc4a81ddc24bac41faf8d93e67383981ae9e8",
+      "prover_core_ms": 25.860047,
+      "prover_total_ms": 29.909358,
+      "run": 0,
+      "source_check_ms": 3.70664,
+      "system": "release",
+      "tree_stats": {
+        "left": {
+          "compact_bytes": 8388608,
+          "extension_bytes": 8388592,
+          "max_coefficient_bits": 128,
+          "subfield_bits": 32,
+          "switch_level": 2
+        },
+        "right": {
+          "compact_bytes": 8388608,
+          "extension_bytes": 8388592,
+          "max_coefficient_bits": 128,
+          "subfield_bits": 32,
+          "switch_level": 2
+        }
+      },
+      "tuple_bits": 28,
+      "value_bits": 8,
+      "verified": true,
+      "verifier_ms": 0.281173,
+      "warmup": true
+    },
+    {
+      "input_digest": "8b14bd8692ea86667e0e2efdf5ef87df6c29303be4bbd0d4a3cb9337dc570b93",
+      "log_n": 20,
+      "memory_at_prover_end_kib": {
+        "VmHWM": 89472,
+        "VmRSS": 89472,
+        "VmSize": 6874764
+      },
+      "order": 2,
+      "phases": {
+        "coefficient_eval_ms": 0.706373,
+        "compact_build_ms": 5.246421,
+        "decode_ms": 3.160967,
+        "equality_ms": 0.46875200000000006,
+        "extension_build_ms": 1.0258500000000002,
+        "fold_and_message_ms": 7.996993999999998,
+        "folds_ms": 0.0,
+        "layer_materialize_ms": 0.0021760000000000004,
+        "layer_release_ms": 0.008564999999999998,
+        "messages_ms": 4.265659000000001,
+        "scratch_setup_ms": 0.003221,
+        "source_checks_ms": 1.345118
+      },
+      "prepare_ms": 4.241099,
+      "proof_bytes": 19888,
+      "proof_digest": "b3967648a2f901970e33ba62e99fc4a81ddc24bac41faf8d93e67383981ae9e8",
+      "prover_core_ms": 24.601537,
+      "prover_total_ms": 28.84362,
+      "run": 0,
+      "source_check_ms": 3.272758,
+      "system": "optimized",
+      "tree_stats": {
+        "left": {
+          "compact_bytes": 8388608,
+          "extension_bytes": 8388592,
+          "max_coefficient_bits": 128,
+          "subfield_bits": 32,
+          "switch_level": 2
+        },
+        "right": {
+          "compact_bytes": 8388608,
+          "extension_bytes": 8388592,
+          "max_coefficient_bits": 128,
+          "subfield_bits": 32,
+          "switch_level": 2
+        }
+      },
+      "tuple_bits": 28,
+      "value_bits": 8,
+      "verified": true,
+      "verifier_ms": 0.22387,
+      "warmup": true
+    },
+    {
+      "input_digest": "8b14bd8692ea86667e0e2efdf5ef87df6c29303be4bbd0d4a3cb9337dc570b93",
+      "log_n": 20,
+      "memory_at_prover_end_kib": {
+        "VmHWM": 85588,
+        "VmRSS": 72192,
+        "VmSize": 6857356
+      },
+      "order": 3,
+      "phases": {
+        "coefficient_eval_ms": 2.4007259999999997,
+        "compact_build_ms": 0.0,
+        "decode_ms": 0.0,
+        "equality_ms": 0.47693499999999994,
+        "extension_build_ms": 3.092699,
+        "fold_and_message_ms": 7.726034000000001,
+        "folds_ms": 0.0,
+        "layer_materialize_ms": 0.0016660000000000004,
+        "messages_ms": 3.87707,
+        "source_checks_ms": 0.963449
+      },
+      "prepare_ms": 4.639178,
+      "proof_bytes": 19888,
+      "proof_digest": "b3967648a2f901970e33ba62e99fc4a81ddc24bac41faf8d93e67383981ae9e8",
+      "prover_core_ms": 22.107249999999997,
+      "prover_total_ms": 26.746755,
+      "run": 0,
+      "source_check_ms": 3.418783,
+      "system": "previous_full",
+      "tree_stats": {
+        "left": {
+          "compact_bytes": 0,
+          "extension_bytes": 33554416,
+          "max_coefficient_bits": 0,
+          "subfield_bits": 32,
+          "switch_level": 0
+        },
+        "right": {
+          "compact_bytes": 0,
+          "extension_bytes": 33554416,
+          "max_coefficient_bits": 0,
+          "subfield_bits": 32,
+          "switch_level": 0
+        }
+      },
+      "tuple_bits": 28,
+      "value_bits": 8,
+      "verified": true,
+      "verifier_ms": 0.27246600000000004,
+      "warmup": true
+    },
+    {
+      "input_digest": "8b14bd8692ea86667e0e2efdf5ef87df6c29303be4bbd0d4a3cb9337dc570b93",
+      "log_n": 20,
+      "memory_at_prover_end_kib": {
+        "VmHWM": 88524,
+        "VmRSS": 60944,
+        "VmSize": 6846092
+      },
+      "order": 4,
+      "phases": {
+        "coefficient_eval_ms": 3.17084,
+        "compact_build_ms": 0.0,
+        "decode_ms": 0.0,
+        "equality_ms": 0.5077669999999999,
+        "extension_build_ms": 3.2390600000000003,
+        "fold_and_message_ms": 8.274103000000002,
+        "folds_ms": 0.0,
+        "layer_materialize_ms": 0.00228,
+        "layer_release_ms": 4.1232489999999995,
+        "messages_ms": 4.106819,
+        "scratch_setup_ms": 0.0037940000000000005,
+        "source_checks_ms": 1.140007
+      },
+      "prepare_ms": 4.860975,
+      "proof_bytes": 19888,
+      "proof_digest": "b3967648a2f901970e33ba62e99fc4a81ddc24bac41faf8d93e67383981ae9e8",
+      "prover_core_ms": 25.029579,
+      "prover_total_ms": 29.89105,
+      "run": 0,
+      "source_check_ms": 8.154577999999999,
+      "system": "full",
+      "tree_stats": {
+        "left": {
+          "compact_bytes": 0,
+          "extension_bytes": 33554416,
+          "max_coefficient_bits": 0,
+          "subfield_bits": 32,
+          "switch_level": 0
+        },
+        "right": {
+          "compact_bytes": 0,
+          "extension_bytes": 33554416,
+          "max_coefficient_bits": 0,
+          "subfield_bits": 32,
+          "switch_level": 0
+        }
+      },
+      "tuple_bits": 28,
+      "value_bits": 8,
+      "verified": true,
+      "verifier_ms": 0.243288,
+      "warmup": true
+    },
+    {
+      "input_digest": "8b14bd8692ea86667e0e2efdf5ef87df6c29303be4bbd0d4a3cb9337dc570b93",
+      "log_n": 20,
+      "memory_at_prover_end_kib": {
+        "VmHWM": 176060,
+        "VmRSS": 176060,
+        "VmSize": 6960716
+      },
+      "order": 5,
+      "phases": null,
+      "prepare_ms": 4.8182670000000005,
+      "proof_bytes": 7616,
+      "proof_digest": "da9d6220209cb48f7e7a176288f83d8184f38356bc0e9e9f54fda92afbf201bd",
+      "prover_core_ms": 29.57679,
+      "prover_total_ms": 34.395387,
+      "run": 0,
+      "source_check_ms": 1.4475200000000001,
+      "system": "flock",
+      "tree_stats": null,
+      "tuple_bits": 28,
+      "value_bits": 8,
+      "verified": true,
+      "verifier_ms": 0.489319,
+      "warmup": true
+    },
+    {
+      "input_digest": "dd105b62c78081248b7069ac822f6c51f0f2e4ec322a254aa54ca457b7388fa4",
+      "log_n": 20,
+      "memory_at_prover_end_kib": {
+        "VmHWM": 167868,
+        "VmRSS": 167868,
+        "VmSize": 6950464
+      },
+      "order": 0,
+      "phases": {
+        "coefficient_eval_ms": 0.931597,
+        "compact_build_ms": 5.624511999999999,
+        "decode_ms": 3.42738,
+        "equality_ms": 0.9388640000000001,
+        "extension_build_ms": 1.020735,
+        "fold_and_message_ms": 13.322877999999996,
+        "folds_ms": 0.0,
+        "layer_materialize_ms": 2.816268,
+        "messages_ms": 4.763708,
+        "source_checks_ms": 1.346802
+      },
+      "prepare_ms": 4.375605,
+      "proof_bytes": 19888,
+      "proof_digest": "154a60b046b41cebb4539abc8d4ee930c493021026c67de58ad9769917b61bfb",
+      "prover_core_ms": 35.045367,
+      "prover_total_ms": 39.421488,
+      "run": 1,
+      "source_check_ms": 3.778361,
+      "system": "previous",
+      "tree_stats": {
+        "left": {
+          "compact_bytes": 8388608,
+          "extension_bytes": 8388592,
+          "max_coefficient_bits": 128,
+          "subfield_bits": 32,
+          "switch_level": 2
+        },
+        "right": {
+          "compact_bytes": 8388608,
+          "extension_bytes": 8388592,
+          "max_coefficient_bits": 128,
+          "subfield_bits": 32,
+          "switch_level": 2
+        }
+      },
+      "tuple_bits": 28,
+      "value_bits": 8,
+      "verified": true,
+      "verifier_ms": 0.64956,
+      "warmup": false
+    },
+    {
+      "input_digest": "dd105b62c78081248b7069ac822f6c51f0f2e4ec322a254aa54ca457b7388fa4",
+      "log_n": 20,
+      "memory_at_prover_end_kib": {
+        "VmHWM": 167880,
+        "VmRSS": 167880,
+        "VmSize": 6950464
+      },
+      "order": 1,
+      "phases": {
+        "coefficient_eval_ms": 0.974812,
+        "compact_build_ms": 6.005809,
+        "decode_ms": 3.681481,
+        "equality_ms": 1.2305180000000002,
+        "extension_build_ms": 1.016566,
+        "fold_and_message_ms": 16.673776000000007,
+        "folds_ms": 0.0,
+        "layer_materialize_ms": 3.068096,
+        "layer_release_ms": 0.017761999999999997,
+        "messages_ms": 5.645446,
+        "scratch_setup_ms": 0.006777999999999999,
+        "source_checks_ms": 1.199573
+      },
+      "prepare_ms": 5.303343,
+      "proof_bytes": 19888,
+      "proof_digest": "154a60b046b41cebb4539abc8d4ee930c493021026c67de58ad9769917b61bfb",
+      "prover_core_ms": 40.628658,
+      "prover_total_ms": 45.932543,
+      "run": 1,
+      "source_check_ms": 4.256223,
+      "system": "release",
+      "tree_stats": {
+        "left": {
+          "compact_bytes": 8388608,
+          "extension_bytes": 8388592,
+          "max_coefficient_bits": 128,
+          "subfield_bits": 32,
+          "switch_level": 2
+        },
+        "right": {
+          "compact_bytes": 8388608,
+          "extension_bytes": 8388592,
+          "max_coefficient_bits": 128,
+          "subfield_bits": 32,
+          "switch_level": 2
+        }
+      },
+      "tuple_bits": 28,
+      "value_bits": 8,
+      "verified": true,
+      "verifier_ms": 0.8161489999999999,
+      "warmup": false
+    },
+    {
+      "input_digest": "dd105b62c78081248b7069ac822f6c51f0f2e4ec322a254aa54ca457b7388fa4",
+      "log_n": 20,
+      "memory_at_prover_end_kib": {
+        "VmHWM": 167884,
+        "VmRSS": 167884,
+        "VmSize": 6950464
+      },
+      "order": 2,
+      "phases": {
+        "coefficient_eval_ms": 0.979191,
+        "compact_build_ms": 6.783445,
+        "decode_ms": 3.7709219999999997,
+        "equality_ms": 1.0538750000000001,
+        "extension_build_ms": 1.2284549999999999,
+        "fold_and_message_ms": 15.942468999999996,
+        "folds_ms": 0.0,
+        "layer_materialize_ms": 0.0052699999999999995,
+        "layer_release_ms": 0.017835999999999994,
+        "messages_ms": 7.376962000000001,
+        "scratch_setup_ms": 0.005697,
+        "source_checks_ms": 1.9915089999999998
+      },
+      "prepare_ms": 5.720923999999999,
+      "proof_bytes": 19888,
+      "proof_digest": "154a60b046b41cebb4539abc8d4ee930c493021026c67de58ad9769917b61bfb",
+      "prover_core_ms": 40.163551999999996,
+      "prover_total_ms": 45.885042,
+      "run": 1,
+      "source_check_ms": 4.6557889999999995,
+      "system": "optimized",
+      "tree_stats": {
+        "left": {
+          "compact_bytes": 8388608,
+          "extension_bytes": 8388592,
+          "max_coefficient_bits": 128,
+          "subfield_bits": 32,
+          "switch_level": 2
+        },
+        "right": {
+          "compact_bytes": 8388608,
+          "extension_bytes": 8388592,
+          "max_coefficient_bits": 128,
+          "subfield_bits": 32,
+          "switch_level": 2
+        }
+      },
+      "tuple_bits": 28,
+      "value_bits": 8,
+      "verified": true,
+      "verifier_ms": 0.382168,
+      "warmup": false
+    },
+    {
+      "input_digest": "dd105b62c78081248b7069ac822f6c51f0f2e4ec322a254aa54ca457b7388fa4",
+      "log_n": 20,
+      "memory_at_prover_end_kib": {
+        "VmHWM": 167884,
+        "VmRSS": 167884,
+        "VmSize": 6950464
+      },
+      "order": 3,
+      "phases": {
+        "coefficient_eval_ms": 3.1794830000000003,
+        "compact_build_ms": 0.0,
+        "decode_ms": 0.0,
+        "equality_ms": 0.6495410000000005,
+        "extension_build_ms": 2.158093,
+        "fold_and_message_ms": 10.224662,
+        "folds_ms": 0.0,
+        "layer_materialize_ms": 0.0025740000000000003,
+        "messages_ms": 5.8197399999999995,
+        "source_checks_ms": 1.8196919999999999
+      },
+      "prepare_ms": 5.43769,
+      "proof_bytes": 19888,
+      "proof_digest": "154a60b046b41cebb4539abc8d4ee930c493021026c67de58ad9769917b61bfb",
+      "prover_core_ms": 24.402290999999998,
+      "prover_total_ms": 29.840496,
+      "run": 1,
+      "source_check_ms": 4.759052,
+      "system": "previous_full",
+      "tree_stats": {
+        "left": {
+          "compact_bytes": 0,
+          "extension_bytes": 33554416,
+          "max_coefficient_bits": 0,
+          "subfield_bits": 32,
+          "switch_level": 0
+        },
+        "right": {
+          "compact_bytes": 0,
+          "extension_bytes": 33554416,
+          "max_coefficient_bits": 0,
+          "subfield_bits": 32,
+          "switch_level": 0
+        }
+      },
+      "tuple_bits": 28,
+      "value_bits": 8,
+      "verified": true,
+      "verifier_ms": 0.348514,
+      "warmup": false
+    },
+    {
+      "input_digest": "dd105b62c78081248b7069ac822f6c51f0f2e4ec322a254aa54ca457b7388fa4",
+      "log_n": 20,
+      "memory_at_prover_end_kib": {
+        "VmHWM": 167888,
+        "VmRSS": 167888,
+        "VmSize": 6950464
+      },
+      "order": 4,
+      "phases": {
+        "coefficient_eval_ms": 3.1705110000000003,
+        "compact_build_ms": 0.0,
+        "decode_ms": 0.0,
+        "equality_ms": 1.2660720000000008,
+        "extension_build_ms": 2.482195,
+        "fold_and_message_ms": 17.715458,
+        "folds_ms": 0.0,
+        "layer_materialize_ms": 0.00474,
+        "layer_release_ms": 0.015146,
+        "messages_ms": 7.134328,
+        "scratch_setup_ms": 0.004841000000000001,
+        "source_checks_ms": 1.632433
+      },
+      "prepare_ms": 5.770949,
+      "proof_bytes": 19888,
+      "proof_digest": "154a60b046b41cebb4539abc8d4ee930c493021026c67de58ad9769917b61bfb",
+      "prover_core_ms": 34.56181,
+      "prover_total_ms": 40.333534,
+      "run": 1,
+      "source_check_ms": 5.17751,
+      "system": "full",
+      "tree_stats": {
+        "left": {
+          "compact_bytes": 0,
+          "extension_bytes": 33554416,
+          "max_coefficient_bits": 0,
+          "subfield_bits": 32,
+          "switch_level": 0
+        },
+        "right": {
+          "compact_bytes": 0,
+          "extension_bytes": 33554416,
+          "max_coefficient_bits": 0,
+          "subfield_bits": 32,
+          "switch_level": 0
+        }
+      },
+      "tuple_bits": 28,
+      "value_bits": 8,
+      "verified": true,
+      "verifier_ms": 0.816118,
+      "warmup": false
+    },
+    {
+      "input_digest": "dd105b62c78081248b7069ac822f6c51f0f2e4ec322a254aa54ca457b7388fa4",
+      "log_n": 20,
+      "memory_at_prover_end_kib": {
+        "VmHWM": 184272,
+        "VmRSS": 184272,
+        "VmSize": 6966848
+      },
+      "order": 5,
+      "phases": null,
+      "prepare_ms": 1.569133,
+      "proof_bytes": 7616,
+      "proof_digest": "8c2b34cc8af630fd65cb547eb859022158b2a2cd6b54c3da6017967dbad9bca6",
+      "prover_core_ms": 38.834129000000004,
+      "prover_total_ms": 40.403682,
+      "run": 1,
+      "source_check_ms": 2.1011390000000003,
+      "system": "flock",
+      "tree_stats": null,
+      "tuple_bits": 28,
+      "value_bits": 8,
+      "verified": true,
+      "verifier_ms": 0.8118869999999999,
+      "warmup": false
+    }
+  ],
+  "schema_version": 2
+}

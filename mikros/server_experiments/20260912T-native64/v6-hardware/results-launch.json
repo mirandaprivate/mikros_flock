@@ -1,0 +1,20 @@
+{
+  "pid": 3527945,
+  "argv": [
+    "python3",
+    "/home/mscong1/mikros-experiments/20260912T-native64/v6-hardware/source/mikros/server_experiments/run_hardware_64.py",
+    "--root",
+    "/home/mscong1/mikros-experiments/20260912T-native64/v6-hardware",
+    "--skip-build",
+    "--results-name",
+    "results",
+    "--logs",
+    "30",
+    "--systems",
+    "reuse,basisreuse,flock128",
+    "--runs",
+    "6",
+    "--profile",
+    "--rss"
+  ]
+}

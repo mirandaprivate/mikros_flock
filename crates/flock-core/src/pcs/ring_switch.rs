@@ -2807,11 +2807,34 @@ pub fn verify_succinct_with_grinding<Ch: Challenger>(
     assert!(!x_outer.is_empty());
     assert_eq!(proof.s_hat_v.len(), 1 << LOG_PACKING);
 
+    let weights = build_claim_weights_from_skip(skip_weights, x_outer[0]);
+    verify_succinct_weighted_with_grinding(claim, &weights, proof, grinding_bits, challenger)
+}
+
+/// The same ring-switch transcript and reduction as
+/// [`verify_succinct_with_grinding`], with the complete 128 bit-column weights
+/// supplied by the calling PIOP instead of a skip64 point and one Boolean
+/// coordinate. The weights and claimed value must be derived by the verifier
+/// from its public statement and prior transcript, never accepted unchecked
+/// from a prover message.
+///
+/// Changing column weights changes only the check against `s_hat_v`: the
+/// random seven-coordinate ring-switch point, transpose and resulting packed
+/// claim are unchanged. Malformed dimensions are rejected before absorption.
+pub fn verify_succinct_weighted_with_grinding<Ch: Challenger>(
+    claim: F128,
+    columns: &[F128],
+    proof: &RingSwitchProof,
+    grinding_bits: u32,
+    challenger: &mut Ch,
+) -> Result<RingSwitchVerifierOutput, RingSwitchError> {
+    if columns.len() != 1 << LOG_PACKING || proof.s_hat_v.len() != 1 << LOG_PACKING {
+        return Err(RingSwitchError::MalformedProof);
+    }
     challenger.observe_label(b"flock-ring-switch-v0");
     challenger.observe_f128_slice(&proof.s_hat_v);
 
-    let weights = build_claim_weights_from_skip(skip_weights, x_outer[0]);
-    if claim_check(&weights, &proof.s_hat_v) != claim {
+    if claim_check(columns, &proof.s_hat_v) != claim {
         return Err(RingSwitchError::ClaimMismatch);
     }
 
@@ -3025,6 +3048,69 @@ mod tests {
         test_rng::Rng,
         zerocheck::{multilinear::lagrange_weights_naive, univariate_skip::build_eq},
     };
+
+    #[test]
+    fn weighted_succinct_preserves_skip64_transcript_and_rejects_bad_columns() {
+        use super::{
+            build_claim_weights_from_skip, verify_succinct_weighted_with_grinding,
+            verify_succinct_with_grinding,
+        };
+
+        let mut rng = Rng::new(0x6412_8C01);
+        let packed: Vec<_> = (0..8).map(|_| rng.f128()).collect();
+        let point: Vec<_> = (0..4).map(|_| rng.f128()).collect();
+        let skip_weights = lagrange_weights_naive(6, rng.f128());
+        let columns = build_claim_weights_from_skip(&skip_weights, point[0]);
+        for bits in [0, 3] {
+            let mut prover = FsChallenger::new(b"weighted-succinct-test");
+            let (proof, output) = prove_with_grinding(&packed, &point, bits, &mut prover);
+            let value = claim_check(&columns, &proof.s_hat_v);
+            let mut old = FsChallenger::new(b"weighted-succinct-test");
+            let old_output =
+                verify_succinct_with_grinding(value, &skip_weights, &point, &proof, bits, &mut old)
+                    .expect("legacy skip64 verification");
+            let mut weighted = FsChallenger::new(b"weighted-succinct-test");
+            let weighted_output = verify_succinct_weighted_with_grinding(
+                value,
+                &columns,
+                &proof,
+                bits,
+                &mut weighted,
+            )
+            .expect("weighted128 verification");
+            assert_eq!(output.sumcheck_claim, old_output.sumcheck_claim);
+            assert_eq!(old_output.sumcheck_claim, weighted_output.sumcheck_claim);
+            assert_eq!(old_output.eq_r_dprime, weighted_output.eq_r_dprime);
+            let expected = prover.sample_f128();
+            assert_eq!(old.sample_f128(), expected);
+            assert_eq!(weighted.sample_f128(), expected);
+
+            let mut bad_columns = columns.clone();
+            let nonzero = proof.s_hat_v.iter().position(|x| *x != F128::ZERO).unwrap();
+            bad_columns[nonzero] += F128::ONE;
+            assert!(matches!(
+                verify_succinct_weighted_with_grinding(
+                    value,
+                    &bad_columns,
+                    &proof,
+                    bits,
+                    &mut FsChallenger::new(b"weighted-succinct-test"),
+                ),
+                Err(RingSwitchError::ClaimMismatch),
+            ));
+            assert!(matches!(
+                verify_succinct_weighted_with_grinding(
+                    value,
+                    &columns[..127],
+                    &proof,
+                    bits,
+                    &mut FsChallenger::new(b"weighted-succinct-test"),
+                ),
+                Err(RingSwitchError::MalformedProof),
+            ));
+        }
+    }
+
     /// Binary-query specialization matches the general path bit-for-bit.
     #[test]
     fn eval_rs_eq_finish_binary_q_matches_general() {

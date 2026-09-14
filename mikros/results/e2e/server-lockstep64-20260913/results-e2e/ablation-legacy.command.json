@@ -1,0 +1,20 @@
+[
+  "/usr/bin/time",
+  "-v",
+  "-o",
+  "/home/mscong1/mikros-experiments/20260912T-native64/e2e-bit-v1/v3/results-e2e/ablation-legacy.resource.txt",
+  "taskset",
+  "-c",
+  "0-47,48-55,72-79",
+  "/home/mscong1/mikros-experiments/20260912T-native64/e2e-bit-v1/v3/target/release/examples/e2e_bit_compare",
+  "--log-leaves",
+  "14",
+  "--threads",
+  "64",
+  "--reps",
+  "3",
+  "--warmups",
+  "1",
+  "--reduction",
+  "legacy"
+]

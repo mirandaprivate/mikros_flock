@@ -1,0 +1,21 @@
+[package]
+name = "gruen-experiments"
+version = "0.1.0"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+
+# Isolated from the parent workspace and its lockfile/build directory.
+[workspace]
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1
+
+[[bin]]
+name = "gruen-bench"
+path = "src/bin/bench.rs"
+
+[[bin]]
+name = "gruen-mikros-bench"
+path = "src/bin/gruen_mikros.rs"

@@ -1,0 +1,71 @@
+% !TEX root = ../main.tex
+\begin{algorithm}[!t]
+\caption{Packed opening protocol}
+\label{alg:packed-pcs}
+\KwPubIn{
+\(\mathsf{pp}_{\pc},\mathsf{cm}\);
+\(\Field\subset\ExtensionField\) with basis \(\ext{\bm\beta}\)
+and \(\ext\beta_1=1\);
+\(N=m\kappa\), \(\ell=\log_2m\);
+\(\ext u\in\ExtensionField\),
+\(\ext{\bm\rho}\in\ExtensionField^\kappa\), and
+\(\ext{\bm\chi}=\bigotimes_{j=1}^{\ell}
+\ext{\bm\chi}^{(j)}\), given by factors
+\(\ext{\bm\chi}^{(j)}=
+(\ext\chi_0^{(j)},\ext\chi_1^{(j)})^\top\in\ExtensionField^2\)
+}
+\KwPriIn{
+\(\Prover\): \(\bm A\in\Field^{m\times\kappa}\) and
+commitment randomness \(\rho_{\pc}\)
+}
+\KwOut{Acceptance bit \(\mathsf{ok}\)}
+
+\(\Verifier\) returns \(0\) on a malformed message or a failed
+check, reduction, or opening\;
+\tcp{Authenticate the column evaluations by an extension-field projection}
+\(\Prover\) sets
+\(\ext{\bm a}\leftarrow\bm A\ext{\bm\beta}\) and decodes
+\(\bm\Xi\in\Field^{m\times\kappa}\) from
+\(\ext{\bm\chi}=\bm\Xi\ext{\bm\beta}\)\;
+\(\Prover\) computes \(\bm V\leftarrow\bm A^\top\bm\Xi\)\;
+\(\PtoV\): \(\ext{\bm v}\leftarrow\bm V\ext{\bm\beta}
+\in\ExtensionField^\kappa\)\;
+\(\Verifier\) checks
+\(\ext u\EqOrNot\ext{\bm\rho}^{\top}\ext{\bm v}\)\;
+\(\Verifier\) recovers \(\bm V\in\Field^{\kappa\times\kappa}\)
+from \(\ext{\bm v}=\bm V\ext{\bm\beta}\)\;
+\(\VtoP\): \(\ext{\bm r}\ChooseRandom\ExtensionField^\kappa\)\;
+\(\Verifier\) computes
+\(\ext c\leftarrow\ext{\bm\beta}^{\top}\bm V\ext{\bm r}\)\;
+\(\Prover\) computes the operand
+\(\bm\Xi\ext{\bm r}\in\ExtensionField^m\)\;
+\(\Prover,\Verifier\) apply Fact~\ref{fact:ip} over
+\(\ExtensionField\) to
+\(\ext c\EqOrNot\langle\ext{\bm a},\bm\Xi\ext{\bm r}\rangle\),
+and obtain terminal values \(\ext w_{\mathsf{com}},\ext w\)
+and point \(\ext{\bm y}\in\ExtensionField^\ell\)\;
+\tcp{The verifier contracts the public queries directly}
+Use the multiplication matrices \(\bm M_{\ext z}\) from
+Eq.~\eqref{eq:pcs-multiplication-matrix}, applied by extension-field
+scaling of rows and columns without materializing \(\bm M_{\ext z}\)\;
+\(\Verifier\) initializes
+\(\bm W\leftarrow\bm e_1\bm e_1^\top\in\Field^{\kappa\times\kappa}\),
+where \(\bm e_1=(1,0,\ldots,0)^\top\)\;
+\For{\(j=\ell,\ldots,1\)}{
+    \(\Verifier\) updates
+    \(\bm W\leftarrow
+       \bm W\bm M_{\ext\chi_0^{(j)}}^\top
+       +\bm M_{\ext y_j}\bm W
+        \bm M_{\ext\chi_1^{(j)}-\ext\chi_0^{(j)}}^\top\)\;
+    \tcp{All occurrences on the right use the previous \(\bm W\), as in Eq.~\eqref{eq:pcs-query-recurrence}}
+}
+\(\Verifier\) checks
+\(\ext w\EqOrNot\ext{\bm\beta}^{\top}\bm W\ext{\bm r}\)\;
+
+\(\mathsf{ok}\leftarrow
+\pc.\Open\!\left(
+    \mathsf{pp}_{\pc},\mathsf{cm},\ext w_{\mathsf{com}},
+    \ext{\bm y}:\ext{\bm a},\rho_{\pc}
+\right)\)\;
+\Return \(\mathsf{ok}\)\;
+\end{algorithm}

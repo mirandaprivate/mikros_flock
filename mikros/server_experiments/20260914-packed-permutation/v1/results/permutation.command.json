@@ -1,0 +1,18 @@
+[
+  "/usr/bin/time",
+  "-v",
+  "-o",
+  "/home/mscong1/mikros-experiments/20260912T-native64/v11-packed-permutation-20260914/source/results-packed-permutation/permutation.resource.txt",
+  "taskset",
+  "-c",
+  "0-47,48-55,72-79",
+  "/home/mscong1/mikros-experiments/20260912T-native64/v11-packed-permutation-20260914/source/target/release/examples/permutation_packed_compare",
+  "--log-n",
+  "30",
+  "--threads",
+  "64",
+  "--reps",
+  "8",
+  "--warmups",
+  "1"
+]

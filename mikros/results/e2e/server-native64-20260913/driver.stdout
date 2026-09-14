@@ -1,0 +1,16 @@
+{"name": "rustc", "exit_code": 0, "wall_seconds": 0.017913352930918336}
+{"name": "build", "exit_code": 0, "wall_seconds": 32.80985527485609}
+{"name": "test-pcs", "exit_code": 0, "wall_seconds": 30.024039332056418}
+{"name": "test-permutation", "exit_code": 0, "wall_seconds": 1.8696630757767707}
+{"name": "test-e2e-helpers", "exit_code": 0, "wall_seconds": 3.5120578659698367}
+{"name": "test-packed-ip", "exit_code": 0, "wall_seconds": 0.8149766421411186}
+{"name": "test-mikros-lincheck", "exit_code": 0, "wall_seconds": 3.8130010990425944}
+{"name": "test-flock_skip7_interpolation", "exit_code": 0, "wall_seconds": 0.3463344650808722}
+{"name": "test-univariate_roundtrip", "exit_code": 0, "wall_seconds": 1.6045148151461035}
+{"name": "validation-m22", "exit_code": 0, "wall_seconds": 3.033812665846199}
+{"name": "common-leaves6", "exit_code": 0, "wall_seconds": 3.5977578919846565}
+{"name": "production-leaves6", "exit_code": 0, "wall_seconds": 2.362923188135028}
+{"name": "common-leaves10", "exit_code": 0, "wall_seconds": 7.834826484788209}
+{"name": "production-leaves10", "exit_code": 0, "wall_seconds": 2.787824786035344}
+{"name": "common-leaves14", "exit_code": 0, "wall_seconds": 45.65374159812927}
+{"name": "production-leaves14", "exit_code": 0, "wall_seconds": 6.048435918986797}

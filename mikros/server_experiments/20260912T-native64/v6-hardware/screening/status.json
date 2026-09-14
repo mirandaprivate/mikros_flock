@@ -1,0 +1,23 @@
+{
+  "utc": "2026-09-12T10:41:34Z",
+  "stage": "complete",
+  "threads": 64,
+  "systems": [
+    "reuse",
+    "tiledreuse",
+    "basisreuse",
+    "flock128"
+  ],
+  "logs": [
+    26
+  ],
+  "measured_runs": 12,
+  "profile_runs": 3,
+  "rss_requested": false,
+  "validated_proof_records": 80,
+  "reports": [
+    "smoke.json",
+    "comparison-64t.json",
+    "profile-64t.json"
+  ]
+}

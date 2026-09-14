@@ -1,0 +1,25 @@
+{
+  "utc": "2026-09-12T10:53:33Z",
+  "stage": "complete",
+  "threads": 64,
+  "systems": [
+    "reuse",
+    "basisreuse",
+    "flock128"
+  ],
+  "logs": [
+    30
+  ],
+  "measured_runs": 6,
+  "profile_runs": 3,
+  "rss_requested": true,
+  "validated_proof_records": 48,
+  "reports": [
+    "smoke.json",
+    "comparison-64t.json",
+    "profile-64t.json",
+    "rss-reuse-n30-64t.json",
+    "rss-basisreuse-n30-64t.json",
+    "rss-flock128-n30-64t.json"
+  ]
+}

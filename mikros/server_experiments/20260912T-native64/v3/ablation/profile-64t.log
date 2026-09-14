@@ -1,0 +1,43 @@
+PIOP reductions, BLAKE3 transcript, no grinding, 64 thread(s)
+Generation/digest and original-input claim checks excluded from prove/verify time.
+  warmup n=2^24 legacy   : 16.499 ms
+  warmup n=2^24 stream   : 10.240 ms
+  warmup n=2^24 simdv1   : 11.001 ms
+  warmup n=2^24 simd     : 9.325 ms
+  warmup n=2^24 wide     : 8.118 ms
+  warmup n=2^24 fused    : 8.279 ms
+  warmup n=2^24 native   : 5.585 ms
+  warmup n=2^24 factored : 5.783 ms
+  n=2^24 run=1 legacy   : prove 24.222 ms, verify 0.122 ms, 35608 bytes
+  n=2^24 run=1 stream   : prove 11.093 ms, verify 0.122 ms, 35608 bytes
+  n=2^24 run=1 simdv1   : prove 10.778 ms, verify 0.126 ms, 35608 bytes
+  n=2^24 run=1 simd     : prove 9.775 ms, verify 0.119 ms, 35608 bytes
+  n=2^24 run=1 wide     : prove 8.231 ms, verify 0.122 ms, 35608 bytes
+  n=2^24 run=1 fused    : prove 7.885 ms, verify 0.125 ms, 35608 bytes
+  n=2^24 run=1 native   : prove 5.562 ms, verify 0.122 ms, 35608 bytes
+  n=2^24 run=1 factored : prove 5.976 ms, verify 0.121 ms, 35608 bytes
+  n=2^24 run=2 factored : prove 6.050 ms, verify 0.124 ms, 35608 bytes
+  n=2^24 run=2 native   : prove 5.776 ms, verify 0.122 ms, 35608 bytes
+  n=2^24 run=2 fused    : prove 8.177 ms, verify 0.121 ms, 35608 bytes
+  n=2^24 run=2 wide     : prove 8.887 ms, verify 0.239 ms, 35608 bytes
+  n=2^24 run=2 simd     : prove 10.028 ms, verify 0.122 ms, 35608 bytes
+  n=2^24 run=2 simdv1   : prove 10.726 ms, verify 0.120 ms, 35608 bytes
+  n=2^24 run=2 stream   : prove 10.924 ms, verify 0.121 ms, 35608 bytes
+  n=2^24 run=2 legacy   : prove 23.780 ms, verify 0.118 ms, 35608 bytes
+  n=2^24 run=3 stream   : prove 11.053 ms, verify 0.119 ms, 35608 bytes
+  n=2^24 run=3 simdv1   : prove 11.834 ms, verify 0.121 ms, 35608 bytes
+  n=2^24 run=3 simd     : prove 9.201 ms, verify 0.119 ms, 35608 bytes
+  n=2^24 run=3 wide     : prove 8.260 ms, verify 0.123 ms, 35608 bytes
+  n=2^24 run=3 fused    : prove 8.930 ms, verify 0.121 ms, 35608 bytes
+  n=2^24 run=3 native   : prove 5.656 ms, verify 0.123 ms, 35608 bytes
+  n=2^24 run=3 factored : prove 6.172 ms, verify 0.121 ms, 35608 bytes
+  n=2^24 run=3 legacy   : prove 24.443 ms, verify 0.129 ms, 35608 bytes
+  median n=2^24 legacy   : 24.222 ms prove [23.780, 24.443], 0.122 ms verify
+  median n=2^24 stream   : 11.053 ms prove [10.924, 11.093], 0.121 ms verify
+  median n=2^24 simdv1   : 10.778 ms prove [10.726, 11.834], 0.121 ms verify
+  median n=2^24 simd     : 9.775 ms prove [9.201, 10.028], 0.119 ms verify
+  median n=2^24 wide     : 8.260 ms prove [8.231, 8.887], 0.123 ms verify
+  median n=2^24 fused    : 8.177 ms prove [7.885, 8.930], 0.121 ms verify
+  median n=2^24 native   : 5.656 ms prove [5.562, 5.776], 0.122 ms verify
+  median n=2^24 factored : 6.050 ms prove [5.976, 6.172], 0.121 ms verify
+JSON: /home/mscong1/mikros-experiments/20260912T-native64/v3/ablation/profile-64t.json

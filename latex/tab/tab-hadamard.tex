@@ -1,0 +1,122 @@
+% Complete degree-2 Hadamard audit: a_i b_i - c_i = 0.
+% N is the length of EACH of the three input vectors (total input Theta(N)).
+% The public equality factor is included but is not a third small-field input.
+%
+% SFF: 2025/1117, Theorem 6.1/Section 6.2; 2026/587, Figure 2,
+% Section 6 and Appendix C.5. With M=N/2^t, the quadratic grid has 3^t
+% entries (projective nodes 0,1,infinity). M*3^t mixed products cost
+% kappa*N*(3/2)^t; suffix weights and tail cost kappa^2*M;
+% grid contractions cost kappa^2*3^t. Streamed binding is absorbed.
+% Gruen: 2024/108, Sections 2.3.1 and 5.1--6.1; 2026/587 Section 7.
+% The full bound ADDS FFT interpolation N*t, equality weighting and
+% binding kappa*N, suffix weights/tail kappa^2*N/2^t, and first-round
+% Lagrange/quotient processing kappa^2*2^t. It is not the abstract's
+% constraint-evaluation-only bound. This count uses FFT/coset domains;
+% the protocol permits general interpolation sets (Section 5.1, footnote 18).
+% Flock: 2026/1329, Sections 4.2--4.4 (July 31, 2026 PDF).
+% Byte chunks/subfield degree 8; 3<=t<=7, implementation t=6, kappa=128.
+% Re-cost lookup LDEs, weighting, binding, output check, and conventional
+% tail. Full time adds kappa^2*2^t; RAM adds kappa*2^t (fixed tables
+% included). N>=4^t absorbs these terms. This is a derived bound.
+% Dao--Thaler: 2024/1038, Sections 7--8, Algorithm 2, composed here with
+% CONVENTIONAL sumcheck. This is not a claim about the best possible tail.
+% Liu--Zhang: 2025/594, Section 4.2, Theorem 8/Protocol 5 (NOT Table 1).
+% Set s=2, h=floor(log_2(kappa)/2), u_i=4^i for i<h.
+% Full cost: sum_i N/2^i*(u_i^2+kappa*u_i) + kappa^2*N/2^h
+% = O(kappa^(3/2)*N). Generate deterministic prefix weights using the
+% O(kappa) special-generator multiplication of 2024/1038 Section 8.
+% Store only random-suffix weights and the current folded witness tables:
+% O(N + max_i N*2^i + kappa*N/2^h) = O(N*sqrt(kappa)), for N>=kappa.
+% RMFE: 2021/694, Theorem 4/Figure 3/Appendix A.2, sparse Boolean R1CS:
+% n=3N, m=N, nnz=Theta(N), constant-rate packing and security O(kappa).
+% Packed sumcheck: 2025/719 (2025-10-03 version), Lemma 5 explicitly proves
+% the Hadamard relation via Lemma 2 (d=2); Figure 3 includes the output c.
+% Set r=k, N=k*N_0. Equality-weighted degree is 3, hence q>3(2r-1).
+% Stream per-column forward differences; keep O(N+r^2) base coordinates.
+% Our row adds the output-vector linear evaluation to Proposition
+% proposition:hadamard-complexity, costing O(kappa*N) and O(N+kappa^2).
+% Parameter-only additive terms and their absorption conditions are given
+% in Appendix appx:hadamard-comparison.
+\begin{table*}[!t]
+\centering
+\setlength{\tabcolsep}{1.5pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{threeparttable}
+\caption{Prover costs for length-\(N\) Hadamard-product proofs}
+\label{tab:hadamard-comparison}
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}
+    >{\raggedright\arraybackslash}p{0.25\textwidth}
+    >{\raggedright\arraybackslash}p{0.26\textwidth}
+    >{\raggedright\arraybackslash}p{0.20\textwidth}
+    >{\raggedright\arraybackslash}p{0.25\textwidth}@{}}
+\toprule
+Method & Online prover time & RAM
+& Applicability \\
+\midrule
+Classical sumcheck
+& \(O(\kappa^2N)\)
+& \(O(\kappa N)\)
+& General extensions \\
+\addlinespace[3pt]
+SSF~\cite{iacr/BagadDT24,iacr/BagadDDT25,iacr/DaoDBDT26}
+& \(O(\kappa N(3/2)^t +\kappa^2N/2^t)\)
+& \(O(N+\kappa N/2^t)\)
+& General extensions \\
+\addlinespace[3pt]
+Dao--Thaler~\cite{iacr/DaoT24}
+& \(O(\kappa^2N)\)
+& \(O(\kappa N)\)
+& Binary tower fields \\
+\addlinespace[3pt]
+Tower zerocheck~\cite{iacr/LiuZ25}
+& \(O(\kappa^{3/2}N)\)
+& \(O(N\sqrt{\kappa})\)
+& Binary tower fields \\
+\addlinespace[3pt]
+RMFE--Aurora~\cite{iacr/CascudoG21}
+& \(O(\kappa^2N+\kappa N\log N)\)
+& \(O(\kappa N)\)
+& Binary RMFE \\
+\addlinespace[3pt]
+Packed sumcheck~\cite{iacr/WeiWXZDWZ25}
+& \(O(rN)\)
+& \(O(N+r^2)\)
+& \(|\Field|>3(2r-1)\) \\
+\addlinespace[3pt]
+Gruen~\cite{iacr/Gruen24}
+& \(O(Nt+\kappa N +\kappa^2N/2^t)\)
+& \(O(N+\kappa N/2^t)\)
+& $|\Field| \ge 2^{t+1}-1$ \\
+\addlinespace[3pt]
+Flock~\cite{iacr/BunzRW26}
+& \(O(N2^t+\kappa N+\kappa^2N/2^t)\)
+& \(O(N+\kappa N/2^t)\)
+& \(\Field=\mathbb F_2\) \\
+\midrule
+\methodname
+& \(O(\kappa N)\)
+& \(O(N)\)
+& General extensions \\
+\bottomrule
+\end{tabular*}
+\begin{tablenotes}[para,flushleft]
+\footnotesize
+\item Here \(\kappa=[\ExtensionField:\Field]\) and
+\(t_{\mathbb K}=[\mathbb K:\Field]\) is chosen as in
+Section~\ref{sec:hadamard}.
+Arithmetic and RAM are measured in base-field operations
+and elements, respectively.
+\(t\) counts optimized
+or skipped rounds, and \(r\) is the packed-sumcheck parameter.
+Bounds use schoolbook arithmetic and coordinate-charged table accesses;
+RAM includes inputs and read-only tables. Public preprocessing is separate.
+Parameter-only additive terms are absorbed for sufficiently large \(N\):
+\(N\geq6^t\) for SFF and \(N\geq4^t\) for univariate skip and Flock.
+Both \methodname{} rows assume \(N\geq\kappa^2\).
+Flock uses \(\mathbb F_{256}\subseteq\ExtensionField\) and
+\(3\leq t\leq7\) (\(t=6\) in its implementation).
+Complete bounds, implementation assumptions, and soundness-dependent
+parameter choices are given in Appendix~\ref{appx:hadamard-comparison}.
+\end{tablenotes}
+\end{threeparttable}
+\end{table*}

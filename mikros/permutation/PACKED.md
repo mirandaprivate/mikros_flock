@@ -1,0 +1,130 @@
+# Revised packed permutation
+
+The `packed` module implements the polynomial-tree / packed-Hadamard reduction
+in the current body of `latex/4-block.tex`, Section “Packed Permutation Proof”.
+The manuscript's permutation pseudocode and appendix still describe the previous
+reduction. The previous implementation remains available through `permutation`
+and the existing wiring functions for comparison.
+
+This is a protocol change: old and new proof messages and transcripts are not
+expected to match. Each version must independently replay and authenticate its
+terminal source functional.
+
+## Layout and protocol
+
+Let `b` be the actual subfield width selected by `SmallField::for_width`, and
+`kappa = 128 / b`. The supported packed shape has `kappa >= 2` and a padded input
+length at least `kappa^2`.
+
+Storage uses `A[row, column] = input[kappa * row + column]`. Within each column,
+adjacent rows are multiplied at each compact level. This is a fixed public index
+permutation of the manuscript's column-major matrix and upper/lower row pairing;
+the final source query is mapped back to the original input addresses.
+
+There are `log2(kappa)` compact polynomial levels. Their highest level has
+`N / kappa` entries, which are evaluated at the fingerprint challenge and become
+the leaves of the ordinary extension-field product tree. The reverse proof then
+uses one packed column reduction per compact level:
+
+1. Aggregate the compact coefficients against the current row tensor and then
+   evaluate the resulting scalar polynomials at the fingerprint challenge.
+2. Fix the column claims and the degree-`kappa-2` quotient before sampling the
+   column challenge outside the interpolation domain.
+3. Contract the child columns, evaluate their polynomials, and prove the
+   resulting weighted Hadamard claim by cubic sumcheck.
+4. Bind both child values before the fresh row-mixing challenge.
+
+Both grand-product trees advance in lockstep. Both sides' messages are bound
+before every shared challenge. The terminal functional has a row MLE point and
+`kappa` arbitrary column weights; it is not generally an ordinary MLE query.
+
+For small base fields, interpolation uses a true embedded GF(256) intermediate
+field. Coordinate conversion is checked through the existing extension-field
+embedding; unrelated subfield coordinate systems are not cast to each other.
+
+## Bit wiring and the PCS
+
+Bit wiring encodes `(witness_bit, address)` as `witness_bit + 2 * address` in the
+tuple field. At `N = 2^30` its width is 31 bits, so the actual field is GF(2^32)
+and `kappa = 4`. This differs from a permutation of untagged binary entries,
+whose base field is GF(2) and whose packing factor is 128.
+
+`wiring::prepare_bits_packed` performs challenge-independent preparation.
+`prove_bits_prepared_packed` and `verify_bits_packed` return a `BitTensorClaim`:
+128 column weights, low-bit-first row factors, and an evaluation on the original
+packed witness. The public id and sigma tags are removed online. The two encoded
+source values are checked separately; their original-bit functionals must agree
+before they become one claim.
+
+The E2E adapter uses the existing tensor-functional interface and the same
+production dense merged PCS, commitment, backend parameters, and single inner
+opening as the previous comparison. It retains the original witness gather and
+source authentication. Select the variant independently from the gather policy:
+
+```text
+cargo run --release -p mikros --example e2e_bit_compare -- \
+  --log-leaves 14 --threads 64 --reps 6 --warmups 1 \
+  --reduction lockstep --permutation both
+```
+
+This runs Flock, previous Mikros, and packed-permutation Mikros in rotating order.
+Omitting `--permutation` now selects `packed`, comparing Flock with the optimized
+new Mikros path. `--permutation legacy` explicitly selects the previous protocol;
+the library's existing legacy APIs retain their original types and behavior.
+At `log-leaves=14`, the E2E fixture has `2^30` witness bits and `2^26` wiring bits.
+It must not be reported as an E2E proof of `2^30` permutation cells.
+
+## Measurement boundaries
+
+```text
+cargo run --release -p mikros --example permutation_packed_compare -- \
+  --log-n 30 --threads 64 --reps 8 --warmups 1
+```
+
+This standalone benchmark has exactly `2^30` bit-address permutation cells and
+uses a public permutation moving bits across both words and bit coordinates.
+Old and new variants receive the same witness and public permutation. Their
+offline preparations are measured and reported separately. All challenge-bound
+evaluation, coefficient aggregation, folding, and conversion to a source query
+remain in prover time. Verification, proof serialization, and an independent
+evaluation against the original bits are outside prover time.
+
+The standalone benchmark is a PIOP comparison, with no PCS or grinding. Its
+untimed source oracle must not be described as a succinct opening. The E2E
+comparison includes commitment, online PIOPs and conversions, gathering, PCS
+opening, and the configured transcript grinding.
+
+Use `server_experiments/run_packed_permutation_64.py` from a frozen source
+snapshot for the server run. It records source and binary hashes, native CPU
+features, fixed 64-CPU affinity, raw timings, verification results, and separate
+old/new medians. Prepared coefficient storage includes off-domain polynomial
+products and can be larger in the new version; that cost is reported even though
+the agreed online timing excludes its construction.
+
+The hardware implementation uses four-row VPCLMUL accumulators for coefficient
+aggregation. For the GF(2^32), kappa-four compact layers, a GFNI affine transform
+projects 64 input rows at once; its challenge-dependent matrices are built
+online. Other shapes retain the scalar lookup implementation. Extension layers
+and projected children reuse a separate bounded tree pool (slot 2), with the
+same 32-GiB limit as the legacy Combined pool (slot 1). Reused storage is fully
+overwritten; proof bytes and challenges are unchanged by either optimization.
+The standalone benchmark reports pool occupancy and the batch's synchronous
+scratch teardown separately from individual online proofs.
+
+The default GF(2^32) coefficient aggregator now embeds contiguous coefficients
+with GFNI into a bounded 16-KiB tile and immediately consumes that tile with
+four-row VPCLMUL accumulators. It handles 6, 8, 12 and 16 coefficients per row.
+Blocks below 64 rows and unsupported shapes or CPUs retain the original kernel.
+The highest compact layer also uses GFNI polynomial evaluation, with its output
+kept in the original physical row order. Challenge-dependent evaluation matrices
+are built online; only the fixed public subfield embedding matrix is cached.
+
+For ablation, `MIKROS_PACKED_AGGREGATE=baseline|gfni|tower|auto` selects the
+coefficient kernel (`auto` is the default). The experimental `tower` path converts
+the shared low equality weights online to four coordinates over GF(2^32), then
+accumulates raw 32-bit polynomial products before reducing and recomposing them.
+It retains exactly the same GHASH field and source coefficient basis. It was
+comparable to GFNI in the native probes, so it remains opt-in. Both alternatives
+use four VPCLMUL instructions per four rows per coefficient; they do not halve
+the carryless multiplication count. Run `run_packed_aggregate_probe.py` for the
+isolated, verified kernel comparison, including online weight conversion costs.

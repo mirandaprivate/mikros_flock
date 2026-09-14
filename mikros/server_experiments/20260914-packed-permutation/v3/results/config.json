@@ -1,0 +1,18 @@
+{
+  "logs": "results",
+  "log_rows": 21,
+  "reps": 6,
+  "timeout_seconds": 1800,
+  "threads": 64,
+  "warmups": 1,
+  "cpu_affinity_spec": "0-47,48-55,72-79",
+  "toolchain": "+nightly-2026-03-21",
+  "rustflags": "-C target-cpu=native",
+  "source_manifest_sha256": "a0a178740b09c2503d7a30bc9a53b4f8d2db6bb8932ab0bd8ef8c4cf425dd25a",
+  "cleared_environment_keys": [],
+  "benchmark_environment": {
+    "MIKROS_AGG_BENCH_LOG_ROWS": "21",
+    "MIKROS_AGG_BENCH_THREADS": "64",
+    "MIKROS_AGG_BENCH_REPS": "6"
+  }
+}

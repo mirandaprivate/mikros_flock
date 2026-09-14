@@ -1,0 +1,14 @@
+[
+  "cargo",
+  "+nightly-2026-03-21",
+  "test",
+  "--release",
+  "--offline",
+  "--locked",
+  "-j8",
+  "-p",
+  "mikros-permutation",
+  "--lib",
+  "--no-run",
+  "--message-format=json"
+]

@@ -1,0 +1,11 @@
+{"name": "rustc", "exit_code": 0, "wall_seconds": 0.01887664687819779}
+{"name": "build", "exit_code": 0, "wall_seconds": 28.106003656983376}
+{"name": "test-permutation", "exit_code": 0, "wall_seconds": 6.326888560084626}
+{"name": "test-e2e-helpers", "exit_code": 0, "wall_seconds": 6.827987761935219}
+{"name": "test-pcs-functional", "exit_code": 0, "wall_seconds": 29.62478919606656}
+{"name": "test-pcs-merged-tensor", "exit_code": 0, "wall_seconds": 0.17594804195687175}
+{"name": "test-pcs-weighted", "exit_code": 0, "wall_seconds": 0.13977832300588489}
+{"name": "validation-permutation", "exit_code": 0, "wall_seconds": 0.03983480203896761}
+{"name": "validation-e2e", "exit_code": 0, "wall_seconds": 3.3482435869518667}
+{"name": "permutation", "exit_code": 0, "wall_seconds": 152.05802800389938}
+{"name": "e2e", "exit_code": 0, "wall_seconds": 35.229761695023626}

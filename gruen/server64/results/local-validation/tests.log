@@ -1,0 +1,78 @@
+   Compiling crossbeam-utils v0.8.23
+   Compiling crossbeam-epoch v0.9.21
+   Compiling crossbeam-deque v0.8.8
+   Compiling rayon-core v1.13.0
+   Compiling rayon v1.12.0
+   Compiling gruen-server64 v0.1.0 (/mnt/c/Users/miranda/git/mikros_flock/gruen/server64)
+    Finished `release` profile [optimized] target(s) in 1m 07s
+     Running unittests src/lib.rs (target/release/deps/gruen_experiments-534565dfd497d344)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/compare.rs (target/release/deps/compare-c01e8c15f15e1b16)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/correctness.rs (target/release/deps/correctness-7d504398f5205715)
+
+running 26 tests
+test f251::fields ... ok
+test f251::kappa ... ok
+test f251::protocol ... ok
+test f251::quotient ... ok
+test f251::transforms ... ok
+test f65521::fields ... ok
+test f65521::kappa ... ok
+test f65521::protocol ... ok
+test f65521::quotient ... ok
+test f65521::transforms ... ok
+test fixed_kappa_parameters ... ok
+test goldilocks::fields ... ok
+test goldilocks::kappa ... ok
+test goldilocks::protocol ... ok
+test goldilocks::quotient ... ok
+test goldilocks::transforms ... ok
+test koalabear::fields ... ok
+test koalabear::kappa ... ok
+test koalabear::protocol ... ok
+test koalabear::quotient ... ok
+test koalabear::transforms ... ok
+test m31::fields ... ok
+test m31::kappa ... ok
+test m31::protocol ... ok
+test m31::quotient ... ok
+test m31::transforms ... ok
+
+test result: ok. 26 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.16s
+
+     Running tests/differential.rs (target/release/deps/differential-8e025804c102f7e3)
+
+running 2 tests
+test goldilocks_parallel_matches_frozen_serial ... ok
+test koalabear_parallel_matches_frozen_serial ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.77s
+
+     Running tests/mikros.rs (target/release/deps/mikros-c110c55407266155)
+
+running 7 tests
+test gold_interpolation ... ok
+test gold_protocol ... ok
+test gold_quotient ... ok
+test koala_interpolation ... ok
+test koala_protocol ... ok
+test koala_quartic_coordinates_match_independent_schoolbook ... ok
+test koala_quotient ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+   Doc-tests gruen_experiments
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

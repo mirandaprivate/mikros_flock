@@ -1,0 +1,128 @@
+[
+  {
+    "case": "smoke-w1-n20-64t",
+    "width": 1,
+    "log_n": 20,
+    "systems": [
+      "previous",
+      "register",
+      "reuse",
+      "combined",
+      "flock"
+    ],
+    "runs": 1,
+    "warmups": 0,
+    "seed": 0,
+    "file": "smoke-w1-n20-64t-attempt1.json",
+    "proof_records": 5
+  },
+  {
+    "case": "screening-w1-n26-64t",
+    "width": 1,
+    "log_n": 26,
+    "systems": [
+      "previous",
+      "register",
+      "reuse",
+      "combined"
+    ],
+    "runs": 8,
+    "warmups": 1,
+    "seed": 0,
+    "file": "screening-w1-n26-64t-attempt1.json",
+    "proof_records": 36
+  },
+  {
+    "case": "main-w1-n30-64t",
+    "width": 1,
+    "log_n": 30,
+    "systems": [
+      "previous",
+      "combined",
+      "flock"
+    ],
+    "runs": 6,
+    "warmups": 1,
+    "seed": 0,
+    "file": "main-w1-n30-64t-attempt1.json",
+    "proof_records": 21
+  },
+  {
+    "case": "cold-rss-w1-n30-64t-previous",
+    "width": 1,
+    "log_n": 30,
+    "systems": [
+      "previous"
+    ],
+    "runs": 1,
+    "warmups": 0,
+    "seed": 1,
+    "file": "cold-rss-w1-n30-64t-previous-attempt1.json",
+    "proof_records": 1
+  },
+  {
+    "case": "cold-rss-w1-n30-64t-combined",
+    "width": 1,
+    "log_n": 30,
+    "systems": [
+      "combined"
+    ],
+    "runs": 1,
+    "warmups": 0,
+    "seed": 1,
+    "file": "cold-rss-w1-n30-64t-combined-attempt1.json",
+    "proof_records": 1
+  },
+  {
+    "case": "cold-rss-w1-n30-64t-flock",
+    "width": 1,
+    "log_n": 30,
+    "systems": [
+      "flock"
+    ],
+    "runs": 1,
+    "warmups": 0,
+    "seed": 1,
+    "file": "cold-rss-w1-n30-64t-flock-attempt1.json",
+    "proof_records": 1
+  },
+  {
+    "case": "warm-rss-w1-n30-64t-previous",
+    "width": 1,
+    "log_n": 30,
+    "systems": [
+      "previous"
+    ],
+    "runs": 1,
+    "warmups": 1,
+    "seed": 0,
+    "file": "warm-rss-w1-n30-64t-previous-attempt1.json",
+    "proof_records": 2
+  },
+  {
+    "case": "warm-rss-w1-n30-64t-combined",
+    "width": 1,
+    "log_n": 30,
+    "systems": [
+      "combined"
+    ],
+    "runs": 1,
+    "warmups": 1,
+    "seed": 0,
+    "file": "warm-rss-w1-n30-64t-combined-attempt1.json",
+    "proof_records": 2
+  },
+  {
+    "case": "warm-rss-w1-n30-64t-flock",
+    "width": 1,
+    "log_n": 30,
+    "systems": [
+      "flock"
+    ],
+    "runs": 1,
+    "warmups": 1,
+    "seed": 0,
+    "file": "warm-rss-w1-n30-64t-flock-attempt1.json",
+    "proof_records": 2
+  }
+]

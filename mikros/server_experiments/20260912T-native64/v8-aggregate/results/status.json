@@ -1,0 +1,45 @@
+{
+  "utc": "2026-09-12T12:30:44Z",
+  "stage": "complete",
+  "threads": 64,
+  "systems": [
+    "basisreuse",
+    "pairreuse",
+    "jointreuse",
+    "flock128"
+  ],
+  "smoke_systems": [
+    "reference",
+    "lookup",
+    "basis",
+    "split",
+    "half",
+    "pair",
+    "affine",
+    "joint",
+    "flock128"
+  ],
+  "required_test_names": [
+    "aggregate_eight_consumers_match_scalar_all_lanes_and_partial_tiles",
+    "aggregate_eight_schedules_match_reference_across_row_boundaries",
+    "paired_register_continuation_matches_single_and_scalar_all_lanes",
+    "affine_h_matches_bitwise_weights_all_subsets_tails_and_accumulation"
+  ],
+  "minimum_tests": 80,
+  "logs": [
+    30
+  ],
+  "measured_runs": 8,
+  "profile_runs": 4,
+  "rss_requested": true,
+  "validated_proof_records": 78,
+  "reports": [
+    "smoke.json",
+    "comparison-64t.json",
+    "profile-64t.json",
+    "rss-basisreuse-n30-64t.json",
+    "rss-pairreuse-n30-64t.json",
+    "rss-jointreuse-n30-64t.json",
+    "rss-flock128-n30-64t.json"
+  ]
+}

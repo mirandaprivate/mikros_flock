@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "metadata": {
+    "arch": "x86_64",
+    "compiled_target_features": [
+      "aes",
+      "pclmulqdq",
+      "sse4.1",
+      "gfni",
+      "avx2",
+      "avx512f",
+      "avx512bw",
+      "avx512vbmi",
+      "vpclmulqdq"
+    ],
+    "cpu": "Intel(R) Xeon(R) Gold 6342 CPU @ 2.80GHz",
+    "git_dirty": null,
+    "git_revision": null,
+    "git_status": null,
+    "grinding": "disabled for both; no equal-128-bit-security claim",
+    "input": "deterministic packed uniform a,b; c=a&b; same per-run triple and observed BLAKE3 input digest for all systems",
+    "logs": [
+      24
+    ],
+    "measured_setup": {
+      "isolated_table_setup_ms": null,
+      "policy": "warmup samples include first-proof setup; no setup costs subtracted from prover timing"
+    },
+    "memory": "Linux-only process VmHWM after prove and before verify/input checks; includes inputs, runtime and tables; requires --rss with one system/dimension in a fresh process; unavailable elsewhere",
+    "mikros_kernel_variants": "reference: scalar oracle; lookup: original per-row LUT; packed8: eight-row blocks; packed: selected packed blocks; both packed variants use fused binding and fused IP tail",
+    "mikros_phase_profiling": false,
+    "mikros_sources_blake3": "1044d29674c3db363e71c98a028d2a089272235e9924e6ca2420610787c2999d",
+    "mode": "fresh_process_rss_cold_proof",
+    "native_ablation_variants": "legacy: old64; stream: streamed tensor; simdv1: GFNI horizontal reduction; simd: GFNI byte planes; wide: plus VPCLMUL IP; fused: plus packing/initial-message and C projection; native: plus blocked row weights; reuse: native with persistent allocation capacity; factored: native with tensor-factored row aggregation; factoredreuse: factored with persistent allocation capacity",
+    "os": "linux",
+    "proof_digest": "BLAKE3 of bincode proof outside all timings; identical Mikros kernels must have identical digests on paired input",
+    "rayon_actual_threads": 64,
+    "repository_default_rustflags": "-C target-cpu=native",
+    "runs": 1,
+    "rustc": "rustc 1.96.0-nightly (ac7f9ec7d 2026-03-20); binary: rustc; commit-hash: ac7f9ec7da74d37fd28667c86bf117a39ba5b02a; commit-date: 2026-03-20; host: x86_64-unknown-linux-gnu; release: 1.96.0-nightly; LLVM version: 22.1.0",
+    "scope": "PIOP reductions only; no PCS commitments or openings; every returned claim checked directly against original input outside timings",
+    "scratch_policy": "reuse and factoredreuse each retain independent buffers across proofs; warmup stores first allocation; all witness/challenge-dependent contents rebuilt within prove; every other Mikros variant allocates fresh scratch per proof",
+    "systems": [
+      "simdv1"
+    ],
+    "threads": 64,
+    "timing": "input generation, digest, challenger initialization, serialization, direct input claim checks excluded; all per-proof work inside prove included",
+    "transcript_hash": "blake3",
+    "tuning_environment": {},
+    "unix_timestamp_seconds": 1789200379,
+    "warmups_per_system_per_dimension": 0
+  },
+  "summaries": [
+    {
+      "log_n": 24,
+      "constraints": 16777216,
+      "system": "simdv1",
+      "runs": 1,
+      "prover_ms": {
+        "median": 8.561064,
+        "min": 8.561064,
+        "max": 8.561064
+      },
+      "verifier_ms": {
+        "median": 0.179852,
+        "min": 0.179852,
+        "max": 0.179852
+      },
+      "input_claim_check_ms": {
+        "median": 215.70572399999998,
+        "min": 215.70572399999998,
+        "max": 215.70572399999998
+      },
+      "payload_field_elements": 2224,
+      "payload_field_bytes": 35584,
+      "bincode_bytes": 35608
+    }
+  ],
+  "warmups": [],
+  "samples": [
+    {
+      "log_n": 24,
+      "system": "simdv1",
+      "run": 1,
+      "order": 0,
+      "input_digest": "fd0f1b45ee82cdf45134f0795347861f1a256c43754d7754b707e2ea1ecc4f6c",
+      "prover_ms": 8.561064,
+      "verifier_ms": 0.179852,
+      "input_claim_check_ms": 215.70572399999998,
+      "payload_field_elements": 2224,
+      "payload_field_bytes": 35584,
+      "bincode_bytes": 35608,
+      "proof_digest": "4ef745ed206d86f946153653c0678d67d756937aa3f431060d0c4a377e6507c7",
+      "vm_rss_before_prove_kib": 12488,
+      "vm_hwm_after_prove_kib": 17160
+    }
+  ]
+}

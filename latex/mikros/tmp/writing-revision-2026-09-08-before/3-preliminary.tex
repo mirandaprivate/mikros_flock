@@ -1,0 +1,510 @@
+\section{Preliminaries}
+
+
+\subsection{Notations}
+\label{sec:notation}
+We work over a small finite field \(\Field\) of order
+\(p=|\Field|\) and its degree-\(\kappa\) extension
+\(\ExtensionField=\mathsf{GF}(p^\kappa)\), where \(p\) is a
+prime power, not necessarily the characteristic, and
+$
+\ExtensionDegree{\ExtensionField}{\Field}=\kappa.
+$
+Thus \(\Field\subset\ExtensionField\).
+For a security parameter \(\lambda\), choose \(\kappa\)
+to satisfy the soundness bounds below; in particular, require
+\(
+    \lvert\ExtensionField\rvert
+    =
+    p^\kappa
+    \geq
+    2^\lambda.
+\)
+We use \(N\) to denote the witness size measured in
+\(\Field\)-elements and set \(m=N/\kappa\), assuming that
+\(\kappa\mid N\). We restrict ourselves
+to parameter regimes satisfying
+\(
+    p
+    >
+    \max\left\{
+        \kappa,\,
+        4\left\lceil\log_2 N\right\rceil
+    \right\}.
+\)
+These are field-cardinality conditions, not restrictions on the
+characteristic.
+
+The main exposition specializes to odd prime fields.
+Section~\ref{sec:binary-packing} gives the binary-field
+instantiation using a small extension as the working field.
+
+We use the following notational conventions throughout this paper.
+Scalars in \(\Field\) are denoted by lowercase letters,
+\eg, \(a,b,c\).
+Matrices are denoted by bold uppercase letters,
+\eg, \(\bm A,\bm B,\bm C\),
+whereas vectors are denoted by bold lowercase letters and are
+interpreted as column vectors by default.
+For example, \(\bm l^\top\) and \(\bm r\) denote a row vector
+and a column vector, respectively.
+Matrices, vectors, and scalars over \(\ExtensionField\) are
+distinguished by an overline,
+\eg, \(\ext{\bm A}\), \(\ext{\bm l}\), and \(\ext{a}\).
+
+Let
+\(\overline{\beta}_1,\ldots,\overline{\beta}_\kappa\)
+be a basis of \(\ExtensionField\) over \(\Field\), and let
+\(\overline{\beta}_1^\dagger,\ldots,
+\overline{\beta}_\kappa^\dagger\)
+denote its trace-dual basis. 
+The polynomial rings over \(\Field\) and \(\ExtensionField\) are
+denoted by \(\Field[X]\) and \(\ExtensionField[X]\), respectively.
+Formal indeterminates are denoted by uppercase letters
+\(X,Y,Z\), whereas sampled random challenges are denoted by
+\(\overline{x},\overline{y},\overline{z}\).
+Indices are denoted by \(i,j,\ell\).
+% Sets are denoted using blackboard bold font,\eg,
+% The set of natural numbers is $\mathbb{N}$,
+% the set of powers of two is $2^\mathbb{N}$,
+% and the set of real numbers is $\mathbb{R}$.
+$[n]$ denotes $\{ 1, \ldots, n \}$.
+$|\cdot|$ denotes the cardinality.
+
+
+We also use the following matrix and vector operations:
+\begin{itemize}[noitemsep, topsep = 0pt]
+\item inner product $c = \langle \bm a, \bm b \rangle$; addition ($\bm C = \bm A + \bm B$); transposition ($\bm C = \bm A^\top$);
+\item multiplication
+($\bm C = \bm A\bm B$); Kronecker (tensor) product ($\bm C = \bm A \otimes \bm B$);
+\item Hadamard (element-wise) product $\bm{A} \circ \bm{B}$;
+\item concatenation of vectors $\bm{c} = (\bm c_1 \| \bm c_2 \|\cdots \| \bm c_\kappa)$; and
+\item horizontal packing of column vectors $\bm C = [\bm c_1 \mid \bm c_2 \mid \cdots \mid \bm c_\kappa]$.
+\end{itemize}
+    
+In our complexity analysis, we use \(\bb\), \(\be\), and \(\ee\)
+to denote the costs of base-field--base-field,
+base-field--extension-field, and extension-field--extension-field
+multiplications, respectively, and subsume the cost of additions
+into these multiplication costs. Under schoolbook extension-field
+arithmetic, we have
+\(
+    \be=\kappa\bb
+\) and
+\(
+    \ee=\kappa\be=\kappa^2\bb
+\).
+
+
+The prover and the verifier are denoted by $\Prover$ and $\Verifier$, respectively. 
+A relation is denoted by $\Relation = \{\text{ public input }:\text{ private input }| \text{ constraint }\}$.
+
+\subsection{SNARK Protocol in Matrix Form}
+\label{sec:defgeneral}
+Many modern SNARK protocols arithmetize the circuit-satisfiability
+(\(\mathsf{Circ\text{-}SAT}\)) problem as a low-degree polynomial
+identity and use the sum-check protocol to reduce its verification
+to checking multilinear-extension (MLE) evaluations at random
+challenge points.
+Although equivalent to the matrix formulation,
+this polynomial view would make our mathematical development in this paper unnecessarily cumbersome.
+We therefore formulate the SNARK relation and the associated protocols directly in matrix form.
+
+
+\begin{definition}[PLONK constraint system for circuit
+satisfiability~\cite{iacr/GabizonWC19,iacr/AmbronaSTW22}]
+\label{def:plonk}
+An arithmetic circuit with \(N\) gates and \(n_{\mathsf{io}}\)
+public inputs and outputs is specified by five selector vectors
+\(
+    \bm q_L,\bm q_R,\bm q_M,\bm q_O,\bm q_C
+    \in\Field^N
+\)
+and an augmented wiring permutation
+\(
+    \sigma:
+    [3N+n_{\mathsf{io}}]
+    \to
+    [3N+n_{\mathsf{io}}],
+\)
+which encodes both the wire-copy constraints and the connections
+to the public inputs and outputs.
+Given a public-I/O vector
+\(\bm{\mathsf{io}}\in\Field^{n_{\mathsf{io}}}\), let
+\(\bm w_L,\bm w_R,\bm w_O\in\Field^N\) denote the left, right,
+and output wire assignments, respectively, and define the
+augmented assignment
+\(
+    \bm w
+    \coloneqq
+    (\bm w_L\mathbin{\|}\bm w_R\mathbin{\|}\bm w_O
+    \mathbin{\|}\bm{\mathsf{io}})
+    \in\Field^{3N+n_{\mathsf{io}}}.
+\)
+The wire assignment satisfies the circuit if:
+\begin{align}
+    \bm q_L\circ\bm w_L
+    +\bm q_R\circ\bm w_R
+    +\bm q_M\circ(\bm w_L\circ\bm w_R)
+    +\bm q_O\circ\bm w_O
+    +\bm q_C
+    &=\bm 0_N,
+    \label{eq:plonk1}\\
+    \sigma(\bm w)
+    &=\bm w.
+    \label{eq:plonk2}
+\end{align}
+Here,
+\(\sigma(\bm w)\) denotes the coordinate permutation of
+\(\bm w\) induced by \(\sigma\).
+\end{definition}
+
+
+To express MLE evaluations directly in
+vector and matrix form, we introduce tensor spans.
+
+\begin{definition}[Tensor span]
+\label{def:tensorspan}
+Let \(n \in 2^\mathbb{N}\) and let
+\(
+    \bm x
+    =
+    (x_1,\ldots,x_{\log_2 n})
+    \in\Field^{\log_2 n}.
+\)
+The \emph{tensor span} of \(\bm x\) is the length-\(n\) vector
+\(
+    \tensorspan{\bm x}
+    \coloneqq
+    \bigotimes_{i=1}^{\log_2 n} (1-x_i, x_i)^\top
+    \in\Field^n.
+\)
+The same construction applies to
+\(\ext{\bm x}\in\ExtensionField^{\log_2 n}\).
+We define the sets of tensor spans over \(\Field\) and
+\(\ExtensionField\), respectively, by:
+\begin{align*}
+    \TensorSpace(n)
+    &\coloneqq
+    \left\{
+        \tensorspan{\bm x}
+        \;\middle|\;
+        \bm x\in\Field^{\log_2 n}
+    \right\}
+    \subseteq\Field^n,
+    \qquad
+    \ext{\TensorSpace}(n)
+    \coloneqq
+    \left\{
+        \tensorspan{\ext{\bm x}}
+        \;\middle|\;
+        \ext{\bm x}\in\ExtensionField^{\log_2 n}
+    \right\}
+    \subseteq\ExtensionField^n.
+\end{align*}
+\end{definition}
+
+\begin{lemma}[Schwartz-Zippel-DeMillo-Lipton Lemma]
+\label{lemma:schwartz}
+Let
+\( \phi(\bm{x}) : \Field^\upsilon \to \Field \) be a nonzero \( \upsilon \)-variate polynomial such that the degree of \( \phi \) in each variable is at most \( d \). Let \( \bm{x} \ChooseRandom \mathbb{X}^{\upsilon} \) for some finite set \( \mathbb{X} \subseteq \Field \). Then:
+\[
+    \Pr_{\bm{x} \ChooseRandom \mathbb{X}^{\upsilon}}\!\left[ \phi(\bm{x}) = 0 \right]
+    \le \frac{\upsilon \cdot d}{|\mathbb{X}|}.
+\]
+\end{lemma}
+
+\begin{corollary}[Zero check in matrix form]
+\label{corollary:schwartz}
+Let \(n\) be a positive power of two and let
+\(
+    \bm a\in\Field^n\setminus\{\bm 0_n\}.
+\)
+Viewing \(\bm a\) as a vector over \(\ExtensionField\), sample
+\(
+    \ext{\bm x}
+    \ChooseRandom
+    \ExtensionField^{\log_2 n}.
+\)
+Then the probability that the MLE of \(\bm a\)
+vanishes at \(\ext{\bm x}\) is bounded by:
+\[
+    \Pr_{\ext{\bm x}\ChooseRandom
+        \ExtensionField^{\log_2 n}}
+    \!\left[
+        \left\langle
+            \bm a,
+            \tensorspan{\ext{\bm x}}
+        \right\rangle
+        =0
+    \right]
+    \leq
+    \frac{\log_2 n}{\lvert\ExtensionField\rvert}.
+\]
+\end{corollary}
+
+\begin{definition}[Inner-product proof]
+\label{def:ip}
+Let \(m\) be a positive power of two. Suppose that the prover
+\(\Prover\) is bound to two vectors
+\(\ext{\bm a},\ext{\bm b}\in\ExtensionField^m\), and that the
+verifier \(\Verifier\) holds the corresponding commitments.
+Given a claimed value \(\ext{v}\in\ExtensionField\), an
+\emph{inner-product proof} is an interactive proof protocol for the
+relation:
+\[
+    \Language_{\mathsf{ip}}
+    \coloneqq
+    \left\{
+        \bigl(\ext{v}\in \ExtensionField,~      \ext{\bm a},\ext{\bm b}\in\ExtensionField^m
+        \;\middle|\;
+        \begin{array}{l}
+            \ext{v}
+            =\langle\ext{\bm a},\ext{\bm b}\rangle
+        \end{array}
+    \right\}.
+\]
+\end{definition}
+
+Inner-product proofs can be constructed using either the
+sum-check protocol~\cite{crypto/Thaler13} or folding
+techniques~\cite{asiacrypt/CCYY25}. Both approaches yield the
+following reduction.
+
+We represent sum-check round polynomials by their coefficients.
+The consistency check is \(g(0)+g(1)=c\); it requires no
+division by \(2\) and applies in characteristic two as well.
+
+\begin{fact}[\bf Inner-product reduction]
+\label{fact:ip}
+There exists an inner-product proof whose reduction phase requires
+\(4m+O(\log m)\) multiplications in \(\ExtensionField\), communicates
+\(2\log_2 m+2\) $\ExtensionField$-elements, and requires
+\(O(\log m)\) $\ExtensionField$-multiplications from the verifier.
+Over \(\log_2 m\) rounds, the verifier samples challenges collected
+in
+\(
+    \ext{\bm x}\in\ExtensionField^{\log_2 m},
+\)
+and the protocol reduces the inner-product relation to two
+terminal MLE claims:
+\[
+    \ext{v}_1
+    \EqOrNot
+    \left\langle
+        \ext{\bm a},
+        \tensorspan{\ext{\bm x}}
+    \right\rangle
+    \quad\wedge\quad
+    \ext{v}_2
+    \EqOrNot
+    \left\langle
+        \ext{\bm b},
+        \tensorspan{\ext{\bm x}}
+    \right\rangle,
+\]
+where \(\ext{v}_1,\ext{v}_2\in\ExtensionField\) are sent by the
+prover. The soundness error is at most
+\(
+    \frac{2\log_2 m}{\lvert\ExtensionField\rvert}.
+\)
+\end{fact}
+
+\begin{definition}[Multilinear polynomial commitment scheme in matrix form]
+\label{def:pcs}
+Let \(n \in 2^\mathbb{N}\). A multilinear PCS over \(\Field\), supporting evaluations over
+\(\ExtensionField\), consists of the following algorithms $(\Setup, \Com, \Open)$:
+\begin{itemize}[leftmargin=*,labelsep=0.5em]
+    \item
+    \(
+        \pp\leftarrow\Setup(1^\lambda,n)
+    \)
+    takes the security parameter and the committed vector length
+    \(n\), and outputs public parameters \(\pp\).
+
+    \item
+    \(
+        C\leftarrow\Com(\pp,\bm a;\rho)
+    \)
+    takes a vector \(\bm a\in\Field^n\) and fresh randomness
+    \(\rho\), and outputs a commitment \(C\). We write
+    \(\Com(\bm a;\rho)\) when \(\pp\) is clear from context.
+
+    \item The opening protocol
+    \(
+        \mathsf{bit}
+        \leftarrow
+        \Open\!\left(
+            \pp,C,\ext{v},\ext{\bm x}
+            :
+            \bm a,\rho
+        \right)
+    \)
+    is an interactive argument between \(\Prover\) and
+    \(\Verifier\) for the relation:
+    \[
+        \Relation_{\mathsf{open}}
+        \coloneqq
+        \left\{
+            \bigl(
+                \pp,C,\ext{v},\ext{\bm x}
+            \bigr)
+                :
+            \bigl(
+                \bm a,\rho
+            \bigr)
+            \;\middle|\;
+            \begin{aligned}
+                C=\Com(\pp,\bm a;\rho) \wedge
+                \ext{v}=\left\langle
+            \bm a,
+            \tensorspan{\ext{\bm x}}
+        \right\rangle
+            \end{aligned}
+        \right\}.
+    \]
+    At the end of the protocol, \(\Verifier\) outputs
+    \(\mathsf{bit}\in\{\TRUE,\FALSE\}\).
+\end{itemize}
+\end{definition}
+
+
+
+\subsection{Extension-Field Arithmetic}
+
+\begin{fact}[Base-Field Embedding]
+\label{fact:injective}
+Let\/ \(\ExtensionField/\Field\) be an extension.
+The canonical inclusion
+\(
+    \iota:\Field\hookrightarrow\ExtensionField
+\)
+is injective and induces an injective inclusion
+\(
+    \Field[X]\hookrightarrow\ExtensionField[X].
+\)
+\end{fact}
+
+Conversely, the field trace defines a map from \(\ExtensionField\) to \(\Field\).
+\begin{definition}[Extension-field trace]
+\label{def:trace}
+The \emph{field trace} from \(\ExtensionField = \mathsf{GF}(p^\kappa)\) to \(\Field = \mathsf{GF}(p)\)
+is the \(\Field\)-linear map:
+\[
+    \trace:\ExtensionField\to\Field,
+    \qquad
+    \ext{\alpha}
+    \longmapsto
+    \trace(\ext{\alpha})
+    \coloneqq \ext{\alpha} + \ext{\alpha}^p + \ext{\alpha}^{p^2} + \cdots + \ext{\alpha}^{p^{\kappa-1}}.
+\]
+In particular, for all \(a,b\in\Field\) and
+\(\ext{\alpha},\ext{\beta}\in\ExtensionField\),
+\[
+    \trace\!\left(
+        a\ext{\alpha}+b\ext{\beta}
+    \right)
+    =
+    a\trace(\ext{\alpha})
+    +
+    b\trace(\ext{\beta}).
+\]
+\end{definition}
+
+\begin{definition}[Basis and trace-dual basis]
+\label{def:basis}
+An ordered tuple
+\(
+    \mathcal B
+    =
+    \bigl(
+        \ext{\beta}_1,\ldots,\ext{\beta}_\kappa
+    \bigr)
+    \in\ExtensionField^\kappa
+\)
+is a \emph{basis} of \(\ExtensionField\) over \(\Field\) if every
+\(\ext{\alpha}\in\ExtensionField\) admits a unique representation:
+\[
+    \ext{\alpha}
+    =
+    \sum_{i=1}^{\kappa}a_i\ext{\beta}_i,
+    \qquad
+    a_1,\ldots,a_\kappa\in\Field.
+\]
+The \emph{trace-dual basis} of \(\mathcal B\) is the unique basis
+\(
+    \mathcal B^\dagger
+    =
+    \bigl(
+        \ext{\beta}_1^\dagger,\ldots,
+        \ext{\beta}_\kappa^\dagger
+    \bigr)
+\)
+satisfying:
+\[
+    \trace\!\left(
+        \ext{\beta}_i\ext{\beta}_j^\dagger
+    \right)
+    =
+    \delta_{ij}
+    \qquad
+    \text{for all }i,j\in[\kappa],
+\]
+where \(\delta_{ij}\) is the Kronecker delta. Consequently, the
+coordinates of \(\ext{\alpha}\) with respect to \(\mathcal B\)
+can be recovered as:
+\[
+    a_i
+    =
+    \trace\!\left(
+        \ext{\alpha}\ext{\beta}_i^\dagger
+    \right),
+    \qquad
+    i\in[\kappa].
+\]
+\end{definition}
+
+Moreover, when the interpolation domain lies in \(\Field\), the Lagrange basis for degree-\(<\kappa\) polynomials over \(\ExtensionField\) consists entirely of polynomials in \(\Field[X]\).
+
+
+\begin{definition}[Lagrange basis over the extension field]
+\label{def:lagrange}
+Assume that \(p\geq\kappa\), and fix an ordered set of distinct
+nodes \(\mathcal H=\{\alpha_1,\ldots,\alpha_\kappa\}\subseteq\Field\).
+The indices \(j\in[\kappa]\) label these nodes; they are not
+identified with integer multiples of \(1\) in the field.
+The vanishing polynomial of \(\mathcal H\) is:
+\[
+    \Psi(X)
+    \coloneqq
+    \prod_{j=1}^{\kappa}(X-\alpha_j)
+    \in\Field[X].
+\]
+For each \(j\in[\kappa]\), define the Lagrange basis polynomial
+\(
+    \psi_j(X)
+    \coloneqq
+    \prod_{\substack{\ell\in[\kappa]\\ \ell\neq j}}
+    \frac{X-\alpha_\ell}{\alpha_j-\alpha_\ell}
+    \in\Field[X].
+\)
+These polynomials satisfy
+\[
+    \psi_j(\alpha_i)=\delta_{ij}
+    \qquad
+    \text{for all }i,j\in[\kappa].
+\]
+Moreover, \(\{\psi_j(X)\}_{j=1}^{\kappa}\) forms an
+\(\ExtensionField\)-basis for the space of polynomials in
+\(\ExtensionField[X]\) of degree less than \(\kappa\).
+Consequently, every \(g(X)\in\ExtensionField[X]\) with
+\(\deg g<\kappa\) admits the unique representation
+\[
+    g(X)
+    =
+    \sum_{j=1}^{\kappa}
+    \ext{a}_j\psi_j(X),
+    \qquad
+    \ext{a}_j=g(\alpha_j)\in\ExtensionField.
+\]
+\end{definition}

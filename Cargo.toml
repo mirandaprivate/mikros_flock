@@ -1,5 +1,7 @@
 [workspace]
 members = [
+    "mikros",
+    "mikros/permutation",
     "crates/flock-core",
     "crates/flock-cuda-ffi",
     "crates/flock-field",

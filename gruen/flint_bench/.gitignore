@@ -1,0 +1,5 @@
+deps/
+build/
+__pycache__/
+!results/**/configure.log
+!results/**/execution.log

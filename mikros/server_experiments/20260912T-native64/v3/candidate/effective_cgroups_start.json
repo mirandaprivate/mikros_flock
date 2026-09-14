@@ -1,0 +1,38 @@
+{
+  "utc": "2026-09-12T08:18:54Z",
+  "pid": 3501510,
+  "proc_self_cgroup": "0::/user.slice/user-1008.slice/session-1933.scope",
+  "available": true,
+  "mount_root": "/",
+  "mount_point": "/sys/fs/cgroup",
+  "ancestors": [
+    {
+      "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-1933.scope",
+      "cpu.stat": "usage_usec 2521679666\nuser_usec 2299763904\nsystem_usec 221915761\ncore_sched.force_idle_usec 0",
+      "memory.max": "max",
+      "memory.current": "1283964928",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    },
+    {
+      "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+      "cpu.stat": "usage_usec 158840109837\nuser_usec 147688897210\nsystem_usec 11151212626\ncore_sched.force_idle_usec 0",
+      "memory.max": "max",
+      "memory.current": "9550135296",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    },
+    {
+      "path": "/sys/fs/cgroup/user.slice",
+      "cpu.max": "max 100000",
+      "cpu.stat": "usage_usec 5341535016073\nuser_usec 4015213907551\nsystem_usec 1326321108522\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+      "memory.max": "max",
+      "memory.current": "160431337472",
+      "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    },
+    {
+      "path": "/sys/fs/cgroup",
+      "cpu.stat": "usage_usec 5401665393000\nuser_usec 4044249373000\nsystem_usec 1357416020000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+      "cpuset.cpus.effective": "0-95",
+      "cpuset.mems.effective": "0-1"
+    }
+  ]
+}

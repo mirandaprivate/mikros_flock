@@ -1,0 +1,36 @@
+\section{A BaseFold}
+
+
+\subsection{Hash Switch}
+
+Verify $m \simeq 2^{15}$ binary hash functions.
+
+Group the intermediate result by $2^{7}$ into $128$ bit field elements.
+Each blaze contains $2^{16}$ binary gates.
+
+So it results in $2^{9}$ intermediate field elements for each Blaze op.
+
+Commit to $2^9 \times m \simeq 2^{24}$ field elements with small proof size (WHIR-CB) and with Poseidon Hash.
+
+The problem is to verify $2^{24}$ field gates efficiently.
+？Groth16？
+Can only use Groth16.
+
+only WHIR-CB with Poseidon Hash
+
+Groth-16 conclude
+
+$a   (j \% 128) = b$ through lookup proofs.
+Look up from a $2\lambda * 128 = 2^{15}$ vectors
+an $2^8$ vector,
+from Groth16.
+
+$2^{14}$ poseidon hash 
+
+These Poseidon Hash Are Proven using Tensor GKR protocol
+\[
+    \bm{W}_i = 
+    (\bm{a}_{iL\times} \bm{W}_{i-1}) \circ
+    (\bm{a}_{iR\times} \bm{W}_{i-1})
+    + (\bm{a}_{iL+} \bm{W}_{i-1} + \bm{a}_{iR+} \bm{W}_{i-1})
+\]

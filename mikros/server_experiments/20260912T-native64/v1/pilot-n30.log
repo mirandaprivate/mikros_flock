@@ -1,0 +1,18 @@
+PIOP reductions, BLAKE3 transcript, no grinding, 64 thread(s)
+Generation/digest and original-input claim checks excluded from prove/verify time.
+  warmup n=2^30 legacy   : 425.477 ms
+  warmup n=2^30 simd     : 232.363 ms
+  warmup n=2^30 native   : 352.691 ms
+  warmup n=2^30 reuse    : 338.765 ms
+  warmup n=2^30 flock    : 136.057 ms
+  n=2^30 run=1 legacy   : prove 425.264 ms, verify 0.148 ms, 35800 bytes
+  n=2^30 run=1 simd     : prove 261.919 ms, verify 0.318 ms, 35800 bytes
+  n=2^30 run=1 native   : prove 354.472 ms, verify 0.146 ms, 35800 bytes
+  n=2^30 run=1 reuse    : prove 128.239 ms, verify 0.394 ms, 35800 bytes
+  n=2^30 run=1 flock    : prove 124.932 ms, verify 0.286 ms, 2896 bytes
+  median n=2^30 legacy   : 425.264 ms prove [425.264, 425.264], 0.148 ms verify
+  median n=2^30 simd     : 261.919 ms prove [261.919, 261.919], 0.318 ms verify
+  median n=2^30 native   : 354.472 ms prove [354.472, 354.472], 0.146 ms verify
+  median n=2^30 reuse    : 128.239 ms prove [128.239, 128.239], 0.394 ms verify
+  median n=2^30 flock    : 124.932 ms prove [124.932, 124.932], 0.286 ms verify
+JSON: /home/mscong1/mikros-experiments/20260912T-native64/v1/pilot-n30.json

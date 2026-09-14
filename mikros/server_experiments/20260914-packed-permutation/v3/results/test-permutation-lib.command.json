@@ -1,0 +1,12 @@
+[
+  "/usr/bin/time",
+  "-v",
+  "-o",
+  "/home/mscong1/mikros-experiments/20260912T-native64/v13-packed-aggregate-probe-20260914/source/results/test-permutation-lib.resource.txt",
+  "taskset",
+  "-c",
+  "0-47,48-55,72-79",
+  "/home/mscong1/mikros-experiments/20260912T-native64/v13-packed-aggregate-probe-20260914/source/target/release/deps/mikros_permutation-cba0d33989686e8e",
+  "--test-threads",
+  "1"
+]

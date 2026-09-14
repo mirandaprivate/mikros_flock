@@ -1,0 +1,35 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+\methodname uses vector polynomial packing to reduce the dimension of
+small-field relations before proving them over a large challenge
+field. For inner and Hadamard products, the prover computes
+row-polynomial products over \(\Field\) and reduces the original
+length-\(N\) claim to a length-\(N/\kappa\) inner product over
+\(\ExtensionField\).
+Under the assumptions of Section~\ref{sec:highLevelEfficiency},
+this gives \(O(\kappa N)\) base-field operations and \(O(N)\)
+base-field coordinates of prover memory for the relation
+reductions, excluding commitments and openings.
+For \(|\Field|<\kappa\) and power-of-two \(\kappa\),
+intermediate-field tabulation attains the same online Hadamard
+bound with additional reusable tables. Section~\ref{sec:hadamard}
+gives their preprocessing and storage costs.
+
+The packed opening protocol authenticates challenge-dependent
+evaluations against a fixed-basis witness commitment.
+Together with the position-aware permutation argument, it yields
+protocols for a single circuit execution and for multiple
+executions of the same circuit.
+The construction extends to binary arithmetizations by using
+\(\mathbb F_2\subset\mathbb F_{2^8}\subset\ExtensionField\),
+with byte-field arithmetic in the working-field PIOP.
+Our component benchmarks show that the arithmetic and memory
+savings are largest for the smallest witness fields tested.
+
+Further work includes evaluating concrete PCS instantiations in
+end-to-end proofs of quantized inference and adding compatible
+zero-knowledge masking to the subprotocol transcripts.
+The underlying reduction is modular: vector polynomial packing exploits
+the witness field, and the terminal proof and commitment scheme
+authenticate the resulting shorter relation.

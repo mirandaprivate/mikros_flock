@@ -1,0 +1,42 @@
+{
+  "timestamp_utc": "2026-09-12T06:57:06.0635047Z",
+  "source_commit": "394ea080e1ad38748d36d7ca9aea84004255e733",
+  "command": "taskset -c 2 ./target/release/gruen-bench --n 12,16,20 --reps 5 --out results/2026-09-12-kappa-1t",
+  "rustc": "1.96.0-nightly (ac7f9ec7d 2026-03-20)",
+  "build": "release opt-level=3 thin-LTO codegen-units=1; inherited target-cpu=native",
+  "threads": 1,
+  "pinned_logical_cpu": 2,
+  "repetitions": 5,
+  "witness_seed": "0x475255454e",
+  "challenge_seed": "0x534b4950",
+  "skip_policy": "kappa = challenge extension degree; k = log2(kappa); no clamping or parameter sweep",
+  "profiles": [
+    {
+      "field": "F251",
+      "kappa": 16,
+      "domain": "general_lagrange",
+      "k": 4
+    },
+    {
+      "field": "F65521",
+      "kappa": 8,
+      "domain": "radix2_coset",
+      "k": 3
+    },
+    {
+      "field": "Mersenne31",
+      "kappa": 4,
+      "domain": "general_lagrange",
+      "k": 2
+    },
+    {
+      "field": "Goldilocks",
+      "kappa": 2,
+      "domain": "radix2_coset",
+      "k": 1
+    }
+  ],
+  "cpu": "Intel Core i7-8700K @ 3.70GHz; 6 cores / 12 threads",
+  "environment": "WSL2 Ubuntu; Linux 5.10.16.3-microsoft-standard-WSL2; x86_64",
+  "note": "General-node interpolation for F251/Mersenne31; domain setup included. Original FFT-only sweep retained separately."
+}

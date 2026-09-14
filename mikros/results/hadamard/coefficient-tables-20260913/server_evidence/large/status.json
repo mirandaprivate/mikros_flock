@@ -1,0 +1,41 @@
+{
+  "utc": "2026-09-13T10:08:38Z",
+  "stage": "complete",
+  "threads": 64,
+  "systems": [
+    "pairreuse",
+    "coefflookupreuse",
+    "coeffnativereuse",
+    "flock128"
+  ],
+  "smoke_systems": [
+    "reference",
+    "pairreuse",
+    "coefflookupreuse",
+    "coeffnativereuse",
+    "flock128"
+  ],
+  "required_test_names": [
+    "triangular_schoolbook_matches_full_product_and_native_boundaries",
+    "weighted_aggregate_matches_lookup_and_pair_quotients_at_worker_boundaries",
+    "sparse_quotient_matches_full_extension_long_division",
+    "univariate_kernels_have_identical_bytes_claims_and_transcripts"
+  ],
+  "minimum_tests": 96,
+  "logs": [
+    30
+  ],
+  "measured_runs": 8,
+  "profile_runs": 4,
+  "rss_requested": true,
+  "validated_proof_records": 70,
+  "reports": [
+    "smoke.json",
+    "comparison-64t.json",
+    "profile-64t.json",
+    "rss-pairreuse-n30-64t.json",
+    "rss-coefflookupreuse-n30-64t.json",
+    "rss-coeffnativereuse-n30-64t.json",
+    "rss-flock128-n30-64t.json"
+  ]
+}

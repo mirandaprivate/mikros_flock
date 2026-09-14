@@ -1,0 +1,203 @@
+{
+  "utc_start": "2026-09-12T11:51:07Z",
+  "hostname": "DESKTOP-NCNMLUB",
+  "uname": [
+    "Linux",
+    "DESKTOP-NCNMLUB",
+    "5.10.16.3-microsoft-standard-WSL2",
+    "#1 SMP Fri Apr 2 22:23:49 UTC 2021",
+    "x86_64"
+  ],
+  "lscpu": {
+    "lscpu": [
+      {
+        "field": "Architecture:",
+        "data": "x86_64"
+      },
+      {
+        "field": "CPU op-mode(s):",
+        "data": "32-bit, 64-bit"
+      },
+      {
+        "field": "Address sizes:",
+        "data": "39 bits physical, 48 bits virtual"
+      },
+      {
+        "field": "Byte Order:",
+        "data": "Little Endian"
+      },
+      {
+        "field": "CPU(s):",
+        "data": "12"
+      },
+      {
+        "field": "On-line CPU(s) list:",
+        "data": "0-11"
+      },
+      {
+        "field": "Vendor ID:",
+        "data": "GenuineIntel"
+      },
+      {
+        "field": "Model name:",
+        "data": "Intel(R) Core(TM) i7-8700K CPU @ 3.70GHz"
+      },
+      {
+        "field": "CPU family:",
+        "data": "6"
+      },
+      {
+        "field": "Model:",
+        "data": "158"
+      },
+      {
+        "field": "Thread(s) per core:",
+        "data": "2"
+      },
+      {
+        "field": "Core(s) per socket:",
+        "data": "6"
+      },
+      {
+        "field": "Socket(s):",
+        "data": "1"
+      },
+      {
+        "field": "Stepping:",
+        "data": "10"
+      },
+      {
+        "field": "BogoMIPS:",
+        "data": "7391.99"
+      },
+      {
+        "field": "Flags:",
+        "data": "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ss ht syscall nx pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology cpuid pni pclmulqdq ssse3 fma cx16 pcid sse4_1 sse4_2 movbe popcnt aes xsave avx f16c rdrand hypervisor lahf_lm abm 3dnowprefetch invpcid_single pti ssbd ibrs ibpb stibp fsgsbase bmi1 hle avx2 smep bmi2 erms invpcid rtm rdseed adx smap clflushopt xsaveopt xsavec xgetbv1 xsaves md_clear flush_l1d arch_capabilities"
+      },
+      {
+        "field": "Hypervisor vendor:",
+        "data": "Microsoft"
+      },
+      {
+        "field": "Virtualization type:",
+        "data": "full"
+      },
+      {
+        "field": "L1d cache:",
+        "data": "192 KiB (6 instances)"
+      },
+      {
+        "field": "L1i cache:",
+        "data": "192 KiB (6 instances)"
+      },
+      {
+        "field": "L2 cache:",
+        "data": "1.5 MiB (6 instances)"
+      },
+      {
+        "field": "L3 cache:",
+        "data": "12 MiB (1 instance)"
+      },
+      {
+        "field": "Vulnerability Itlb multihit:",
+        "data": "KVM: Mitigation: VMX unsupported"
+      },
+      {
+        "field": "Vulnerability L1tf:",
+        "data": "Mitigation; PTE Inversion"
+      },
+      {
+        "field": "Vulnerability Mds:",
+        "data": "Mitigation; Clear CPU buffers; SMT Host state unknown"
+      },
+      {
+        "field": "Vulnerability Meltdown:",
+        "data": "Mitigation; PTI"
+      },
+      {
+        "field": "Vulnerability Spec store bypass:",
+        "data": "Mitigation; Speculative Store Bypass disabled via prctl and seccomp"
+      },
+      {
+        "field": "Vulnerability Spectre v1:",
+        "data": "Mitigation; usercopy/swapgs barriers and __user pointer sanitization"
+      },
+      {
+        "field": "Vulnerability Spectre v2:",
+        "data": "Mitigation; Full generic retpoline, IBPB conditional, IBRS_FW, STIBP conditional, RSB filling"
+      },
+      {
+        "field": "Vulnerability Srbds:",
+        "data": "Unknown: Dependent on hypervisor status"
+      },
+      {
+        "field": "Vulnerability Tsx async abort:",
+        "data": "Mitigation; Clear CPU buffers; SMT Host state unknown"
+      }
+    ]
+  },
+  "topology": "# The following is the parsable format, which can be fed to other\n# programs. Each different item in every column has an unique ID\n# starting usually from zero.\n# CPU,Core,Socket,Node\n0,0,0,\n1,0,0,\n2,1,0,\n3,1,0,\n4,2,0,\n5,2,0,\n6,3,0,\n7,3,0,\n8,4,0,\n9,4,0,\n10,5,0,\n11,5,0,",
+  "selected_cpus": [
+    0,
+    1
+  ],
+  "physical_cores": 1,
+  "extra_smt_threads": 1,
+  "threads": 2,
+  "rustflags": "-C target-cpu=native",
+  "rustc": "rustc 1.96.0-nightly (ac7f9ec7d 2026-03-20)\nbinary: rustc\ncommit-hash: ac7f9ec7da74d37fd28667c86bf117a39ba5b02a\ncommit-date: 2026-03-20\nhost: x86_64-unknown-linux-gnu\nrelease: 1.96.0-nightly\nLLVM version: 22.1.0",
+  "source_sha256": {
+    "Cargo.toml": "7e08552db8d51002bf906efb2adc533d7d6bf10e9cfa4cedd1dac01c957d7ebf",
+    "Cargo.lock": "99bf5224300e791216ae5f7f2b1328b370c44a033fd740319eadea19acee1ad5",
+    "reference/Cargo.toml": "e96731c87a925eb7198ac2e9c87cb81ecf5a820f5e9fba1711f3d50b9c31594b",
+    "reference_manifest.json": "a7c8916d51444a131fec475d3a34f96954c2abd1f884300fdfd2f52d81d3b611",
+    "run_server.py": "78cf941fd2a5f47238cfa3d4a8d1d02fd27ef63c20fbbcaf98be05fb0eb79389",
+    "package_source.py": "d65be1f34ddd06b9f56a6c47af18316c3db28718cce98bfd875ea9968a60bef2",
+    "src/bin/compare.rs": "08b87e22978b4bf73d0fc0da9f84fb004e46e2f6aa864740a45b6b2ff2c2e005",
+    "src/field.rs": "5f29b004e63fec5de01c612561539c5be467beba203f198759ac94249dc8f10e",
+    "src/lib.rs": "614e4ca45394a5ff11ef3e50adf6e3d573c7bb511aed822a5418f70ac454e68a",
+    "src/mikros.rs": "e3582115bcf532f3ead42e6f8d481c118196c47786f79f90e05398f131c3488a",
+    "src/poly.rs": "088cd3c08d689fbd3ba435d3ed2530fa47fc8a5505ffb356e6f34d5d9b63cdde",
+    "tests/correctness.rs": "4daab033f94f031decc7ab79f2ff152a7d16d1c96c248d934aba7c082e1cd826",
+    "tests/differential.rs": "d1c975c60d71ac6c74498eda25a098133496f2b455f32bc9112c676604e49bb6",
+    "tests/mikros.rs": "237a75faea8ec063b8f734eb52e6b809dadc44bd0ae3c92d6907ac109daac0ed",
+    "reference/src/field.rs": "92b9496f5bc8cca86666fd338788dc62e38ecea7f8f7a486acdc83401e507599",
+    "reference/src/lib.rs": "c4b58141ff4d75fda88fb0768e7d122d4d9e118728fe90b7f9778d4ebc24608b",
+    "reference/src/mikros.rs": "d9399a74fc63fd7e6de4dd6ab382ab67453431765c090e271796b8f25d5e4ac3",
+    "reference/src/poly.rs": "7f4d8c25d987398a94ff6a75fd0fe857fcd21ea094ef52ee2166cddb542e8968",
+    "reference/tests/correctness.rs": "4daab033f94f031decc7ab79f2ff152a7d16d1c96c248d934aba7c082e1cd826",
+    "reference/tests/mikros.rs": "237a75faea8ec063b8f734eb52e6b809dadc44bd0ae3c92d6907ac109daac0ed"
+  },
+  "memory_start": {
+    "MemTotal": 53795778560,
+    "MemAvailable": 53120708608,
+    "SwapTotal": 13958643712,
+    "SwapFree": 13958643712
+  },
+  "cgroups_start": {
+    "membership": "13:rdma:/\n12:pids:/\n11:hugetlb:/\n10:net_prio:/\n9:perf_event:/\n8:net_cls:/\n7:freezer:/\n6:devices:/\n5:memory:/\n4:blkio:/\n3:cpuacct:/\n2:cpu:/\n1:cpuset:/\n0::/\n",
+    "visible_ancestors": [
+      {
+        "path": "/sys/fs/cgroup"
+      }
+    ]
+  },
+  "scope": "same scalar field backend, parallel PIOP, no PCS; all online setup/allocation/release included; dense source oracle separately timed; first-touch NUMA, affinity not exclusivity",
+  "binary_sha256": "3a92e15c55a22471a90a3813eb9deba8538cab2aa8d2bb014a851cd7aaab0528",
+  "build_tests_this_run": false,
+  "memory_end": {
+    "MemTotal": 53795778560,
+    "MemAvailable": 53120839680,
+    "SwapTotal": 13958643712,
+    "SwapFree": 13958643712
+  },
+  "cgroups_end": {
+    "membership": "13:rdma:/\n12:pids:/\n11:hugetlb:/\n10:net_prio:/\n9:perf_event:/\n8:net_cls:/\n7:freezer:/\n6:devices:/\n5:memory:/\n4:blkio:/\n3:cpuacct:/\n2:cpu:/\n1:cpuset:/\n0::/\n",
+    "visible_ancestors": [
+      {
+        "path": "/sys/fs/cgroup"
+      }
+    ]
+  },
+  "utc_end": "2026-09-12T11:51:11Z"
+}

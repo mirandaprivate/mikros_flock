@@ -1,0 +1,44 @@
+[package]
+name = "hadamard-baselines"
+version = "0.1.0"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+publish = false
+description = "Binary Dao-Thaler and small-field-first Hadamard zerocheck baselines"
+
+# An independent workspace keeps the running Mikros/Flock experiment frozen.
+[workspace]
+resolver = "2"
+
+[dependencies]
+flock-field = { path = "../crates/flock-field" }
+flock-transcript = { path = "../crates/flock-transcript" }
+rayon = "1.10"
+serde = { version = "1", features = ["derive"] }
+blake3 = "1.5"
+mikros-experiments = { path = "../../mikros/mikros", features = ["parallel"] }
+p3-binary-field = { path = "../../mikros/binary-field" }
+p3-field = { path = "../../mikros/field" }
+p3-challenger = { path = "../../mikros/challenger" }
+p3-blake3 = { path = "../../mikros/blake3" }
+p3-multilinear-util = { path = "../../mikros/multilinear-util", features = ["parallel"] }
+p3-sumcheck = { path = "../../mikros/sumcheck", features = ["parallel"] }
+
+[dev-dependencies]
+flock-core = { path = "../crates/flock-core" }
+flock-hash = { path = "../crates/flock-hash" }
+bincode = "1.3"
+serde_json = "1"
+
+[[bench]]
+name = "hadamard"
+harness = false
+
+[profile.bench]
+debug = "line-tables-only"
+lto = "thin"
+codegen-units = 1
+
+[lints.clippy]
+needless_range_loop = "allow"
+too_many_arguments = "allow"

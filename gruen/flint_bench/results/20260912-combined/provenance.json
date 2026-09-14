@@ -1,0 +1,9 @@
+{
+  "runs": [
+    "/mnt/c/Users/miranda/git/mikros_flock/gruen/flint_bench/results/20260912-flint360-1t",
+    "/mnt/c/Users/miranda/git/mikros_flock/gruen/flint_bench/results/20260912-flint360-1t-confirm"
+  ],
+  "raw_samples": 504,
+  "oracle_checks": 160120,
+  "aggregation": "median over all ns/op samples, equal weight per sample; no exclusions"
+}

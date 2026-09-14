@@ -1,0 +1,3 @@
+   Compiling mikros v0.1.0 (/home/mscong1/mikros-experiments/20260912T-native64/e2e-bit-v1/v3/mikros)
+    Finished `release` profile [optimized] target(s) in 1.11s
+     Running tests/univariate_roundtrip.rs (target/release/deps/univariate_roundtrip-f647403ec2be715a)

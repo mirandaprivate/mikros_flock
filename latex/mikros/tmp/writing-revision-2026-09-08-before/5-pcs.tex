@@ -1,0 +1,358 @@
+\section{Polynomial Commitment Scheme}
+\label{sec:pcs}
+
+We give two instantiations of the commitment interface of
+Section~\ref{sec:highlevelPCS}. Both bind a matrix
+\(\bm A\in\Field^{m\times\kappa}\), where \(N=m\kappa\) and
+\([\ExtensionField:\Field]=\kappa\).
+The first starts from a multilinear PCS over \(\ExtensionField\)
+and reduces a packed query to one terminal MLE opening.
+The second starts from a linear code over \(\Field\): scalar
+extension gives a code for the packed vector, and code switching
+to a BaseFold code supplies the extension-field PCS needed by
+the first construction.
+
+\subsection{Given a PCS over Extension Field}
+\label{sec:pcs-extension}
+
+\medskip\noindent{\bf Commitment and Opening Relation}
+
+Let \(m,\kappa\) be powers of two, with \(\kappa\geq2\).
+Fix an \(\Field\)-basis
+\(\ext{\bm\beta}=(\ext\beta_1,\ldots,\ext\beta_\kappa)^\top\)
+of \(\ExtensionField\), and let \(\pc\) be a multilinear PCS for
+vectors in \(\ExtensionField^m\).
+We represent extension-field elements in this basis, so coordinate
+extraction and basis packing are operations on their representation.
+The schoolbook specialization below uses a polynomial basis for this
+representation.
+
+The basis and all coordinate matrices are defined over the same
+working field as the repeated query-side checks.
+Section~\ref{sec:binary-packing} uses this interface for the
+binary-field instantiation.
+
+\paragraph{Setup and commitment.}
+Run \(\pc.\Setup(1^\lambda,m)\) to obtain
+\(\mathsf{pp}_{\pc}\).
+The public parameters also contain the fields, the basis, \(N,m,\kappa\),
+and the repetition count \(k\) specified below.
+Arrange the witness as a matrix and pack each row into one
+extension-field element:
+\[
+    \bm A=\concat{\bm a^{(1)},\ldots,\bm a^{(\kappa)}}
+        \in\Field^{m\times\kappa},
+    \qquad
+    \ext{\bm a}=\bm A\ext{\bm\beta}\in\ExtensionField^m.
+\]
+The commitment is
+\(\mathsf{cm}=\pc.\Com(\mathsf{pp}_{\pc},\ext{\bm a};
+\rho_{\pc})\), where \(\rho_{\pc}\) is the underlying commitment
+randomness. The prover retains \(\bm A\) and \(\rho_{\pc}\).
+The fixed basis makes the packing injective on
+\(\Field^{m\times\kappa}\).
+
+\paragraph{Opening relation.}
+Following the overview, the public query consists of packing weights
+\(\ext{\bm\rho}\in\ExtensionField^\kappa\) and a tensor vector
+\(\ext{\bm\chi}\in\ExtensionField^m\). The claimed value is
+\(\ext u\in\ExtensionField\):
+\begin{equation}
+    \ext u
+    =\langle\bm A\ext{\bm\rho},\ext{\bm\chi}\rangle
+    =\ext{\bm\rho}^{\top}\bm A^\top\ext{\bm\chi}.
+\label{eq:pcs-opening-relation}
+\end{equation}
+The query is supplied by its two-entry tensor factors:
+\[
+    \ext{\bm\chi}
+    =\bigotimes_{j=1}^{\log_2m}\ext{\bm\chi}^{(j)},
+    \qquad
+    \ext{\bm\chi}^{(j)}\in\ExtensionField^2.
+\]
+The factors need not be normalized MLE weights. This includes the
+weighted Hadamard query: coordinatewise products of tensor vectors
+are obtained by multiplying their corresponding factors coordinatewise.
+For an ordinary MLE opening of the length-\(N\) witness, both
+\(\ext{\bm\rho}\) and \(\ext{\bm\chi}\) are tensor spans of the
+corresponding parts of the evaluation point.
+
+\medskip\noindent{\bf Packed Opening Protocol}
+
+\paragraph{Reduce the column claims over \(\ExtensionField\).}
+Write the public query and the claimed column values in base-field
+coordinates:
+\[
+    \ext{\bm\chi}=\bm\Xi\ext{\bm\beta},
+    \qquad
+    \ext{\bm v}=\bm V\ext{\bm\beta},
+    \qquad
+    \bm\Xi\in\Field^{m\times\kappa},
+    \quad
+    \bm V\in\Field^{\kappa\times\kappa}.
+\]
+The honest prover computes \(\bm V=\bm A^\top\bm\Xi\) and sends
+\(\ext{\bm v}=\bm V\ext{\bm\beta}\).
+The verifier recovers \(\bm V\) from this message and checks
+\(\ext u=\ext{\bm\rho}^{\top}\ext{\bm v}\).
+It does not construct \(\bm\Xi\).
+
+Since \(\bm A\) has base-field entries, the remaining claim is
+equivalent to a base-field matrix identity:
+\begin{equation*}
+    \ext{\bm v}=\bm A^\top\ext{\bm\chi}
+    \quad\Longleftrightarrow\quad
+    \bm V=\bm A^\top\bm\Xi.
+\end{equation*}
+Packing the columns of this identity is injective and exposes the
+committed vector:
+\begin{equation}
+    \bm V=\bm A^\top\bm\Xi
+    \quad\Longleftrightarrow\quad
+    \ext{\bm\beta}^{\top}\bm V
+    =\ext{\bm a}^{\top}\bm\Xi.
+\label{eq:pcs-encoded-matrix}
+\end{equation}
+After \(\ext{\bm v}\), and hence \(\bm V\), is fixed, the verifier
+samples \(\ext{\bm r}\sample\ExtensionField^\kappa\) uniformly.
+It computes \(\ext c=\ext{\bm\beta}^{\top}\bm V\ext{\bm r}\)
+and reduces Eq.~\eqref{eq:pcs-encoded-matrix} to:
+\begin{equation}
+    \ext c
+    =\ext{\bm\beta}^{\top}\bm V\ext{\bm r}
+    =\langle\ext{\bm a},\bm\Xi\ext{\bm r}\rangle.
+\label{eq:pcs-random-opening}
+\end{equation}
+Here \(\ext{\bm\rho}\) belongs to the original query, whereas
+\(\ext{\bm r}\) is a fresh projection challenge.
+
+Apply Fact~\ref{fact:ip} over \(\ExtensionField\) to
+Eq.~\eqref{eq:pcs-random-opening}.
+Let \(\ext{\bm y}\in\ExtensionField^{\log_2m}\) be its terminal
+point and set
+\(\ext{\bm\xi}=\tensorspan{\ext{\bm y}}\).
+The prover's terminal values
+\(\ext w_{\mathsf{com}},\ext w\in\ExtensionField\) give two claims:
+\begin{equation}
+    \ext w_{\mathsf{com}}
+    =\langle\ext{\bm a},\ext{\bm\xi}\rangle,
+    \qquad
+    \ext w=\ext{\bm\xi}^{\top}\bm\Xi\ext{\bm r}.
+\label{eq:pcs-terminal-claims}
+\end{equation}
+The first is an MLE opening of the committed vector.
+We verify the second using the public tensor queries, without
+materializing their coordinate matrices at the verifier.
+
+\paragraph{Reduce the induced query over \(\Field\).}
+Decompose the terminal tensor weight as
+\(\ext{\bm\xi}=\bm U\ext{\bm\beta}\), with
+\(\bm U\in\Field^{m\times\kappa}\).
+The prover sends a claimed matrix product
+\(\bm W\in\Field^{\kappa\times\kappa}\).
+The required identities are:
+\begin{equation}
+    \bm W=\bm U^\top\bm\Xi,
+    \qquad
+    \ext w=\ext{\bm\beta}^{\top}\bm W\ext{\bm r}.
+\label{eq:pcs-query-matrix}
+\end{equation}
+The verifier checks the scalar identity directly.
+It verifies the matrix identity by \(k\) independent repetitions.
+In repetition \(i\), after \(\bm W\) is fixed, the verifier samples
+independent uniform
+\(\bm s_{(i)},\bm t_{(i)}\in\Field^\kappa\).
+The parties apply Fact~\ref{fact:ip}, now over \(\Field\), to:
+\begin{equation}
+    \bm s_{(i)}^\top\bm W\bm t_{(i)}
+    =\langle\bm U\bm s_{(i)},\bm\Xi\bm t_{(i)}\rangle.
+\label{eq:pcs-base-projection}
+\end{equation}
+All challenges in this inner-product reduction lie in \(\Field\).
+Its terminal point
+\(\bm y_{(i)}\in\Field^{\log_2m}\) determines
+\(\bm l_{(i)}=\tensorspan{\bm y_{(i)}}\in\Field^m\).
+Let \(v_{(i),1},v_{(i),2}\in\Field\) be its terminal values.
+
+The verifier computes the following two public tensor contractions:
+\begin{equation}
+\begin{aligned}
+    \langle\bm l_{(i)},\ext{\bm\xi}\rangle
+       &=(\bm l_{(i)}^\top\bm U)\ext{\bm\beta},\\
+    \langle\bm l_{(i)},\ext{\bm\chi}\rangle
+       &=(\bm l_{(i)}^\top\bm\Xi)\ext{\bm\beta}.
+\end{aligned}
+\label{eq:pcs-public-query-evaluation}
+\end{equation}
+Since \(\bm l_{(i)}\) lies in \(\Field^m\), the two rows on the
+right lie in \(\Field^{1\times\kappa}\). They are therefore exactly
+the basis coordinates of the two computed values.
+Using these recovered rows, the verifier checks:
+\begin{equation}
+    v_{(i),1}=(\bm l_{(i)}^\top\bm U)\bm s_{(i)},
+    \qquad
+    v_{(i),2}=(\bm l_{(i)}^\top\bm\Xi)\bm t_{(i)}.
+\label{eq:pcs-implicit-query-check}
+\end{equation}
+No commitment to \(\bm U\) or \(\bm\Xi\) is needed: both are
+determined by public queries, and these terminal checks are exact.
+
+The tensor factors make Eq.~\eqref{eq:pcs-public-query-evaluation}
+efficient to evaluate. For example:
+\[
+    \langle\bm l_{(i)},\ext{\bm\chi}\rangle
+    =
+    \prod_{j=1}^{\log_2m}
+    \left\langle
+        (1-y_{(i),j},y_{(i),j})^\top,
+        \ext{\bm\chi}^{(j)}
+    \right\rangle.
+\]
+The same factorization applies to \(\ext{\bm\xi}\).
+Each contraction uses \(O(\log m)\) mixed-field and extension-field
+operations, rather than a length-\(m\) vector evaluation.
+
+\paragraph{Repetition and terminal opening.}
+Assume \(|\Field|>2\log_2m+2\), and set:
+\begin{equation}
+    k=
+    \left\lceil
+        \frac{\lambda}{
+            \log_2\!\left(
+                |\Field|/(2\log_2m+2)
+            \right)
+        }
+    \right\rceil.
+\label{eq:pcs-repetition-number}
+\end{equation}
+Each repetition uses fresh projection and inner-product challenges,
+while the same matrix \(\bm W\) remains fixed.
+Finally, the parties invoke the underlying opening protocol for
+\(\ext w_{\mathsf{com}}\) at \(\ext{\bm y}\), using the interface
+of Definition~\ref{def:pcs}:
+\[
+    \pc.\Open\!\left(
+        \mathsf{pp}_{\pc},\mathsf{cm},
+        \ext w_{\mathsf{com}},\ext{\bm y}
+        :\ext{\bm a},\rho_{\pc}
+    \right).
+\]
+The verifier accepts only if every scalar check, every inner-product
+reduction, all checks in Eq.~\eqref{eq:pcs-implicit-query-check},
+and this terminal opening accept.
+Algorithm~\ref{alg:packed-pcs} in Appendix~\ref{appx:pseudocode}
+summarizes the opening protocol.
+
+\medskip\noindent{\bf Security and Complexity}
+
+\begin{proposition}[Packed polynomial commitment scheme]
+\label{proposition:packed-pcs}
+Suppose that \(\pc\) binds the prover to a vector in
+\(\ExtensionField^m\) and has evaluation-soundness error
+\(\epsilon_{\mathsf{PCS}}\) for adaptively chosen terminal MLE
+claims relative to that vector.
+Under the parameters above, the packed commitment is binding and
+the opening protocol is complete.
+Its evaluation-soundness error is at most:
+\begin{equation}
+    \epsilon_{\mathsf{PCS}}
+    +\frac{1+2\log_2m}{|\ExtensionField|}
+    +\left(\frac{2\log_2m+2}{|\Field|}\right)^k.
+\label{eq:pcs-soundness}
+\end{equation}
+With \(k\) from Eq.~\eqref{eq:pcs-repetition-number}, the last term
+is at most \(2^{-\lambda}\).
+
+Excluding the underlying PCS opening, the prover's arithmetic cost is:
+\begin{equation}
+\begin{aligned}
+    &O\bigl((\kappa+k)N+k\kappa^2\bigr)\,\bb\\
+    &\qquad{}+O(N)\,\be+O(m+\kappa)\,\ee.
+\end{aligned}
+\label{eq:pcs-prover-cost}
+\end{equation}
+The verifier's arithmetic cost is:
+\begin{equation}
+\begin{aligned}
+    &O\bigl(k(\kappa^2+\log m)\bigr)\,\bb
+       +O(k\log m)\,\be\\
+    &\qquad{}+O\bigl(\kappa+(k+1)\log m\bigr)\,\ee.
+\end{aligned}
+\label{eq:pcs-verifier-cost}
+\end{equation}
+When \(m\geq\kappa\), schoolbook arithmetic reduces
+Eq.~\eqref{eq:pcs-prover-cost} to
+\(O((\kappa+k)N)\,\bb\).
+The opening reduction uses \(O(N+\kappa^2)\) base-field coordinates
+of peak prover memory, or \(O(N)\) when \(m\geq\kappa\), excluding
+the workspace of the underlying PCS.
+
+With \(\ext u\) already part of the public statement, prover-to-verifier
+communication, excluding the underlying opening, consists of:
+\[
+\begin{aligned}
+    &\kappa+2\log_2m+2
+        &&\text{elements of }\ExtensionField,\\
+    &\kappa^2+k(2\log_2m+2)
+        &&\text{elements of }\Field.
+\end{aligned}
+\]
+If the underlying commitment is hiding, the packed commitment is also
+hiding. This statement concerns the commitment, not the unmasked
+opening transcript, which reveals the column evaluations
+\(\ext{\bm v}\).
+\end{proposition}
+
+The proof is deferred to Appendix~\ref{appx:proof-pcs}.
+
+\subsection{Given a linear code on Base Field}
+\label{sec:pcs-base-code}
+
+We use the code-switching construction of
+Blaze~\cite{eurocrypt/BrehmCFRRZ25}, with a BaseFold
+code~\cite{crypto/ZeilbergerCF24} as the target, under its
+source-encoding and proximity assumptions.
+
+Let \(\Code:\Field^m\to\Field^n\) be a linear code with
+generator matrix \(\bm G\in\Field^{n\times m}\).
+Its \(\kappa\)-way interleaving encodes the columns of
+\(\bm A\in\Field^{m\times\kappa}\) independently.
+Using the fixed basis from Section~\ref{sec:pcs-extension},
+the resulting codeword has the equivalent packed representation:
+\begin{equation}
+\begin{aligned}
+    \bm C&=\bm G\bm A\in\Field^{n\times\kappa},\\
+    \ext{\bm c}&=\bm C\ext{\bm\beta}
+       =\bm G(\bm A\ext{\bm\beta})
+       =\Code_{\ExtensionField}(\ext{\bm a}).
+\end{aligned}
+\label{eq:pcs-code-packing}
+\end{equation}
+Here \(\Code_{\ExtensionField}\) is the scalar extension defined
+by the same generator matrix; it has the same rate and relative
+distance as \(\Code\).
+Thus each row of the interleaved codeword is one symbol of an
+extension-field codeword for \(\ext{\bm a}=\bm A\ext{\bm\beta}\).
+Committing to the rows of \(\bm C\) supplies the source codeword
+oracle required by Blaze.
+
+Apply Blaze's code-switching construction over \(\ExtensionField\)
+to this oracle, switching to a BaseFold encoding of the same
+length-\(m\) message \(\ext{\bm a}\).
+The resulting MLE openings instantiate the underlying PCS \(\pc\)
+in Section~\ref{sec:pcs-extension}.
+That subsection handles the challenge-dependent packing weights
+\(\ext{\bm\rho}\); code switching authenticates its terminal
+fixed-basis opening.
+The switching costs and soundness error are those of the chosen
+Blaze instantiation, including its source-encoding consistency
+argument, and are included in the underlying PCS costs and
+\(\epsilon_{\mathsf{PCS}}\), respectively.
+
+If \(\Code\) is constant-rate and linear-time encodable, forming
+\(\bm C\) costs \(O(N)\) base-field operations and its payload
+occupies \(O(N\log_2|\Field|)\) bits, excluding Merkle-tree hashes.
+The BaseFold stage works on \(m=N/\kappa\) extension-field
+message symbols. This gives the bit-width-aware instantiation:
+encode the interleaved witness over the small field, then switch
+the packed codeword to the opening-friendly code over the extension.

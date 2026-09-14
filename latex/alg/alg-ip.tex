@@ -1,0 +1,165 @@
+% !TEX root = ../main.tex
+\begin{algorithm}[!t]
+\caption{Packed inner-product proof}
+\label{alg:ip}
+\KwIn{
+\(N=m\kappa\), where \(m, \kappa \in 2^\mathbb{N}\);
+\(c\in\Field\);
+\(\bm a,\bm b\in\Field^N\)
+}
+\KwOut{
+Terminal values \(\ext{v}_1,\ext{v}_2\) and MLE points
+\(\ext{\bm y}_a, \ext{\bm y}_b \in\ExtensionField^{\log_2 N}\);
+acceptance bit \(\mathsf{ok}\)
+}
+
+Arrange \(\bm a,\bm b\) columnwise as
+\(\bm A\leftarrow\concat{\bm a^{(1)},\ldots,\bm a^{(\kappa)}}\)
+and \(\bm B\leftarrow\concat{\bm b^{(1)},\ldots,\bm b^{(\kappa)}}
+\in\Field^{m\times\kappa}\)\;
+
+\tcp{Compute the auxiliary coefficients over the base field}
+$\Prover$ sets:\\
+\Indp
+\(
+    \bm g_A(X)
+    \leftarrow
+    \sum_{j=1}^{\kappa}
+    \bm a^{(j)}X^{j-1}
+\);~
+\(
+    \bm g_B(X)
+    \leftarrow
+    \sum_{j=1}^{\kappa}
+    \bm b^{(j)}X^{j-1}
+\)\;
+
+\ForEach{
+\(\tau\in
+\{-(\kappa-1),\ldots,-1,1,\ldots,\kappa-1\}\)
+}{
+    Set \(
+        f_\tau
+        \leftarrow
+        \sum_{\substack{j,j'\in[\kappa]\\j-j'=\tau}}
+        \left\langle
+            \bm a^{(j)},\bm b^{(j')}
+        \right\rangle
+    \)\;
+}
+
+Set
+\(
+    h_+(X)
+    \leftarrow
+    \sum_{\tau=1}^{\kappa-1}
+    f_\tau X^{\tau-1}
+\);~
+\(
+    h_-(X)
+    \leftarrow
+    \sum_{\tau=1}^{\kappa-1}
+    f_{-\tau}X^{\tau-1}
+\)\;
+\Indm
+
+\(\PtoV\):
+the coefficients of \(h_+(X)\) and \(h_-(X)\)\;
+
+\(\VtoP\):
+\(\ext{x}\ChooseRandom\ExtensionField^\times\)\;
+
+\tcp{Reduce to a length-\(m\) extension-field inner product}
+$\Prover$ sets
+\(
+    \ext{\bm a}
+    \leftarrow
+    \bm g_A(\ext{x})
+    \in\ExtensionField^m
+\),
+\(
+    \ext{\bm b}
+    \leftarrow
+    \bm g_B(\ext{x}^{-1})
+    \in\ExtensionField^m
+\)\;
+
+$\Verifier$ sets
+\(
+    \ext{c}
+    \leftarrow
+    c
+    +\ext{x}h_+(\ext{x})
+    +\ext{x}^{-1}h_-(\ext{x}^{-1})
+\)\;
+
+$\Prover$ and $\Verifier$ apply Fact~\ref{fact:ip} to
+\(
+    \ext{c}
+    \EqOrNot
+    \left\langle
+        \ext{\bm a},\ext{\bm b}
+    \right\rangle,
+\)
+and obtain terminal values
+\(
+    \ext{v}_1,\ext{v}_2
+\),
+the challenge point
+\(
+    \ext{\bm y}'\in
+    \ExtensionField^{\log_2m}
+\),
+and the acceptance bit \(\mathsf{ok}\)\;
+
+\(\Prover\) and \(\Verifier\) set:\\
+\Indp
+\(
+    \ext{\bm y}_a
+    \leftarrow
+    \bigl(
+        \ext{x}^{2^{\log_2\kappa-1}},
+        \ext{x}^{2^{\log_2\kappa-2}},
+        \ldots,
+        \ext{x}
+    \bigr)
+    \mathbin{\|}
+    \ext{\bm y}' \in \ExtensionField^{\log_2 N}
+\)\;
+\(
+    \ext{\bm y}_b
+    \leftarrow
+    \bigl(
+        \ext{x}^{-2^{\log_2\kappa-1}},
+        \ext{x}^{-2^{\log_2\kappa-2}},
+        \ldots,
+        \ext{x}^{-1}
+    \bigr)
+    \mathbin{\|}
+    \ext{\bm y}' \in \ExtensionField^{\log_2 N}
+\)\;
+\Indm
+
+Output the terminal claims
+\(
+    \ext{v}_1
+    \EqOrNot
+    \left\langle
+        \bm a,
+        \tensorspan{\ext{\bm y}_a}
+    \right\rangle
+\) and
+\(
+    \ext{v}_2
+    \EqOrNot
+    \left\langle
+        \bm b,
+        \tensorspan{\ext{\bm y}_b}
+    \right\rangle
+\)\;
+
+\Return
+\(
+    (\mathsf{ok},\ext{v}_1,\ext{v}_2,\ext{\bm y}_a, \ext{\bm y}_b)
+\)\;
+\end{algorithm}

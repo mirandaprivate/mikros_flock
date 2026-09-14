@@ -1,0 +1,10 @@
+n=18 w=8 run=0/4 Mikros: prove=439.78ms verify=18.33ms bytes=493852
+n=18 w=8 run=0/4 Flock: prove=168.23ms verify=10.60ms bytes=483868
+n=18 w=8 run=1/4 Flock: prove=140.34ms verify=13.50ms bytes=483868
+n=18 w=8 run=1/4 Mikros: prove=495.08ms verify=16.76ms bytes=493852
+n=18 w=8 run=2/4 Mikros: prove=409.21ms verify=16.80ms bytes=493852
+n=18 w=8 run=2/4 Flock: prove=145.33ms verify=13.48ms bytes=483868
+n=18 w=8 run=3/4 Flock: prove=133.64ms verify=12.24ms bytes=483868
+n=18 w=8 run=3/4 Mikros: prove=377.11ms verify=13.46ms bytes=493852
+n=18 w=8 run=4/4 Mikros: prove=375.52ms verify=14.23ms bytes=493852
+n=18 w=8 run=4/4 Flock: prove=110.44ms verify=9.95ms bytes=483868

@@ -1,0 +1,23 @@
+[
+  {
+    "log_leaves": 10,
+    "gate_count": 2047,
+    "prove_with_commit_ms": 136.442131,
+    "proof_bytes": 366523,
+    "timing_boundary": "prepare clone excluded; prove includes union assembly, compaction, commitment, Hadamard, lincheck, wiring, and merged PCS; no pure-online claim"
+  },
+  {
+    "log_leaves": 14,
+    "gate_count": 32767,
+    "prove_with_commit_ms": 549.8860490000001,
+    "proof_bytes": 440787,
+    "timing_boundary": "prepare clone excluded; prove includes union assembly, compaction, commitment, Hadamard, lincheck, wiring, and merged PCS; no pure-online claim"
+  },
+  {
+    "log_leaves": 6,
+    "gate_count": 127,
+    "prove_with_commit_ms": 84.430897,
+    "proof_bytes": 298099,
+    "timing_boundary": "prepare clone excluded; prove includes union assembly, compaction, commitment, Hadamard, lincheck, wiring, and merged PCS; no pure-online claim"
+  }
+]

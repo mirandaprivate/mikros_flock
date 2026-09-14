@@ -1,0 +1,228 @@
+\section{Introduction}
+
+A succinct non-interactive argument of knowledge (SNARK) allows a
+prover to certify a computation with a short proof that can be
+verified substantially faster than re-executing the computation.
+Zero-knowledge variants additionally hide the witness.
+These properties make SNARKs useful for verifying computations
+performed by an untrusted party~\cite{eurocrypt/Groth16,crypto/Setty20}.
+The cost of generating the proof, however, can substantially exceed
+the cost of the computation being certified.
+
+Soundness imposes an additional constraint on the arithmetic used
+by the proof.
+Many efficient SNARKs use a polynomial interactive oracle proof
+(PIOP) to reduce correctness to polynomial identities tested at random
+field points~\cite{crypto/Setty20,eurocrypt/ChenBBZ23}.
+The probability that a false identity passes such a test is controlled
+by its degree relative to the size of the challenge field.
+To make this probability negligible, standard constructions use
+challenges from a large prime field or a sufficiently large extension
+of the witness field.
+The prover must then perform arithmetic involving these challenges,
+even when the original witness consists only of short integers.
+
+Embedding a short integer into a large field preserves its value,
+but does not preserve the cost of computing with it throughout the
+proof. In a conventional PIOP, challenge-dependent linear combinations
+generally produce full-field values.
+Subsequent multiplications therefore require large-field arithmetic,
+whose cost reflects the field representation rather than the initial
+witness bit width~\cite{iacr/BagadDDT25}.
+Arithmetic modulo a multiword prime, or in a high-degree extension,
+can be much more expensive than the native short-integer
+multiplications being certified.
+Materializing the resulting full-field vectors also expands the
+prover's working memory.
+
+Quantized machine-learning inference makes this mismatch concrete.
+Low-precision inference uses short integers to reduce computation
+and memory costs: SmoothQuant, for example, supports matrix
+multiplications with 8-bit weights and 8-bit
+activations~\cite{icml/XiaoLSWDH23}.
+These representations also appear in zero-knowledge machine learning
+(zkML). Kang et al.~\cite{corr/KangHSS22} prove DNN inference with
+8-bit weights and activations, with intermediate computations of up
+to 32 bits, using an arithmetization over a 254-bit prime field.
+Thus the precision sufficient for inference can be far below the
+field size used by the proof system.
+Quantization reduces the cost of executing the model, but the prover
+does not automatically inherit the same savings when checking the
+relations among its weights and activations.
+
+Exploiting this gap requires more than a compact witness commitment.
+A packed polynomial commitment scheme (PCS) can reduce the cost of
+committing to short values, while the PIOP still processes long vectors
+of full-field elements~\cite{eurocrypt/DiamondP26,iacr/BagadDDT25}.
+The central problem is therefore to separate the field used to
+represent and process the witness from the field used for soundness:
+\begin{quote}
+\emph{Can we retain small-field arithmetic for most of the prover's
+work while using a large field for soundness?}
+\end{quote}
+
+We study this question for vector relations over a small finite
+field \(\Field\).
+Our approach is to reduce a length-\(N\) relation over \(\Field\)
+to a length-\(m\) relation over an extension \(\ExtensionField\),
+where \(N=m\kappa\) and \([\ExtensionField:\Field]=\kappa\).
+Polynomial packing keeps the row-polynomial multiplications over
+\(\Field\) and confines the subsequent extension-field proof to
+the shorter vectors.
+A packed opening protocol authenticates the resulting
+challenge-dependent evaluations against the original witness
+commitment. Section~\ref{sec:overview} explains this reduction.
+
+The working field need not be prime. For binary computations,
+the tower \(\mathbb F_2\subset\mathbb K=\mathbb F_{2^8}
+\subset\ExtensionField\) allows the PIOP to use byte-sized
+working-field arithmetic while retaining the larger field for
+soundness. We instantiate the reductions and their commitment
+interface over \(\mathbb K\), with extension degree
+\([\ExtensionField:\mathbb K]\), and retain Booleanity constraints
+for binary witness values. This field choice and its parameter
+requirements are specified in Section~\ref{sec:binary-packing}.
+
+\subsection{Related Work}
+\label{sec:related-work}
+
+\paragraph{SNARKs and polynomial IOPs.}
+A common construction separates algebraic verification
+from cryptographic authentication: a polynomial interactive oracle
+proof (PIOP) reduces the relation to polynomial evaluation claims,
+and a polynomial commitment scheme (PCS) authenticates those claims.
+For multilinear representations, Spartan~\cite{crypto/Setty20} uses
+sumcheck to verify rank-one constraint systems, while
+HyperPlonk~\cite{eurocrypt/ChenBBZ23} expresses PLONK-style gate and
+permutation constraints over the Boolean hypercube.
+The PIOP and PCS contribute different prover costs.
+Two prominent cryptographic approaches, elliptic-curve-based and
+hash-based, offer different commitment tradeoffs, but the cost of
+processing short-valued witnesses also depends on the PIOP.
+
+\paragraph{ECC-based constructions.}
+Elliptic-curve cryptography (ECC) supports both pairing-based arguments
+and discrete-logarithm-based inner-product arguments.
+Groth's pairing-based SNARK~\cite{eurocrypt/Groth16} achieves proofs
+of three group elements with circuit-specific preprocessing.
+KZG~\cite{asiacrypt/KateZG10} provides constant-size commitments and
+evaluation proofs, furnishing a polynomial commitment interface for
+pairing-based SNARKs.
+Sonic~\cite{ccs/MallerBKM19}, Marlin~\cite{eurocrypt/ChiesaHMMVW20},
+and PLONK~\cite{iacr/GabizonWC19} support universal and updatable
+structured reference strings.
+On the discrete-logarithm side, the inner-product argument underlying
+Bulletproofs~\cite{sp/BunzBBPWM18} gives logarithmic communication
+without a trusted setup, and Hyrax~\cite{sp/WahbyTSTW18} provides
+a multilinear commitment with communication--verification tradeoffs.
+For these constructions, the polynomial arithmetic takes place in
+the scalar field of the chosen group.
+Its size is constrained by cryptographic security, rather than by
+the range of the witness entries: representing an entry by a short
+integer does not make this ambient field smaller.
+
+\paragraph{Hash-based constructions.}
+Hash-based arguments replace group-based commitments with
+error-correcting encodings and Merkle authentication.
+STARKs~\cite{iacr/Ben-SassonBHR18} exemplify this transparent approach,
+with FRI~\cite{icalp/Ben-SassonBHR18} supplying Reed--Solomon
+proximity testing.
+Ligero~\cite{dcc/AmesHIV23} uses interleaved Reed--Solomon codes
+to obtain sublinear arguments without a trusted setup.
+Brakedown~\cite{crypto/GolovnevLSTW23} obtains linear-time proving
+from linear-time encodable codes over sufficiently large finite fields.
+BaseFold~\cite{crypto/ZeilbergerCF24} combines foldable codes with
+sumcheck to obtain a field-agnostic multilinear PCS.
+WHIR~\cite{eurocrypt/ArnonCFY25} uses constrained Reed--Solomon
+proximity testing to support polynomial evaluation queries with
+fast verification.
+These constructions decouple the arithmetic field from a group order,
+allowing field choices subject to their coding and soundness conditions.
+This flexibility enables small-field witness encodings, but does not
+itself change how a PIOP processes those encodings.
+
+\paragraph{The short-integer bottleneck in the PIOP.}
+Neither commitment family, by itself, makes the PIOP bit-width-aware.
+The issue is the cost of computing with short-valued witnesses,
+even when their range constraints have already been enforced.
+In conventional sumcheck, random challenges combine entries of the
+witness tables into new field elements.
+Such combinations need not retain the original short-integer
+representation. With extension-field challenges, even inputs in a
+small base field generally yield values outside that base field.
+The remaining rounds therefore operate on full-field values unless
+the prover uses additional structure~\cite{iacr/BagadDDT25}.
+An ECC-based PCS fixes the ambient scalar field, whereas a hash-based
+PCS permits more field choices. Neither property alone ensures that
+the PIOP's arithmetic and working memory scale with the witness bit
+width. Taking challenges from a smaller field also changes the
+algebraic soundness error and requires a corresponding protocol
+analysis. Commitment compression and bit-width-aware relation
+checking are thus separate requirements.
+
+\paragraph{Small-field embeddings and Binius.}
+Packing several witness entries into one extension-field element
+predates Binius. Cascudo and Giunta~\cite{iacr/CascudoG21} use
+reverse multiplication-friendly embeddings to verify Boolean R1CS
+through larger-field linear and row checks.
+Binius, due to Diamond and Posen~\cite{eurocrypt/DiamondP25},
+adapts Brakedown to multilinear commitments over binary towers
+without coefficient-wise embedding overhead, and develops
+corresponding product, permutation, and lookup arguments.
+Their subsequent ring-switching construction~\cite{eurocrypt/DiamondP26}
+gives a generic reduction from a multilinear PCS over an extension
+field to one over its ground field.
+Its commitment cost matches that of the underlying PCS on inputs
+of the same bit size; its opening reduction adds linear prover
+and logarithmic verifier overhead.
+The compiler applies to general field extensions. Their concrete
+PCS instantiation uses a binary-field adaptation of BaseFold.
+Ring-switching addresses the interface between small-field polynomial
+evaluations and packed commitments. Exploiting the same representation
+in the circuit PIOP requires relation-specific techniques, as in
+Binius's binary-tower arguments.
+
+\paragraph{Small-value and small-field sumcheck.}
+Dedicated sumcheck algorithms address this PIOP-level cost directly.
+Bagad, Domb, and Thaler~\cite{iacr/BagadDT24} optimize the sumcheck
+prover when the input polynomials take values in a small subfield,
+replacing expensive extension-field multiplications with additional
+base-field arithmetic.
+Bagad, Dao, Domb, and Thaler~\cite{iacr/BagadDDT25} extend this line
+to both short integers and small-subfield values, combine it with
+equality-polynomial optimizations, and integrate the resulting prover
+into Jolt.
+Dao and Thaler~\cite{iacr/DaoT24} exploit binary-tower structure in
+zero-check, reducing equality-table computation and generalizing
+constraint packing with linearly independent extension-field weights.
+Wei et al.~\cite{iacr/WeiWXZDWZ25} give packed sumcheck over small
+prime fields using repetition and folding to keep the computation
+in the base field, with an application to the vector relations in
+TFHE bootstrapping.
+These approaches modify the relation proof itself, through
+small-value arithmetic, structured packing, or repetition and folding.
+Their gains are additional to those obtained by choosing a faster PCS.
+
+\paragraph{Relation to our work.}
+Mikros develops a relation-level reduction for arithmetic over small
+finite fields, together with the packed opening interface it needs.
+For inner- and Hadamard-product relations, we arrange a length-\(N\)
+witness as an \(m\times\kappa\) matrix over a small field
+\(\Field\), where \(N=m\kappa\) and
+\([\ExtensionField:\Field]=\kappa\).
+We encode each row by a polynomial over \(\Field\) and express the
+relation as a low-degree polynomial identity.
+Evaluating this identity at an extension-field challenge leaves a
+length-\(m\) inner-product claim over \(\ExtensionField\).
+Unlike commitment packing alone, this step compresses the relation
+passed to the extension-field proof.
+It retains the base-field row multiplications while
+restricting the subsequent extension-field proof to the shorter
+vectors.
+The commitment uses a fixed field basis, whereas the relation proof
+requires challenge-dependent packing weights.
+Our opening reduction connects the two through base-field coordinate
+identities and terminates in an opening of an underlying multilinear
+PCS over \(\ExtensionField\).
+Sections~\ref{sec:overview} and~\ref{sec:pcs} develop these
+relation and opening reductions, respectively.

@@ -50,7 +50,8 @@ use ring_switch::{
     RingSwitchError, RsEqInd, build_eq_scaled_parallel, build_fold_byte_table,
     eval_rs_eq_finish_from_prefix_binary_q_f256, eval_rs_eq_prefix_f256, fold_b128_from_table,
     fold_one_slot, linearized_coefficients,
-    prove_batched_padded_with_precomputed_unbatched_and_grinding, verify_succinct_with_grinding,
+    prove_batched_padded_with_precomputed_unbatched_and_grinding,
+    verify_succinct_weighted_with_grinding, verify_succinct_with_grinding,
 };
 pub use ring_switch::{RingSwitchProof, SparseEqTensor};
 use serde::{Deserialize, Serialize};
@@ -70,8 +71,10 @@ use crate::{
     zerocheck::PaddingSpec,
 };
 pub mod commit;
+pub mod functional;
 pub mod jagged;
 pub mod ligerito;
+pub mod merged_tensor;
 pub mod pack;
 pub mod ring_switch;
 pub mod stratified;
@@ -1956,6 +1959,10 @@ pub fn open_batch_merged<Ch: Challenger>(
     padded_witness: Option<&[F128]>,
     prover_data: &ProverData,
     commitment: &Commitment,
+    // The first coordinate belongs to the legacy skip64 claim check and is
+    // not read by this prover: the row/column tensor starts at x_outer[1..].
+    // A caller using verify_batch_merged_weighted may put a dummy coordinate
+    // first, and supply its complete 128 bit-column weights to the verifier.
     x_outers: &[&[F128]],
     precomputed_s_hat_v: &[Option<&[F128]>],
     // Per ring-switch claim, the column bit-bank at its row point (see
@@ -2537,6 +2544,49 @@ pub fn verify_batch_merged<Ch: Challenger>(
         grinding,
         challenger,
         None,
+        None,
+    )
+}
+
+/// Verify the production merged opening with complete 128 bit-column weights
+/// for each ring-switch claim. All dense/jagged transport, Frobenius assist,
+/// grinding and inner Ligerito checks use the same implementation as
+/// [`verify_batch_merged`]. Only the scalar check against each `s_hat_v` takes
+/// these weights instead of reconstructing skip64 weights.
+///
+/// Each `x_outers[i]` retains the legacy shape: an unused leading coordinate,
+/// then `n_log` ordinary row coordinates and the column coordinates. Its
+/// leading coordinate has no meaning on this weighted entry. The caller must
+/// derive and bind every claim, weight and point from its public statement and
+/// verified PIOP before this call; none are read from the opening proof.
+#[allow(clippy::too_many_arguments)]
+pub fn verify_batch_merged_weighted<Ch: Challenger>(
+    commitment: &Commitment,
+    claims: &[F128],
+    columns: &[&[F128]],
+    x_outers: &[&[F128]],
+    packed_direct: &[PackedDirectClaimRef<'_>],
+    heights: &[u64],
+    n_log: usize,
+    proof: &MergedOpenProof,
+    lig_config: &VerifierConfig,
+    grinding: OpeningGrinding,
+    challenger: &mut Ch,
+) -> Result<(), PcsOpenError> {
+    verify_batch_merged_core(
+        commitment,
+        claims,
+        &[],
+        x_outers,
+        packed_direct,
+        heights,
+        n_log,
+        proof,
+        lig_config,
+        grinding,
+        challenger,
+        None,
+        Some(columns),
     )
 }
 
@@ -2574,6 +2624,7 @@ pub fn verify_batch_merged_deferred<Ch: Challenger>(
         grinding,
         challenger,
         Some(&mut out),
+        None,
     )?;
     Ok(out.expect("the deferred core fills the export"))
 }
@@ -2592,10 +2643,30 @@ fn verify_batch_merged_core<Ch: Challenger>(
     grinding: OpeningGrinding,
     challenger: &mut Ch,
     defer: Option<&mut Option<JaggedAssertion>>,
+    columns: Option<&[&[F128]]>,
 ) -> Result<(), PcsOpenError> {
     let n_rs = claims.len();
     let n_pd = packed_direct.len();
-    assert_eq!(z_skips.len(), n_rs);
+    if let Some(columns) = columns {
+        if columns.len() != n_rs
+            || columns
+                .iter()
+                .any(|weights| weights.len() != 1 << LOG_PACKING)
+            || x_outers.len() != n_rs
+            || !heights.len().is_power_of_two()
+            || x_outers
+                .iter()
+                .any(|x| x.len() != 1 + n_log + heights.len().ilog2() as usize)
+            || proof
+                .ring_switches
+                .iter()
+                .any(|p| p.s_hat_v.len() != 1 << LOG_PACKING)
+        {
+            return Err(PcsOpenError::RingSwitch(RingSwitchError::MalformedProof));
+        }
+    } else {
+        assert_eq!(z_skips.len(), n_rs);
+    }
     assert_eq!(x_outers.len(), n_rs);
     if proof.ring_switches.len() != n_rs {
         return Err(PcsOpenError::Assist);
@@ -2621,15 +2692,25 @@ fn verify_batch_merged_core<Ch: Challenger>(
     let t = Instant::now();
     let mut rs_outputs = Vec::with_capacity(n_rs);
     for i in 0..n_rs {
-        let skip_w = z_skips[i].weights(LOG_PACKING - 1);
-        let out = verify_succinct_with_grinding(
-            claims[i],
-            &skip_w,
-            x_outers[i],
-            &proof.ring_switches[i],
-            grinding.ring_switch_bits,
-            challenger,
-        )
+        let out = if let Some(columns) = columns {
+            verify_succinct_weighted_with_grinding(
+                claims[i],
+                columns[i],
+                &proof.ring_switches[i],
+                grinding.ring_switch_bits,
+                challenger,
+            )
+        } else {
+            let skip_w = z_skips[i].weights(LOG_PACKING - 1);
+            verify_succinct_with_grinding(
+                claims[i],
+                &skip_w,
+                x_outers[i],
+                &proof.ring_switches[i],
+                grinding.ring_switch_bits,
+                challenger,
+            )
+        }
         .map_err(PcsOpenError::RingSwitch)?;
         rs_outputs.push(out);
     }
@@ -2971,5 +3052,141 @@ mod tests {
         let policy = OpeningGrinding::per_challenge_128();
         assert_eq!(policy.claim_batch_bits_for(1), 0);
         assert_eq!(policy.claim_batch_bits_for(2), 6);
+    }
+
+    #[test]
+    fn merged_weighted_columns_preserve_skip64_and_bind_arbitrary128() {
+        use super::{
+            PcsOpenError, commit_lane_major, open_batch_merged, verify_batch_merged,
+            verify_batch_merged_weighted,
+        };
+        use crate::{
+            challenger::Challenger,
+            lincheck::SkipPoint,
+            pcs::ring_switch::{
+                build_claim_weights_from_skip, claim_check,
+                fold_1b_rows_1way_method_of_four_russians,
+            },
+        };
+
+        // A partial-height dense stack exercises the production jagged path
+        // and its 50-lane EqPoint inner opening, not a padded-only oracle.
+        let m = 22;
+        let n_log = 7;
+        let row_capacity = 1usize << n_log;
+        let mut heights = vec![0u64; 256];
+        heights[..200].fill(127);
+        let mut rng = Rng::new(0xC011_2864);
+        let mut padded = vec![F128::ZERO; 1usize << (m - LOG_PACKING)];
+        let mut dense = Vec::with_capacity(padded.len());
+        for col in 0..200 {
+            for row in 0..127 {
+                let value = rng.f128();
+                padded[col * row_capacity + row] = value;
+                dense.push(value);
+            }
+        }
+        dense.resize(padded.len(), F128::ZERO);
+        let params = PcsParams {
+            m,
+            log_inv_rate: 1,
+            log_batch_size: 6,
+            profile: LigeritoProfile::Fast,
+            num_lanes: Some(50),
+            merkle_hash: Default::default(),
+        };
+        let (commitment, data) = commit_lane_major(&dense, &params);
+        let prover_config = params.ligerito_prover_config().expect("m22 Fast config");
+        let verifier_config = params.ligerito_verifier_config().expect("m22 Fast config");
+        let point: Vec<_> = (0..m - 6).map(|_| rng.f128()).collect();
+        let skip = SkipPoint::Phi8(rng.f128());
+        let columns = build_claim_weights_from_skip(&skip.weights(6), point[0]);
+        let s_hat_v = fold_1b_rows_1way_method_of_four_russians(&padded, &build_eq(&point[1..]));
+        let value = claim_check(&columns, &s_hat_v);
+        let grinding = OpeningGrinding::per_challenge_128();
+        let mut prover = FsChallenger::new(b"merged-weighted-columns-test");
+        let proof = open_batch_merged(
+            dense,
+            Some(&padded),
+            &data,
+            &commitment,
+            &[&point],
+            &[Some(&s_hat_v)],
+            &[],
+            &[],
+            &PaddingSpec::dense(m),
+            &heights,
+            n_log,
+            &prover_config,
+            grinding,
+            &mut prover,
+        );
+        let mut old = FsChallenger::new(b"merged-weighted-columns-test");
+        verify_batch_merged(
+            &commitment,
+            &[value],
+            &[skip],
+            &[&point],
+            &[],
+            &heights,
+            n_log,
+            &proof,
+            &verifier_config,
+            grinding,
+            &mut old,
+        )
+        .expect("legacy skip64 verifier");
+        let verify = |columns: &[F128], value, proof: &super::MergedOpenProof, point: &[F128]| {
+            let mut ch = FsChallenger::new(b"merged-weighted-columns-test");
+            verify_batch_merged_weighted(
+                &commitment,
+                &[value],
+                &[columns],
+                &[point],
+                &[],
+                &heights,
+                n_log,
+                proof,
+                &verifier_config,
+                grinding,
+                &mut ch,
+            )
+            .map(|()| ch.sample_f128())
+        };
+        let expected = prover.sample_f128();
+        assert_eq!(old.sample_f128(), expected);
+        assert_eq!(verify(&columns, value, &proof, &point), Ok(expected));
+
+        // The identical production proof authenticates any independently
+        // specified bit-linear combination of its committed slice values.
+        let arbitrary: Vec<_> = (0..128).map(|_| rng.f128()).collect();
+        let arbitrary_value = claim_check(&arbitrary, &s_hat_v);
+        let mut dummy_point = point.clone();
+        dummy_point[0] += F128::ONE;
+        assert_eq!(
+            verify(&arbitrary, arbitrary_value, &proof, &dummy_point),
+            Ok(expected),
+        );
+        assert!(verify(&arbitrary, arbitrary_value + F128::ONE, &proof, &point).is_err());
+        assert!(matches!(
+            verify(&arbitrary[..127], arbitrary_value, &proof, &point),
+            Err(PcsOpenError::RingSwitch(RingSwitchError::MalformedProof)),
+        ));
+        let mut bad_columns = arbitrary.clone();
+        let nonzero = s_hat_v
+            .iter()
+            .position(|x| *x != F128::ZERO)
+            .expect("nonzero slice");
+        bad_columns[nonzero] += F128::ONE;
+        assert!(verify(&bad_columns, arbitrary_value, &proof, &point).is_err());
+        let mut bad = proof.clone();
+        bad.ring_switches[0].s_hat_v.pop();
+        assert!(matches!(
+            verify(&arbitrary, arbitrary_value, &bad, &point),
+            Err(PcsOpenError::RingSwitch(RingSwitchError::MalformedProof)),
+        ));
+        let mut bad = proof;
+        bad.q_eval += F128::ONE;
+        assert!(verify(&arbitrary, arbitrary_value, &bad, &point).is_err());
     }
 }

@@ -1,0 +1,10 @@
+{
+  "pid": 3517356,
+  "argv": [
+    "python3",
+    "/home/mscong1/mikros-experiments/20260912T-native64/v5-univariate/source/mikros/server_experiments/run_univariate_64.py",
+    "--root",
+    "/home/mscong1/mikros-experiments/20260912T-native64/v5-univariate"
+  ],
+  "cwd": "/home/mscong1/mikros-experiments/20260912T-native64/v5-univariate/source"
+}

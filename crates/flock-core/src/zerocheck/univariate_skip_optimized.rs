@@ -28,7 +28,9 @@
 //!   `C_s · (res_AB[i] + res_C_lifted[i])  ==  naive_p_ab[i] + naive_p_c[i]`
 //! with `C_s = φ_8(0x1C)`.
 //!
-//! This variant is hardcoded for `k_skip = 6` (ell=64, n_chunks=8, N_INNER=7).
+//! The original path remains `k_skip = 6` (ell=64, n_chunks=8, N_INNER=7).
+//! [`round1_shift_reduce_extract_c_packed_skip7`] provides a separate dense
+//! k=7 path with the same small/medium factorization and two-register LDE.
 
 use std::sync::OnceLock;
 
@@ -72,6 +74,9 @@ use crate::{
     },
 };
 mod kernels;
+mod skip128;
+
+pub use skip128::{cached_inv_table_k7, round1_shift_reduce_extract_c_packed_skip7};
 
 // ---------------------------------------------------------------------------
 // Protocol constants — fixed by the optimization design.

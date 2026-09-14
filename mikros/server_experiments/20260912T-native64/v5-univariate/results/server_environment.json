@@ -1,0 +1,2212 @@
+{
+  "utc_start": "2026-09-12T10:18:07Z",
+  "hostname": "swiftlab",
+  "uname": [
+    "Linux",
+    "swiftlab",
+    "6.8.0-138-generic",
+    "#138~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Fri Aug  7 13:43:15 UTC ",
+    "x86_64"
+  ],
+  "lscpu": {
+    "lscpu": [
+      {
+        "field": "Architecture:",
+        "data": "x86_64"
+      },
+      {
+        "field": "CPU op-mode(s):",
+        "data": "32-bit, 64-bit"
+      },
+      {
+        "field": "Address sizes:",
+        "data": "46 bits physical, 57 bits virtual"
+      },
+      {
+        "field": "Byte Order:",
+        "data": "Little Endian"
+      },
+      {
+        "field": "CPU(s):",
+        "data": "96"
+      },
+      {
+        "field": "On-line CPU(s) list:",
+        "data": "0-95"
+      },
+      {
+        "field": "Vendor ID:",
+        "data": "GenuineIntel"
+      },
+      {
+        "field": "Model name:",
+        "data": "Intel(R) Xeon(R) Gold 6342 CPU @ 2.80GHz"
+      },
+      {
+        "field": "CPU family:",
+        "data": "6"
+      },
+      {
+        "field": "Model:",
+        "data": "106"
+      },
+      {
+        "field": "Thread(s) per core:",
+        "data": "2"
+      },
+      {
+        "field": "Core(s) per socket:",
+        "data": "24"
+      },
+      {
+        "field": "Socket(s):",
+        "data": "2"
+      },
+      {
+        "field": "Stepping:",
+        "data": "6"
+      },
+      {
+        "field": "CPU max MHz:",
+        "data": "3500.0000"
+      },
+      {
+        "field": "CPU min MHz:",
+        "data": "800.0000"
+      },
+      {
+        "field": "BogoMIPS:",
+        "data": "5600.00"
+      },
+      {
+        "field": "Flags:",
+        "data": "fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc art arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf pni pclmulqdq dtes64 ds_cpl vmx smx est tm2 ssse3 sdbg fma cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm 3dnowprefetch cpuid_fault epb cat_l3 intel_ppin ssbd mba ibrs ibpb stibp ibrs_enhanced tpr_shadow flexpriority ept vpid ept_ad fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid cqm rdt_a avx512f avx512dq rdseed adx smap avx512ifma clflushopt clwb intel_pt avx512cd sha_ni avx512bw avx512vl xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local split_lock_detect wbnoinvd dtherm ida arat pln pts vnmi avx512vbmi umip pku ospke avx512_vbmi2 gfni vaes vpclmulqdq avx512_vnni avx512_bitalg tme avx512_vpopcntdq la57 rdpid fsrm md_clear pconfig flush_l1d arch_capabilities"
+      },
+      {
+        "field": "Virtualization:",
+        "data": "VT-x"
+      },
+      {
+        "field": "L1d cache:",
+        "data": "2.3 MiB (48 instances)"
+      },
+      {
+        "field": "L1i cache:",
+        "data": "1.5 MiB (48 instances)"
+      },
+      {
+        "field": "L2 cache:",
+        "data": "60 MiB (48 instances)"
+      },
+      {
+        "field": "L3 cache:",
+        "data": "72 MiB (2 instances)"
+      },
+      {
+        "field": "NUMA node(s):",
+        "data": "2"
+      },
+      {
+        "field": "NUMA node0 CPU(s):",
+        "data": "0-23,48-71"
+      },
+      {
+        "field": "NUMA node1 CPU(s):",
+        "data": "24-47,72-95"
+      },
+      {
+        "field": "Vulnerability Gather data sampling:",
+        "data": "Mitigation; Microcode"
+      },
+      {
+        "field": "Vulnerability Indirect target selection:",
+        "data": "Mitigation; Aligned branch/return thunks"
+      },
+      {
+        "field": "Vulnerability Itlb multihit:",
+        "data": "Not affected"
+      },
+      {
+        "field": "Vulnerability L1tf:",
+        "data": "Not affected"
+      },
+      {
+        "field": "Vulnerability Mds:",
+        "data": "Not affected"
+      },
+      {
+        "field": "Vulnerability Meltdown:",
+        "data": "Not affected"
+      },
+      {
+        "field": "Vulnerability Mmio stale data:",
+        "data": "Mitigation; Clear CPU buffers; SMT vulnerable"
+      },
+      {
+        "field": "Vulnerability Reg file data sampling:",
+        "data": "Not affected"
+      },
+      {
+        "field": "Vulnerability Retbleed:",
+        "data": "Not affected"
+      },
+      {
+        "field": "Vulnerability Spec rstack overflow:",
+        "data": "Not affected"
+      },
+      {
+        "field": "Vulnerability Spec store bypass:",
+        "data": "Mitigation; Speculative Store Bypass disabled via prctl"
+      },
+      {
+        "field": "Vulnerability Spectre v1:",
+        "data": "Mitigation; usercopy/swapgs barriers and __user pointer sanitization"
+      },
+      {
+        "field": "Vulnerability Spectre v2:",
+        "data": "Mitigation; Enhanced / Automatic IBRS; IBPB conditional; PBRSB-eIBRS SW sequence; BHI SW loop, KVM SW loop"
+      },
+      {
+        "field": "Vulnerability Srbds:",
+        "data": "Not affected"
+      },
+      {
+        "field": "Vulnerability Tsa:",
+        "data": "Not affected"
+      },
+      {
+        "field": "Vulnerability Tsx async abort:",
+        "data": "Not affected"
+      },
+      {
+        "field": "Vulnerability Vmscape:",
+        "data": "Not affected"
+      }
+    ]
+  },
+  "topology": [
+    [
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      1,
+      0,
+      0
+    ],
+    [
+      2,
+      2,
+      0,
+      0
+    ],
+    [
+      3,
+      3,
+      0,
+      0
+    ],
+    [
+      4,
+      4,
+      0,
+      0
+    ],
+    [
+      5,
+      5,
+      0,
+      0
+    ],
+    [
+      6,
+      6,
+      0,
+      0
+    ],
+    [
+      7,
+      7,
+      0,
+      0
+    ],
+    [
+      8,
+      8,
+      0,
+      0
+    ],
+    [
+      9,
+      9,
+      0,
+      0
+    ],
+    [
+      10,
+      10,
+      0,
+      0
+    ],
+    [
+      11,
+      11,
+      0,
+      0
+    ],
+    [
+      12,
+      12,
+      0,
+      0
+    ],
+    [
+      13,
+      13,
+      0,
+      0
+    ],
+    [
+      14,
+      14,
+      0,
+      0
+    ],
+    [
+      15,
+      15,
+      0,
+      0
+    ],
+    [
+      16,
+      16,
+      0,
+      0
+    ],
+    [
+      17,
+      17,
+      0,
+      0
+    ],
+    [
+      18,
+      18,
+      0,
+      0
+    ],
+    [
+      19,
+      19,
+      0,
+      0
+    ],
+    [
+      20,
+      20,
+      0,
+      0
+    ],
+    [
+      21,
+      21,
+      0,
+      0
+    ],
+    [
+      22,
+      22,
+      0,
+      0
+    ],
+    [
+      23,
+      23,
+      0,
+      0
+    ],
+    [
+      24,
+      24,
+      1,
+      1
+    ],
+    [
+      25,
+      25,
+      1,
+      1
+    ],
+    [
+      26,
+      26,
+      1,
+      1
+    ],
+    [
+      27,
+      27,
+      1,
+      1
+    ],
+    [
+      28,
+      28,
+      1,
+      1
+    ],
+    [
+      29,
+      29,
+      1,
+      1
+    ],
+    [
+      30,
+      30,
+      1,
+      1
+    ],
+    [
+      31,
+      31,
+      1,
+      1
+    ],
+    [
+      32,
+      32,
+      1,
+      1
+    ],
+    [
+      33,
+      33,
+      1,
+      1
+    ],
+    [
+      34,
+      34,
+      1,
+      1
+    ],
+    [
+      35,
+      35,
+      1,
+      1
+    ],
+    [
+      36,
+      36,
+      1,
+      1
+    ],
+    [
+      37,
+      37,
+      1,
+      1
+    ],
+    [
+      38,
+      38,
+      1,
+      1
+    ],
+    [
+      39,
+      39,
+      1,
+      1
+    ],
+    [
+      40,
+      40,
+      1,
+      1
+    ],
+    [
+      41,
+      41,
+      1,
+      1
+    ],
+    [
+      42,
+      42,
+      1,
+      1
+    ],
+    [
+      43,
+      43,
+      1,
+      1
+    ],
+    [
+      44,
+      44,
+      1,
+      1
+    ],
+    [
+      45,
+      45,
+      1,
+      1
+    ],
+    [
+      46,
+      46,
+      1,
+      1
+    ],
+    [
+      47,
+      47,
+      1,
+      1
+    ],
+    [
+      48,
+      0,
+      0,
+      0
+    ],
+    [
+      49,
+      1,
+      0,
+      0
+    ],
+    [
+      50,
+      2,
+      0,
+      0
+    ],
+    [
+      51,
+      3,
+      0,
+      0
+    ],
+    [
+      52,
+      4,
+      0,
+      0
+    ],
+    [
+      53,
+      5,
+      0,
+      0
+    ],
+    [
+      54,
+      6,
+      0,
+      0
+    ],
+    [
+      55,
+      7,
+      0,
+      0
+    ],
+    [
+      56,
+      8,
+      0,
+      0
+    ],
+    [
+      57,
+      9,
+      0,
+      0
+    ],
+    [
+      58,
+      10,
+      0,
+      0
+    ],
+    [
+      59,
+      11,
+      0,
+      0
+    ],
+    [
+      60,
+      12,
+      0,
+      0
+    ],
+    [
+      61,
+      13,
+      0,
+      0
+    ],
+    [
+      62,
+      14,
+      0,
+      0
+    ],
+    [
+      63,
+      15,
+      0,
+      0
+    ],
+    [
+      64,
+      16,
+      0,
+      0
+    ],
+    [
+      65,
+      17,
+      0,
+      0
+    ],
+    [
+      66,
+      18,
+      0,
+      0
+    ],
+    [
+      67,
+      19,
+      0,
+      0
+    ],
+    [
+      68,
+      20,
+      0,
+      0
+    ],
+    [
+      69,
+      21,
+      0,
+      0
+    ],
+    [
+      70,
+      22,
+      0,
+      0
+    ],
+    [
+      71,
+      23,
+      0,
+      0
+    ],
+    [
+      72,
+      24,
+      1,
+      1
+    ],
+    [
+      73,
+      25,
+      1,
+      1
+    ],
+    [
+      74,
+      26,
+      1,
+      1
+    ],
+    [
+      75,
+      27,
+      1,
+      1
+    ],
+    [
+      76,
+      28,
+      1,
+      1
+    ],
+    [
+      77,
+      29,
+      1,
+      1
+    ],
+    [
+      78,
+      30,
+      1,
+      1
+    ],
+    [
+      79,
+      31,
+      1,
+      1
+    ],
+    [
+      80,
+      32,
+      1,
+      1
+    ],
+    [
+      81,
+      33,
+      1,
+      1
+    ],
+    [
+      82,
+      34,
+      1,
+      1
+    ],
+    [
+      83,
+      35,
+      1,
+      1
+    ],
+    [
+      84,
+      36,
+      1,
+      1
+    ],
+    [
+      85,
+      37,
+      1,
+      1
+    ],
+    [
+      86,
+      38,
+      1,
+      1
+    ],
+    [
+      87,
+      39,
+      1,
+      1
+    ],
+    [
+      88,
+      40,
+      1,
+      1
+    ],
+    [
+      89,
+      41,
+      1,
+      1
+    ],
+    [
+      90,
+      42,
+      1,
+      1
+    ],
+    [
+      91,
+      43,
+      1,
+      1
+    ],
+    [
+      92,
+      44,
+      1,
+      1
+    ],
+    [
+      93,
+      45,
+      1,
+      1
+    ],
+    [
+      94,
+      46,
+      1,
+      1
+    ],
+    [
+      95,
+      47,
+      1,
+      1
+    ]
+  ],
+  "allowed_cpus": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50,
+    51,
+    52,
+    53,
+    54,
+    55,
+    56,
+    57,
+    58,
+    59,
+    60,
+    61,
+    62,
+    63,
+    64,
+    65,
+    66,
+    67,
+    68,
+    69,
+    70,
+    71,
+    72,
+    73,
+    74,
+    75,
+    76,
+    77,
+    78,
+    79,
+    80,
+    81,
+    82,
+    83,
+    84,
+    85,
+    86,
+    87,
+    88,
+    89,
+    90,
+    91,
+    92,
+    93,
+    94,
+    95
+  ],
+  "cpu_spec": "0-47,48-55,72-79",
+  "selected_cpus": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50,
+    51,
+    52,
+    53,
+    54,
+    55,
+    72,
+    73,
+    74,
+    75,
+    76,
+    77,
+    78,
+    79
+  ],
+  "threads": 64,
+  "selected_physical_cores": 48,
+  "additional_smt_siblings": 16,
+  "memory_start_kib": {
+    "MemTotal": 395848532,
+    "MemAvailable": 381276872,
+    "SwapTotal": 2097148,
+    "SwapFree": 1582360
+  },
+  "loadavg_start": [
+    0.07080078125,
+    0.21533203125,
+    3.435546875
+  ],
+  "source_manifest": {
+    "base_revision": "b684b1258e4b1f202bec24afd660ace851b09e5e",
+    "snapshot_scope": "Tracked crates plus explicit new Flock-128 kernels, root build files, current Mikros Rust sources/tests/bench and credential-free experiment driver; excludes .git, credentials, unrelated projects and all build/results directories",
+    "files_sha256": {
+      ".cargo/config.toml": "8ea425180afe0e2fc0cd930d9a5dbd4da07aebe14263eeec4d6df9c7ab996a20",
+      ".clippy.toml": "ec1e921186f5d3b5785ff9d198d21e5c3ebd550e951ca153c53b5c35586d0421",
+      "Cargo.lock": "c2c4f22ed115c56134ca0370f39dfe6cc7266fa0818eac17e692675b0b3433e8",
+      "Cargo.toml": "630a50c1a5b9b93338882f5c4b450fee920319dbb824a3be42f1f0dc8461a5ad",
+      "LICENSE-APACHE": "1451f14d812ac78a159791bdeaafc7d400d888f60a8502790042930c1c9be7ff",
+      "LICENSE-MIT": "ed21a0d573a473913534aa8462b410c4c03d899900096bf3bdeb8fea650a01b5",
+      "README.md": "76b0b7dc0d73e8b46efb5f7c5f988e9bb8201350d1c871e8ae21cf39e1534ac6",
+      "crates/flock-core/Cargo.toml": "1dfeb37f45d26b698025f3cc86395c707a9cd7917b6284eed8aff21d432994e0",
+      "crates/flock-core/configs/ligerito/m22_fast.toml": "5597cf3b757c76d1df25f8dacc79b9e474839c0310831c1d45ed6bf7d3cc37bd",
+      "crates/flock-core/configs/ligerito/m22_fast100.toml": "ec3cdc74121a8c1ed4a598a29130720cd81af0fd01b0d09a1f37c455e88d0a23",
+      "crates/flock-core/configs/ligerito/m22_secure.toml": "8608ee4b44c7d4dcfc8b8580c549305c72bcb613cb4654d51c5ef4e27cc32622",
+      "crates/flock-core/configs/ligerito/m22_slim.toml": "7bbdd5532567b0810088ff5e2026822b5b4f8dd7e244e1e1c8247bcd39b068bc",
+      "crates/flock-core/configs/ligerito/m22_slim100.toml": "cc4ebd5e07a022788f77d54b432bbf49aed050731bc39d669ef42a1a03f7dc78",
+      "crates/flock-core/configs/ligerito/m23_fast.toml": "5dd54c210602f5ea157a2e976fac6b9923b1db3f67b5167eaf327335ab2d244d",
+      "crates/flock-core/configs/ligerito/m23_fast100.toml": "70c44d882d698aae3356e5fd00c6e89430ae83b604849558d4e0a0925e4b7c05",
+      "crates/flock-core/configs/ligerito/m23_secure.toml": "c3f52f3200d279776f19422c34ac8f602896946513536c20f64d2fed69765207",
+      "crates/flock-core/configs/ligerito/m23_slim.toml": "d48db7143501d1708219efe534030e64d914a595cb9ef81e22d691a1d128d7ec",
+      "crates/flock-core/configs/ligerito/m23_slim100.toml": "bbad3179f685e0e8f83d90d9922014a6e0c576aebd2a57c404fd75416b4e6686",
+      "crates/flock-core/configs/ligerito/m24_fast.toml": "c59ca825420155caa2e92e4740a7092e6c618bac99ac5e7d80577e3f241a9775",
+      "crates/flock-core/configs/ligerito/m24_fast100.toml": "24aeca10f64eaf1cfe7cf6a792c83d3afd41b1389ed3cfbd83ea2f79e7bf9cbe",
+      "crates/flock-core/configs/ligerito/m24_secure.toml": "fb9af4e1618ed86ecc2f050e3f2e2d7105a20c5af978bd83eb3dc5722453b75b",
+      "crates/flock-core/configs/ligerito/m24_slim.toml": "f11d7b78b7eff05d56c6921d013779fb5cc1feabb54b6055d7ed0693ea55902a",
+      "crates/flock-core/configs/ligerito/m24_slim100.toml": "2a53a4a3519f6dc8a5607bc1777268b9eac4f2f0a2be112e28e6b6dc9206a59a",
+      "crates/flock-core/configs/ligerito/m25_fast.toml": "4824d21e626a374a22073f340aebba9a9c9171f06f306660e660c61ebc254d05",
+      "crates/flock-core/configs/ligerito/m25_fast100.toml": "976141c851c0340637d131fe5c1178f556d1620a7569a74dbefbeb5535862b90",
+      "crates/flock-core/configs/ligerito/m25_secure.toml": "02d3eec665104471b622cf0bce74ec3ae430516adaa0f10a8f681ed07015f856",
+      "crates/flock-core/configs/ligerito/m25_slim.toml": "ac90ed7626fd4d8c7b1771e84e06e904c220b905e493948ece835e10f35c2aeb",
+      "crates/flock-core/configs/ligerito/m25_slim100.toml": "aa9faa2f6ea9e4310b19101c52223c887c1377c1dc5a3b436a1fe37f5e981892",
+      "crates/flock-core/configs/ligerito/m26_fast.toml": "df924f3c006f165b10056bdc78622e0fa02fb5ddd3e3bb55b53aeba60a753243",
+      "crates/flock-core/configs/ligerito/m26_fast100.toml": "76fae3d5880836af405b8b1af440c49844c411422419c0e4310bed8939240c67",
+      "crates/flock-core/configs/ligerito/m26_secure.toml": "12ab7d894fd512bc5e1ec63311987eb42809bf8f9b25afd563627d17cf377dc6",
+      "crates/flock-core/configs/ligerito/m26_slim.toml": "f0de98170eaca991e2c8b317d8c2b22539ec183cbb88de239bddfe460b300c1b",
+      "crates/flock-core/configs/ligerito/m26_slim100.toml": "553cad7e3658f812f147bd6768c80f909c3ab7dd089aa837e9907c0b9af3bdbc",
+      "crates/flock-core/configs/ligerito/m27_fast.toml": "a240f9edc51b9f4efcaa59a3aa030f67b679a38bdf23b8669129c1b522351b14",
+      "crates/flock-core/configs/ligerito/m27_fast100.toml": "182df11f6749aeb2388c7b7be0446a1aca02af43d5aea4127b0d0e458dd57168",
+      "crates/flock-core/configs/ligerito/m27_secure.toml": "f5512cef4f5fb3589c8135fd69a5b4dff58c12f2da818a59f675fe23b38b42d1",
+      "crates/flock-core/configs/ligerito/m27_slim.toml": "f801326615519eaa588cfd951434161c9c7eb12f2b93124968151bb8eb51d10c",
+      "crates/flock-core/configs/ligerito/m27_slim100.toml": "f399c516fa39c537eb683960cce50d3a2ea155373ad0adcecb739d85def77e20",
+      "crates/flock-core/configs/ligerito/m28_fast.toml": "f98c21762c12a701adfdd7e41c2dd7f448dfa3699dfcb311626def67ca6ee0ea",
+      "crates/flock-core/configs/ligerito/m28_fast100.toml": "5702bcf411677c148d28e0be76bb699c56043d16a2c50b43b19e040637a1687b",
+      "crates/flock-core/configs/ligerito/m28_secure.toml": "1ac5f2a6236cc5c14a70f1b0bdcc825b4deb59f0d0e0e2a3235296c4438300c2",
+      "crates/flock-core/configs/ligerito/m28_slim.toml": "cae8988e827dec1cd6a03482fd5aac6a85727ba67d20481b24490001ab6c98a7",
+      "crates/flock-core/configs/ligerito/m28_slim100.toml": "573ce1e4d4460bc3d62564c396ae1de0f4d60197fe14ca1424f06c27f455955a",
+      "crates/flock-core/configs/ligerito/m29_fast.toml": "a902893bc800c89e0500e9bce07b16ada43a63fc74780d5fb3542d83a6c8311f",
+      "crates/flock-core/configs/ligerito/m29_fast100.toml": "70e5b7d00919cabe5dff9a32aa3f56343e4bf71c37faba845eaeb8aab861a9a8",
+      "crates/flock-core/configs/ligerito/m29_secure.toml": "364fe81bb5c612474fadff225c01c479e23d51c0b650d12bbd4e2f195a6504e6",
+      "crates/flock-core/configs/ligerito/m29_slim.toml": "bd5802fe7d573fb10e5e94b6fdaa9c4f12e2c5e1861ead0732a0593ff4bce177",
+      "crates/flock-core/configs/ligerito/m29_slim100.toml": "172b307e7e8448c8d80c0526be02c2b98b6a5638a80f059e0e458a5934ce995f",
+      "crates/flock-core/configs/ligerito/m30_fast.toml": "e85a345667f9a78e07d206faaf6bcb36964203a547046fa339029c9b7cd42ecb",
+      "crates/flock-core/configs/ligerito/m30_fast100.toml": "bc9e770f7990920c7b2c9851be71be68a41be0b8c1ad43a84d40ec13efda39c7",
+      "crates/flock-core/configs/ligerito/m30_secure.toml": "ad6981a78e6b26c61767ef959cc02b54357f10cdddb15f8b06d9754557f4afcb",
+      "crates/flock-core/configs/ligerito/m30_slim.toml": "06a832339543c03db677b4260ebd3ac67ed32a10050864d76c440d1610873390",
+      "crates/flock-core/configs/ligerito/m30_slim100.toml": "3bd087b7470b33b36bb429c3c88cad9851d24d721bb278321634179b999c7064",
+      "crates/flock-core/configs/ligerito/m31_fast.toml": "0cc154dcda1d1ba07cac708d89aab8cfe9a51033f7a2c9f48a833a068a9fc016",
+      "crates/flock-core/configs/ligerito/m31_fast100.toml": "e11a0c7d1ebc6daf8798704f4806f1b74871b64007fd674e7cd59849381f44eb",
+      "crates/flock-core/configs/ligerito/m31_secure.toml": "862308ba48a0d78317686e69443078b4d004f775b97ba16dbf18ac88b71839e8",
+      "crates/flock-core/configs/ligerito/m31_slim.toml": "86f5b535b564d5c883e972a458d5403f04c5e30646f1bc6daeace8f1f0967d61",
+      "crates/flock-core/configs/ligerito/m31_slim100.toml": "4dfd0283d2cd66c1384325cb6b7c812dd98ca0fa94464f4571635bd8f5338c14",
+      "crates/flock-core/configs/ligerito/m32_fast.toml": "1d962b9437875238c6120904b5fed64214b630f7b26017a44a1a071f398bd501",
+      "crates/flock-core/configs/ligerito/m32_fast100.toml": "aca70654be19fe0923057dd5d2e163b4ce5742199e22c5c2a9bd002950317a15",
+      "crates/flock-core/configs/ligerito/m32_secure.toml": "b5e8105f5a5b91e2b8035ad7adb715eb03c0ed601682dba283cfed060a72fa7f",
+      "crates/flock-core/configs/ligerito/m32_slim.toml": "a32858371936c78175f457878a89947a3df3917a3dd8f6576384221ceb620a53",
+      "crates/flock-core/configs/ligerito/m32_slim100.toml": "c5b08ab773c42e4c130b5f194170c6a24ab0e70ae0a35e8d7d2b6819f7178e1c",
+      "crates/flock-core/configs/ligerito/m33_fast.toml": "18d6fb75f679b2fd0ca3b5b154d8357980ab809409fce98944c9abd3c65a94e5",
+      "crates/flock-core/configs/ligerito/m33_fast100.toml": "ac8b8f334823b40f43c820333ad269af4c081c47851c4507d83a3aa4024dbedf",
+      "crates/flock-core/configs/ligerito/m33_secure.toml": "98866426d06b7f517533204e202d462b69c5094a9a39e6c31e78c40870ea3050",
+      "crates/flock-core/configs/ligerito/m33_slim.toml": "b5b643365d45749099488f61792b1d86561dffcfc0d86a8ebdb8ada412161ca5",
+      "crates/flock-core/configs/ligerito/m33_slim100.toml": "1d018cad20db103bced6c0bc51b2fea10cc9af1f5af41cf4789084118d109e3a",
+      "crates/flock-core/configs/ligerito/m34_fast.toml": "93c285b5f2563263fff110250230b06d0663b4e9d01b315c4433ab5146082e32",
+      "crates/flock-core/configs/ligerito/m34_fast100.toml": "ad4e44dcc1c395495d5e347a6978cdcfab33d4d6c4d37740bf08903e9aafb774",
+      "crates/flock-core/configs/ligerito/m34_secure.toml": "5f276b76de1a5da4acd55dbec9505a10ac5d9de588038b4ecffaba290070d4b2",
+      "crates/flock-core/configs/ligerito/m34_slim.toml": "819d868d15907181985fa0fd9fb6eebbc38f44fd2cd3db680ce407cd90800d9a",
+      "crates/flock-core/configs/ligerito/m34_slim100.toml": "ce0443945a9c20027c004b1843d613daa61c2babb1dc0db998c5ba6cf38646c2",
+      "crates/flock-core/configs/ligerito/m35_fast.toml": "fc877fb8ca1d1c456c475374959d1f2bb63f6b256e2aebe163d3cb3203bb4654",
+      "crates/flock-core/configs/ligerito/m35_fast100.toml": "dbedb79002d09593ca551562448644bbe76f8f15963d6a2b475a964f04de6421",
+      "crates/flock-core/configs/ligerito/m35_secure.toml": "caa05a77bada156a75dd7ae8afdd14e0ca2c6894b621008a679703b941b3c5ee",
+      "crates/flock-core/configs/ligerito/m35_slim.toml": "d984135c169f81324c9d0496bbcf79933a3240ffa96bab55c9caad2775c8db1d",
+      "crates/flock-core/configs/ligerito/m35_slim100.toml": "63835d6aa42f78df3630c49a96479bf0a70c66c03b691b7b6b0e6ed4b7132edc",
+      "crates/flock-core/src/aggregate.rs": "7209c1d11b7fc5380a2e462ef98c40fe4337d7c7087858e2d16ef20e133dc3af",
+      "crates/flock-core/src/bits.rs": "ad55c45561d5c4baff3783c40f86bc4cfaba9561550e0ae8e55236bf8b1be5b1",
+      "crates/flock-core/src/challenger.rs": "774a2ebbf9db0e7cccc9a902b6eb7b42ecc86b0f864ec9eade8e5764a6ca1657",
+      "crates/flock-core/src/circuit.rs": "2e5172bc1cfd23945fdf3b42c40727528de59343d963515cd93f288a7df6a0fb",
+      "crates/flock-core/src/circuit/builder.rs": "f58c745d5ac2fa66f57aa05dee6f26ea6406c9564a281e85e6268e471262da5e",
+      "crates/flock-core/src/element_r1cs.rs": "57a3439c9bfd100ef202338177322408ad5da9b6bb69d8e178a9be3626179496",
+      "crates/flock-core/src/element_r1cs/lincheck.rs": "fd26cbbc0af25562b11ab8895c7e6bc78b8b56bff113a1bfff9abf81dff425b2",
+      "crates/flock-core/src/element_r1cs/union.rs": "aa69c00c7d008f1bd2138a855792efd7cf08e7d579ca5bf680ea488cb97d84d0",
+      "crates/flock-core/src/element_r1cs/zerocheck.rs": "20f51e9598a188ee554a7a6692d57cc03c1507688cc4a917cbf654011e9eb8d2",
+      "crates/flock-core/src/field.rs": "d53706cd458ab0c28af7920cf7d5b71333507e0cd2e819429e3db92e08958ff5",
+      "crates/flock-core/src/genus95_curve_code/artin_schreier.rs": "f9bdfed312a83ff6e4224ab7b314b57bc282e7bd7ba9a4c240d0f1b248b07c90",
+      "crates/flock-core/src/genus95_curve_code/base_evaluator.rs": "f2a21f12d685c6b370689d22ad2ea1ca548e126ca92ab9da32689f0962d02cb3",
+      "crates/flock-core/src/genus95_curve_code/constants.rs": "b092a4ef4e264fec4853d593c77c7f08527cb792bcd9a71d006533b914e2ff1d",
+      "crates/flock-core/src/genus95_curve_code/evaluator.rs": "e75f7fb272b2218827bdb598cebc7157d59cea4f5b523fbb31980e8953e9224c",
+      "crates/flock-core/src/genus95_curve_code/field.rs": "9a0a7621645f23e9f8d3d9c4d6b66c9cef2c80cdacadece348340b68a8c90cd4",
+      "crates/flock-core/src/genus95_curve_code/messages.rs": "8f9fec464756a6894adbeb4cfa90fb0aa07e0e726ee6f2c301f8913671d23a8d",
+      "crates/flock-core/src/genus95_curve_code/mod.rs": "e4f93da9e78beec608f1e9b0a0244fc43f537c01efea965e64df656d48e49d7e",
+      "crates/flock-core/src/genus95_curve_code/product.rs": "7d97eb9b7544bce1493cd17bdc4a0ec7fceacca14a083eb98427f94e85f81c2f",
+      "crates/flock-core/src/genus95_curve_code/rng.rs": "805c82fb733ac05175161b4ca549e226e9cb29db68c1faa25ec72fb834472381",
+      "crates/flock-core/src/genus95_curve_code/round1.rs": "2c0396ce7ff6f01065a0dfcaf0aef2ebda54aad467d5b074c758538860cf15e8",
+      "crates/flock-core/src/genus95_curve_code/sage_data.rs": "fe732eb075badf2992ef93c0bae80747ce5b0f28cb70d9d93c4684122f45476e",
+      "crates/flock-core/src/genus95_curve_code/sampling.rs": "8c5bec6915a19e8df7cb83b670d72d6d1016d11e1876ef818192fcf922c87eec",
+      "crates/flock-core/src/genus95_curve_code/slp_derived.rs": "54fd664f58d8bbf1e7d0829a23b2d2a64faad644c248d8902e3507c9206c6af2",
+      "crates/flock-core/src/genus95_curve_code/tables.rs": "6ac5ee3fab67e15ab42b5231f33da56fcdfa3dbc8d6c5174d2e0ac076f5119d6",
+      "crates/flock-core/src/genus95_curve_code/tests.rs": "d7dc17979ad2b4651bd355bb9b67577b30bce3f94d84da322656ac4582cfe2c8",
+      "crates/flock-core/src/lib.rs": "4a92341d88bb8faa441ec4c1b81fc06243fe2f9fa4894378f44a5edcfa2e75aa",
+      "crates/flock-core/src/lincheck.rs": "b3a2a374ca50444a93d47dbcc0eee8a876a995156924ae282c6b9c0ce6a69595",
+      "crates/flock-core/src/lincheck/kernels.rs": "4061391d8eb94f824b8716838f83ed805be6448d719ce4dde2fb8bdd0db160b8",
+      "crates/flock-core/src/lincheck/kernels/aarch64.rs": "be1835e07dff84a3ff8c907b8c8468d5b9b3fb210bbe8d4c54e4155c1223281d",
+      "crates/flock-core/src/lincheck/kernels/x86_64.rs": "b2ff55383898a9c1dc7a4cb5d9c49fe479a71d20659b5b485f78b24d439d7653",
+      "crates/flock-core/src/lincheck/union.rs": "a904d73f64e5c55c277fd3c524591609e6b11e9b925b75d975784fe79fa50416",
+      "crates/flock-core/src/matrix_fold.rs": "dbe88aa17633574fce08cfa560d010eece96216b46e5492b88f500f15149bcb5",
+      "crates/flock-core/src/merkle.rs": "9a0bd0c5fc7ff5eed688c3f7e43a2c926bcc4886f48e8b751bb2d2a59d20a401",
+      "crates/flock-core/src/ntt.rs": "73531f49f58c20dd62667cc1e11abf64c84e45c42282a31d721777b046b2b1de",
+      "crates/flock-core/src/ntt/additive_ntt_f128.rs": "f6e4e123302ac9bce4125718329b6a95f14b007271f0b416589ab0257ebc7fb6",
+      "crates/flock-core/src/ntt/additive_ntt_f128/kernels.rs": "d13af97c55ab7873fde75e87e2245d5888e183f9eacf1a2907d27bdd00884f13",
+      "crates/flock-core/src/ntt/additive_ntt_f128/kernels/aarch64.rs": "d51557bcd016084a797f4d8413d33a281ddcc52aa3ef81e1e304dc65e834b596",
+      "crates/flock-core/src/ntt/additive_ntt_f128/kernels/portable.rs": "6341d554584b72dc38d2d4633745ffe276aec3e01e943440226a8032f04b3c2d",
+      "crates/flock-core/src/ntt/additive_ntt_f128/kernels/x86_64.rs": "e94b37c64947566246e3786d6793c1c86ead61b772f53426ac67014295e85b6d",
+      "crates/flock-core/src/ntt/inv_table.rs": "51f7f5370cd6e0047a18b90374a9f758904123541775e1acef9f53abe1b4407e",
+      "crates/flock-core/src/pcs.rs": "0b9f85c9ff3cec566f53d6712cb4a0461a8fbeb41762868ee725224ed093a1a7",
+      "crates/flock-core/src/pcs/commit.rs": "f034f83a4f52b7da607f5d14dc6d9e70d1f56abffa177b2537ab4ade819b9151",
+      "crates/flock-core/src/pcs/jagged.rs": "2bb38d7a48054b0142b10778e1265d7984d1fa85abf250a9a1ed3de3ad4bb600",
+      "crates/flock-core/src/pcs/ligerito.rs": "165b55459217b9c8527471b7f51cf3b1ac7eea88bdcb39e5baab9afede48e01d",
+      "crates/flock-core/src/pcs/ligerito/extension.rs": "f732a9f6d7c5a5baa0dace6f5928426c303de78b820186c7651edbb617272461",
+      "crates/flock-core/src/pcs/pack.rs": "10f2ee968c5660d7c83fb03e98a49ef8a9f9d2706a3365bf716a5cfa10fb4637",
+      "crates/flock-core/src/pcs/ring_switch.rs": "43a90f9a0eaf99473461d02ff7405e8fc04be85e0d3aa45b1acac1561de08de8",
+      "crates/flock-core/src/pcs/stratified.rs": "e7fac3d948ddf99c444e020e42573c6ef4df6fc92ec53682e4872ba7266467a0",
+      "crates/flock-core/src/pcs/tensor_algebra.rs": "7b9ab9442392f1cb42b3a6d9c8f4f8905a66a8296901a02a45a0e8a5269fc6cc",
+      "crates/flock-core/src/product_gkr.rs": "febd9db0bfb5c8e335f876d0dac0d9c6c502a5bf100255c75caa0fac61ea65ca",
+      "crates/flock-core/src/proof.rs": "582ae613a4429bbd493d1ed3331c9103e276aca3d04af60a39be628f7cbce490",
+      "crates/flock-core/src/r1cs.rs": "dcb6e2287b97262d5dc08092138a782e4e00680920df48f5cda4b702e17db04c",
+      "crates/flock-core/src/schedule.rs": "16a438e0d60f5278a63792f4b9cb97bc1fb812cfc086068ddac4cac95cb4ccb3",
+      "crates/flock-core/src/scratch.rs": "db82d7c4e4c1eeb95b19db4d88bc766a04441c065b17747e127112486d4ae6b4",
+      "crates/flock-core/src/suboptimal.rs": "a0b0a90b53a9a2970cdf6f78628bcc7d0c0410c1b362245833e7473c344f693f",
+      "crates/flock-core/src/test_rng.rs": "c2d5429b16aafc6b1070fd1a803fb46bec752f9852f3fb7720e5974dd51416eb",
+      "crates/flock-core/src/transcript_record.rs": "d2e490fbb9e8bc346639cb935b4f09af6bc512da24c5287164a98fa716e4ffd2",
+      "crates/flock-core/src/union.rs": "120ba4e2449589366c01e5455732b29f55810016bce1fea023c8f49db8ba7c47",
+      "crates/flock-core/src/verifier.rs": "57cb7081f8e80b193a07e7111da45ff6a27be36ffe2981d889528e5d3d9edfb6",
+      "crates/flock-core/src/zerocheck.rs": "638c26d89f3d6c235b8a30fd0b4d25f0ba0ec9416afe0964e7a72b0165f09bb4",
+      "crates/flock-core/src/zerocheck/ag_skip.rs": "ac56e8f7e4775202d8af68bcefd6079fe657d59f73dce1ba169073b8520adb14",
+      "crates/flock-core/src/zerocheck/multilinear.rs": "c235c588982b45fb1adbfb76b4562bbd9962022bdf5374d5b137c96c70acde03",
+      "crates/flock-core/src/zerocheck/multilinear/dense_skip7.rs": "6b22a49199b8339b0a61c30bb651347cda3bfc5293580bc738a521bf1ed87c81",
+      "crates/flock-core/src/zerocheck/multilinear/kernels.rs": "e8f28ab068e4b2ea22042e6af6144e1dd3b594c1a34c534edce5dd964d402280",
+      "crates/flock-core/src/zerocheck/multilinear/kernels/aarch64.rs": "9bf1bd9db3f05967d31c5400d0ce916d5a7c4488f330abf5c0efcf45bab7e992",
+      "crates/flock-core/src/zerocheck/multilinear/kernels/x86_64.rs": "a1dda42a38e3e7cd887a433d7a9cc72817fc3b94f0e9229233379195491d0409",
+      "crates/flock-core/src/zerocheck/univariate_skip.rs": "d173e72a2549233f84319877bcc34d490485af0030d80126b31a6fc1365a05c8",
+      "crates/flock-core/src/zerocheck/univariate_skip_optimized.rs": "a1453f4bdc8006c69acbc44ce8bfe6d8253bddeb02ad8aac289a5de9cadbdcbf",
+      "crates/flock-core/src/zerocheck/univariate_skip_optimized/kernels.rs": "44b5df656fce346121aecb5b34b8f04da3983f4e586ae3bf71e03ffc98550f4b",
+      "crates/flock-core/src/zerocheck/univariate_skip_optimized/kernels/aarch64.rs": "ab178c6c66e85b54f3b9fa9c4ad1d500529d71cc7f1364e8f46129cc3852a9bf",
+      "crates/flock-core/src/zerocheck/univariate_skip_optimized/kernels/portable.rs": "b8aedb68918a6cc0991fee69141ce83ac45946a19415bcf7fa76e86910210819",
+      "crates/flock-core/src/zerocheck/univariate_skip_optimized/kernels/x86_64.rs": "a4eba053c1823fb96feec3278ac347d0c6256655a747a196452b98d576e95c86",
+      "crates/flock-core/src/zerocheck/univariate_skip_optimized/skip128.rs": "57e62d3485475df9c6e7cc2a15614fc7f4cbc3d0bee9d997dfc90b6bf0255ad7",
+      "crates/flock-core/src/zerocheck/univariate_skip_optimized/skip128/x86_64.rs": "9fa0ad1d7975a7911fd3ceba68ffe239b23dde3898c29d601a8fb9177b114347",
+      "crates/flock-core/tests/assist_blocked.rs": "7122f112a53403f7f0ca23ac3fe9352612f1e8f53bef9501fec3b0e71bf13dc9",
+      "crates/flock-core/tests/jagged_fold.rs": "f6931d2b05f543471cc4e02d74ed2a3d94e3d2cbf4756cc8e8854861ab925e2c",
+      "crates/flock-core/tests/sigma_route_b.rs": "42bc659e84a79d2c6f11cd3e215136db7a619ae47369518e466edb61e19631c5",
+      "crates/flock-core/tests/union_lincheck.rs": "e31e0bb89e07ffa1b84bfe57a659e881ead9828d24042071522795dcea485163",
+      "crates/flock-cuda-ffi/Cargo.toml": "13ccc49e36d444a842e078510376aa68e72f96bc7351f33485816ca71aedf477",
+      "crates/flock-cuda-ffi/build.rs": "9985845f9b0abd030152c425fa8e031db53fa5b1e4f3357b9058fd555fbfd481",
+      "crates/flock-cuda-ffi/src/lib.rs": "2ff559b4289589b2f0ea8079e029638244cb5e4f7e78e2b39202dd89e9ca4aa8",
+      "crates/flock-cuda-ffi/tests/gpu_roundtrip.rs": "39ceea6c95f280f871fe28cdd200980305ed2f7c0c91a426033eaa57efabde17",
+      "crates/flock-field/Cargo.toml": "2c1eaa9405b5cea71ec77f6143521062d92d9064cbfb5738a380b69f8f5dd1d4",
+      "crates/flock-field/src/f128_slice.rs": "937b06dde3830c59235b98f42af246350377dd384d2ebed3756eaf059fe7dee5",
+      "crates/flock-field/src/f128_slice/aarch64.rs": "48f549ec7f268dc91119c967ff70df2267f6b4bfec2bb2570759264c3b6ac52f",
+      "crates/flock-field/src/f128_slice/portable.rs": "dd5f9a89f8d6f358c00b4842300ed6789711e87f568f36963278cdcfe0e3eff3",
+      "crates/flock-field/src/f128_slice/x86_64.rs": "d9a7ae333c5bd3602541d35131675e13f90669df643a539415e769008428a0ec",
+      "crates/flock-field/src/gf2_128.rs": "78f6b98e447969f2c1f80bb9aac7b49dd382595202fca477d80f68545b231246",
+      "crates/flock-field/src/gf2_128/aarch64.rs": "e004bb403258b11ddf5417f325d7b107df035952f394419cdbd9ddfe9d9aabda",
+      "crates/flock-field/src/gf2_128/portable.rs": "0319e133a5ae47bb465ef2d1b835e2477453ab1c74fca3c198547234c00327c4",
+      "crates/flock-field/src/gf2_128/x86_64.rs": "4a14ab58fb4709f3c066b0942949dd0d09301b91ca67b50b8fcfccb938d9ba97",
+      "crates/flock-field/src/gf2_256.rs": "2afa62a5f6056c651ec31567d166fe894883bdfa17fd566bf06f47f56e4da864",
+      "crates/flock-field/src/gf2_8.rs": "031d32f883e0021c201bb8219f5b987c3a703ecd56a70dced5d73d46c9314714",
+      "crates/flock-field/src/lib.rs": "e8d632a54df3a700a415da7105918ac4b037cd81710889f0b363254dbd5e87ef",
+      "crates/flock-field/src/phi8.rs": "442fff740ad2371e980a684e93a070b5b858929531b0ae5a0f7f016c2f2ecb9d",
+      "crates/flock-field/src/test_rng.rs": "d9615a97bb4ce2b53ce8f1a5d59ee653868f986c70c4d26fbd7917e28461cab7",
+      "crates/flock-hash/Cargo.toml": "890b2ff48a949038f62a99d0df71edf80d1722fdfb413f025723f813526ac192",
+      "crates/flock-hash/src/lib.rs": "562fb52b44628ddb36bb3088da3de6ab8e9441cadc7f1f6aa6b5369d16cab67e",
+      "crates/flock-merkle/Cargo.toml": "4e484a0115cab125f3048ec27065bc82fc8a4e70b52d79d56d358bebc41e4497",
+      "crates/flock-merkle/src/hashing.rs": "5c89b68da1939c2b4a0afe1fa8bab724c2e4f9384814f514bf6388e5a39df957",
+      "crates/flock-merkle/src/lib.rs": "239ae0cc18e45ed8d1500598af30a52cc3140b07ef3b85d72ba56884cb128169",
+      "crates/flock-merkle/src/merkle/aarch64.rs": "ef8947e99e7f40223a73b357235f9d2abb0243f1c0d81025f94325afe2e2eefb",
+      "crates/flock-merkle/src/merkle/blake3_neon.rs": "7c532c489c6a2e83cda67766dc07d8e5b629d84af9bf7be152bfaeefdea88546",
+      "crates/flock-merkle/src/merkle/x86_64.rs": "b8161726c0e5a6a8acb2c3ab820a23865631102829429eeaec8e6235f80b691b",
+      "crates/flock-multilinear/Cargo.toml": "13011ab4fe524da784b7014abc7a618d69153fc766ad670d0c93d5f3a4c5e2cf",
+      "crates/flock-multilinear/src/lib.rs": "05392fe2930b2ceb62cfdd96d2ad88ccc421b32e8564752ac4a76c1210d1f304",
+      "crates/flock-parallel/Cargo.toml": "18e091bf25ede2887a396f04b79273492a8c7149f3400a95b1d57f32e1f38c36",
+      "crates/flock-parallel/src/lib.rs": "7c570cd4464862173c5078b65d990bdbb617dbd16050d0ce57bb1cae0bab9bc2",
+      "crates/flock-prover/Cargo.toml": "072e81285dc8adc88b2ce730dd57de76ec0f930769e067f0ceb42660727f7f35",
+      "crates/flock-prover/benches/ag_breakdown.rs": "376b8b6ef6d32429531a6cc31b3b0a8484d96c174c7e31dac2f6a14e1e56c76c",
+      "crates/flock-prover/benches/ag_e2e_zerocheck.rs": "f8389ea3979acd8f409dad205b80b5d3cf5751e004760c06288b98a792a760a5",
+      "crates/flock-prover/benches/blake3_fast_vs_slim.rs": "5961cb98b9a0f5f15b1191b19c9b8162f4a76ae6b2953da46c8b9203989579e5",
+      "crates/flock-prover/benches/blake3_native_chain.rs": "9b7be223a837fac0a87cbb1f9f0873f34e0b25ae5b4a29823b4df905495ab6ea",
+      "crates/flock-prover/benches/blake3_proof.rs": "ea8a6220934b4ca2fead28fd4dcc89d6886aa4cd3b966045fc3c788e027e71a3",
+      "crates/flock-prover/benches/e2e_zerocheck.rs": "98f20a0223f6252007ed6264406664797c8aef7946fbc5060757bebcb821f64c",
+      "crates/flock-prover/benches/field.rs": "fb1417a76e05cf81acfe8302375aa4976c7dce4110bfdabaf56265053e1de954",
+      "crates/flock-prover/benches/fold_1b_rows.rs": "362c3e9ea27d21adf2f798e26fd108816f08a282e5c11ed36823d5499536d2d6",
+      "crates/flock-prover/benches/fs_challenger.rs": "7f9841a4c1560fe52cc6f68d9b3ec479404d87b1b3fa866c46d50b962a421af6",
+      "crates/flock-prover/benches/genus95_curve_code.rs": "5532d06dfb5fb2e3d005054e774566e2b877964e9c58d247ce749f16a38d94e8",
+      "crates/flock-prover/benches/genwitness_phase.rs": "bc10573c47180464b7d4146f3c8a58faeabf2e1f60dd193960cf1ee452319029",
+      "crates/flock-prover/benches/grinding_sha256.rs": "a69eb2f76ea61b961013cbb0fba08329b9b0fbaf134ff010c35201b639d58678",
+      "crates/flock-prover/benches/hash_throughput.rs": "530163529db2ed17deedecd78ddb66caec240c70658dd88aea6e136cefd82d0b",
+      "crates/flock-prover/benches/lincheck.rs": "8f45bb3b888fb9ec670c9c7111723eb32d2766c1605e86915862032b9cf30941",
+      "crates/flock-prover/benches/lincheck_verify.rs": "95a9806f20f98578172c094186a64c4a9646fa11917bdb84e0244c4a1d85fa4e",
+      "crates/flock-prover/benches/merkle.rs": "467b6a59e4aa96a595c0197fd07477787a0a3de55c60af09882c5d13ca015471",
+      "crates/flock-prover/benches/native_hash.rs": "37ffa384080389487615b40db23f4d2aa5625d75a923ad5fef6a0aab5972b091",
+      "crates/flock-prover/benches/ntt.rs": "08f77ac0a62878f0fc4bffbbde3e90710effc6592d34b603d26435dc33f8556c",
+      "crates/flock-prover/benches/pcs_commit.rs": "2a9d371e6bfadd2d5e0780e6b437c1251ddbb6622b99fb195e8030610fa6a87a",
+      "crates/flock-prover/benches/profile_prover.rs": "cf1f97b187dc538e9b3a915ee4dbc1bd4186a429d8cbf2f3d9b903f3d5119cc8",
+      "crates/flock-prover/benches/round1.rs": "471619e47da69449a7c8a16d98a652b3fd1da0ca1808256c357b2c01cc4610ce",
+      "crates/flock-prover/benches/round2.rs": "834c1119c6a687f390e7f06467f0bbf131b87247c0dbd7f04b9973e1e28614d4",
+      "crates/flock-prover/benches/rounds3plus.rs": "0ade94d28c03d898a67ef56c68be12d950cb0330e45207e75f18e8b2727bfac6",
+      "crates/flock-prover/benches/sha2_proof.rs": "2cb00725d529de1070ee093e58572c326a7aede3c2cb42b147bd6f3a9601289d",
+      "crates/flock-prover/benches/verifier_hash_count.rs": "050db99068dd8d9d9115196109e7489727e5adcc8c23ef147a7ed0e13f296456",
+      "crates/flock-prover/benches/verifier_mul_count.rs": "8ad60f3504e911c573933d5396d7d9af931267767ee5e6408baba273a73b0a79",
+      "crates/flock-prover/benches/zerocheck_phases.rs": "8b677c469b7db15b75250450ff5bb143d2b1c1214807223519bf8c72d06090d2",
+      "crates/flock-prover/examples/gen_ligerito_configs.rs": "c2fc9d655b95285c07ba5b1abd55b68de1cf9da003128f7404568579e0f23019",
+      "crates/flock-prover/examples/tower.rs": "de5e2bb1a189140a19d31591e2d08d5e4f38b83fc560d7e0697983c4f8f60b37",
+      "crates/flock-prover/src/bin/dump_blake3_lincheck_matrices.rs": "edc91e42e9cdd84c2ce03960dca1b366c417e1cf735c08523f4eb6dd025c7b92",
+      "crates/flock-prover/src/bin/dump_blake3_witness_vectors.rs": "e08445e9b2b3d8779d0b7147d2155e2d992e45911a6dbf2b95445c0c26c84593",
+      "crates/flock-prover/src/bin/dump_challenger_vectors.rs": "bb341caf764e167e93271d9f240b38eb74a27ced240f877bf85759b46663ada4",
+      "crates/flock-prover/src/bin/dump_commit_vectors.rs": "549339b2d05809d01d293fe4a8e389cf05f6a24e4aa33cf392c491ca40cf460f",
+      "crates/flock-prover/src/bin/dump_common/merkle_octopus.rs": "b3d052c0fc4a6088699decd3f3262f63bbda90576daacf5308ce9e965f184b61",
+      "crates/flock-prover/src/bin/dump_f256_vectors.rs": "87bf975a889412a557ca8947755da851570172b817b5ce2aec072c4263c757a4",
+      "crates/flock-prover/src/bin/dump_ghash_vectors.rs": "c12be6a9163f16346fd2091fe3a938c674640811e9f21abb3d1e159658b04270",
+      "crates/flock-prover/src/bin/dump_induce_vectors.rs": "5b9a77922ea401ad1d444265842f34eb15c1c85be804aae19c353d1a502928b6",
+      "crates/flock-prover/src/bin/dump_introduce_glue_vectors.rs": "0b05aa5a16a850ccc19ac8802ded517a5b7ce04f73e3dbb988a17f9e98bbbf96",
+      "crates/flock-prover/src/bin/dump_ligerito_f256_vectors.rs": "67fee3e783c44d044c3a5b1cf05cb72cd89d69c95b777f78bfe572d408db7adf",
+      "crates/flock-prover/src/bin/dump_ligerito_l0_vectors.rs": "692a29f4099b086654b227027e463a92620fec272529cc9ad95cd27adc73e0ce",
+      "crates/flock-prover/src/bin/dump_ligerito_sumcheck_vectors.rs": "81fd3e228c38c179782aaaddad5fe4ea36e753bcf5d0f856dfbdfe3e4659b909",
+      "crates/flock-prover/src/bin/dump_lincheck_vectors.rs": "8713575d4017eef54a578470c7b0127f2c33d9bbd0f176ec0f1cd6c139a351cf",
+      "crates/flock-prover/src/bin/dump_merkle_open_vectors.rs": "283ede4cb9542e00d7b616633fdcc858af5f7622d6cdb0e7f22935d9f249373c",
+      "crates/flock-prover/src/bin/dump_sumcheck_prover_vectors.rs": "43656a9d36e3a12bfedee1c0e0a80922df331f1d7fd65e1a64b56f8494d61f9a",
+      "crates/flock-prover/src/bin/dump_sumcheck_vectors.rs": "c7d4441a06c8f4464c94db914470489336101a87010435659273dcbb752c45aa",
+      "crates/flock-prover/src/bin/dump_transpose_induce_vectors.rs": "d3637a68e6fb1268e80a7d44724063efdb5acb9a59d7f3cd29fe89e3a812a052",
+      "crates/flock-prover/src/bin/dump_zerocheck_full_vectors.rs": "e4ec2a9a763723b79333fb514885321950cda781eaddab5ef9632bd9de7e56bc",
+      "crates/flock-prover/src/bin/dump_zerocheck_round1_vectors.rs": "1b8df0b4c38338a7ea9d115814193a08d7c14bf4868a4a40691154b251256e26",
+      "crates/flock-prover/src/bin/dump_zerocheck_round2_vectors.rs": "3642ec1f09b10b9806ead9e1b3df8375ba9bb0000b73c47bb6cf0dd0df4bfc8f",
+      "crates/flock-prover/src/bin/dump_zerocheck_tail_vectors.rs": "c15282d25927036ba1d8ce46a67274d323d72e29430c9d7ca4d0360267d66983",
+      "crates/flock-prover/src/lib.rs": "6c54edbbb80989b83b249503b3d840fdd595e0d80d5f4796156c0c3ea80ebd7b",
+      "crates/flock-prover/src/mixed.rs": "7422c1b44fab03804390968c6a2083305d8c07f1bd5d6d780cbe61db0f5741c8",
+      "crates/flock-prover/src/proof_io.rs": "2f3ab48f8951d237db182b4897ea2d8c2307aa711f29297ff3d9919ec05d12ad",
+      "crates/flock-prover/src/prover.rs": "e9387ebe5cd60b5c41edb4509c8810b2efdb3527358f47e905ac173b1b786b03",
+      "crates/flock-prover/src/r1cs_hashes.rs": "48328bcd7301b59ace756103d7aec56e9945d4c0b39bfafdc26907e3718eae78",
+      "crates/flock-prover/src/r1cs_hashes/blake3.rs": "86c0d484e4e6ac215328105eb2430d18d1be4c690e747375cd0086ec1a820792",
+      "crates/flock-prover/src/r1cs_hashes/common.rs": "61be102b5b5c093b40052b3212753ab20277fe70eb86e97829f01b4421795124",
+      "crates/flock-prover/src/r1cs_hashes/fs_chain.rs": "803495945707c02c47c39e827cf10c135b951180fb9592af13a48b2b87420c0e",
+      "crates/flock-prover/src/r1cs_hashes/merkle_glue.rs": "ea2d8cd7301fe05ab5bd504951fc7a0af668653753c16c5c56aa04c6f0dbdd46",
+      "crates/flock-prover/src/r1cs_hashes/merkle_r1cs.rs": "ebe636d0ba76c3f2f6de2864f5c5db97b5d825d585f964e476389cd10de1081b",
+      "crates/flock-prover/src/r1cs_hashes/sha2.rs": "b07bccdbeb1e98cd51279bf714f4dec8199ebd3bd8a5fe3aa5bc3b5c9ef11734",
+      "crates/flock-prover/src/tower/chain.rs": "de52dcf716817eaee525c6345829ceb45b5c6a62dfbd89104cbc4856f727c518",
+      "crates/flock-prover/src/tower/child_walker.rs": "be4c06eaf34c717174a2222f0dd7c076535b133264f80585bb4f234c36c094ea",
+      "crates/flock-prover/src/tower/config.rs": "c9243f70227d070a7b962cd6ca3c8205a997ee9be38ab442754bf7f4c4fb7c19",
+      "crates/flock-prover/src/tower/driver.rs": "3fc474f8837b04a5cdd1ab005baf84f891110fd6aaf6a710c29d6d730fdef503",
+      "crates/flock-prover/src/tower/e2e_tests.rs": "91e622766c738ff6b987e3938de6df11076ecd25340c5bd2b34f3e387b006942",
+      "crates/flock-prover/src/tower/envelope.rs": "dd6f0fd3ef60c9fa6effc54d7570110f6629fb281a3bffea88d19d29d7553838",
+      "crates/flock-prover/src/tower/fl_node.rs": "adcb8d34c92d1c432d5497010d242866312746005b074ea7e96de6245b7624c7",
+      "crates/flock-prover/src/tower/fold_region.rs": "7f81edf16023c84b47fb98e9feb5fc299ff0f3b522c9841993020e82833cb4ab",
+      "crates/flock-prover/src/tower/fs_chain.rs": "a785c1f92c3354a45ce7a5f3b584bd08e4418cfd3fbbf7a65525f898e5cd8beb",
+      "crates/flock-prover/src/tower/gates_blake3.rs": "f23f9f06a24c91044e433690b3f626f595718d58312a79cf9eb828c147906907",
+      "crates/flock-prover/src/tower/gates_glue.rs": "510189268090bdd943121a7fb42296a72a7ace601c6946790da2ecc49b9a7c77",
+      "crates/flock-prover/src/tower/gates_leaf.rs": "0ba90e874bcd2b966bab148bb27e7377797ba928690cb0b56149ccc326ce5b79",
+      "crates/flock-prover/src/tower/gates_spine.rs": "4fddae35d7379756326727d0c62be3a9d451f3d3b9526b399069e3a819a78821",
+      "crates/flock-prover/src/tower/geometry.rs": "0fb3d0de22c9476d7d44c250f8dc3d6defe0b9d936f63fd9ae47e24191ca4ff5",
+      "crates/flock-prover/src/tower/gkr.rs": "5826a91c1aca6656c7899ef4868178049aa44f40eeba94384a961eb4218d6780",
+      "crates/flock-prover/src/tower/mod.rs": "eb0a810887899c65d2401895669c1bc4f9e6aaa8879ea24f736040f2ea15acfd",
+      "crates/flock-prover/src/tower/node.rs": "31052591c0314a7a3f802596419a9206093a47f94f7f1d45919fc69a79c77122",
+      "crates/flock-prover/src/tower/online.rs": "644218419fa06dd390162cd964fed72340408989b057ebfffb60abbb16ac5b9f",
+      "crates/flock-prover/src/tower/query.rs": "b39e22d8ce73c00627021d3d8291325d0347a6b3c2b33de6141cc8ecdf8b4c05",
+      "crates/flock-prover/src/tower/real_walker.rs": "d699891d35e08174ca09cc5612ab212eec89184cd6bfa0169d8460137f1a5311",
+      "crates/flock-prover/src/tower/tape.rs": "026776e720593bc895823ca5572e2ae2325155e7f019f1edc55f0d5e2b236901",
+      "crates/flock-prover/src/tower/verify.rs": "567b4a059f6c53d60b579e92d5b62c37aa8fe636302e5677d63704aef766f0fc",
+      "crates/flock-prover/src/tower/walker_common.rs": "068f7d15974739f63acd104810e0c308d65c2f2f43bf1fd2e7549d832d002ad4",
+      "crates/flock-prover/tests/circuit_assist.rs": "48f8302707f744bf2aba218c76aa82b50239ded0c78280b172474482efef4595",
+      "crates/flock-prover/tests/circuit_builder.rs": "f5bd56e57e9322a6ea499787c4397c6d28a1029c56173240a2a8c336d5d6b443",
+      "crates/flock-prover/tests/circuit_wiring.rs": "cab488ca9f0cca5e88814bbf8edce02536781e31df06883764794c254f99756c",
+      "crates/flock-prover/tests/factored_basis.rs": "d30f4a10c1564164697707dc979f3d6304555ceb3781c6e5ed0d6299a6ba5d8a",
+      "crates/flock-prover/tests/fold_lookahead.rs": "11f75b06c32591603828498dabddf08e4adc8ad7f0c76ac20ce8213bacde541c",
+      "crates/flock-prover/tests/kappa7_probe.rs": "2b55c180f2a5e25d1f1c1c3b7e6ddf45752d9c9c44c8da5c0a416ff35870e54b",
+      "crates/flock-prover/tests/merkle_glue.rs": "4392ca6bbcec1bd15598b4ff76f89c127a4256da9d1aba13f599dd877e3753a8",
+      "crates/flock-prover/tests/stats_ladder.rs": "d8771d84707eab086ae83ddd1281550ef93264fd371f57dd3c3c09429af223f3",
+      "crates/flock-prover/tests/transcript_shape.rs": "b49d46db53b1d2d41bafce9aad404b5767d532e1cac4ce4e911b710b2d0510e9",
+      "crates/flock-prover/tests/union_element.rs": "0412c137df08bc6daf9b7c5629d781d617b5125a823b346fd73da758df214673",
+      "crates/flock-prover/tests/union_m6_fixtures.rs": "ccb8255d4f7dcadaa3b3a5fcc61cbbbe397f2fdc98144a04e7e590b7f83ff969",
+      "crates/flock-prover/tests/union_mixed.rs": "a592f57e36c880641e8453ce9ef2c6797268103467bd37a05b9849d71ead0471",
+      "crates/flock-prover/tests/verifier_roundtrip.rs": "96a4be136f7c1740f4c8658ef2b0cd70ec87a59026916e7ad8b2181d9bd6c5c7",
+      "crates/flock-prover/tests/virtual_b.rs": "6540d9bbe07c2cfe33342c79f1e91f80a8679a543a616ca9061e48364d51cffe",
+      "crates/flock-transcript/Cargo.toml": "c0dbb4b78bf06fe78ada6e304267b615d3b853e9058f0eac8ecf83f717626a84",
+      "crates/flock-transcript/src/challenger.rs": "32f97b0babd31abe524ebfb3eba002cef5770b1b46bdf4200cadf9e59dc3e54b",
+      "crates/flock-transcript/src/lib.rs": "f515b95d892be7161de5f2d06e6d4c9a27e4b33a3eead74b2adfbfc7627759cd",
+      "crates/flock-transcript/src/transcript_record.rs": "84d81eac65a17e57aa7ebde17d48631a591077bc8c3de5ca62894d65fbde3374",
+      "mikros/Cargo.toml": "afa5ddd089046a8aecda327974a70e13ee59b4b98e01a44a41c472ac473e09b2",
+      "mikros/benches/hadamard_vs_flock.rs": "bab7b55af0389630ae545bb4faafd65460c7d87f203064981f5d46b8621e0383",
+      "mikros/benches/univariate_vs_flock.rs": "f184219e3288c1d1c4e412251f4dbce540027b9feac80720cd5434c44bef2ad3",
+      "mikros/build.rs": "898bc3a144f1779adeabd6efc00c5cc3349bfd91af858f7e791a452ffd5f1d7f",
+      "mikros/server_experiments/run_server_64.py": "b4edddcbc5b680f868b72c4b8febb4cce583c50b43085281cdd16da98d7e695e",
+      "mikros/server_experiments/run_server_n30.py": "cef86eeedde4bef31763253328fe886c2e70fc689c2055913e6606c3d420aa37",
+      "mikros/server_experiments/run_univariate_64.py": "50f334b25eee49f29501a7d9108fa73487961946b38870981d4ca58dae1bc63d",
+      "mikros/src/flock_baseline.rs": "b557533a24a19d75e9eb584f114c64439e5d4405233b90a9dea4c298d2074464",
+      "mikros/src/hadamard.rs": "f5c419222bc80245e7796eb973ea5104e74a3e8a260ab85c0acd26556ccd4678",
+      "mikros/src/inner_product.rs": "39ea88c0c9b8221ad57d7ae6d116c6f1a73fe8ab2d2e9ff7b31f0ea902c33ae4",
+      "mikros/src/inner_product/x86_64.rs": "fa731aa808f0642d86d925785287e959a09789373dd18a94654ba810ef43adb6",
+      "mikros/src/layout.rs": "80db524e63ed64d94557459d2ed6d5ed2b2e0a2d9c1bf590b20f867e816ee186",
+      "mikros/src/lib.rs": "eb9dc5f50297e7a2df1c6b399a0c303dda7edeab18588da7e1a5345a27b59370",
+      "mikros/src/lookup.rs": "305d2c4d61678249cbacf74320bb796d99b3009a1bd4ec33d5246be4ba54b95f",
+      "mikros/src/lookup/x86_64.rs": "bd1fda9f6c2d0145cd16e08cff1b2ff75db1ed6c4979cd0f3ef425681f52e749",
+      "mikros/src/mixed_tensor.rs": "9a721e061cbe99860676dffb792ded1be99e7b02083aad24ec42adff02e0ed4a",
+      "mikros/src/tensor.rs": "69ddff1351cb886d46c9860eabf8ef800c90e173d2e6d502c00697159b8b84d2",
+      "mikros/src/tensor/packed.rs": "517a58c20c9188bfa3f2907ca78e9d21de5e80377ae0dbc7fa50a6e5a850cda7",
+      "mikros/src/tensor/packed/x86_64.rs": "a531da15b035d3d5f5b3eb8635ab2b71f895d756575c89a52c62e8f7bbd2a9fd",
+      "mikros/src/univariate.rs": "2cd6c8dbae5eabf8c715bf7b98f59125597775ff23db89855263c135ad4ed0c7",
+      "mikros/src/univariate/domain.rs": "ebd8b7c6419f1155e6bd78195d83a4750e4d29c4cf38c56c4de63d029496fc02",
+      "mikros/src/univariate/field.rs": "28f8fd9ee082da3d648df039036ada25cd49a906b706512c7c52b8a9c57ccfb8",
+      "mikros/src/weights.rs": "12b926003eac5122af5a4e9a4eae4add905f9c757a78b33a14989f9ef7a29556",
+      "mikros/tests/flock_skip7_interpolation.rs": "b8323074dbdcbe05db22eab9f32219f0cafafd64dd2d878b50761d7200ac87af",
+      "mikros/tests/hadamard_roundtrip.rs": "674b5637c1a3f0bfd5fd5ae8d68b1c0aa6f010e12ffcd5fdab17bde7ebdf2845",
+      "mikros/tests/univariate_roundtrip.rs": "602de28d930e93eb217c8e0a4f287fd0cfea9fad192347f08dc8652dd247e569"
+    }
+  },
+  "toolchain": "+nightly-2026-03-21",
+  "cleared_environment_keys": [
+    "FLOCK_ZC_TIMING",
+    "FLOCK_POOL_TRACE",
+    "FLOCK_SPARSE_GATE",
+    "RAYON_NUM_THREADS",
+    "RUSTFLAGS",
+    "CARGO_ENCODED_RUSTFLAGS",
+    "CARGO_BUILD_RUSTFLAGS",
+    "CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUSTFLAGS",
+    "CARGO_BUILD_TARGET",
+    "RUSTC",
+    "RUSTC_WRAPPER",
+    "RUSTC_WORKSPACE_WRAPPER"
+  ],
+  "environment_overrides": {
+    "LC_ALL": "C",
+    "CARGO_BUILD_JOBS": "64",
+    "CARGO_TARGET_DIR": "/home/mscong1/mikros-experiments/20260912T-native64/v5-univariate/source/target"
+  },
+  "build_rustflags": "repository .cargo/config.toml: -C target-cpu=native",
+  "systems": [
+    "reuse",
+    "flock128"
+  ],
+  "logs": [
+    30
+  ],
+  "runs": 6,
+  "main_execution_orders": [
+    [
+      "flock128",
+      "reuse"
+    ],
+    [
+      "reuse",
+      "flock128"
+    ],
+    [
+      "flock128",
+      "reuse"
+    ],
+    [
+      "reuse",
+      "flock128"
+    ],
+    [
+      "flock128",
+      "reuse"
+    ],
+    [
+      "reuse",
+      "flock128"
+    ]
+  ],
+  "profile_runs": 3,
+  "skip_build": false,
+  "numa_policy": "Linux default first-touch, no explicit memory binding/interleave; two NUMA nodes",
+  "thread_policy": "Same 64-CPU taskset for all children; both pools request 64 threads; shared server, no CPU exclusivity",
+  "timing_policy": "Main: one warmup then balanced ordinary timings; independent profile=3 is diagnostic, not balanced; RSS uses one cold proof per fresh process; all input checks outside prove/verify timing",
+  "security_scope": "Direct packed-opening PIOP; no extra column aggregation or PCS; BLAKE3, grinding disabled, no equal-security claim",
+  "verification_policy": "Each record is emitted only after verifier, claims/transcript equality, and independent full source checks succeed; each benchmark process must exit zero before its report is accepted",
+  "build_artifact": {
+    "utc": "2026-09-12T10:19:20Z",
+    "bench": "univariate_vs_flock",
+    "source_manifest": {
+      "base_revision": "b684b1258e4b1f202bec24afd660ace851b09e5e",
+      "snapshot_scope": "Tracked crates plus explicit new Flock-128 kernels, root build files, current Mikros Rust sources/tests/bench and credential-free experiment driver; excludes .git, credentials, unrelated projects and all build/results directories",
+      "files_sha256": {
+        ".cargo/config.toml": "8ea425180afe0e2fc0cd930d9a5dbd4da07aebe14263eeec4d6df9c7ab996a20",
+        ".clippy.toml": "ec1e921186f5d3b5785ff9d198d21e5c3ebd550e951ca153c53b5c35586d0421",
+        "Cargo.lock": "c2c4f22ed115c56134ca0370f39dfe6cc7266fa0818eac17e692675b0b3433e8",
+        "Cargo.toml": "630a50c1a5b9b93338882f5c4b450fee920319dbb824a3be42f1f0dc8461a5ad",
+        "LICENSE-APACHE": "1451f14d812ac78a159791bdeaafc7d400d888f60a8502790042930c1c9be7ff",
+        "LICENSE-MIT": "ed21a0d573a473913534aa8462b410c4c03d899900096bf3bdeb8fea650a01b5",
+        "README.md": "76b0b7dc0d73e8b46efb5f7c5f988e9bb8201350d1c871e8ae21cf39e1534ac6",
+        "crates/flock-core/Cargo.toml": "1dfeb37f45d26b698025f3cc86395c707a9cd7917b6284eed8aff21d432994e0",
+        "crates/flock-core/configs/ligerito/m22_fast.toml": "5597cf3b757c76d1df25f8dacc79b9e474839c0310831c1d45ed6bf7d3cc37bd",
+        "crates/flock-core/configs/ligerito/m22_fast100.toml": "ec3cdc74121a8c1ed4a598a29130720cd81af0fd01b0d09a1f37c455e88d0a23",
+        "crates/flock-core/configs/ligerito/m22_secure.toml": "8608ee4b44c7d4dcfc8b8580c549305c72bcb613cb4654d51c5ef4e27cc32622",
+        "crates/flock-core/configs/ligerito/m22_slim.toml": "7bbdd5532567b0810088ff5e2026822b5b4f8dd7e244e1e1c8247bcd39b068bc",
+        "crates/flock-core/configs/ligerito/m22_slim100.toml": "cc4ebd5e07a022788f77d54b432bbf49aed050731bc39d669ef42a1a03f7dc78",
+        "crates/flock-core/configs/ligerito/m23_fast.toml": "5dd54c210602f5ea157a2e976fac6b9923b1db3f67b5167eaf327335ab2d244d",
+        "crates/flock-core/configs/ligerito/m23_fast100.toml": "70c44d882d698aae3356e5fd00c6e89430ae83b604849558d4e0a0925e4b7c05",
+        "crates/flock-core/configs/ligerito/m23_secure.toml": "c3f52f3200d279776f19422c34ac8f602896946513536c20f64d2fed69765207",
+        "crates/flock-core/configs/ligerito/m23_slim.toml": "d48db7143501d1708219efe534030e64d914a595cb9ef81e22d691a1d128d7ec",
+        "crates/flock-core/configs/ligerito/m23_slim100.toml": "bbad3179f685e0e8f83d90d9922014a6e0c576aebd2a57c404fd75416b4e6686",
+        "crates/flock-core/configs/ligerito/m24_fast.toml": "c59ca825420155caa2e92e4740a7092e6c618bac99ac5e7d80577e3f241a9775",
+        "crates/flock-core/configs/ligerito/m24_fast100.toml": "24aeca10f64eaf1cfe7cf6a792c83d3afd41b1389ed3cfbd83ea2f79e7bf9cbe",
+        "crates/flock-core/configs/ligerito/m24_secure.toml": "fb9af4e1618ed86ecc2f050e3f2e2d7105a20c5af978bd83eb3dc5722453b75b",
+        "crates/flock-core/configs/ligerito/m24_slim.toml": "f11d7b78b7eff05d56c6921d013779fb5cc1feabb54b6055d7ed0693ea55902a",
+        "crates/flock-core/configs/ligerito/m24_slim100.toml": "2a53a4a3519f6dc8a5607bc1777268b9eac4f2f0a2be112e28e6b6dc9206a59a",
+        "crates/flock-core/configs/ligerito/m25_fast.toml": "4824d21e626a374a22073f340aebba9a9c9171f06f306660e660c61ebc254d05",
+        "crates/flock-core/configs/ligerito/m25_fast100.toml": "976141c851c0340637d131fe5c1178f556d1620a7569a74dbefbeb5535862b90",
+        "crates/flock-core/configs/ligerito/m25_secure.toml": "02d3eec665104471b622cf0bce74ec3ae430516adaa0f10a8f681ed07015f856",
+        "crates/flock-core/configs/ligerito/m25_slim.toml": "ac90ed7626fd4d8c7b1771e84e06e904c220b905e493948ece835e10f35c2aeb",
+        "crates/flock-core/configs/ligerito/m25_slim100.toml": "aa9faa2f6ea9e4310b19101c52223c887c1377c1dc5a3b436a1fe37f5e981892",
+        "crates/flock-core/configs/ligerito/m26_fast.toml": "df924f3c006f165b10056bdc78622e0fa02fb5ddd3e3bb55b53aeba60a753243",
+        "crates/flock-core/configs/ligerito/m26_fast100.toml": "76fae3d5880836af405b8b1af440c49844c411422419c0e4310bed8939240c67",
+        "crates/flock-core/configs/ligerito/m26_secure.toml": "12ab7d894fd512bc5e1ec63311987eb42809bf8f9b25afd563627d17cf377dc6",
+        "crates/flock-core/configs/ligerito/m26_slim.toml": "f0de98170eaca991e2c8b317d8c2b22539ec183cbb88de239bddfe460b300c1b",
+        "crates/flock-core/configs/ligerito/m26_slim100.toml": "553cad7e3658f812f147bd6768c80f909c3ab7dd089aa837e9907c0b9af3bdbc",
+        "crates/flock-core/configs/ligerito/m27_fast.toml": "a240f9edc51b9f4efcaa59a3aa030f67b679a38bdf23b8669129c1b522351b14",
+        "crates/flock-core/configs/ligerito/m27_fast100.toml": "182df11f6749aeb2388c7b7be0446a1aca02af43d5aea4127b0d0e458dd57168",
+        "crates/flock-core/configs/ligerito/m27_secure.toml": "f5512cef4f5fb3589c8135fd69a5b4dff58c12f2da818a59f675fe23b38b42d1",
+        "crates/flock-core/configs/ligerito/m27_slim.toml": "f801326615519eaa588cfd951434161c9c7eb12f2b93124968151bb8eb51d10c",
+        "crates/flock-core/configs/ligerito/m27_slim100.toml": "f399c516fa39c537eb683960cce50d3a2ea155373ad0adcecb739d85def77e20",
+        "crates/flock-core/configs/ligerito/m28_fast.toml": "f98c21762c12a701adfdd7e41c2dd7f448dfa3699dfcb311626def67ca6ee0ea",
+        "crates/flock-core/configs/ligerito/m28_fast100.toml": "5702bcf411677c148d28e0be76bb699c56043d16a2c50b43b19e040637a1687b",
+        "crates/flock-core/configs/ligerito/m28_secure.toml": "1ac5f2a6236cc5c14a70f1b0bdcc825b4deb59f0d0e0e2a3235296c4438300c2",
+        "crates/flock-core/configs/ligerito/m28_slim.toml": "cae8988e827dec1cd6a03482fd5aac6a85727ba67d20481b24490001ab6c98a7",
+        "crates/flock-core/configs/ligerito/m28_slim100.toml": "573ce1e4d4460bc3d62564c396ae1de0f4d60197fe14ca1424f06c27f455955a",
+        "crates/flock-core/configs/ligerito/m29_fast.toml": "a902893bc800c89e0500e9bce07b16ada43a63fc74780d5fb3542d83a6c8311f",
+        "crates/flock-core/configs/ligerito/m29_fast100.toml": "70e5b7d00919cabe5dff9a32aa3f56343e4bf71c37faba845eaeb8aab861a9a8",
+        "crates/flock-core/configs/ligerito/m29_secure.toml": "364fe81bb5c612474fadff225c01c479e23d51c0b650d12bbd4e2f195a6504e6",
+        "crates/flock-core/configs/ligerito/m29_slim.toml": "bd5802fe7d573fb10e5e94b6fdaa9c4f12e2c5e1861ead0732a0593ff4bce177",
+        "crates/flock-core/configs/ligerito/m29_slim100.toml": "172b307e7e8448c8d80c0526be02c2b98b6a5638a80f059e0e458a5934ce995f",
+        "crates/flock-core/configs/ligerito/m30_fast.toml": "e85a345667f9a78e07d206faaf6bcb36964203a547046fa339029c9b7cd42ecb",
+        "crates/flock-core/configs/ligerito/m30_fast100.toml": "bc9e770f7990920c7b2c9851be71be68a41be0b8c1ad43a84d40ec13efda39c7",
+        "crates/flock-core/configs/ligerito/m30_secure.toml": "ad6981a78e6b26c61767ef959cc02b54357f10cdddb15f8b06d9754557f4afcb",
+        "crates/flock-core/configs/ligerito/m30_slim.toml": "06a832339543c03db677b4260ebd3ac67ed32a10050864d76c440d1610873390",
+        "crates/flock-core/configs/ligerito/m30_slim100.toml": "3bd087b7470b33b36bb429c3c88cad9851d24d721bb278321634179b999c7064",
+        "crates/flock-core/configs/ligerito/m31_fast.toml": "0cc154dcda1d1ba07cac708d89aab8cfe9a51033f7a2c9f48a833a068a9fc016",
+        "crates/flock-core/configs/ligerito/m31_fast100.toml": "e11a0c7d1ebc6daf8798704f4806f1b74871b64007fd674e7cd59849381f44eb",
+        "crates/flock-core/configs/ligerito/m31_secure.toml": "862308ba48a0d78317686e69443078b4d004f775b97ba16dbf18ac88b71839e8",
+        "crates/flock-core/configs/ligerito/m31_slim.toml": "86f5b535b564d5c883e972a458d5403f04c5e30646f1bc6daeace8f1f0967d61",
+        "crates/flock-core/configs/ligerito/m31_slim100.toml": "4dfd0283d2cd66c1384325cb6b7c812dd98ca0fa94464f4571635bd8f5338c14",
+        "crates/flock-core/configs/ligerito/m32_fast.toml": "1d962b9437875238c6120904b5fed64214b630f7b26017a44a1a071f398bd501",
+        "crates/flock-core/configs/ligerito/m32_fast100.toml": "aca70654be19fe0923057dd5d2e163b4ce5742199e22c5c2a9bd002950317a15",
+        "crates/flock-core/configs/ligerito/m32_secure.toml": "b5e8105f5a5b91e2b8035ad7adb715eb03c0ed601682dba283cfed060a72fa7f",
+        "crates/flock-core/configs/ligerito/m32_slim.toml": "a32858371936c78175f457878a89947a3df3917a3dd8f6576384221ceb620a53",
+        "crates/flock-core/configs/ligerito/m32_slim100.toml": "c5b08ab773c42e4c130b5f194170c6a24ab0e70ae0a35e8d7d2b6819f7178e1c",
+        "crates/flock-core/configs/ligerito/m33_fast.toml": "18d6fb75f679b2fd0ca3b5b154d8357980ab809409fce98944c9abd3c65a94e5",
+        "crates/flock-core/configs/ligerito/m33_fast100.toml": "ac8b8f334823b40f43c820333ad269af4c081c47851c4507d83a3aa4024dbedf",
+        "crates/flock-core/configs/ligerito/m33_secure.toml": "98866426d06b7f517533204e202d462b69c5094a9a39e6c31e78c40870ea3050",
+        "crates/flock-core/configs/ligerito/m33_slim.toml": "b5b643365d45749099488f61792b1d86561dffcfc0d86a8ebdb8ada412161ca5",
+        "crates/flock-core/configs/ligerito/m33_slim100.toml": "1d018cad20db103bced6c0bc51b2fea10cc9af1f5af41cf4789084118d109e3a",
+        "crates/flock-core/configs/ligerito/m34_fast.toml": "93c285b5f2563263fff110250230b06d0663b4e9d01b315c4433ab5146082e32",
+        "crates/flock-core/configs/ligerito/m34_fast100.toml": "ad4e44dcc1c395495d5e347a6978cdcfab33d4d6c4d37740bf08903e9aafb774",
+        "crates/flock-core/configs/ligerito/m34_secure.toml": "5f276b76de1a5da4acd55dbec9505a10ac5d9de588038b4ecffaba290070d4b2",
+        "crates/flock-core/configs/ligerito/m34_slim.toml": "819d868d15907181985fa0fd9fb6eebbc38f44fd2cd3db680ce407cd90800d9a",
+        "crates/flock-core/configs/ligerito/m34_slim100.toml": "ce0443945a9c20027c004b1843d613daa61c2babb1dc0db998c5ba6cf38646c2",
+        "crates/flock-core/configs/ligerito/m35_fast.toml": "fc877fb8ca1d1c456c475374959d1f2bb63f6b256e2aebe163d3cb3203bb4654",
+        "crates/flock-core/configs/ligerito/m35_fast100.toml": "dbedb79002d09593ca551562448644bbe76f8f15963d6a2b475a964f04de6421",
+        "crates/flock-core/configs/ligerito/m35_secure.toml": "caa05a77bada156a75dd7ae8afdd14e0ca2c6894b621008a679703b941b3c5ee",
+        "crates/flock-core/configs/ligerito/m35_slim.toml": "d984135c169f81324c9d0496bbcf79933a3240ffa96bab55c9caad2775c8db1d",
+        "crates/flock-core/configs/ligerito/m35_slim100.toml": "63835d6aa42f78df3630c49a96479bf0a70c66c03b691b7b6b0e6ed4b7132edc",
+        "crates/flock-core/src/aggregate.rs": "7209c1d11b7fc5380a2e462ef98c40fe4337d7c7087858e2d16ef20e133dc3af",
+        "crates/flock-core/src/bits.rs": "ad55c45561d5c4baff3783c40f86bc4cfaba9561550e0ae8e55236bf8b1be5b1",
+        "crates/flock-core/src/challenger.rs": "774a2ebbf9db0e7cccc9a902b6eb7b42ecc86b0f864ec9eade8e5764a6ca1657",
+        "crates/flock-core/src/circuit.rs": "2e5172bc1cfd23945fdf3b42c40727528de59343d963515cd93f288a7df6a0fb",
+        "crates/flock-core/src/circuit/builder.rs": "f58c745d5ac2fa66f57aa05dee6f26ea6406c9564a281e85e6268e471262da5e",
+        "crates/flock-core/src/element_r1cs.rs": "57a3439c9bfd100ef202338177322408ad5da9b6bb69d8e178a9be3626179496",
+        "crates/flock-core/src/element_r1cs/lincheck.rs": "fd26cbbc0af25562b11ab8895c7e6bc78b8b56bff113a1bfff9abf81dff425b2",
+        "crates/flock-core/src/element_r1cs/union.rs": "aa69c00c7d008f1bd2138a855792efd7cf08e7d579ca5bf680ea488cb97d84d0",
+        "crates/flock-core/src/element_r1cs/zerocheck.rs": "20f51e9598a188ee554a7a6692d57cc03c1507688cc4a917cbf654011e9eb8d2",
+        "crates/flock-core/src/field.rs": "d53706cd458ab0c28af7920cf7d5b71333507e0cd2e819429e3db92e08958ff5",
+        "crates/flock-core/src/genus95_curve_code/artin_schreier.rs": "f9bdfed312a83ff6e4224ab7b314b57bc282e7bd7ba9a4c240d0f1b248b07c90",
+        "crates/flock-core/src/genus95_curve_code/base_evaluator.rs": "f2a21f12d685c6b370689d22ad2ea1ca548e126ca92ab9da32689f0962d02cb3",
+        "crates/flock-core/src/genus95_curve_code/constants.rs": "b092a4ef4e264fec4853d593c77c7f08527cb792bcd9a71d006533b914e2ff1d",
+        "crates/flock-core/src/genus95_curve_code/evaluator.rs": "e75f7fb272b2218827bdb598cebc7157d59cea4f5b523fbb31980e8953e9224c",
+        "crates/flock-core/src/genus95_curve_code/field.rs": "9a0a7621645f23e9f8d3d9c4d6b66c9cef2c80cdacadece348340b68a8c90cd4",
+        "crates/flock-core/src/genus95_curve_code/messages.rs": "8f9fec464756a6894adbeb4cfa90fb0aa07e0e726ee6f2c301f8913671d23a8d",
+        "crates/flock-core/src/genus95_curve_code/mod.rs": "e4f93da9e78beec608f1e9b0a0244fc43f537c01efea965e64df656d48e49d7e",
+        "crates/flock-core/src/genus95_curve_code/product.rs": "7d97eb9b7544bce1493cd17bdc4a0ec7fceacca14a083eb98427f94e85f81c2f",
+        "crates/flock-core/src/genus95_curve_code/rng.rs": "805c82fb733ac05175161b4ca549e226e9cb29db68c1faa25ec72fb834472381",
+        "crates/flock-core/src/genus95_curve_code/round1.rs": "2c0396ce7ff6f01065a0dfcaf0aef2ebda54aad467d5b074c758538860cf15e8",
+        "crates/flock-core/src/genus95_curve_code/sage_data.rs": "fe732eb075badf2992ef93c0bae80747ce5b0f28cb70d9d93c4684122f45476e",
+        "crates/flock-core/src/genus95_curve_code/sampling.rs": "8c5bec6915a19e8df7cb83b670d72d6d1016d11e1876ef818192fcf922c87eec",
+        "crates/flock-core/src/genus95_curve_code/slp_derived.rs": "54fd664f58d8bbf1e7d0829a23b2d2a64faad644c248d8902e3507c9206c6af2",
+        "crates/flock-core/src/genus95_curve_code/tables.rs": "6ac5ee3fab67e15ab42b5231f33da56fcdfa3dbc8d6c5174d2e0ac076f5119d6",
+        "crates/flock-core/src/genus95_curve_code/tests.rs": "d7dc17979ad2b4651bd355bb9b67577b30bce3f94d84da322656ac4582cfe2c8",
+        "crates/flock-core/src/lib.rs": "4a92341d88bb8faa441ec4c1b81fc06243fe2f9fa4894378f44a5edcfa2e75aa",
+        "crates/flock-core/src/lincheck.rs": "b3a2a374ca50444a93d47dbcc0eee8a876a995156924ae282c6b9c0ce6a69595",
+        "crates/flock-core/src/lincheck/kernels.rs": "4061391d8eb94f824b8716838f83ed805be6448d719ce4dde2fb8bdd0db160b8",
+        "crates/flock-core/src/lincheck/kernels/aarch64.rs": "be1835e07dff84a3ff8c907b8c8468d5b9b3fb210bbe8d4c54e4155c1223281d",
+        "crates/flock-core/src/lincheck/kernels/x86_64.rs": "b2ff55383898a9c1dc7a4cb5d9c49fe479a71d20659b5b485f78b24d439d7653",
+        "crates/flock-core/src/lincheck/union.rs": "a904d73f64e5c55c277fd3c524591609e6b11e9b925b75d975784fe79fa50416",
+        "crates/flock-core/src/matrix_fold.rs": "dbe88aa17633574fce08cfa560d010eece96216b46e5492b88f500f15149bcb5",
+        "crates/flock-core/src/merkle.rs": "9a0bd0c5fc7ff5eed688c3f7e43a2c926bcc4886f48e8b751bb2d2a59d20a401",
+        "crates/flock-core/src/ntt.rs": "73531f49f58c20dd62667cc1e11abf64c84e45c42282a31d721777b046b2b1de",
+        "crates/flock-core/src/ntt/additive_ntt_f128.rs": "f6e4e123302ac9bce4125718329b6a95f14b007271f0b416589ab0257ebc7fb6",
+        "crates/flock-core/src/ntt/additive_ntt_f128/kernels.rs": "d13af97c55ab7873fde75e87e2245d5888e183f9eacf1a2907d27bdd00884f13",
+        "crates/flock-core/src/ntt/additive_ntt_f128/kernels/aarch64.rs": "d51557bcd016084a797f4d8413d33a281ddcc52aa3ef81e1e304dc65e834b596",
+        "crates/flock-core/src/ntt/additive_ntt_f128/kernels/portable.rs": "6341d554584b72dc38d2d4633745ffe276aec3e01e943440226a8032f04b3c2d",
+        "crates/flock-core/src/ntt/additive_ntt_f128/kernels/x86_64.rs": "e94b37c64947566246e3786d6793c1c86ead61b772f53426ac67014295e85b6d",
+        "crates/flock-core/src/ntt/inv_table.rs": "51f7f5370cd6e0047a18b90374a9f758904123541775e1acef9f53abe1b4407e",
+        "crates/flock-core/src/pcs.rs": "0b9f85c9ff3cec566f53d6712cb4a0461a8fbeb41762868ee725224ed093a1a7",
+        "crates/flock-core/src/pcs/commit.rs": "f034f83a4f52b7da607f5d14dc6d9e70d1f56abffa177b2537ab4ade819b9151",
+        "crates/flock-core/src/pcs/jagged.rs": "2bb38d7a48054b0142b10778e1265d7984d1fa85abf250a9a1ed3de3ad4bb600",
+        "crates/flock-core/src/pcs/ligerito.rs": "165b55459217b9c8527471b7f51cf3b1ac7eea88bdcb39e5baab9afede48e01d",
+        "crates/flock-core/src/pcs/ligerito/extension.rs": "f732a9f6d7c5a5baa0dace6f5928426c303de78b820186c7651edbb617272461",
+        "crates/flock-core/src/pcs/pack.rs": "10f2ee968c5660d7c83fb03e98a49ef8a9f9d2706a3365bf716a5cfa10fb4637",
+        "crates/flock-core/src/pcs/ring_switch.rs": "43a90f9a0eaf99473461d02ff7405e8fc04be85e0d3aa45b1acac1561de08de8",
+        "crates/flock-core/src/pcs/stratified.rs": "e7fac3d948ddf99c444e020e42573c6ef4df6fc92ec53682e4872ba7266467a0",
+        "crates/flock-core/src/pcs/tensor_algebra.rs": "7b9ab9442392f1cb42b3a6d9c8f4f8905a66a8296901a02a45a0e8a5269fc6cc",
+        "crates/flock-core/src/product_gkr.rs": "febd9db0bfb5c8e335f876d0dac0d9c6c502a5bf100255c75caa0fac61ea65ca",
+        "crates/flock-core/src/proof.rs": "582ae613a4429bbd493d1ed3331c9103e276aca3d04af60a39be628f7cbce490",
+        "crates/flock-core/src/r1cs.rs": "dcb6e2287b97262d5dc08092138a782e4e00680920df48f5cda4b702e17db04c",
+        "crates/flock-core/src/schedule.rs": "16a438e0d60f5278a63792f4b9cb97bc1fb812cfc086068ddac4cac95cb4ccb3",
+        "crates/flock-core/src/scratch.rs": "db82d7c4e4c1eeb95b19db4d88bc766a04441c065b17747e127112486d4ae6b4",
+        "crates/flock-core/src/suboptimal.rs": "a0b0a90b53a9a2970cdf6f78628bcc7d0c0410c1b362245833e7473c344f693f",
+        "crates/flock-core/src/test_rng.rs": "c2d5429b16aafc6b1070fd1a803fb46bec752f9852f3fb7720e5974dd51416eb",
+        "crates/flock-core/src/transcript_record.rs": "d2e490fbb9e8bc346639cb935b4f09af6bc512da24c5287164a98fa716e4ffd2",
+        "crates/flock-core/src/union.rs": "120ba4e2449589366c01e5455732b29f55810016bce1fea023c8f49db8ba7c47",
+        "crates/flock-core/src/verifier.rs": "57cb7081f8e80b193a07e7111da45ff6a27be36ffe2981d889528e5d3d9edfb6",
+        "crates/flock-core/src/zerocheck.rs": "638c26d89f3d6c235b8a30fd0b4d25f0ba0ec9416afe0964e7a72b0165f09bb4",
+        "crates/flock-core/src/zerocheck/ag_skip.rs": "ac56e8f7e4775202d8af68bcefd6079fe657d59f73dce1ba169073b8520adb14",
+        "crates/flock-core/src/zerocheck/multilinear.rs": "c235c588982b45fb1adbfb76b4562bbd9962022bdf5374d5b137c96c70acde03",
+        "crates/flock-core/src/zerocheck/multilinear/dense_skip7.rs": "6b22a49199b8339b0a61c30bb651347cda3bfc5293580bc738a521bf1ed87c81",
+        "crates/flock-core/src/zerocheck/multilinear/kernels.rs": "e8f28ab068e4b2ea22042e6af6144e1dd3b594c1a34c534edce5dd964d402280",
+        "crates/flock-core/src/zerocheck/multilinear/kernels/aarch64.rs": "9bf1bd9db3f05967d31c5400d0ce916d5a7c4488f330abf5c0efcf45bab7e992",
+        "crates/flock-core/src/zerocheck/multilinear/kernels/x86_64.rs": "a1dda42a38e3e7cd887a433d7a9cc72817fc3b94f0e9229233379195491d0409",
+        "crates/flock-core/src/zerocheck/univariate_skip.rs": "d173e72a2549233f84319877bcc34d490485af0030d80126b31a6fc1365a05c8",
+        "crates/flock-core/src/zerocheck/univariate_skip_optimized.rs": "a1453f4bdc8006c69acbc44ce8bfe6d8253bddeb02ad8aac289a5de9cadbdcbf",
+        "crates/flock-core/src/zerocheck/univariate_skip_optimized/kernels.rs": "44b5df656fce346121aecb5b34b8f04da3983f4e586ae3bf71e03ffc98550f4b",
+        "crates/flock-core/src/zerocheck/univariate_skip_optimized/kernels/aarch64.rs": "ab178c6c66e85b54f3b9fa9c4ad1d500529d71cc7f1364e8f46129cc3852a9bf",
+        "crates/flock-core/src/zerocheck/univariate_skip_optimized/kernels/portable.rs": "b8aedb68918a6cc0991fee69141ce83ac45946a19415bcf7fa76e86910210819",
+        "crates/flock-core/src/zerocheck/univariate_skip_optimized/kernels/x86_64.rs": "a4eba053c1823fb96feec3278ac347d0c6256655a747a196452b98d576e95c86",
+        "crates/flock-core/src/zerocheck/univariate_skip_optimized/skip128.rs": "57e62d3485475df9c6e7cc2a15614fc7f4cbc3d0bee9d997dfc90b6bf0255ad7",
+        "crates/flock-core/src/zerocheck/univariate_skip_optimized/skip128/x86_64.rs": "9fa0ad1d7975a7911fd3ceba68ffe239b23dde3898c29d601a8fb9177b114347",
+        "crates/flock-core/tests/assist_blocked.rs": "7122f112a53403f7f0ca23ac3fe9352612f1e8f53bef9501fec3b0e71bf13dc9",
+        "crates/flock-core/tests/jagged_fold.rs": "f6931d2b05f543471cc4e02d74ed2a3d94e3d2cbf4756cc8e8854861ab925e2c",
+        "crates/flock-core/tests/sigma_route_b.rs": "42bc659e84a79d2c6f11cd3e215136db7a619ae47369518e466edb61e19631c5",
+        "crates/flock-core/tests/union_lincheck.rs": "e31e0bb89e07ffa1b84bfe57a659e881ead9828d24042071522795dcea485163",
+        "crates/flock-cuda-ffi/Cargo.toml": "13ccc49e36d444a842e078510376aa68e72f96bc7351f33485816ca71aedf477",
+        "crates/flock-cuda-ffi/build.rs": "9985845f9b0abd030152c425fa8e031db53fa5b1e4f3357b9058fd555fbfd481",
+        "crates/flock-cuda-ffi/src/lib.rs": "2ff559b4289589b2f0ea8079e029638244cb5e4f7e78e2b39202dd89e9ca4aa8",
+        "crates/flock-cuda-ffi/tests/gpu_roundtrip.rs": "39ceea6c95f280f871fe28cdd200980305ed2f7c0c91a426033eaa57efabde17",
+        "crates/flock-field/Cargo.toml": "2c1eaa9405b5cea71ec77f6143521062d92d9064cbfb5738a380b69f8f5dd1d4",
+        "crates/flock-field/src/f128_slice.rs": "937b06dde3830c59235b98f42af246350377dd384d2ebed3756eaf059fe7dee5",
+        "crates/flock-field/src/f128_slice/aarch64.rs": "48f549ec7f268dc91119c967ff70df2267f6b4bfec2bb2570759264c3b6ac52f",
+        "crates/flock-field/src/f128_slice/portable.rs": "dd5f9a89f8d6f358c00b4842300ed6789711e87f568f36963278cdcfe0e3eff3",
+        "crates/flock-field/src/f128_slice/x86_64.rs": "d9a7ae333c5bd3602541d35131675e13f90669df643a539415e769008428a0ec",
+        "crates/flock-field/src/gf2_128.rs": "78f6b98e447969f2c1f80bb9aac7b49dd382595202fca477d80f68545b231246",
+        "crates/flock-field/src/gf2_128/aarch64.rs": "e004bb403258b11ddf5417f325d7b107df035952f394419cdbd9ddfe9d9aabda",
+        "crates/flock-field/src/gf2_128/portable.rs": "0319e133a5ae47bb465ef2d1b835e2477453ab1c74fca3c198547234c00327c4",
+        "crates/flock-field/src/gf2_128/x86_64.rs": "4a14ab58fb4709f3c066b0942949dd0d09301b91ca67b50b8fcfccb938d9ba97",
+        "crates/flock-field/src/gf2_256.rs": "2afa62a5f6056c651ec31567d166fe894883bdfa17fd566bf06f47f56e4da864",
+        "crates/flock-field/src/gf2_8.rs": "031d32f883e0021c201bb8219f5b987c3a703ecd56a70dced5d73d46c9314714",
+        "crates/flock-field/src/lib.rs": "e8d632a54df3a700a415da7105918ac4b037cd81710889f0b363254dbd5e87ef",
+        "crates/flock-field/src/phi8.rs": "442fff740ad2371e980a684e93a070b5b858929531b0ae5a0f7f016c2f2ecb9d",
+        "crates/flock-field/src/test_rng.rs": "d9615a97bb4ce2b53ce8f1a5d59ee653868f986c70c4d26fbd7917e28461cab7",
+        "crates/flock-hash/Cargo.toml": "890b2ff48a949038f62a99d0df71edf80d1722fdfb413f025723f813526ac192",
+        "crates/flock-hash/src/lib.rs": "562fb52b44628ddb36bb3088da3de6ab8e9441cadc7f1f6aa6b5369d16cab67e",
+        "crates/flock-merkle/Cargo.toml": "4e484a0115cab125f3048ec27065bc82fc8a4e70b52d79d56d358bebc41e4497",
+        "crates/flock-merkle/src/hashing.rs": "5c89b68da1939c2b4a0afe1fa8bab724c2e4f9384814f514bf6388e5a39df957",
+        "crates/flock-merkle/src/lib.rs": "239ae0cc18e45ed8d1500598af30a52cc3140b07ef3b85d72ba56884cb128169",
+        "crates/flock-merkle/src/merkle/aarch64.rs": "ef8947e99e7f40223a73b357235f9d2abb0243f1c0d81025f94325afe2e2eefb",
+        "crates/flock-merkle/src/merkle/blake3_neon.rs": "7c532c489c6a2e83cda67766dc07d8e5b629d84af9bf7be152bfaeefdea88546",
+        "crates/flock-merkle/src/merkle/x86_64.rs": "b8161726c0e5a6a8acb2c3ab820a23865631102829429eeaec8e6235f80b691b",
+        "crates/flock-multilinear/Cargo.toml": "13011ab4fe524da784b7014abc7a618d69153fc766ad670d0c93d5f3a4c5e2cf",
+        "crates/flock-multilinear/src/lib.rs": "05392fe2930b2ceb62cfdd96d2ad88ccc421b32e8564752ac4a76c1210d1f304",
+        "crates/flock-parallel/Cargo.toml": "18e091bf25ede2887a396f04b79273492a8c7149f3400a95b1d57f32e1f38c36",
+        "crates/flock-parallel/src/lib.rs": "7c570cd4464862173c5078b65d990bdbb617dbd16050d0ce57bb1cae0bab9bc2",
+        "crates/flock-prover/Cargo.toml": "072e81285dc8adc88b2ce730dd57de76ec0f930769e067f0ceb42660727f7f35",
+        "crates/flock-prover/benches/ag_breakdown.rs": "376b8b6ef6d32429531a6cc31b3b0a8484d96c174c7e31dac2f6a14e1e56c76c",
+        "crates/flock-prover/benches/ag_e2e_zerocheck.rs": "f8389ea3979acd8f409dad205b80b5d3cf5751e004760c06288b98a792a760a5",
+        "crates/flock-prover/benches/blake3_fast_vs_slim.rs": "5961cb98b9a0f5f15b1191b19c9b8162f4a76ae6b2953da46c8b9203989579e5",
+        "crates/flock-prover/benches/blake3_native_chain.rs": "9b7be223a837fac0a87cbb1f9f0873f34e0b25ae5b4a29823b4df905495ab6ea",
+        "crates/flock-prover/benches/blake3_proof.rs": "ea8a6220934b4ca2fead28fd4dcc89d6886aa4cd3b966045fc3c788e027e71a3",
+        "crates/flock-prover/benches/e2e_zerocheck.rs": "98f20a0223f6252007ed6264406664797c8aef7946fbc5060757bebcb821f64c",
+        "crates/flock-prover/benches/field.rs": "fb1417a76e05cf81acfe8302375aa4976c7dce4110bfdabaf56265053e1de954",
+        "crates/flock-prover/benches/fold_1b_rows.rs": "362c3e9ea27d21adf2f798e26fd108816f08a282e5c11ed36823d5499536d2d6",
+        "crates/flock-prover/benches/fs_challenger.rs": "7f9841a4c1560fe52cc6f68d9b3ec479404d87b1b3fa866c46d50b962a421af6",
+        "crates/flock-prover/benches/genus95_curve_code.rs": "5532d06dfb5fb2e3d005054e774566e2b877964e9c58d247ce749f16a38d94e8",
+        "crates/flock-prover/benches/genwitness_phase.rs": "bc10573c47180464b7d4146f3c8a58faeabf2e1f60dd193960cf1ee452319029",
+        "crates/flock-prover/benches/grinding_sha256.rs": "a69eb2f76ea61b961013cbb0fba08329b9b0fbaf134ff010c35201b639d58678",
+        "crates/flock-prover/benches/hash_throughput.rs": "530163529db2ed17deedecd78ddb66caec240c70658dd88aea6e136cefd82d0b",
+        "crates/flock-prover/benches/lincheck.rs": "8f45bb3b888fb9ec670c9c7111723eb32d2766c1605e86915862032b9cf30941",
+        "crates/flock-prover/benches/lincheck_verify.rs": "95a9806f20f98578172c094186a64c4a9646fa11917bdb84e0244c4a1d85fa4e",
+        "crates/flock-prover/benches/merkle.rs": "467b6a59e4aa96a595c0197fd07477787a0a3de55c60af09882c5d13ca015471",
+        "crates/flock-prover/benches/native_hash.rs": "37ffa384080389487615b40db23f4d2aa5625d75a923ad5fef6a0aab5972b091",
+        "crates/flock-prover/benches/ntt.rs": "08f77ac0a62878f0fc4bffbbde3e90710effc6592d34b603d26435dc33f8556c",
+        "crates/flock-prover/benches/pcs_commit.rs": "2a9d371e6bfadd2d5e0780e6b437c1251ddbb6622b99fb195e8030610fa6a87a",
+        "crates/flock-prover/benches/profile_prover.rs": "cf1f97b187dc538e9b3a915ee4dbc1bd4186a429d8cbf2f3d9b903f3d5119cc8",
+        "crates/flock-prover/benches/round1.rs": "471619e47da69449a7c8a16d98a652b3fd1da0ca1808256c357b2c01cc4610ce",
+        "crates/flock-prover/benches/round2.rs": "834c1119c6a687f390e7f06467f0bbf131b87247c0dbd7f04b9973e1e28614d4",
+        "crates/flock-prover/benches/rounds3plus.rs": "0ade94d28c03d898a67ef56c68be12d950cb0330e45207e75f18e8b2727bfac6",
+        "crates/flock-prover/benches/sha2_proof.rs": "2cb00725d529de1070ee093e58572c326a7aede3c2cb42b147bd6f3a9601289d",
+        "crates/flock-prover/benches/verifier_hash_count.rs": "050db99068dd8d9d9115196109e7489727e5adcc8c23ef147a7ed0e13f296456",
+        "crates/flock-prover/benches/verifier_mul_count.rs": "8ad60f3504e911c573933d5396d7d9af931267767ee5e6408baba273a73b0a79",
+        "crates/flock-prover/benches/zerocheck_phases.rs": "8b677c469b7db15b75250450ff5bb143d2b1c1214807223519bf8c72d06090d2",
+        "crates/flock-prover/examples/gen_ligerito_configs.rs": "c2fc9d655b95285c07ba5b1abd55b68de1cf9da003128f7404568579e0f23019",
+        "crates/flock-prover/examples/tower.rs": "de5e2bb1a189140a19d31591e2d08d5e4f38b83fc560d7e0697983c4f8f60b37",
+        "crates/flock-prover/src/bin/dump_blake3_lincheck_matrices.rs": "edc91e42e9cdd84c2ce03960dca1b366c417e1cf735c08523f4eb6dd025c7b92",
+        "crates/flock-prover/src/bin/dump_blake3_witness_vectors.rs": "e08445e9b2b3d8779d0b7147d2155e2d992e45911a6dbf2b95445c0c26c84593",
+        "crates/flock-prover/src/bin/dump_challenger_vectors.rs": "bb341caf764e167e93271d9f240b38eb74a27ced240f877bf85759b46663ada4",
+        "crates/flock-prover/src/bin/dump_commit_vectors.rs": "549339b2d05809d01d293fe4a8e389cf05f6a24e4aa33cf392c491ca40cf460f",
+        "crates/flock-prover/src/bin/dump_common/merkle_octopus.rs": "b3d052c0fc4a6088699decd3f3262f63bbda90576daacf5308ce9e965f184b61",
+        "crates/flock-prover/src/bin/dump_f256_vectors.rs": "87bf975a889412a557ca8947755da851570172b817b5ce2aec072c4263c757a4",
+        "crates/flock-prover/src/bin/dump_ghash_vectors.rs": "c12be6a9163f16346fd2091fe3a938c674640811e9f21abb3d1e159658b04270",
+        "crates/flock-prover/src/bin/dump_induce_vectors.rs": "5b9a77922ea401ad1d444265842f34eb15c1c85be804aae19c353d1a502928b6",
+        "crates/flock-prover/src/bin/dump_introduce_glue_vectors.rs": "0b05aa5a16a850ccc19ac8802ded517a5b7ce04f73e3dbb988a17f9e98bbbf96",
+        "crates/flock-prover/src/bin/dump_ligerito_f256_vectors.rs": "67fee3e783c44d044c3a5b1cf05cb72cd89d69c95b777f78bfe572d408db7adf",
+        "crates/flock-prover/src/bin/dump_ligerito_l0_vectors.rs": "692a29f4099b086654b227027e463a92620fec272529cc9ad95cd27adc73e0ce",
+        "crates/flock-prover/src/bin/dump_ligerito_sumcheck_vectors.rs": "81fd3e228c38c179782aaaddad5fe4ea36e753bcf5d0f856dfbdfe3e4659b909",
+        "crates/flock-prover/src/bin/dump_lincheck_vectors.rs": "8713575d4017eef54a578470c7b0127f2c33d9bbd0f176ec0f1cd6c139a351cf",
+        "crates/flock-prover/src/bin/dump_merkle_open_vectors.rs": "283ede4cb9542e00d7b616633fdcc858af5f7622d6cdb0e7f22935d9f249373c",
+        "crates/flock-prover/src/bin/dump_sumcheck_prover_vectors.rs": "43656a9d36e3a12bfedee1c0e0a80922df331f1d7fd65e1a64b56f8494d61f9a",
+        "crates/flock-prover/src/bin/dump_sumcheck_vectors.rs": "c7d4441a06c8f4464c94db914470489336101a87010435659273dcbb752c45aa",
+        "crates/flock-prover/src/bin/dump_transpose_induce_vectors.rs": "d3637a68e6fb1268e80a7d44724063efdb5acb9a59d7f3cd29fe89e3a812a052",
+        "crates/flock-prover/src/bin/dump_zerocheck_full_vectors.rs": "e4ec2a9a763723b79333fb514885321950cda781eaddab5ef9632bd9de7e56bc",
+        "crates/flock-prover/src/bin/dump_zerocheck_round1_vectors.rs": "1b8df0b4c38338a7ea9d115814193a08d7c14bf4868a4a40691154b251256e26",
+        "crates/flock-prover/src/bin/dump_zerocheck_round2_vectors.rs": "3642ec1f09b10b9806ead9e1b3df8375ba9bb0000b73c47bb6cf0dd0df4bfc8f",
+        "crates/flock-prover/src/bin/dump_zerocheck_tail_vectors.rs": "c15282d25927036ba1d8ce46a67274d323d72e29430c9d7ca4d0360267d66983",
+        "crates/flock-prover/src/lib.rs": "6c54edbbb80989b83b249503b3d840fdd595e0d80d5f4796156c0c3ea80ebd7b",
+        "crates/flock-prover/src/mixed.rs": "7422c1b44fab03804390968c6a2083305d8c07f1bd5d6d780cbe61db0f5741c8",
+        "crates/flock-prover/src/proof_io.rs": "2f3ab48f8951d237db182b4897ea2d8c2307aa711f29297ff3d9919ec05d12ad",
+        "crates/flock-prover/src/prover.rs": "e9387ebe5cd60b5c41edb4509c8810b2efdb3527358f47e905ac173b1b786b03",
+        "crates/flock-prover/src/r1cs_hashes.rs": "48328bcd7301b59ace756103d7aec56e9945d4c0b39bfafdc26907e3718eae78",
+        "crates/flock-prover/src/r1cs_hashes/blake3.rs": "86c0d484e4e6ac215328105eb2430d18d1be4c690e747375cd0086ec1a820792",
+        "crates/flock-prover/src/r1cs_hashes/common.rs": "61be102b5b5c093b40052b3212753ab20277fe70eb86e97829f01b4421795124",
+        "crates/flock-prover/src/r1cs_hashes/fs_chain.rs": "803495945707c02c47c39e827cf10c135b951180fb9592af13a48b2b87420c0e",
+        "crates/flock-prover/src/r1cs_hashes/merkle_glue.rs": "ea2d8cd7301fe05ab5bd504951fc7a0af668653753c16c5c56aa04c6f0dbdd46",
+        "crates/flock-prover/src/r1cs_hashes/merkle_r1cs.rs": "ebe636d0ba76c3f2f6de2864f5c5db97b5d825d585f964e476389cd10de1081b",
+        "crates/flock-prover/src/r1cs_hashes/sha2.rs": "b07bccdbeb1e98cd51279bf714f4dec8199ebd3bd8a5fe3aa5bc3b5c9ef11734",
+        "crates/flock-prover/src/tower/chain.rs": "de52dcf716817eaee525c6345829ceb45b5c6a62dfbd89104cbc4856f727c518",
+        "crates/flock-prover/src/tower/child_walker.rs": "be4c06eaf34c717174a2222f0dd7c076535b133264f80585bb4f234c36c094ea",
+        "crates/flock-prover/src/tower/config.rs": "c9243f70227d070a7b962cd6ca3c8205a997ee9be38ab442754bf7f4c4fb7c19",
+        "crates/flock-prover/src/tower/driver.rs": "3fc474f8837b04a5cdd1ab005baf84f891110fd6aaf6a710c29d6d730fdef503",
+        "crates/flock-prover/src/tower/e2e_tests.rs": "91e622766c738ff6b987e3938de6df11076ecd25340c5bd2b34f3e387b006942",
+        "crates/flock-prover/src/tower/envelope.rs": "dd6f0fd3ef60c9fa6effc54d7570110f6629fb281a3bffea88d19d29d7553838",
+        "crates/flock-prover/src/tower/fl_node.rs": "adcb8d34c92d1c432d5497010d242866312746005b074ea7e96de6245b7624c7",
+        "crates/flock-prover/src/tower/fold_region.rs": "7f81edf16023c84b47fb98e9feb5fc299ff0f3b522c9841993020e82833cb4ab",
+        "crates/flock-prover/src/tower/fs_chain.rs": "a785c1f92c3354a45ce7a5f3b584bd08e4418cfd3fbbf7a65525f898e5cd8beb",
+        "crates/flock-prover/src/tower/gates_blake3.rs": "f23f9f06a24c91044e433690b3f626f595718d58312a79cf9eb828c147906907",
+        "crates/flock-prover/src/tower/gates_glue.rs": "510189268090bdd943121a7fb42296a72a7ace601c6946790da2ecc49b9a7c77",
+        "crates/flock-prover/src/tower/gates_leaf.rs": "0ba90e874bcd2b966bab148bb27e7377797ba928690cb0b56149ccc326ce5b79",
+        "crates/flock-prover/src/tower/gates_spine.rs": "4fddae35d7379756326727d0c62be3a9d451f3d3b9526b399069e3a819a78821",
+        "crates/flock-prover/src/tower/geometry.rs": "0fb3d0de22c9476d7d44c250f8dc3d6defe0b9d936f63fd9ae47e24191ca4ff5",
+        "crates/flock-prover/src/tower/gkr.rs": "5826a91c1aca6656c7899ef4868178049aa44f40eeba94384a961eb4218d6780",
+        "crates/flock-prover/src/tower/mod.rs": "eb0a810887899c65d2401895669c1bc4f9e6aaa8879ea24f736040f2ea15acfd",
+        "crates/flock-prover/src/tower/node.rs": "31052591c0314a7a3f802596419a9206093a47f94f7f1d45919fc69a79c77122",
+        "crates/flock-prover/src/tower/online.rs": "644218419fa06dd390162cd964fed72340408989b057ebfffb60abbb16ac5b9f",
+        "crates/flock-prover/src/tower/query.rs": "b39e22d8ce73c00627021d3d8291325d0347a6b3c2b33de6141cc8ecdf8b4c05",
+        "crates/flock-prover/src/tower/real_walker.rs": "d699891d35e08174ca09cc5612ab212eec89184cd6bfa0169d8460137f1a5311",
+        "crates/flock-prover/src/tower/tape.rs": "026776e720593bc895823ca5572e2ae2325155e7f019f1edc55f0d5e2b236901",
+        "crates/flock-prover/src/tower/verify.rs": "567b4a059f6c53d60b579e92d5b62c37aa8fe636302e5677d63704aef766f0fc",
+        "crates/flock-prover/src/tower/walker_common.rs": "068f7d15974739f63acd104810e0c308d65c2f2f43bf1fd2e7549d832d002ad4",
+        "crates/flock-prover/tests/circuit_assist.rs": "48f8302707f744bf2aba218c76aa82b50239ded0c78280b172474482efef4595",
+        "crates/flock-prover/tests/circuit_builder.rs": "f5bd56e57e9322a6ea499787c4397c6d28a1029c56173240a2a8c336d5d6b443",
+        "crates/flock-prover/tests/circuit_wiring.rs": "cab488ca9f0cca5e88814bbf8edce02536781e31df06883764794c254f99756c",
+        "crates/flock-prover/tests/factored_basis.rs": "d30f4a10c1564164697707dc979f3d6304555ceb3781c6e5ed0d6299a6ba5d8a",
+        "crates/flock-prover/tests/fold_lookahead.rs": "11f75b06c32591603828498dabddf08e4adc8ad7f0c76ac20ce8213bacde541c",
+        "crates/flock-prover/tests/kappa7_probe.rs": "2b55c180f2a5e25d1f1c1c3b7e6ddf45752d9c9c44c8da5c0a416ff35870e54b",
+        "crates/flock-prover/tests/merkle_glue.rs": "4392ca6bbcec1bd15598b4ff76f89c127a4256da9d1aba13f599dd877e3753a8",
+        "crates/flock-prover/tests/stats_ladder.rs": "d8771d84707eab086ae83ddd1281550ef93264fd371f57dd3c3c09429af223f3",
+        "crates/flock-prover/tests/transcript_shape.rs": "b49d46db53b1d2d41bafce9aad404b5767d532e1cac4ce4e911b710b2d0510e9",
+        "crates/flock-prover/tests/union_element.rs": "0412c137df08bc6daf9b7c5629d781d617b5125a823b346fd73da758df214673",
+        "crates/flock-prover/tests/union_m6_fixtures.rs": "ccb8255d4f7dcadaa3b3a5fcc61cbbbe397f2fdc98144a04e7e590b7f83ff969",
+        "crates/flock-prover/tests/union_mixed.rs": "a592f57e36c880641e8453ce9ef2c6797268103467bd37a05b9849d71ead0471",
+        "crates/flock-prover/tests/verifier_roundtrip.rs": "96a4be136f7c1740f4c8658ef2b0cd70ec87a59026916e7ad8b2181d9bd6c5c7",
+        "crates/flock-prover/tests/virtual_b.rs": "6540d9bbe07c2cfe33342c79f1e91f80a8679a543a616ca9061e48364d51cffe",
+        "crates/flock-transcript/Cargo.toml": "c0dbb4b78bf06fe78ada6e304267b615d3b853e9058f0eac8ecf83f717626a84",
+        "crates/flock-transcript/src/challenger.rs": "32f97b0babd31abe524ebfb3eba002cef5770b1b46bdf4200cadf9e59dc3e54b",
+        "crates/flock-transcript/src/lib.rs": "f515b95d892be7161de5f2d06e6d4c9a27e4b33a3eead74b2adfbfc7627759cd",
+        "crates/flock-transcript/src/transcript_record.rs": "84d81eac65a17e57aa7ebde17d48631a591077bc8c3de5ca62894d65fbde3374",
+        "mikros/Cargo.toml": "afa5ddd089046a8aecda327974a70e13ee59b4b98e01a44a41c472ac473e09b2",
+        "mikros/benches/hadamard_vs_flock.rs": "bab7b55af0389630ae545bb4faafd65460c7d87f203064981f5d46b8621e0383",
+        "mikros/benches/univariate_vs_flock.rs": "f184219e3288c1d1c4e412251f4dbce540027b9feac80720cd5434c44bef2ad3",
+        "mikros/build.rs": "898bc3a144f1779adeabd6efc00c5cc3349bfd91af858f7e791a452ffd5f1d7f",
+        "mikros/server_experiments/run_server_64.py": "b4edddcbc5b680f868b72c4b8febb4cce583c50b43085281cdd16da98d7e695e",
+        "mikros/server_experiments/run_server_n30.py": "cef86eeedde4bef31763253328fe886c2e70fc689c2055913e6606c3d420aa37",
+        "mikros/server_experiments/run_univariate_64.py": "50f334b25eee49f29501a7d9108fa73487961946b38870981d4ca58dae1bc63d",
+        "mikros/src/flock_baseline.rs": "b557533a24a19d75e9eb584f114c64439e5d4405233b90a9dea4c298d2074464",
+        "mikros/src/hadamard.rs": "f5c419222bc80245e7796eb973ea5104e74a3e8a260ab85c0acd26556ccd4678",
+        "mikros/src/inner_product.rs": "39ea88c0c9b8221ad57d7ae6d116c6f1a73fe8ab2d2e9ff7b31f0ea902c33ae4",
+        "mikros/src/inner_product/x86_64.rs": "fa731aa808f0642d86d925785287e959a09789373dd18a94654ba810ef43adb6",
+        "mikros/src/layout.rs": "80db524e63ed64d94557459d2ed6d5ed2b2e0a2d9c1bf590b20f867e816ee186",
+        "mikros/src/lib.rs": "eb9dc5f50297e7a2df1c6b399a0c303dda7edeab18588da7e1a5345a27b59370",
+        "mikros/src/lookup.rs": "305d2c4d61678249cbacf74320bb796d99b3009a1bd4ec33d5246be4ba54b95f",
+        "mikros/src/lookup/x86_64.rs": "bd1fda9f6c2d0145cd16e08cff1b2ff75db1ed6c4979cd0f3ef425681f52e749",
+        "mikros/src/mixed_tensor.rs": "9a721e061cbe99860676dffb792ded1be99e7b02083aad24ec42adff02e0ed4a",
+        "mikros/src/tensor.rs": "69ddff1351cb886d46c9860eabf8ef800c90e173d2e6d502c00697159b8b84d2",
+        "mikros/src/tensor/packed.rs": "517a58c20c9188bfa3f2907ca78e9d21de5e80377ae0dbc7fa50a6e5a850cda7",
+        "mikros/src/tensor/packed/x86_64.rs": "a531da15b035d3d5f5b3eb8635ab2b71f895d756575c89a52c62e8f7bbd2a9fd",
+        "mikros/src/univariate.rs": "2cd6c8dbae5eabf8c715bf7b98f59125597775ff23db89855263c135ad4ed0c7",
+        "mikros/src/univariate/domain.rs": "ebd8b7c6419f1155e6bd78195d83a4750e4d29c4cf38c56c4de63d029496fc02",
+        "mikros/src/univariate/field.rs": "28f8fd9ee082da3d648df039036ada25cd49a906b706512c7c52b8a9c57ccfb8",
+        "mikros/src/weights.rs": "12b926003eac5122af5a4e9a4eae4add905f9c757a78b33a14989f9ef7a29556",
+        "mikros/tests/flock_skip7_interpolation.rs": "b8323074dbdcbe05db22eab9f32219f0cafafd64dd2d878b50761d7200ac87af",
+        "mikros/tests/hadamard_roundtrip.rs": "674b5637c1a3f0bfd5fd5ae8d68b1c0aa6f010e12ffcd5fdab17bde7ebdf2845",
+        "mikros/tests/univariate_roundtrip.rs": "602de28d930e93eb217c8e0a4f287fd0cfea9fad192347f08dc8652dd247e569"
+      }
+    },
+    "toolchain": "+nightly-2026-03-21",
+    "cpu_spec": "0-47,48-55,72-79",
+    "executable": "/home/mscong1/mikros-experiments/20260912T-native64/v5-univariate/source/target/release/deps/univariate_vs_flock-22020f7b8413c02d",
+    "executable_sha256": "b08be2b84e6e1ce1b6f6b592b89a1b4fbacd3658e9cd1b3ba005918ec733a49f",
+    "native_target_features": [
+      "adx",
+      "aes",
+      "avx",
+      "avx2",
+      "avx512bitalg",
+      "avx512bw",
+      "avx512cd",
+      "avx512dq",
+      "avx512f",
+      "avx512ifma",
+      "avx512vbmi",
+      "avx512vbmi2",
+      "avx512vl",
+      "avx512vnni",
+      "avx512vpopcntdq",
+      "bmi1",
+      "bmi2",
+      "cmpxchg16b",
+      "ermsb",
+      "f16c",
+      "fma",
+      "fxsr",
+      "gfni",
+      "lahfsahf",
+      "lzcnt",
+      "movbe",
+      "pclmulqdq",
+      "popcnt",
+      "prfchw",
+      "rdrand",
+      "rdseed",
+      "sha",
+      "sse",
+      "sse2",
+      "sse3",
+      "sse4.1",
+      "sse4.2",
+      "ssse3",
+      "vaes",
+      "vpclmulqdq",
+      "x87",
+      "xsave",
+      "xsavec",
+      "xsaveopt",
+      "xsaves"
+    ],
+    "rustc_version": "rustc 1.96.0-nightly (ac7f9ec7d 2026-03-20)\nbinary: rustc\ncommit-hash: ac7f9ec7da74d37fd28667c86bf117a39ba5b02a\ncommit-date: 2026-03-20\nhost: x86_64-unknown-linux-gnu\nrelease: 1.96.0-nightly\nLLVM version: 22.1.0",
+    "passed_tests": 67,
+    "validation_results_directory": "/home/mscong1/mikros-experiments/20260912T-native64/v5-univariate/results",
+    "validation_commands": [
+      {
+        "stage": "rustc-version",
+        "argv": [
+          "taskset",
+          "-c",
+          "0-47,48-55,72-79",
+          "/home/mscong1/.cargo/bin/rustup",
+          "run",
+          "nightly-2026-03-21",
+          "rustc",
+          "-Vv"
+        ],
+        "cwd": "/home/mscong1/mikros-experiments/20260912T-native64/v5-univariate/source",
+        "utc_start": "2026-09-12T10:18:07Z",
+        "loadavg_start": [
+          0.07080078125,
+          0.21533203125,
+          3.435546875
+        ],
+        "memory_start_kib": {
+          "MemTotal": 395848532,
+          "MemAvailable": 381275644,
+          "SwapTotal": 2097148,
+          "SwapFree": 1582360
+        },
+        "effective_cgroups_start": {
+          "utc": "2026-09-12T10:18:07Z",
+          "pid": 3517356,
+          "proc_self_cgroup": "0::/user.slice/user-1008.slice/session-1960.scope",
+          "available": true,
+          "mount_root": "/",
+          "mount_point": "/sys/fs/cgroup",
+          "ancestors": [
+            {
+              "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-1960.scope",
+              "cpu.stat": "usage_usec 632933\nuser_usec 383775\nsystem_usec 249158\ncore_sched.force_idle_usec 0",
+              "memory.max": "max",
+              "memory.current": "22773760",
+              "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+            },
+            {
+              "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+              "cpu.stat": "usage_usec 187674181213\nuser_usec 171217010352\nsystem_usec 16457170860\ncore_sched.force_idle_usec 0",
+              "memory.max": "max",
+              "memory.current": "8310870016",
+              "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+            },
+            {
+              "path": "/sys/fs/cgroup/user.slice",
+              "cpu.max": "max 100000",
+              "cpu.stat": "usage_usec 5370419436277\nuser_usec 4038776095433\nsystem_usec 1331643340843\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+              "memory.max": "max",
+              "memory.current": "144822353920",
+              "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+            },
+            {
+              "path": "/sys/fs/cgroup",
+              "cpu.stat": "usage_usec 5430969075000\nuser_usec 4068013658000\nsystem_usec 1362955417000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+              "cpuset.cpus.effective": "0-95",
+              "cpuset.mems.effective": "0-1"
+            }
+          ]
+        },
+        "environment_overrides": {},
+        "pid": 3517359,
+        "returncode": 0,
+        "wall_seconds": 0.015488449018448591,
+        "utc_end": "2026-09-12T10:18:07Z",
+        "loadavg_end": [
+          0.07080078125,
+          0.21533203125,
+          3.435546875
+        ],
+        "memory_end_kib": {
+          "MemTotal": 395848532,
+          "MemAvailable": 381271756,
+          "SwapTotal": 2097148,
+          "SwapFree": 1582360
+        },
+        "log_sha256": "84b4e7c5b7101a7898364d68a143152a0f12017def08ec96521325f45ce89d0f",
+        "effective_cgroups_end": {
+          "utc": "2026-09-12T10:18:07Z",
+          "pid": 3517356,
+          "proc_self_cgroup": "0::/user.slice/user-1008.slice/session-1960.scope",
+          "available": true,
+          "mount_root": "/",
+          "mount_point": "/sys/fs/cgroup",
+          "ancestors": [
+            {
+              "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-1960.scope",
+              "cpu.stat": "usage_usec 653058\nuser_usec 391633\nsystem_usec 261425\ncore_sched.force_idle_usec 0",
+              "memory.max": "max",
+              "memory.current": "23908352",
+              "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+            },
+            {
+              "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+              "cpu.stat": "usage_usec 187674201080\nuser_usec 171217019954\nsystem_usec 16457181125\ncore_sched.force_idle_usec 0",
+              "memory.max": "max",
+              "memory.current": "8311861248",
+              "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+            },
+            {
+              "path": "/sys/fs/cgroup/user.slice",
+              "cpu.max": "max 100000",
+              "cpu.stat": "usage_usec 5370419456265\nuser_usec 4038776104673\nsystem_usec 1331643351592\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+              "memory.max": "max",
+              "memory.current": "144823341056",
+              "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+            },
+            {
+              "path": "/sys/fs/cgroup",
+              "cpu.stat": "usage_usec 5430969094000\nuser_usec 4068013666000\nsystem_usec 1362955428000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+              "cpuset.cpus.effective": "0-95",
+              "cpuset.mems.effective": "0-1"
+            }
+          ]
+        }
+      },
+      {
+        "stage": "rustc-cfg",
+        "argv": [
+          "taskset",
+          "-c",
+          "0-47,48-55,72-79",
+          "/home/mscong1/.cargo/bin/rustup",
+          "run",
+          "nightly-2026-03-21",
+          "rustc",
+          "-C",
+          "target-cpu=native",
+          "--print",
+          "cfg"
+        ],
+        "cwd": "/home/mscong1/mikros-experiments/20260912T-native64/v5-univariate/source",
+        "utc_start": "2026-09-12T10:18:07Z",
+        "loadavg_start": [
+          0.07080078125,
+          0.21533203125,
+          3.435546875
+        ],
+        "memory_start_kib": {
+          "MemTotal": 395848532,
+          "MemAvailable": 381271756,
+          "SwapTotal": 2097148,
+          "SwapFree": 1582360
+        },
+        "effective_cgroups_start": {
+          "utc": "2026-09-12T10:18:07Z",
+          "pid": 3517356,
+          "proc_self_cgroup": "0::/user.slice/user-1008.slice/session-1960.scope",
+          "available": true,
+          "mount_root": "/",
+          "mount_point": "/sys/fs/cgroup",
+          "ancestors": [
+            {
+              "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-1960.scope",
+              "cpu.stat": "usage_usec 654800\nuser_usec 392476\nsystem_usec 262323\ncore_sched.force_idle_usec 0",
+              "memory.max": "max",
+              "memory.current": "23883776",
+              "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+            },
+            {
+              "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+              "cpu.stat": "usage_usec 187674202079\nuser_usec 171217019954\nsystem_usec 16457182125\ncore_sched.force_idle_usec 0",
+              "memory.max": "max",
+              "memory.current": "8311836672",
+              "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+            },
+            {
+              "path": "/sys/fs/cgroup/user.slice",
+              "cpu.max": "max 100000",
+              "cpu.stat": "usage_usec 5370419457265\nuser_usec 4038776104673\nsystem_usec 1331643352591\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+              "memory.max": "max",
+              "memory.current": "144823316480",
+              "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+            },
+            {
+              "path": "/sys/fs/cgroup",
+              "cpu.stat": "usage_usec 5430969097000\nuser_usec 4068013666000\nsystem_usec 1362955431000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+              "cpuset.cpus.effective": "0-95",
+              "cpuset.mems.effective": "0-1"
+            }
+          ]
+        },
+        "environment_overrides": {},
+        "pid": 3517369,
+        "returncode": 0,
+        "wall_seconds": 0.016103889094665647,
+        "utc_end": "2026-09-12T10:18:07Z",
+        "loadavg_end": [
+          0.07080078125,
+          0.21533203125,
+          3.435546875
+        ],
+        "memory_end_kib": {
+          "MemTotal": 395848532,
+          "MemAvailable": 381278308,
+          "SwapTotal": 2097148,
+          "SwapFree": 1582360
+        },
+        "log_sha256": "040dae472493bfd253dae97608fded69f0dcae137e594d423cc4227451a5ea7f",
+        "effective_cgroups_end": {
+          "utc": "2026-09-12T10:18:07Z",
+          "pid": 3517356,
+          "proc_self_cgroup": "0::/user.slice/user-1008.slice/session-1960.scope",
+          "available": true,
+          "mount_root": "/",
+          "mount_point": "/sys/fs/cgroup",
+          "ancestors": [
+            {
+              "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-1960.scope",
+              "cpu.stat": "usage_usec 674934\nuser_usec 399100\nsystem_usec 275834\ncore_sched.force_idle_usec 0",
+              "memory.max": "max",
+              "memory.current": "23748608",
+              "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+            },
+            {
+              "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+              "cpu.stat": "usage_usec 187674222214\nuser_usec 171217026970\nsystem_usec 16457195244\ncore_sched.force_idle_usec 0",
+              "memory.max": "max",
+              "memory.current": "8311701504",
+              "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+            },
+            {
+              "path": "/sys/fs/cgroup/user.slice",
+              "cpu.max": "max 100000",
+              "cpu.stat": "usage_usec 5370419477444\nuser_usec 4038776111547\nsystem_usec 1331643365896\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+              "memory.max": "max",
+              "memory.current": "144823181312",
+              "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+            },
+            {
+              "path": "/sys/fs/cgroup",
+              "cpu.stat": "usage_usec 5430969115000\nuser_usec 4068013672000\nsystem_usec 1362955443000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+              "cpuset.cpus.effective": "0-95",
+              "cpuset.mems.effective": "0-1"
+            }
+          ]
+        }
+      },
+      {
+        "stage": "tests",
+        "argv": [
+          "taskset",
+          "-c",
+          "0-47,48-55,72-79",
+          "/home/mscong1/.cargo/bin/cargo",
+          "+nightly-2026-03-21",
+          "test",
+          "-p",
+          "mikros",
+          "--release",
+          "--locked",
+          "--offline"
+        ],
+        "cwd": "/home/mscong1/mikros-experiments/20260912T-native64/v5-univariate/source",
+        "utc_start": "2026-09-12T10:18:07Z",
+        "loadavg_start": [
+          0.07080078125,
+          0.21533203125,
+          3.435546875
+        ],
+        "memory_start_kib": {
+          "MemTotal": 395848532,
+          "MemAvailable": 381278308,
+          "SwapTotal": 2097148,
+          "SwapFree": 1582360
+        },
+        "effective_cgroups_start": {
+          "utc": "2026-09-12T10:18:07Z",
+          "pid": 3517356,
+          "proc_self_cgroup": "0::/user.slice/user-1008.slice/session-1960.scope",
+          "available": true,
+          "mount_root": "/",
+          "mount_point": "/sys/fs/cgroup",
+          "ancestors": [
+            {
+              "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-1960.scope",
+              "cpu.stat": "usage_usec 676935\nuser_usec 400099\nsystem_usec 276836\ncore_sched.force_idle_usec 0",
+              "memory.max": "max",
+              "memory.current": "23982080",
+              "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+            },
+            {
+              "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+              "cpu.stat": "usage_usec 187674224215\nuser_usec 171217027969\nsystem_usec 16457196246\ncore_sched.force_idle_usec 0",
+              "memory.max": "max",
+              "memory.current": "8311934976",
+              "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+            },
+            {
+              "path": "/sys/fs/cgroup/user.slice",
+              "cpu.max": "max 100000",
+              "cpu.stat": "usage_usec 5370419479445\nuser_usec 4038776112547\nsystem_usec 1331643366897\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+              "memory.max": "max",
+              "memory.current": "144823414784",
+              "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+            },
+            {
+              "path": "/sys/fs/cgroup",
+              "cpu.stat": "usage_usec 5430969117000\nuser_usec 4068013673000\nsystem_usec 1362955444000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+              "cpuset.cpus.effective": "0-95",
+              "cpuset.mems.effective": "0-1"
+            }
+          ]
+        },
+        "environment_overrides": {},
+        "pid": 3517381,
+        "returncode": 0,
+        "wall_seconds": 26.848358677932993,
+        "utc_end": "2026-09-12T10:18:34Z",
+        "loadavg_end": [
+          2.494140625,
+          0.7900390625,
+          3.54052734375
+        ],
+        "memory_end_kib": {
+          "MemTotal": 395848532,
+          "MemAvailable": 380328276,
+          "SwapTotal": 2097148,
+          "SwapFree": 1582360
+        },
+        "log_sha256": "94f04b35247fdba4fd2a92e7e9b01be7cbd8478170cb5260c563293c896b80e5",
+        "effective_cgroups_end": {
+          "utc": "2026-09-12T10:18:34Z",
+          "pid": 3517356,
+          "proc_self_cgroup": "0::/user.slice/user-1008.slice/session-1960.scope",
+          "available": true,
+          "mount_root": "/",
+          "mount_point": "/sys/fs/cgroup",
+          "ancestors": [
+            {
+              "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-1960.scope",
+              "cpu.stat": "usage_usec 128967619\nuser_usec 121580847\nsystem_usec 7386772\ncore_sched.force_idle_usec 0",
+              "memory.max": "max",
+              "memory.current": "191062016",
+              "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+            },
+            {
+              "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+              "cpu.stat": "usage_usec 187802581986\nuser_usec 171338223970\nsystem_usec 16464358015\ncore_sched.force_idle_usec 0",
+              "memory.max": "max",
+              "memory.current": "8479006720",
+              "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+            },
+            {
+              "path": "/sys/fs/cgroup/user.slice",
+              "cpu.max": "max 100000",
+              "cpu.stat": "usage_usec 5370548018560\nuser_usec 4038897379663\nsystem_usec 1331650638897\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+              "memory.max": "max",
+              "memory.current": "144989659136",
+              "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+            },
+            {
+              "path": "/sys/fs/cgroup",
+              "cpu.stat": "usage_usec 5431099441000\nuser_usec 4068135731000\nsystem_usec 1362963710000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+              "cpuset.cpus.effective": "0-95",
+              "cpuset.mems.effective": "0-1"
+            }
+          ]
+        }
+      },
+      {
+        "stage": "build",
+        "argv": [
+          "taskset",
+          "-c",
+          "0-47,48-55,72-79",
+          "/home/mscong1/.cargo/bin/cargo",
+          "+nightly-2026-03-21",
+          "bench",
+          "-p",
+          "mikros",
+          "--bench",
+          "univariate_vs_flock",
+          "--no-run",
+          "--locked",
+          "--offline",
+          "--message-format=json"
+        ],
+        "cwd": "/home/mscong1/mikros-experiments/20260912T-native64/v5-univariate/source",
+        "utc_start": "2026-09-12T10:18:34Z",
+        "loadavg_start": [
+          2.494140625,
+          0.7900390625,
+          3.54052734375
+        ],
+        "memory_start_kib": {
+          "MemTotal": 395848532,
+          "MemAvailable": 380328276,
+          "SwapTotal": 2097148,
+          "SwapFree": 1582360
+        },
+        "effective_cgroups_start": {
+          "utc": "2026-09-12T10:18:34Z",
+          "pid": 3517356,
+          "proc_self_cgroup": "0::/user.slice/user-1008.slice/session-1960.scope",
+          "available": true,
+          "mount_root": "/",
+          "mount_point": "/sys/fs/cgroup",
+          "ancestors": [
+            {
+              "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-1960.scope",
+              "cpu.stat": "usage_usec 128972600\nuser_usec 121583827\nsystem_usec 7388773\ncore_sched.force_idle_usec 0",
+              "memory.max": "max",
+              "memory.current": "190808064",
+              "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+            },
+            {
+              "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+              "cpu.stat": "usage_usec 187802585967\nuser_usec 171338226952\nsystem_usec 16464359014\ncore_sched.force_idle_usec 0",
+              "memory.max": "max",
+              "memory.current": "8478752768",
+              "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+            },
+            {
+              "path": "/sys/fs/cgroup/user.slice",
+              "cpu.max": "max 100000",
+              "cpu.stat": "usage_usec 5370548023555\nuser_usec 4038897383659\nsystem_usec 1331650639895\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+              "memory.max": "max",
+              "memory.current": "144989405184",
+              "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+            },
+            {
+              "path": "/sys/fs/cgroup",
+              "cpu.stat": "usage_usec 5431099445000\nuser_usec 4068135735000\nsystem_usec 1362963710000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+              "cpuset.cpus.effective": "0-95",
+              "cpuset.mems.effective": "0-1"
+            }
+          ]
+        },
+        "environment_overrides": {},
+        "pid": 3519278,
+        "returncode": 0,
+        "wall_seconds": 45.75910723418929,
+        "utc_end": "2026-09-12T10:19:20Z",
+        "loadavg_end": [
+          2.14404296875,
+          1.00634765625,
+          3.47216796875
+        ],
+        "memory_end_kib": {
+          "MemTotal": 395848532,
+          "MemAvailable": 380042524,
+          "SwapTotal": 2097148,
+          "SwapFree": 1582360
+        },
+        "log_sha256": "3a16b741dfc8df27b90817c6684dc54e809b303187d52b85e98a1dba04020778",
+        "effective_cgroups_end": {
+          "utc": "2026-09-12T10:19:20Z",
+          "pid": 3517356,
+          "proc_self_cgroup": "0::/user.slice/user-1008.slice/session-1960.scope",
+          "available": true,
+          "mount_root": "/",
+          "mount_point": "/sys/fs/cgroup",
+          "ancestors": [
+            {
+              "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-1960.scope",
+              "cpu.stat": "usage_usec 212096980\nuser_usec 198823399\nsystem_usec 13273580\ncore_sched.force_idle_usec 0",
+              "memory.max": "max",
+              "memory.current": "450191360",
+              "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+            },
+            {
+              "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+              "cpu.stat": "usage_usec 187885818947\nuser_usec 171415491696\nsystem_usec 16470327250\ncore_sched.force_idle_usec 0",
+              "memory.max": "max",
+              "memory.current": "8738054144",
+              "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+            },
+            {
+              "path": "/sys/fs/cgroup/user.slice",
+              "cpu.max": "max 100000",
+              "cpu.stat": "usage_usec 5370631546913\nuser_usec 4038974791081\nsystem_usec 1331656755831\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+              "memory.max": "max",
+              "memory.current": "145250676736",
+              "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+            },
+            {
+              "path": "/sys/fs/cgroup",
+              "cpu.stat": "usage_usec 5431185968000\nuser_usec 4068214314000\nsystem_usec 1362971654000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+              "cpuset.cpus.effective": "0-95",
+              "cpuset.mems.effective": "0-1"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "executable_sha256": "b08be2b84e6e1ce1b6f6b592b89a1b4fbacd3658e9cd1b3ba005918ec733a49f",
+  "utc_end": "2026-09-12T10:23:58Z",
+  "memory_end_kib": {
+    "MemTotal": 395848532,
+    "MemAvailable": 381074232,
+    "SwapTotal": 2097148,
+    "SwapFree": 1582360
+  },
+  "loadavg_end": [
+    1.0166015625,
+    1.0029296875,
+    2.83154296875
+  ],
+  "mikros_sources_blake3": "27a073b63239a2186bb605581a3c63971ac3c2942b6b25f6848083c0f3cfddb2",
+  "flock_sources_blake3": "2db6742de4472a0ab577e3dca4a3fd2f4c8f011f569b081101913f1970ce096c",
+  "validated_proof_records": 32
+}

@@ -1,0 +1,232 @@
+{
+  "metadata": {
+    "arch": "x86_64",
+    "build_configuration_blake3": "950309c6293bfc348670b3997b50bae67337556c9aa13aeb9cb43ed4d40207e3",
+    "carryless_backend": "lookup-fallback",
+    "carryless_scope": "coeffclmul/coeffnibble encode directly to binary planes using 512 KiB byte or 64 KiB nibble tables; four-row VPCLMUL Karatsuba high convolution, AES reduction, decode and original register consumer; same 2048-row outer blocks as PairAggregate; all witness conversions online; safe original native/lookup fallback; corresponding reuse modes retain independent scratch capacity",
+    "coefficient_scope": "coefflookup/coeffnative use monomial row encoding and upper schoolbook products; coeffnative uses GFNI/AVX-512 when available; column claims and monomial quotient bytes are identical to existing kernels; interpolate_quotient_ms measures sparse division for these modes; witness-to-coefficient conversion and products are online and timed; only input-independent lookup tables persist; coefflookupreuse/coeffnativereuse retain independent per-system allocation capacity",
+    "compiled_target_features": [
+      "pclmulqdq",
+      "avx2",
+      "sse4.1"
+    ],
+    "cpu": "Intel(R) Core(TM) i7-8700K CPU @ 3.70GHz",
+    "extension_coordinates": 16,
+    "flock_skip_rounds": 7,
+    "flock_sources_blake3": "31b53bb2b4766b51806f0886ddc7e0cec3d648f9d31d1121d34dcfc110423553",
+    "grinding": "disabled; no equal-security claim",
+    "intermediate_field_bits": 8,
+    "kappa": 128,
+    "kernel_scope": "reference/lookup/native/tiled/basis/register/split/half/pair/affine/joint select the first aggregation only; native/reuse preserve the v5 kernel; basis/basisreuse retain v6 batched coordinate conversion; register/registerreuse avoid its intermediate zeroing; registerpacked/registerpackedreuse also defer IP message horizontal folds within each packing task; split/splitreuse separate H and continuation accumulation in eight-coordinate loops; half/halfreuse group eight coordinates by sample half; pair/pairreuse unroll paired continuation interpolation with the original consume loop; affine/affinereuse replace split H masks with eight-row GFNI affine maps; joint/jointreuse combine paired interpolation and affine H; split/half/pair/affine/joint retain the v6 Batch conversion and original packing; every mode uses the same mathematical GF256 basis, C projection, weights and IP protocol with hardware fallbacks",
+    "latex": "latex/4-block.tex",
+    "logs": [
+      14
+    ],
+    "memory": "VmHWM read immediately after prove, before verify and source checks; includes input and runtime",
+    "mikros_sources_blake3": "ca246d1d6ecfbda99b112ed83d003e359a8377bf11d4de4c411b689a19142d61",
+    "mode": "paired_warm_timing",
+    "native_backend": "lookup-fallback",
+    "os": "linux",
+    "position_balanced": true,
+    "profile": false,
+    "protocol": "mikros-univariate-gf256-v1",
+    "rayon_actual_threads": 4,
+    "runs": 2,
+    "rustc": "rustc 1.96.0-nightly (ac7f9ec7d 2026-03-20); binary: rustc; commit-hash: ac7f9ec7da74d37fd28667c86bf117a39ba5b02a; commit-date: 2026-03-20; host: x86_64-unknown-linux-gnu; release: 1.96.0-nightly; LLVM version: 22.1.0",
+    "scope": "Direct packed-opening PIOP only; no extra column-to-tensor aggregation or PCS; all source claims independently checked outside timings",
+    "scratch": "reuse/tiledreuse/basisreuse/registerreuse/registerpackedreuse/splitreuse/halfreuse/pairreuse/affinereuse/jointreuse retain independent per-system allocation capacity, reset for each dimension; other Mikros modes allocate and deallocate per proof; all dynamic values rebuilt; Flock uses its production pool",
+    "setup": "fixed tables initialized inside first proof and included in warmup/cold timing; no costs subtracted",
+    "source_check_policy": "Every proof is verified and its transcript checked; each (dimension,run) has new immutable inputs and a new cache. First Mikros claims use the full source oracle; optional --reuse-source-checks permits later kernels only when their verifier-returned Claims equal the previously checked Claims exactly. Records identify full_oracle versus exact_claim_cache and the anchor system. Flock always uses its full oracle. All checks and comparisons are outside prover timing.",
+    "source_check_reuse": false,
+    "systems": [
+      "pairreuse",
+      "flock128"
+    ],
+    "threads": 4,
+    "timing": "input generation/digest, challenger creation, serialization and source claim checks excluded; verifier is reduction replay only",
+    "unix_timestamp_seconds": 1789296718
+  },
+  "samples": [
+    {
+      "bincode_bytes": 4400,
+      "input_claim_check_ms": 0.20120000000000002,
+      "input_digest": "07d9149d6f712fe2b40ea827b5703554ba1cc2f41c38f05b9d247667413f19a9",
+      "log_n": 14,
+      "mikros_phases": null,
+      "order": 0,
+      "payload_field_bytes": 4368,
+      "payload_field_elements": 273,
+      "proof_digest": "a94e921e197a8e28e3dcc31e6d9f02c7ca1d08660d3e375a58e0534cc422434c",
+      "prover_ms": 0.9124,
+      "run": 1,
+      "source_check_anchor": "flock128",
+      "source_check_method": "full_oracle",
+      "source_claims_verified": true,
+      "system": "flock128",
+      "transcript_matched": true,
+      "verifier_ms": 0.32630000000000003,
+      "verifier_passed": true,
+      "vm_hwm_after_prove_kib": null,
+      "vm_rss_before_prove_kib": null
+    },
+    {
+      "bincode_bytes": 4376,
+      "input_claim_check_ms": 0.1556,
+      "input_digest": "07d9149d6f712fe2b40ea827b5703554ba1cc2f41c38f05b9d247667413f19a9",
+      "log_n": 14,
+      "mikros_phases": null,
+      "order": 1,
+      "payload_field_bytes": 4352,
+      "payload_field_elements": 272,
+      "proof_digest": "9c79913d99744b5baa52fe1aa04ad23c44e73952661934e9c3a96a6ce8c39d10",
+      "prover_ms": 0.46030000000000004,
+      "run": 1,
+      "source_check_anchor": "pairreuse",
+      "source_check_method": "full_oracle",
+      "source_claims_verified": true,
+      "system": "pairreuse",
+      "transcript_matched": true,
+      "verifier_ms": 0.0207,
+      "verifier_passed": true,
+      "vm_hwm_after_prove_kib": null,
+      "vm_rss_before_prove_kib": null
+    },
+    {
+      "bincode_bytes": 4376,
+      "input_claim_check_ms": 0.1638,
+      "input_digest": "5338023a69481f4f7a1dd4fe48768fb7c7bb26a2fbe91a8ce54bf290b874edfe",
+      "log_n": 14,
+      "mikros_phases": null,
+      "order": 0,
+      "payload_field_bytes": 4352,
+      "payload_field_elements": 272,
+      "proof_digest": "5f97363f3a68b63575b60a274c03650ef3cc947d8fa1183d24f3bf1175879fde",
+      "prover_ms": 0.4612,
+      "run": 2,
+      "source_check_anchor": "pairreuse",
+      "source_check_method": "full_oracle",
+      "source_claims_verified": true,
+      "system": "pairreuse",
+      "transcript_matched": true,
+      "verifier_ms": 0.0208,
+      "verifier_passed": true,
+      "vm_hwm_after_prove_kib": null,
+      "vm_rss_before_prove_kib": null
+    },
+    {
+      "bincode_bytes": 4400,
+      "input_claim_check_ms": 0.2111,
+      "input_digest": "5338023a69481f4f7a1dd4fe48768fb7c7bb26a2fbe91a8ce54bf290b874edfe",
+      "log_n": 14,
+      "mikros_phases": null,
+      "order": 1,
+      "payload_field_bytes": 4368,
+      "payload_field_elements": 273,
+      "proof_digest": "bfebaa737c6aa28502cce89f52702443ad60474ef3ab53c5711af13e96241517",
+      "prover_ms": 0.7736999999999999,
+      "run": 2,
+      "source_check_anchor": "flock128",
+      "source_check_method": "full_oracle",
+      "source_claims_verified": true,
+      "system": "flock128",
+      "transcript_matched": true,
+      "verifier_ms": 0.3395,
+      "verifier_passed": true,
+      "vm_hwm_after_prove_kib": null,
+      "vm_rss_before_prove_kib": null
+    }
+  ],
+  "schema_version": 1,
+  "summaries": [
+    {
+      "bincode_bytes": 4376,
+      "input_claim_check_ms": {
+        "max": 0.1638,
+        "median": 0.1597,
+        "min": 0.1556
+      },
+      "log_n": 14,
+      "payload_field_bytes": 4352,
+      "prover_ms": {
+        "max": 0.4612,
+        "median": 0.46075,
+        "min": 0.46030000000000004
+      },
+      "runs": 2,
+      "system": "pairreuse",
+      "verifier_ms": {
+        "max": 0.0208,
+        "median": 0.020749999999999998,
+        "min": 0.0207
+      }
+    },
+    {
+      "bincode_bytes": 4400,
+      "input_claim_check_ms": {
+        "max": 0.2111,
+        "median": 0.20615,
+        "min": 0.20120000000000002
+      },
+      "log_n": 14,
+      "payload_field_bytes": 4368,
+      "prover_ms": {
+        "max": 0.9124,
+        "median": 0.84305,
+        "min": 0.7736999999999999
+      },
+      "runs": 2,
+      "system": "flock128",
+      "verifier_ms": {
+        "max": 0.3395,
+        "median": 0.33290000000000003,
+        "min": 0.32630000000000003
+      }
+    }
+  ],
+  "warmups": [
+    {
+      "bincode_bytes": 4376,
+      "input_claim_check_ms": 0.1657,
+      "input_digest": "3f599614c20411adaa17075e17750071a5ea3547ae8946ea32aa0a0eb8088b03",
+      "log_n": 14,
+      "mikros_phases": null,
+      "order": 0,
+      "payload_field_bytes": 4352,
+      "payload_field_elements": 272,
+      "proof_digest": "34c33b68d64d6da14c47f3aa07c61df7b57ca826a70560e0c4471626e6f0999d",
+      "prover_ms": 9.152800000000001,
+      "run": 0,
+      "source_check_anchor": "pairreuse",
+      "source_check_method": "full_oracle",
+      "source_claims_verified": true,
+      "system": "pairreuse",
+      "transcript_matched": true,
+      "verifier_ms": 0.023799999999999998,
+      "verifier_passed": true,
+      "vm_hwm_after_prove_kib": null,
+      "vm_rss_before_prove_kib": null
+    },
+    {
+      "bincode_bytes": 4400,
+      "input_claim_check_ms": 0.1785,
+      "input_digest": "3f599614c20411adaa17075e17750071a5ea3547ae8946ea32aa0a0eb8088b03",
+      "log_n": 14,
+      "mikros_phases": null,
+      "order": 1,
+      "payload_field_bytes": 4368,
+      "payload_field_elements": 273,
+      "proof_digest": "d69ce43f626401600b105cce4b73420d98f52afdd18c803fc47b3a8dd5642549",
+      "prover_ms": 1.0395,
+      "run": 0,
+      "source_check_anchor": "flock128",
+      "source_check_method": "full_oracle",
+      "source_claims_verified": true,
+      "system": "flock128",
+      "transcript_matched": true,
+      "verifier_ms": 0.3038,
+      "verifier_passed": true,
+      "vm_hwm_after_prove_kib": null,
+      "vm_rss_before_prove_kib": null
+    }
+  ]
+}

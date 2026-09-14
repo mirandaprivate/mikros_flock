@@ -1,0 +1,415 @@
+{
+  "schema_version": 1,
+  "metadata": {
+    "arch": "x86_64",
+    "compiled_target_features": [
+      "aes",
+      "pclmulqdq",
+      "sse4.1",
+      "gfni",
+      "avx2",
+      "avx512f",
+      "avx512bw",
+      "avx512vbmi",
+      "vpclmulqdq"
+    ],
+    "cpu": "Intel(R) Xeon(R) Gold 6342 CPU @ 2.80GHz",
+    "git_dirty": null,
+    "git_revision": null,
+    "git_status": null,
+    "grinding": "disabled for both; no equal-128-bit-security claim",
+    "input": "deterministic packed uniform a,b; c=a&b; same per-run triple and observed BLAKE3 input digest for all systems",
+    "logs": [
+      30
+    ],
+    "measured_setup": {
+      "isolated_table_setup_ms": null,
+      "policy": "warmup samples include first-proof setup; no setup costs subtracted from prover timing"
+    },
+    "memory": "Linux-only process VmHWM after prove and before verify/input checks; includes inputs, runtime and tables; requires --rss with one system/dimension in a fresh process; unavailable elsewhere",
+    "mikros_kernel_variants": "reference: scalar oracle; lookup: original per-row LUT; packed8: eight-row blocks; packed: selected packed blocks; both packed variants use fused binding and fused IP tail",
+    "mikros_phase_profiling": true,
+    "mikros_sources_blake3": "1044d29674c3db363e71c98a028d2a089272235e9924e6ca2420610787c2999d",
+    "mode": "paired_warm_timing",
+    "native_ablation_variants": "legacy: old64; stream: streamed tensor; simdv1: GFNI horizontal reduction; simd: GFNI byte planes; wide: plus VPCLMUL IP; fused: plus packing/initial-message and C projection; native: plus blocked row weights; reuse: native with persistent allocation capacity; factored: native with tensor-factored row aggregation; factoredreuse: factored with persistent allocation capacity",
+    "os": "linux",
+    "proof_digest": "BLAKE3 of bincode proof outside all timings; identical Mikros kernels must have identical digests on paired input",
+    "rayon_actual_threads": 64,
+    "repository_default_rustflags": "-C target-cpu=native",
+    "runs": 3,
+    "rustc": "rustc 1.96.0-nightly (ac7f9ec7d 2026-03-20); binary: rustc; commit-hash: ac7f9ec7da74d37fd28667c86bf117a39ba5b02a; commit-date: 2026-03-20; host: x86_64-unknown-linux-gnu; release: 1.96.0-nightly; LLVM version: 22.1.0",
+    "scope": "PIOP reductions only; no PCS commitments or openings; every returned claim checked directly against original input outside timings",
+    "scratch_policy": "reuse and factoredreuse each retain independent buffers across proofs; warmup stores first allocation; all witness/challenge-dependent contents rebuilt within prove; every other Mikros variant allocates fresh scratch per proof",
+    "systems": [
+      "native",
+      "factored",
+      "flock"
+    ],
+    "threads": 64,
+    "timing": "input generation, digest, challenger initialization, serialization, direct input claim checks excluded; all per-proof work inside prove included",
+    "transcript_hash": "blake3",
+    "tuning_environment": {
+      "FLOCK_ZC_TIMING": "1"
+    },
+    "unix_timestamp_seconds": 1789201393,
+    "warmups_per_system_per_dimension": 1
+  },
+  "summaries": [
+    {
+      "log_n": 30,
+      "constraints": 1073741824,
+      "system": "native",
+      "runs": 3,
+      "prover_ms": {
+        "median": 151.32516800000002,
+        "min": 146.186287,
+        "max": 163.96865699999998
+      },
+      "verifier_ms": {
+        "median": 0.210339,
+        "min": 0.178205,
+        "max": 0.27890800000000004
+      },
+      "input_claim_check_ms": {
+        "median": 13441.477008,
+        "min": 13426.885644,
+        "max": 13505.828058000001
+      },
+      "payload_field_elements": 2236,
+      "payload_field_bytes": 35776,
+      "bincode_bytes": 35800
+    },
+    {
+      "log_n": 30,
+      "constraints": 1073741824,
+      "system": "factored",
+      "runs": 3,
+      "prover_ms": {
+        "median": 142.89248800000001,
+        "min": 129.186851,
+        "max": 152.937652
+      },
+      "verifier_ms": {
+        "median": 0.193186,
+        "min": 0.175179,
+        "max": 0.27710799999999997
+      },
+      "input_claim_check_ms": {
+        "median": 13462.16315,
+        "min": 13460.587723,
+        "max": 13547.093053999999
+      },
+      "payload_field_elements": 2236,
+      "payload_field_bytes": 35776,
+      "bincode_bytes": 35800
+    },
+    {
+      "log_n": 30,
+      "constraints": 1073741824,
+      "system": "flock",
+      "runs": 3,
+      "prover_ms": {
+        "median": 128.857126,
+        "min": 120.316868,
+        "max": 132.052105
+      },
+      "verifier_ms": {
+        "median": 0.51013,
+        "min": 0.31891400000000003,
+        "max": 0.6136820000000001
+      },
+      "input_claim_check_ms": {
+        "median": 9197.688329,
+        "min": 9079.160537,
+        "max": 9562.000139
+      },
+      "payload_field_elements": 179,
+      "payload_field_bytes": 2864,
+      "bincode_bytes": 2896
+    }
+  ],
+  "warmups": [
+    {
+      "log_n": 30,
+      "system": "native",
+      "run": 0,
+      "order": 0,
+      "input_digest": "e527f65e39324179c618aa7530540274238543700a629a71045fa4afbc09fd34",
+      "prover_ms": 155.070929,
+      "verifier_ms": 0.200605,
+      "input_claim_check_ms": 13818.681316,
+      "payload_field_elements": 2236,
+      "payload_field_bytes": 35776,
+      "bincode_bytes": 35800,
+      "proof_digest": "8710edc4ff7a3dcb19be7982f6df1b054a973f07afbac485e2bb3a2d46c0388f",
+      "vm_rss_before_prove_kib": null,
+      "vm_hwm_after_prove_kib": null,
+      "mikros_phases": {
+        "setup_ms": 11.281375,
+        "tensor_aggregate_ms": 47.36352,
+        "certificate_split_ms": 0.012571,
+        "c_pack_project_ms": 6.053602,
+        "transcript_challenge_ms": 0.12375600000000002,
+        "ab_pack_ms": 19.403329,
+        "b_weight_ms": 0.00022600000000000002,
+        "inner_product_ms": 17.364316000000002,
+        "terminal_claims_ms": 0.0070550000000000005
+      }
+    },
+    {
+      "log_n": 30,
+      "system": "factored",
+      "run": 0,
+      "order": 1,
+      "input_digest": "e527f65e39324179c618aa7530540274238543700a629a71045fa4afbc09fd34",
+      "prover_ms": 142.162463,
+      "verifier_ms": 0.186335,
+      "input_claim_check_ms": 13477.314206000001,
+      "payload_field_elements": 2236,
+      "payload_field_bytes": 35776,
+      "bincode_bytes": 35800,
+      "proof_digest": "8710edc4ff7a3dcb19be7982f6df1b054a973f07afbac485e2bb3a2d46c0388f",
+      "vm_rss_before_prove_kib": null,
+      "vm_hwm_after_prove_kib": null,
+      "mikros_phases": {
+        "setup_ms": 11.980262999999999,
+        "tensor_aggregate_ms": 40.268281,
+        "certificate_split_ms": 0.031927000000000004,
+        "c_pack_project_ms": 3.400834,
+        "transcript_challenge_ms": 0.267138,
+        "ab_pack_ms": 21.611278000000002,
+        "b_weight_ms": 0.000311,
+        "inner_product_ms": 16.244138000000003,
+        "terminal_claims_ms": 0.006632
+      }
+    },
+    {
+      "log_n": 30,
+      "system": "flock",
+      "run": 0,
+      "order": 2,
+      "input_digest": "e527f65e39324179c618aa7530540274238543700a629a71045fa4afbc09fd34",
+      "prover_ms": 114.53690599999999,
+      "verifier_ms": 0.527343,
+      "input_claim_check_ms": 9343.405907999999,
+      "payload_field_elements": 179,
+      "payload_field_bytes": 2864,
+      "bincode_bytes": 2896,
+      "proof_digest": "d1aaab710df5abd68673c112a00a27bb5148da264477bb8df1a320673303f0ab",
+      "vm_rss_before_prove_kib": null,
+      "vm_hwm_after_prove_kib": null
+    }
+  ],
+  "samples": [
+    {
+      "log_n": 30,
+      "system": "native",
+      "run": 1,
+      "order": 0,
+      "input_digest": "39d3cf518d8882fa078aa71dc65075fe307de85adf9a5a057bd519bdf3c78499",
+      "prover_ms": 146.186287,
+      "verifier_ms": 0.27890800000000004,
+      "input_claim_check_ms": 13505.828058000001,
+      "payload_field_elements": 2236,
+      "payload_field_bytes": 35776,
+      "bincode_bytes": 35800,
+      "proof_digest": "ab1b91fd8b82c599dee1762760db1523ca492c27574d3eab495730be7fb4b9ed",
+      "vm_rss_before_prove_kib": null,
+      "vm_hwm_after_prove_kib": null,
+      "mikros_phases": {
+        "setup_ms": 13.927845,
+        "tensor_aggregate_ms": 42.260357,
+        "certificate_split_ms": 0.013803,
+        "c_pack_project_ms": 3.468626,
+        "transcript_challenge_ms": 0.15693900000000002,
+        "ab_pack_ms": 19.964351,
+        "b_weight_ms": 0.000212,
+        "inner_product_ms": 15.645821000000002,
+        "terminal_claims_ms": 0.0074329999999999995
+      }
+    },
+    {
+      "log_n": 30,
+      "system": "factored",
+      "run": 1,
+      "order": 1,
+      "input_digest": "39d3cf518d8882fa078aa71dc65075fe307de85adf9a5a057bd519bdf3c78499",
+      "prover_ms": 129.186851,
+      "verifier_ms": 0.27710799999999997,
+      "input_claim_check_ms": 13547.093053999999,
+      "payload_field_elements": 2236,
+      "payload_field_bytes": 35776,
+      "bincode_bytes": 35800,
+      "proof_digest": "ab1b91fd8b82c599dee1762760db1523ca492c27574d3eab495730be7fb4b9ed",
+      "vm_rss_before_prove_kib": null,
+      "vm_hwm_after_prove_kib": null,
+      "mikros_phases": {
+        "setup_ms": 8.842014,
+        "tensor_aggregate_ms": 39.286429,
+        "certificate_split_ms": 0.015062,
+        "c_pack_project_ms": 3.482599,
+        "transcript_challenge_ms": 0.127121,
+        "ab_pack_ms": 14.1736,
+        "b_weight_ms": 0.000637,
+        "inner_product_ms": 14.771052999999998,
+        "terminal_claims_ms": 0.007542999999999999
+      }
+    },
+    {
+      "log_n": 30,
+      "system": "flock",
+      "run": 1,
+      "order": 2,
+      "input_digest": "39d3cf518d8882fa078aa71dc65075fe307de85adf9a5a057bd519bdf3c78499",
+      "prover_ms": 132.052105,
+      "verifier_ms": 0.6136820000000001,
+      "input_claim_check_ms": 9562.000139,
+      "payload_field_elements": 179,
+      "payload_field_bytes": 2864,
+      "bincode_bytes": 2896,
+      "proof_digest": "7046e06b71b4177a747011f3feaaa5ac528b2d4b95b24b7c9db24a6d587501e0",
+      "vm_rss_before_prove_kib": null,
+      "vm_hwm_after_prove_kib": null
+    },
+    {
+      "log_n": 30,
+      "system": "flock",
+      "run": 2,
+      "order": 0,
+      "input_digest": "b4638163dbd1bea08443d8b4f632c4df53016c7edb6a5624c35ca7fc462ec002",
+      "prover_ms": 128.857126,
+      "verifier_ms": 0.31891400000000003,
+      "input_claim_check_ms": 9197.688329,
+      "payload_field_elements": 179,
+      "payload_field_bytes": 2864,
+      "bincode_bytes": 2896,
+      "proof_digest": "644e7330655969c7c0eab206a382f48515d1fc4f4fa62c01d1944724e6f0062c",
+      "vm_rss_before_prove_kib": null,
+      "vm_hwm_after_prove_kib": null
+    },
+    {
+      "log_n": 30,
+      "system": "factored",
+      "run": 2,
+      "order": 1,
+      "input_digest": "b4638163dbd1bea08443d8b4f632c4df53016c7edb6a5624c35ca7fc462ec002",
+      "prover_ms": 152.937652,
+      "verifier_ms": 0.193186,
+      "input_claim_check_ms": 13460.587723,
+      "payload_field_elements": 2236,
+      "payload_field_bytes": 35776,
+      "bincode_bytes": 35800,
+      "proof_digest": "4abea233487f223c015e63c306a21d84ced108b483974fd734a60bae2fc6012c",
+      "vm_rss_before_prove_kib": null,
+      "vm_hwm_after_prove_kib": null,
+      "mikros_phases": {
+        "setup_ms": 12.229766,
+        "tensor_aggregate_ms": 49.056582,
+        "certificate_split_ms": 0.013002,
+        "c_pack_project_ms": 4.204419,
+        "transcript_challenge_ms": 0.13811800000000002,
+        "ab_pack_ms": 20.984379,
+        "b_weight_ms": 0.000599,
+        "inner_product_ms": 16.004272,
+        "terminal_claims_ms": 0.011297999999999999
+      }
+    },
+    {
+      "log_n": 30,
+      "system": "native",
+      "run": 2,
+      "order": 2,
+      "input_digest": "b4638163dbd1bea08443d8b4f632c4df53016c7edb6a5624c35ca7fc462ec002",
+      "prover_ms": 163.96865699999998,
+      "verifier_ms": 0.210339,
+      "input_claim_check_ms": 13426.885644,
+      "payload_field_elements": 2236,
+      "payload_field_bytes": 35776,
+      "bincode_bytes": 35800,
+      "proof_digest": "4abea233487f223c015e63c306a21d84ced108b483974fd734a60bae2fc6012c",
+      "vm_rss_before_prove_kib": null,
+      "vm_hwm_after_prove_kib": null,
+      "mikros_phases": {
+        "setup_ms": 11.959999,
+        "tensor_aggregate_ms": 50.696028999999996,
+        "certificate_split_ms": 0.018956,
+        "c_pack_project_ms": 3.396559,
+        "transcript_challenge_ms": 0.507316,
+        "ab_pack_ms": 23.243373000000002,
+        "b_weight_ms": 0.000336,
+        "inner_product_ms": 18.193865,
+        "terminal_claims_ms": 0.009605
+      }
+    },
+    {
+      "log_n": 30,
+      "system": "factored",
+      "run": 3,
+      "order": 0,
+      "input_digest": "282b92ec4261b92dcc18316326edf9235863b523a46fab96e363c76cacb422fa",
+      "prover_ms": 142.89248800000001,
+      "verifier_ms": 0.175179,
+      "input_claim_check_ms": 13462.16315,
+      "payload_field_elements": 2236,
+      "payload_field_bytes": 35776,
+      "bincode_bytes": 35800,
+      "proof_digest": "bf8a6bbb7fb521396c0b4a6ebdd6d761930f652825ce3b6b30dcfe3980437b7d",
+      "vm_rss_before_prove_kib": null,
+      "vm_hwm_after_prove_kib": null,
+      "mikros_phases": {
+        "setup_ms": 12.967091,
+        "tensor_aggregate_ms": 38.62634,
+        "certificate_split_ms": 0.025109,
+        "c_pack_project_ms": 3.566471,
+        "transcript_challenge_ms": 0.135665,
+        "ab_pack_ms": 19.635931,
+        "b_weight_ms": 0.000136,
+        "inner_product_ms": 17.217298999999997,
+        "terminal_claims_ms": 0.010015
+      }
+    },
+    {
+      "log_n": 30,
+      "system": "flock",
+      "run": 3,
+      "order": 1,
+      "input_digest": "282b92ec4261b92dcc18316326edf9235863b523a46fab96e363c76cacb422fa",
+      "prover_ms": 120.316868,
+      "verifier_ms": 0.51013,
+      "input_claim_check_ms": 9079.160537,
+      "payload_field_elements": 179,
+      "payload_field_bytes": 2864,
+      "bincode_bytes": 2896,
+      "proof_digest": "518aa5731ec360d65b41bccb7f0edb96e77e3ab9f31a7674945bc8680ac72b30",
+      "vm_rss_before_prove_kib": null,
+      "vm_hwm_after_prove_kib": null
+    },
+    {
+      "log_n": 30,
+      "system": "native",
+      "run": 3,
+      "order": 2,
+      "input_digest": "282b92ec4261b92dcc18316326edf9235863b523a46fab96e363c76cacb422fa",
+      "prover_ms": 151.32516800000002,
+      "verifier_ms": 0.178205,
+      "input_claim_check_ms": 13441.477008,
+      "payload_field_elements": 2236,
+      "payload_field_bytes": 35776,
+      "bincode_bytes": 35800,
+      "proof_digest": "bf8a6bbb7fb521396c0b4a6ebdd6d761930f652825ce3b6b30dcfe3980437b7d",
+      "vm_rss_before_prove_kib": null,
+      "vm_hwm_after_prove_kib": null,
+      "mikros_phases": {
+        "setup_ms": 13.67063,
+        "tensor_aggregate_ms": 44.158845,
+        "certificate_split_ms": 0.012714999999999999,
+        "c_pack_project_ms": 3.766096,
+        "transcript_challenge_ms": 0.212536,
+        "ab_pack_ms": 23.499461999999998,
+        "b_weight_ms": 0.000337,
+        "inner_product_ms": 17.752493,
+        "terminal_claims_ms": 0.009584
+      }
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+error: failed to select a version for the requirement `toml = "^0.8"` (locked to 0.8.23)
+candidate versions found which didn't match: 0.8.20, 0.8.19, 0.8.18, ...
+location searched: crates.io index
+required by package `flock-core v0.1.0 (/home/mscong1/mikros-experiments/20260912T065538-n30/source/crates/flock-core)`
+As a reminder, you're using offline mode (--offline) which can sometimes cause surprising resolution failures, if this error is too confusing you may wish to retry without `--offline`.

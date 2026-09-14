@@ -1,0 +1,92 @@
+{
+  "utc_start": "2026-09-12T12:15:39.699570+00:00",
+  "utc_end": "2026-09-12T12:15:40.158076+00:00",
+  "argv": [
+    "objdump",
+    "-d",
+    "-Mintel",
+    "/home/mscong1/mikros-experiments/20260912T-native64/v8-aggregate/source/target/release/deps/univariate_vs_flock-22020f7b8413c02d"
+  ],
+  "executable": "/home/mscong1/mikros-experiments/20260912T-native64/v8-aggregate/source/target/release/deps/univariate_vs_flock-22020f7b8413c02d",
+  "executable_sha256": "c26172d4caa709fa3ee43a5b077757e56378702afe992c08d2b360daa9bc287f",
+  "functions": [
+    {
+      "file": "diagnostics/function-0.asm",
+      "header": "000000000065e1d0 <_RINvMs4_NtCsiKyBw8IgE1b_10rayon_core8registryNtB6_8Registry14in_worker_coldNCINvNtB8_4join12join_contextNCINvNvNtNtCsgA7WsSuASij_5rayon4iter8plumbing24bridge_producer_consumer6helperINtNtB1N_3zip11ZipProducerIB2V_INtNtNtB1P_5slice6chunks14ChunksProducerhEB3p_EIB3q_NtNtCskPVWNEMsUTt_11flock_field7gf2_1284F128EEINtNtB1N_3map11MapConsumerINtNtB1N_6reduce14ReduceConsumerNCNvNtCs5Palesvl9wF_6mikros10univariate9aggregates0_0NCB5X_s_0ENCB5X_0EE0NCB1G_s_0INtNtCs3KfQW3d0ssT_5alloc3vec3VecAhj10_EB7f_E0TB7f_B7f_EEB61_>:",
+      "lines": 134,
+      "sha256": "95046b69cdf58cd398712cac1816a23d3b3ce2afc50c4169878e518476fec6d9"
+    },
+    {
+      "file": "diagnostics/function-1.asm",
+      "header": "000000000065f040 <_RINvMs4_NtCsiKyBw8IgE1b_10rayon_core8registryNtB6_8Registry15in_worker_crossNCINvNtB8_4join12join_contextNCINvNvNtNtCsgA7WsSuASij_5rayon4iter8plumbing24bridge_producer_consumer6helperINtNtB1O_3zip11ZipProducerIB2W_INtNtNtB1Q_5slice6chunks14ChunksProducerhEB3q_EIB3r_NtNtCskPVWNEMsUTt_11flock_field7gf2_1284F128EEINtNtB1O_3map11MapConsumerINtNtB1O_6reduce14ReduceConsumerNCNvNtCs5Palesvl9wF_6mikros10univariate9aggregates0_0NCB5Y_s_0ENCB5Y_0EE0NCB1H_s_0INtNtCs3KfQW3d0ssT_5alloc3vec3VecAhj10_EB7g_E0TB7g_B7g_EEB62_>:",
+      "lines": 137,
+      "sha256": "ffce6d6c300ac97fdb7f6a15f309565194853ee55673609b8f25604b0328387f"
+    },
+    {
+      "file": "diagnostics/function-2.asm",
+      "header": "0000000000660eb0 <_RINvNvNtNtCsgA7WsSuASij_5rayon4iter8plumbing24bridge_producer_consumer6helperINtNtB6_3zip11ZipProducerIB1e_INtNtNtB8_5slice6chunks14ChunksProducerhEB1H_EIB1I_NtNtCskPVWNEMsUTt_11flock_field7gf2_1284F128EEINtNtB6_3map11MapConsumerINtNtB6_6reduce14ReduceConsumerNCNvNtCs5Palesvl9wF_6mikros10univariate9aggregates0_0NCB4c_s_0ENCB4c_0EEB4g_>:",
+      "lines": 439,
+      "sha256": "a2a77d8d49763118c913b0b8dd1da15785af10df7e2ae597a88d79d81247aaab"
+    },
+    {
+      "file": "diagnostics/function-3.asm",
+      "header": "0000000000667cd0 <_RNCINvNtCsiKyBw8IgE1b_10rayon_core4join12join_contextNCINvNvNtNtCsgA7WsSuASij_5rayon4iter8plumbing24bridge_producer_consumer6helperINtNtBY_3zip11ZipProducerIB26_INtNtNtB10_5slice6chunks14ChunksProducerhEB2z_EIB2A_NtNtCskPVWNEMsUTt_11flock_field7gf2_1284F128EEINtNtBY_3map11MapConsumerINtNtBY_6reduce14ReduceConsumerNCNvNtCs5Palesvl9wF_6mikros10univariate9aggregates0_0NCB55_s_0ENCB55_0EE0NCBR_s_0INtNtCs3KfQW3d0ssT_5alloc3vec3VecAhj10_EB6m_E0B59_>:",
+      "lines": 387,
+      "sha256": "9d9fcbfc5532156ab29352c3bd9a56efd6321bf9ec52da3233171fb4696a0c64"
+    },
+    {
+      "file": "diagnostics/function-4.asm",
+      "header": "000000000066a510 <_RNCNvNtCs5Palesvl9wF_6mikros10univariate9aggregate0B5_>:",
+      "lines": 5173,
+      "sha256": "297d88555b7b431484464dbb2bced0a5d3c9baf9e8c06575096ffb54d4964316"
+    },
+    {
+      "file": "diagnostics/function-5.asm",
+      "header": "0000000000670300 <_RNCNvNtCs5Palesvl9wF_6mikros10univariate9aggregates0_0B5_>:",
+      "lines": 49,
+      "sha256": "bd8d3b0aacdb125def299c8b977e1370451097ae03098dc0800f9dfe6e856b15"
+    },
+    {
+      "file": "diagnostics/function-6.asm",
+      "header": "0000000000678060 <_RNvNtCs5Palesvl9wF_6mikros10univariate9aggregate>:",
+      "lines": 161,
+      "sha256": "862a03f688b70edec87cbd2a149c6182aace9e4c625a69a59add9d107e4ca4b6"
+    },
+    {
+      "file": "diagnostics/function-7.asm",
+      "header": "000000000067d280 <_RNvNtNtCs5Palesvl9wF_6mikros10univariate5tiled12consume_four>:",
+      "lines": 114,
+      "sha256": "944341c7c24ebb7179f566a151c6fabf1b0a8bb71b7157049bf02fc263d90b79"
+    },
+    {
+      "file": "diagnostics/function-8.asm",
+      "header": "000000000067d4c0 <_RNvNtNtCs5Palesvl9wF_6mikros10univariate5tiled15aggregate_block>:",
+      "lines": 1216,
+      "sha256": "92084258d633d73d583a131ef85837980999a97dbc32935ad282e8c83c2d075e"
+    },
+    {
+      "file": "diagnostics/function-9.asm",
+      "header": "000000000067fca0 <_RNvNtNtNtCs5Palesvl9wF_6mikros10univariate5tiled8affine_h16consume_h_affine>:",
+      "lines": 661,
+      "sha256": "b19e5bed335220be5080d421fc47de6de74e123e7f848b4254a5967b7483c6a4"
+    },
+    {
+      "file": "diagnostics/function-10.asm",
+      "header": "0000000000681190 <_RNvXs2_NtCsiKyBw8IgE1b_10rayon_core3jobINtB5_8StackJobINtNtB7_5latch8LatchRefNtBT_9LockLatchENCNCINvMs4_NtB7_8registryNtB1E_8Registry14in_worker_coldNCINvNtB7_4join12join_contextNCINvNvNtNtCsgA7WsSuASij_5rayon4iter8plumbing24bridge_producer_consumer6helperINtNtB2Z_3zip11ZipProducerIB47_INtNtNtB31_5slice6chunks14ChunksProducerhEB4B_EIB4C_NtNtCskPVWNEMsUTt_11flock_field7gf2_1284F128EEINtNtB2Z_3map11MapConsumerINtNtB2Z_6reduce14ReduceConsumerNCNvNtCs5Palesvl9wF_6mikros10univariate9aggregates0_0NCB79_s_0ENCB79_0EE0NCB2S_s_0INtNtCs3KfQW3d0ssT_5alloc3vec3VecAhj10_EB8r_E0TB8r_B8r_EE00B9b_ENtB5_3Job7executeB7d_>:",
+      "lines": 151,
+      "sha256": "84a4534fa770b6b9f5be1aa7617cba5b1e55bbbbaa260209cfbd40e06dfa371e"
+    },
+    {
+      "file": "diagnostics/function-11.asm",
+      "header": "0000000000682470 <_RNvXs2_NtCsiKyBw8IgE1b_10rayon_core3jobINtB5_8StackJobNtNtB7_5latch9SpinLatchNCINvMs4_NtB7_8registryNtB1m_8Registry15in_worker_crossNCINvNtB7_4join12join_contextNCINvNvNtNtCsgA7WsSuASij_5rayon4iter8plumbing24bridge_producer_consumer6helperINtNtB2I_3zip11ZipProducerIB3Q_INtNtNtB2K_5slice6chunks14ChunksProducerhEB4k_EIB4l_NtNtCskPVWNEMsUTt_11flock_field7gf2_1284F128EEINtNtB2I_3map11MapConsumerINtNtB2I_6reduce14ReduceConsumerNCNvNtCs5Palesvl9wF_6mikros10univariate9aggregates0_0NCB6S_s_0ENCB6S_0EE0NCB2B_s_0INtNtCs3KfQW3d0ssT_5alloc3vec3VecAhj10_EB8a_E0TB8a_B8a_EE0B8U_ENtB5_3Job7executeB6W_>:",
+      "lines": 172,
+      "sha256": "6ab8ff20619aa1ee4b4c4d53b736cd9afac7a8268b1994a2c0ff1c165189ba7d"
+    },
+    {
+      "file": "diagnostics/function-12.asm",
+      "header": "0000000000684590 <_RNvXs2_NtCsiKyBw8IgE1b_10rayon_core3jobINtB5_8StackJobNtNtB7_5latch9SpinLatchNCINvNvNtB7_4join12join_context6call_bINtNtCs3KfQW3d0ssT_5alloc3vec3VecAhj10_ENCINvNvNtNtCsgA7WsSuASij_5rayon4iter8plumbing24bridge_producer_consumer6helperINtNtB2C_3zip11ZipProducerIB3K_INtNtNtB2E_5slice6chunks14ChunksProducerhEB4e_EIB4f_NtNtCskPVWNEMsUTt_11flock_field7gf2_1284F128EEINtNtB2C_3map11MapConsumerINtNtB2C_6reduce14ReduceConsumerNCNvNtCs5Palesvl9wF_6mikros10univariate9aggregates0_0NCB6M_s_0ENCB6M_0EEs_0E0B1P_ENtB5_3Job7executeB6Q_>:",
+      "lines": 139,
+      "sha256": "9c245a63bfacf582e5f2e20e28a751d0a2733afd38105e2c6708d1f4655c2826"
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+[
+  "rustc",
+  "+nightly-2026-03-21",
+  "-C",
+  "target-cpu=native",
+  "--print",
+  "cfg"
+]

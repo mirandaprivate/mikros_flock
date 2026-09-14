@@ -1,0 +1,6 @@
+{
+  "pid": 3500457,
+  "utc": "2026-09-12T08:09:43.462837+00:00",
+  "waits_for": "results/status.json complete",
+  "script": "from pathlib import Path\nimport time,json,subprocess,datetime\nr=Path('/home/mscong1/mikros-experiments/20260912T-native64/v3')\nwhile True:\n s=json.loads((r/'results/status.json').read_text())\n if s['stage']=='complete': break\n if s['stage']=='failed': raise RuntimeError('main failed; candidate cancelled')\n time.sleep(5)\nargv=['python3',str(r/'source/mikros/server_experiments/run_server_64.py'),'--root',str(r),'--skip-build','--results-name','candidate','--systems','native,factored,flock','--logs','30','--runs','6','--profile']\n(r/'candidate-launch.json').write_text(json.dumps({'argv':argv,'utc':datetime.datetime.now(datetime.timezone.utc).isoformat()},indent=2))\nsubprocess.run(argv,check=True)\n"
+}

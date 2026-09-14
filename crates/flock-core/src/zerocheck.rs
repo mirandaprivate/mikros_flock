@@ -14,6 +14,10 @@
 //! Both `prove` and `verify` are wired end-to-end. The prove→verify roundtrip
 //! is tested on honest witnesses; verify also rejects byte-mutated proofs and
 //! shape-corrupted ones.
+//!
+//! [`prove_packed_skip7`] / [`verify_skip7`] expose a separate dense PIOP
+//! with 128-bit rows. The legacy entry points and downstream PCS remain
+//! configured for [`K_SKIP`] = 6.
 
 use std::{
     env::{var, var_os},
@@ -52,12 +56,26 @@ use multilinear::{
 };
 use univariate_skip_optimized::{
     c_s_f128, medium_challenges_ghash, round1_shift_reduce_extract_c_packed_padded,
-    small_challenges_ghash,
+    round1_shift_reduce_extract_c_packed_skip7, small_challenges_ghash,
 };
 /// Number of variables folded in round 1 via the additive-NTT univariate skip.
 /// |Λ| = 2^K_SKIP = 64 elements; the round-1 prover message is two length-64
 /// vectors of F128.
 pub const K_SKIP: usize = 6;
+
+/// Skip dimension of the separate dense 128-bit-row PIOP.
+pub const K_SKIP_128: usize = 7;
+
+fn observe_protocol<C: Challenger>(k_skip: usize, m: usize, challenger: &mut C) {
+    match k_skip {
+        K_SKIP => challenger.observe_label(b"flock-zerocheck-v0"),
+        K_SKIP_128 => {
+            challenger.observe_label(b"flock-zerocheck-skip7-v0");
+            challenger.observe_bytes(&(m as u64).to_le_bytes());
+        }
+        _ => unreachable!("only the skip6 and skip7 protocols are configured"),
+    }
+}
 
 /// Test-only oracle for the compact variant-K round-2..5 pipeline: the
 /// transcript tests set this to run the incumbent route as their oracle arm.
@@ -134,8 +152,15 @@ impl ZerocheckGrinding {
     /// polynomial has degree `< 2^(K_SKIP + 1)`, hence degree at most
     /// `2^(K_SKIP + 1) - 1`.
     pub const fn skip_bits(self) -> Option<u32> {
+        self.skip_bits_for_skip(K_SKIP)
+    }
+
+    /// The same local degree-based schedule for the explicitly configured
+    /// skip dimension. Skip7 has degree bound 255 and requires eight bits.
+    pub const fn skip_bits_for_skip(self, k_skip: usize) -> Option<u32> {
+        assert!(k_skip == K_SKIP || k_skip == K_SKIP_128);
         if self.enabled {
-            Some(Self::bits_for_numerator((1usize << (K_SKIP + 1)) - 1))
+            Some(Self::bits_for_numerator((1usize << (k_skip + 1)) - 1))
         } else {
             None
         }
@@ -168,9 +193,15 @@ impl ZerocheckGrinding {
 
     /// Number of nonce words carried by one proof at domain dimension `m`.
     pub const fn nonce_count(self, m: usize) -> usize {
+        self.nonce_count_for_skip(m, K_SKIP)
+    }
+
+    /// Nonce count for an explicitly configured skip6 or skip7 protocol.
+    pub const fn nonce_count_for_skip(self, m: usize, k_skip: usize) -> usize {
+        assert!(k_skip == K_SKIP || k_skip == K_SKIP_128);
         if self.enabled {
             // initial point, skip point, and one nonce per tail round
-            2 + m - K_SKIP
+            2 + m - k_skip
         } else {
             0
         }
@@ -459,11 +490,13 @@ pub struct ZerocheckClaim {
     /// Univariate-skip challenge sampled after round 1 (binds the K_SKIP
     /// skip variables).
     pub z: F128,
-    /// AB sumcheck bind challenges, one per multilinear round; length = `m - K_SKIP`.
+    /// AB sumcheck bind challenges, one per multilinear round; length is
+    /// `m - k_skip` for the verifier-selected protocol.
     pub mlv_challenges: Vec<F128>,
     /// Eq weights for the rest variables = the zerocheck challenge restricted
-    /// to `r[K_SKIP..m]`. This is the *rest part of the c-claim's point*.
-    /// Length = `m - K_SKIP`.
+    /// to `r[k_skip..m]`. This is the *rest part of the c-claim's point*.
+    /// Length is `m - k_skip`, where the selected skip dimension is six
+    /// for the legacy protocol or seven for the separate skip7 PIOP.
     pub r_rest: Vec<F128>,
     /// `â(z, mlv_challenges)`.
     pub a_eval: F128,
@@ -476,14 +509,15 @@ pub struct ZerocheckClaim {
 /// All round messages the prover sends, in order.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ZerocheckProof {
-    /// Round 1 (univariate skip): `P^{AB}(λ)` for λ ∈ Λ, length 2^K_SKIP.
+    /// Round 1 (univariate skip): `P^{AB}(λ)` for λ ∈ Λ, length 64 for
+    /// the legacy protocol or 128 for the separate skip7 PIOP.
     pub round1_ab: Vec<F128>,
-    /// Round 1 (extract_c): `P^C(λ)` for λ ∈ Λ, length 2^K_SKIP. Sent separately
+    /// Round 1 (extract_c): `P^C(λ)` for λ ∈ Λ, same length as `round1_ab`. Sent separately
     /// from `round1_ab` so the verifier can evaluate the C-claim immediately
     /// and skip the C-column in all subsequent rounds.
     pub round1_c: Vec<F128>,
     /// Multilinear sumcheck rounds: each entry is `(P_r(1), P_r(∞))` via the
-    /// Karatsuba ∞-trick. Length = `m - K_SKIP`.
+    /// Karatsuba ∞-trick. Length is `m - k_skip` for the selected protocol.
     pub multilinear_rounds: Vec<(F128, F128)>,
     /// Final MLE evaluations sent at the end of the protocol.
     pub final_a_eval: F128,
@@ -499,11 +533,11 @@ pub struct ZerocheckProof {
 /// Reasons the verifier may reject a proof.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum ZerocheckError {
-    /// `log_n` doesn't satisfy `log_n >= K_SKIP`.
+    /// `log_n` doesn't satisfy `log_n >= k_skip + 7` for the selected protocol.
     LogNTooSmall { log_n: usize, k_skip: usize },
-    /// Round-1 messages have the wrong length (expected `2^K_SKIP`).
+    /// Round-1 messages have the wrong length (expected `2^k_skip`).
     BadRound1Length { expected: usize, got: usize },
-    /// Wrong number of multilinear-round messages (expected `log_n - K_SKIP`).
+    /// Wrong number of multilinear-round messages (expected `log_n - k_skip`).
     BadMultilinearRoundsLength { expected: usize, got: usize },
     /// The supplied nonce vector does not match the configured grinding
     /// schedule.  This is checked before replaying the transcript so a
@@ -513,7 +547,8 @@ pub enum ZerocheckError {
     /// corresponding challenge is sampled.
     InvalidGrindingNonce { which: &'static str },
     /// `proof.final_c_eval` doesn't match the verifier's reconstruction
-    /// `C_s · interpolate_at_z_on_lambda(round1_c, k_skip, z)`. Catches
+    /// `interpolate_at_z_on_lambda(round1_c, k_skip, z)` in the wire
+    /// convention (the prover already restored `C_s`). Catches
     /// dishonesty in the round-1 C message or in the final c-eval claim.
     CEvalMismatch,
     /// The AB sumcheck final consistency check failed: the inner running
@@ -555,6 +590,52 @@ pub fn prove_packed<C: Challenger>(
         ZerocheckGrinding::disabled(),
         challenger,
     )
+}
+
+/// Dense skip7 PIOP over 128-bit rows, requiring `m >= 14`.
+///
+/// This returns three unauthenticated evaluation claims, just like
+/// [`prove_packed`]. Its distinct transcript and 128-point skip domain are
+/// not compatible with the legacy skip6 PCS/capture interfaces. The caller
+/// must bind the public statement or commitment before entering this PIOP.
+pub fn prove_packed_skip7<C: Challenger>(
+    a_packed: &[u8],
+    b_packed: &[u8],
+    c_packed: &[u8],
+    m: usize,
+    challenger: &mut C,
+) -> (ZerocheckProof, ZerocheckClaim) {
+    prove_packed_skip7_with_grinding(
+        a_packed,
+        b_packed,
+        c_packed,
+        m,
+        ZerocheckGrinding::disabled(),
+        challenger,
+    )
+}
+
+/// [`prove_packed_skip7`] with an explicit verifier-agreed grinding policy.
+pub fn prove_packed_skip7_with_grinding<C: Challenger>(
+    a_packed: &[u8],
+    b_packed: &[u8],
+    c_packed: &[u8],
+    m: usize,
+    grinding: ZerocheckGrinding,
+    challenger: &mut C,
+) -> (ZerocheckProof, ZerocheckClaim) {
+    let (proof, claim, _) = prove_packed_padded_inner(
+        a_packed,
+        b_packed,
+        c_packed,
+        m,
+        &PaddingSpec::dense(m),
+        grinding,
+        false,
+        K_SKIP_128,
+        challenger,
+    );
+    (proof, claim)
 }
 
 /// [`prove_packed`] with an explicit Fiat--Shamir grinding policy.
@@ -611,7 +692,7 @@ pub fn prove_packed_padded_with_grinding<C: Challenger>(
     challenger: &mut C,
 ) -> (ZerocheckProof, ZerocheckClaim) {
     let (proof, claim, _) = prove_packed_padded_inner(
-        a_packed, b_packed, c_packed, m, padding, grinding, false, challenger,
+        a_packed, b_packed, c_packed, m, padding, grinding, false, K_SKIP, challenger,
     );
     (proof, claim)
 }
@@ -655,7 +736,7 @@ pub fn prove_packed_padded_capture_s_hat_v_c_with_grinding<C: Challenger>(
     challenger: &mut C,
 ) -> (ZerocheckProof, ZerocheckClaim, Vec<F128>) {
     let (proof, claim, captured) = prove_packed_padded_inner(
-        a_packed, b_packed, c_packed, m, padding, grinding, true, challenger,
+        a_packed, b_packed, c_packed, m, padding, grinding, true, K_SKIP, challenger,
     );
     (
         proof,
@@ -673,9 +754,11 @@ fn prove_packed_padded_inner<C: Challenger>(
     padding: &PaddingSpec,
     grinding: ZerocheckGrinding,
     capture_s_hat_v_c: bool,
+    k_skip: usize,
     challenger: &mut C,
 ) -> (ZerocheckProof, ZerocheckClaim, Option<Vec<F128>>) {
-    let k_skip = K_SKIP;
+    assert!(k_skip == K_SKIP || k_skip == K_SKIP_128);
+    assert!(k_skip == K_SKIP || !capture_s_hat_v_c);
     const N_INNER: usize = 7; // 3 small + 4 medium fixed-constant eq dims
     assert!(
         m >= k_skip + N_INNER,
@@ -687,9 +770,9 @@ fn prove_packed_padded_inner<C: Challenger>(
     assert_eq!(b_packed.len(), expected_bytes);
     assert_eq!(c_packed.len(), expected_bytes);
     let n_mlv = m - k_skip;
-    let mut grinding_nonces = Vec::with_capacity(grinding.nonce_count(m));
+    let mut grinding_nonces = Vec::with_capacity(grinding.nonce_count_for_skip(m, k_skip));
 
-    challenger.observe_label(b"flock-zerocheck-v0");
+    observe_protocol(k_skip, m, challenger);
 
     // ---- 1. Sample r (with protocol-fixed constants in the inner 7 dims) ----
     //
@@ -730,7 +813,12 @@ fn prove_packed_padded_inner<C: Challenger>(
     let ntt_s = AdditiveNttGf8::new(k_skip, F8::ZERO);
     let ntt_l = AdditiveNttGf8::new(k_skip, F8(1u8 << k_skip));
     let inv_table = InvNttTableByteSingleGf8::new(&ntt_s, &ntt_l);
-    let (round1_ab_opt, round1_c_opt, s_hat_v_c) = if capture_s_hat_v_c {
+    let (round1_ab_opt, round1_c_opt, s_hat_v_c) = if k_skip == K_SKIP_128 {
+        let (ab, c) = round1_shift_reduce_extract_c_packed_skip7(
+            a_packed, b_packed, c_packed, m, &r, &inv_table,
+        );
+        (ab, c, None)
+    } else if capture_s_hat_v_c {
         let (ab, c, s) = round1_shift_reduce_extract_c_packed_padded_with_s_hat_v(
             a_packed, b_packed, c_packed, m, k_skip, &r, &inv_table, padding,
         );
@@ -754,7 +842,7 @@ fn prove_packed_padded_inner<C: Challenger>(
     // ---- 4. Observe round-1 message, sample z (univariate round message fold point) ----
     challenger.observe_f128_slice(&round1_ab);
     challenger.observe_f128_slice(&round1_c);
-    let z = if let Some(bits) = grinding.skip_bits() {
+    let z = if let Some(bits) = grinding.skip_bits_for_skip(k_skip) {
         let (nonce, z) = challenger.grind_pow_and_sample_f128(bits);
         grinding_nonces.push(nonce);
         z
@@ -801,7 +889,7 @@ fn prove_packed_padded_inner<C: Challenger>(
     // cheaper, 42–63 vs 44–103, but not by enough). The cascade family below
     // therefore serves the DENSE single-run flows — where the sparse gate
     // fails on occupancy and compact-K certified −5 vs classic (2026-08-27).
-    let sparse_from_round2 = padding.as_single_run().is_none() && {
+    let sparse_from_round2 = k_skip == K_SKIP && padding.as_single_run().is_none() && {
         let list = padding.useful_block_intervals(k_skip);
         let live_elems: usize = list.iter().map(|&(s, e)| e - s).sum();
         let n_out = 1usize << n_mlv;
@@ -827,14 +915,16 @@ fn prove_packed_padded_inner<C: Challenger>(
             .map(|run| PaddingSpec::uniform(run.k_log, run.useful_bits_per_block, run.n_blocks))
     };
     let dense_single_run = cascade_padding.is_some();
-    let use_r2_lookahead = lookahead_on
+    let use_r2_lookahead = k_skip == K_SKIP
+        && lookahead_on
         && dense_single_run
         && cfg!(all(target_arch = "aarch64", target_feature = "aes"))
         && n_mlv >= 4
         && (1usize << (m - k_skip)) >= 1024;
     // ρ-nonzero gates cover the two parity unscalings (each misses w.p.
     // 2^-128); fallback is the incumbent route, values identical.
-    let use_compact_k = lookahead_on
+    let use_compact_k = k_skip == K_SKIP
+        && lookahead_on
         && dense_single_run
         && cfg!(all(target_arch = "aarch64", target_feature = "aes"))
         && n_mlv >= 7
@@ -1288,6 +1378,28 @@ pub fn verify<C: Challenger>(
     verify_with_grinding(log_n, proof, ZerocheckGrinding::disabled(), challenger)
 }
 
+/// Verify the separate dense skip7 PIOP, with 128 round-1 values per
+/// column and `log_n - 7` tail rounds. This authenticates the reduction
+/// transcript; the returned input claims still require an opening proof.
+pub fn verify_skip7<C: Challenger>(
+    log_n: usize,
+    proof: &ZerocheckProof,
+    challenger: &mut C,
+) -> Result<ZerocheckClaim, ZerocheckError> {
+    verify_skip7_with_grinding(log_n, proof, ZerocheckGrinding::disabled(), challenger)
+}
+
+/// [`verify_skip7`] with a verifier-selected grinding policy. The skip
+/// dimension is fixed by this entry point, never selected by the proof.
+pub fn verify_skip7_with_grinding<C: Challenger>(
+    log_n: usize,
+    proof: &ZerocheckProof,
+    grinding: ZerocheckGrinding,
+    challenger: &mut C,
+) -> Result<ZerocheckClaim, ZerocheckError> {
+    verify_inner(log_n, proof, grinding, K_SKIP_128, challenger)
+}
+
 /// [`verify`] with an explicit Fiat--Shamir grinding policy.  The policy is
 /// a verifier parameter, not prover-controlled proof metadata: it is part of
 /// the security configuration agreed before verification starts.
@@ -1297,8 +1409,18 @@ pub fn verify_with_grinding<C: Challenger>(
     grinding: ZerocheckGrinding,
     challenger: &mut C,
 ) -> Result<ZerocheckClaim, ZerocheckError> {
+    verify_inner(log_n, proof, grinding, K_SKIP, challenger)
+}
+
+fn verify_inner<C: Challenger>(
+    log_n: usize,
+    proof: &ZerocheckProof,
+    grinding: ZerocheckGrinding,
+    k_skip: usize,
+    challenger: &mut C,
+) -> Result<ZerocheckClaim, ZerocheckError> {
     let m = log_n;
-    let k_skip = K_SKIP;
+    assert!(k_skip == K_SKIP || k_skip == K_SKIP_128);
     const N_INNER: usize = 7;
 
     if m < k_skip + N_INNER {
@@ -1326,14 +1448,14 @@ pub fn verify_with_grinding<C: Challenger>(
             got: proof.multilinear_rounds.len(),
         });
     }
-    if proof.grinding_nonces.len() != grinding.nonce_count(m) {
+    if proof.grinding_nonces.len() != grinding.nonce_count_for_skip(m, k_skip) {
         return Err(ZerocheckError::BadGrindingNonceCount {
-            expected: grinding.nonce_count(m),
+            expected: grinding.nonce_count_for_skip(m, k_skip),
             got: proof.grinding_nonces.len(),
         });
     }
 
-    challenger.observe_label(b"flock-zerocheck-v0");
+    observe_protocol(k_skip, m, challenger);
     let mut nonce_idx = 0usize;
 
     // ---- Re-derive r (in lockstep with prove_packed) ----
@@ -1360,7 +1482,7 @@ pub fn verify_with_grinding<C: Challenger>(
     // ---- Observe round-1 messages, sample z ----
     challenger.observe_f128_slice(&proof.round1_ab);
     challenger.observe_f128_slice(&proof.round1_c);
-    let z = if let Some(bits) = grinding.skip_bits() {
+    let z = if let Some(bits) = grinding.skip_bits_for_skip(k_skip) {
         let z = challenger
             .verify_pow_and_sample_f128(proof.grinding_nonces[nonce_idx], bits)
             .ok_or(ZerocheckError::InvalidGrindingNonce { which: "skip" })?;
@@ -1496,11 +1618,13 @@ mod tests {
         test_rng::Rng,
         transcript_record::{RecordingChallenger, TranscriptOp},
         zerocheck::{
-            BlockCoverage, Challenger, F128, K_SKIP, PaddingRun, PaddingSpec,
+            BlockCoverage, Challenger, F128, K_SKIP, K_SKIP_128, PaddingRun, PaddingSpec,
             RS_TAIL_LOOKAHEAD_DISABLE, ZC_COMPACT_K_DISABLE, ZerocheckError, ZerocheckGrinding,
-            ZerocheckProof, cleanse_block, prove_packed, prove_packed_padded,
-            prove_packed_padded_capture_s_hat_v_c, prove_packed_with_grinding,
-            univariate_skip::pack_bits, verify, verify_with_grinding,
+            ZerocheckProof, cleanse_block, observe_protocol, prove_packed, prove_packed_padded,
+            prove_packed_padded_capture_s_hat_v_c, prove_packed_skip7,
+            prove_packed_skip7_with_grinding, prove_packed_with_grinding,
+            univariate_skip::pack_bits, verify, verify_skip7, verify_skip7_with_grinding,
+            verify_with_grinding,
         },
     };
 
@@ -1508,6 +1632,213 @@ mod tests {
     /// shape that `prove_packed` consumes.
     fn pack_abc(a: &[bool], b: &[bool], c: &[bool]) -> (Vec<u8>, Vec<u8>, Vec<u8>) {
         (pack_bits(a), pack_bits(b), pack_bits(c))
+    }
+
+    #[test]
+    fn skip7_honest_roundtrip_matches_source_claims() {
+        use super::multilinear::{fold_at_z_naive, lagrange_weights_naive};
+        use super::univariate_skip::build_eq;
+
+        for m in [14, 15, 18] {
+            let mut rng = Rng::new(0x7150 + m as u64);
+            let a = rng.bits(1 << m);
+            let b = rng.bits(1 << m);
+            let c: Vec<bool> = a.iter().zip(&b).map(|(&x, &y)| x & y).collect();
+            let (ap, bp, cp) = pack_abc(&a, &b, &c);
+            let mut prover = FsChallenger::new(b"skip7-roundtrip");
+            let (proof, claim) = prove_packed_skip7(&ap, &bp, &cp, m, &mut prover);
+            let mut verifier = FsChallenger::new(b"skip7-roundtrip");
+            assert_eq!(verify_skip7(m, &proof, &mut verifier).unwrap(), claim);
+            assert_eq!(prover.sample_f128(), verifier.sample_f128());
+            assert_eq!(proof.round1_ab.len(), 128);
+            assert_eq!(proof.round1_c.len(), 128);
+            assert_eq!(proof.multilinear_rounds.len(), m - K_SKIP_128);
+            assert_eq!(claim.r_rest.len(), m - K_SKIP_128);
+            assert!(proof.grinding_nonces.is_empty());
+
+            // Direct Boolean-input reference, independent of the production
+            // NTT table, packed fold, and sumcheck tail kernels.
+            let lambda = lagrange_weights_naive(K_SKIP_128, claim.z);
+            for (bits, point, expected) in [
+                (&a, &claim.mlv_challenges, claim.a_eval),
+                (&b, &claim.mlv_challenges, claim.b_eval),
+                (&c, &claim.r_rest, claim.c_eval),
+            ] {
+                let folded = fold_at_z_naive(bits, m, K_SKIP_128, &lambda);
+                let actual = folded
+                    .iter()
+                    .zip(build_eq(point))
+                    .fold(F128::ZERO, |sum, (&v, w)| sum + v * w);
+                assert_eq!(actual, expected, "source claim mismatch at m={m}");
+            }
+        }
+    }
+
+    #[test]
+    fn skip7_rejects_corrupt_messages_and_false_witness() {
+        let m = 14;
+        let mut rng = Rng::new(0x7151);
+        let a = rng.bits(1 << m);
+        let b = rng.bits(1 << m);
+        let c: Vec<bool> = a.iter().zip(&b).map(|(&x, &y)| x & y).collect();
+        let (ap, bp, mut cp) = pack_abc(&a, &b, &c);
+        let (proof, _) =
+            prove_packed_skip7(&ap, &bp, &cp, m, &mut FsChallenger::new(b"skip7-mutations"));
+        let tail_fields = 2 * proof.multilinear_rounds.len();
+        for which in 0..7 + tail_fields {
+            let mut bad = proof.clone();
+            match which {
+                0 => bad.round1_ab[0] += F128::ONE,
+                1 => bad.round1_ab[127] += F128::ONE,
+                2 => bad.round1_c[0] += F128::ONE,
+                3 => bad.round1_c[127] += F128::ONE,
+                4 => bad.final_a_eval += F128::ONE,
+                5 => bad.final_b_eval += F128::ONE,
+                6 => bad.final_c_eval += F128::ONE,
+                _ => {
+                    let i = which - 7;
+                    let round = &mut bad.multilinear_rounds[i / 2];
+                    if i % 2 == 0 {
+                        round.0 += F128::ONE;
+                    } else {
+                        round.1 += F128::ONE;
+                    }
+                }
+            }
+            assert!(
+                verify_skip7(m, &bad, &mut FsChallenger::new(b"skip7-mutations")).is_err(),
+                "accepted mutated field {which}"
+            );
+        }
+        cp[7] ^= 0x80;
+        let (false_proof, _) =
+            prove_packed_skip7(&ap, &bp, &cp, m, &mut FsChallenger::new(b"skip7-false"));
+        assert!(verify_skip7(m, &false_proof, &mut FsChallenger::new(b"skip7-false")).is_err());
+    }
+
+    #[test]
+    fn skip7_rejects_shapes_dimensions_and_wrong_domain() {
+        let m = 14;
+        let mut rng = Rng::new(0x7152);
+        let ap = rng.bits(1 << m);
+        let bp = rng.bits(1 << m);
+        let cp: Vec<bool> = ap.iter().zip(&bp).map(|(&x, &y)| x & y).collect();
+        let (ap, bp, cp) = pack_abc(&ap, &bp, &cp);
+        let (proof, _) =
+            prove_packed_skip7(&ap, &bp, &cp, m, &mut FsChallenger::new(b"skip7-shape"));
+        let check = |p: &ZerocheckProof| verify_skip7(m, p, &mut FsChallenger::new(b"skip7-shape"));
+        let mut bad = proof.clone();
+        bad.round1_ab.pop();
+        assert!(matches!(
+            check(&bad),
+            Err(ZerocheckError::BadRound1Length { .. })
+        ));
+        let mut bad = proof.clone();
+        bad.round1_c.pop();
+        assert!(matches!(
+            check(&bad),
+            Err(ZerocheckError::BadRound1Length { .. })
+        ));
+        let mut bad = proof.clone();
+        bad.multilinear_rounds.pop();
+        assert!(matches!(
+            check(&bad),
+            Err(ZerocheckError::BadMultilinearRoundsLength { .. })
+        ));
+        let mut bad = proof.clone();
+        bad.grinding_nonces.push(0);
+        assert!(matches!(
+            check(&bad),
+            Err(ZerocheckError::BadGrindingNonceCount { .. })
+        ));
+        assert!(matches!(
+            verify_skip7(13, &proof, &mut FsChallenger::new(b"skip7-shape")),
+            Err(ZerocheckError::LogNTooSmall {
+                log_n: 13,
+                k_skip: 7
+            })
+        ));
+        assert!(verify_skip7(m, &proof, &mut FsChallenger::new(b"wrong-domain")).is_err());
+        assert!(verify(m, &proof, &mut FsChallenger::new(b"skip7-shape")).is_err());
+        let (legacy, _) = prove_packed(&ap, &bp, &cp, m, &mut FsChallenger::new(b"skip7-shape"));
+        assert!(check(&legacy).is_err());
+    }
+
+    #[test]
+    fn skip7_domain_is_distinct_and_skip6_domain_is_unchanged() {
+        let mut legacy = FsChallenger::new(b"domain-test");
+        legacy.observe_label(b"flock-zerocheck-v0");
+        let mut selected = FsChallenger::new(b"domain-test");
+        observe_protocol(K_SKIP, 14, &mut selected);
+        let legacy_challenge = legacy.sample_f128();
+        assert_eq!(legacy_challenge, selected.sample_f128());
+        let mut skip7 = FsChallenger::new(b"domain-test");
+        observe_protocol(K_SKIP_128, 14, &mut skip7);
+        let challenge = skip7.sample_f128();
+        assert_ne!(legacy_challenge, challenge);
+        let mut other_dimension = FsChallenger::new(b"domain-test");
+        observe_protocol(K_SKIP_128, 15, &mut other_dimension);
+        assert_ne!(challenge, other_dimension.sample_f128());
+    }
+
+    #[test]
+    #[should_panic(expected = "prove requires m >= k_skip + N_INNER")]
+    fn skip7_prover_rejects_dimension_below_minimum() {
+        let input = vec![0; 1 << (13 - 3)];
+        prove_packed_skip7(
+            &input,
+            &input,
+            &input,
+            13,
+            &mut FsChallenger::new(b"skip7-min"),
+        );
+    }
+
+    #[test]
+    fn skip7_grinding_roundtrip_and_tape() {
+        let m = 14;
+        let mut rng = Rng::new(0x7153);
+        let a = rng.bits(1 << m);
+        let b = rng.bits(1 << m);
+        let c: Vec<bool> = a.iter().zip(&b).map(|(&x, &y)| x & y).collect();
+        let (ap, bp, cp) = pack_abc(&a, &b, &c);
+        let grinding = ZerocheckGrinding::per_challenge_128();
+        let mut prover = FsChallenger::new(b"skip7-grinding");
+        let (proof, claim) =
+            prove_packed_skip7_with_grinding(&ap, &bp, &cp, m, grinding, &mut prover);
+        assert_eq!(proof.grinding_nonces.len(), 2 + m - K_SKIP_128);
+        assert_eq!(grinding.skip_bits_for_skip(K_SKIP_128), Some(8));
+        assert_eq!(grinding.skip_bits(), Some(7));
+        let mut verifier = RecordingChallenger::new(FsChallenger::new(b"skip7-grinding"));
+        assert_eq!(
+            verify_skip7_with_grinding(m, &proof, grinding, &mut verifier).unwrap(),
+            claim
+        );
+        let pow_bits: Vec<_> = verifier
+            .shape()
+            .ops()
+            .iter()
+            .filter_map(|op| match op {
+                TranscriptOp::Pow { bits } | TranscriptOp::LegacyPow { bits } => Some(*bits),
+                _ => None,
+            })
+            .collect();
+        let mut expected = vec![4, 8];
+        expected.extend(repeat_n(2, m - K_SKIP_128));
+        assert_eq!(pow_bits, expected);
+        assert_eq!(prover.sample_f128(), verifier.sample_f128());
+        let mut missing = proof.clone();
+        missing.grinding_nonces.pop();
+        assert!(matches!(
+            verify_skip7_with_grinding(
+                m,
+                &missing,
+                grinding,
+                &mut FsChallenger::new(b"skip7-grinding")
+            ),
+            Err(ZerocheckError::BadGrindingNonceCount { .. })
+        ));
+        assert!(verify_skip7(m, &proof, &mut FsChallenger::new(b"skip7-grinding")).is_err());
     }
 
     /// `prove` runs end-to-end at the smallest valid m (= k_skip + N_INNER = 13)

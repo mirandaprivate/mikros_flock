@@ -1,0 +1,11 @@
+{
+  "summary_rows": 36,
+  "raw_samples": 180,
+  "all_medians_recomputed": true,
+  "all_skip_parameters_match_kappa": true,
+  "debug_tests": 21,
+  "release_tests": 21,
+  "clippy": "passed -D warnings",
+  "rustdoc": "passed -D warnings",
+  "all_measured_proofs_verified": true
+}

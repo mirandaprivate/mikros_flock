@@ -1,0 +1,870 @@
+\section{Building Blocks}
+\label{sec:blocks}
+
+SNARK constructions typically reduce circuit satisfiability, expressed through constraint systems such as R1CS or PLONK, to matrix or vector relations involving inner products, Hadamard products, and permutations.
+These relations can be encoded as polynomial identities and proved using sumcheck, or proved using other specialized protocols, such as folding-based inner-product arguments~\cite{sp/BunzBBPWM18}.
+In this section, we assume prover protocols for inner and Hadamard products over \(\ExtensionField\) whose prover costs are linear in the vector length, measured in extension-field operations.
+We develop a unified vector polynomial packing technique that reduces base-field relations to shorter extension-field relations, yielding bitwidth awareness by applying these protocols to the packed instances.
+In Section~\ref{sec:together}, we combine these building blocks into a SNARK protocol for PLONK constraints.
+
+\subsection{Packed Inner-Product Proof}
+\label{sec:ip}
+
+We introduce vector polynomial packing by the packed inner-product proof that reduces a
+length-\(N\) inner-product claim over \(\Field\) to a
+length-\(m\) claim over \(\ExtensionField\), where \(N=m\kappa\).
+Consider the claim:
+\[
+    c=\langle\bm a,\bm b\rangle,
+    ~
+    \bm a,\bm b\in\Field^N.
+\]
+We partition each vector into \(\kappa\) blocks of length \(m\), and
+arrange these blocks as:
+\begin{equation}
+\label{eq:matAB}
+    \bm A
+    \coloneqq
+    \concat{
+        \bm a^{(1)},\ldots,\bm a^{(\kappa)}
+    },
+    \qquad
+    \bm B
+    \coloneqq
+    \concat{
+        \bm b^{(1)},\ldots,\bm b^{(\kappa)}
+    }
+    \in\Field^{m\times\kappa}.
+\end{equation}
+We use the monomial basis
+\(
+    \bm{\phi}_A(X)
+    =
+    (1,X,\ldots,X^{\kappa-1})
+\)
+and the reciprocal monomial basis
+\(
+    \bm{\phi}_B(X)
+    =
+    (1,X^{-1},\ldots,X^{-(\kappa-1)})
+\)
+to pack the columns into a polynomial vector and a Laurent
+polynomial vector, respectively:
+\[
+    \bm g_A(X)
+    \coloneqq
+    \sum_{j=1}^{\kappa}\bm a^{(j)}X^{j-1}
+    \in\Field[X]^m,
+    \qquad
+    \bm g_B(X)
+    \coloneqq
+    \sum_{j=1}^{\kappa}\bm b^{(j)}X^{-(j-1)}
+    \in\Field[X^{-1}]^m.
+\]
+Their inner product defines the Laurent polynomial:
+\begin{equation}
+    f(X)
+    \coloneqq
+    \left\langle
+        \bm g_A(X),\bm g_B(X)
+    \right\rangle.
+\label{eq:ip-laurent-polynomial}
+\end{equation}
+Its constant coefficient is
+\(\sum_{j=1}^{\kappa}
+\langle\bm a^{(j)},\bm b^{(j)}\rangle
+=\langle\bm a,\bm b\rangle\),
+while all cross-column terms have nonzero exponents.
+Thus, \(c=\langle\bm a,\bm b\rangle\) if and only if there
+exist \(h_+,h_-\in\Field[X]\), each of degree at most
+\(\kappa-2\), such that:
+\begin{equation}
+    f(X)
+    =
+    c
+    +Xh_+(X)
+    +X^{-1}h_-(X^{-1}).
+\label{eq:ip-correction-identity}
+\end{equation}
+
+With \(c\) and the commitments to \(\bm A\) and \(\bm B\)
+fixed, the prover sends the coefficients of \(h_+\) and \(h_-\).
+The verifier then samples
+\(\ext{x}\sample\ExtensionField^\times\).
+The prover evaluates both encodings at \(\ext{x}\) to obtain:
+\[
+    \ext{\bm a}
+    \coloneqq
+    \bm g_A(\ext{x}) \in \ExtensionField^m,
+    \qquad
+    \ext{\bm b}
+    \coloneqq
+    \bm g_B(\ext{x})
+    \in\ExtensionField^m.
+\]
+Evaluating Eq.~\eqref{eq:ip-correction-identity} at \(\ext{x}\)
+reduces the polynomial identity to the length-\(m\)
+inner-product claim:
+\begin{equation}
+    \left\langle
+        \ext{\bm a},\ext{\bm b}
+    \right\rangle
+    =
+    c
+    +\ext{x}h_+(\ext{x})
+    +\ext{x}^{-1}h_-(\ext{x}^{-1}).
+\label{eq:packed-inner-product-check}
+\end{equation}
+The verifier computes the RHS from \(c\),
+the auxiliary polynomials, and \(\ext{x}\).
+The parties then apply the extension-field inner-product
+protocol of Fact~\ref{fact:ip}, reducing this claim to two
+MLE claims on the length-\(m\) packed vectors.
+These terminal claims are authenticated against the
+original witness commitments via a packed PCS.
+Algorithm~\ref{alg:ip} in Appendix~\ref{appx:pseudocode}
+gives the packed inner-product protocol.
+
+\begin{proposition}[Packed inner-product proof]
+\label{proposition:ip-complexity}
+Algorithm~\ref{alg:ip} is a proof protocol for the base-field inner-product relation
+with soundness error at most:
+\[
+    \frac{2\kappa-2}{|\ExtensionField|-1}
+    +
+    \frac{2\log_2 m}{|\ExtensionField|}.
+\]
+Excluding the terminal MLE openings, its prover time cost is
+\(
+    O(N \kappa + \kappa^3)\bb
+\)
+and its peak prover memory is \(O(N+\kappa^2) \Field\).
+\end{proposition}
+
+We prove Proposition~\ref{proposition:ip-complexity}
+in Appendix~\ref{appx:proof-ip}.
+
+
+\subsection{Packed Hadamard-Product Proof}
+\label{sec:hadamard}
+
+We next apply vector polynomial packing, using a different choice of
+basis polynomials, to a weighted
+Hadamard-product relation:
+\begin{equation}
+    \ext{c}
+    =
+    \left\langle
+        \ext{\bm\xi},
+        \bm a\circ\bm b
+    \right\rangle \in \ExtensionField,
+    \qquad
+    \ext{\bm\xi}
+    =
+    \ext{\bm r}\kronecker\ext{\bm l} \in \ExtensionField^N,
+\label{eq:hadamard-claim}
+\end{equation}
+where
+\(
+    \bm a,\bm b\in\Field^N,~
+    \ext{\bm l}\in\ExtensionField^m,~
+    \ext{\bm r}\in\ExtensionField^\kappa,
+\)
+and
+\(
+    N=m\kappa.
+\)
+When expressed using MLE polynomials, this weighted
+Hadamard relation corresponds to the degree-two
+zerocheck setting considered by Dao and Thaler~\cite{iacr/DaoT24}
+and Gruen~\cite{iacr/Gruen24}.
+
+The tensor-structured weight vector factors as
+\(\ext{\bm\xi}=\ext{\bm r}\kronecker\ext{\bm l}\).
+Using the block matrices
+\(\bm A,\bm B\in\Field^{m\times\kappa}\)
+defined in Eq.~\eqref{eq:matAB}, we can therefore rewrite
+Eq.~\eqref{eq:hadamard-claim} in matrix form as:
+\[
+    \ext{c}
+    =
+    \ext{\bm l}^{\top}
+    (\bm A\circ\bm B)
+    \ext{\bm r}
+    \in\ExtensionField.
+\]
+
+To prove this identity, the prover sends
+\(
+    \ext{\bm c}^{\top}
+    \coloneqq
+    \ext{\bm l}^{\top}(\bm A\circ\bm B) \in \ExtensionField^\kappa.
+\)
+The verifier checks
+\(\ext{c}\EqOrNot
+\langle\ext{\bm c},\ext{\bm r}\rangle\).
+We then encode these \(\kappa\) column claims at distinct
+interpolation nodes to verify them jointly,
+where the $\kappa$ entries of $\ext{c}$ is denoted by $\ext{c}_1, \cdots, \ext{c}_\kappa \in \ExtensionField$.
+
+We choose both \(\bm{\phi}_A(X)\) and \(\bm{\phi}_B(X)\)
+to be the Lagrange basis
+\((\psi_1(X),\ldots,\psi_\kappa(X))\)
+from Definition~\ref{def:lagrange}, and let \(\Psi(X)\)
+denote the corresponding vanishing polynomial.
+We define:
+\[
+\begin{aligned}
+    \bm g_A(X)
+    &\coloneqq
+    \sum_{j=1}^{\kappa}
+    \bm a^{(j)}\psi_j(X),
+    \quad
+    \bm g_B(X)
+    \coloneqq
+    \sum_{j=1}^{\kappa}
+    \bm b^{(j)}\psi_j(X),
+    \quad
+    g_C(X)
+    \coloneqq
+    \sum_{j=1}^{\kappa}
+    \ext{c}_j\psi_j(X).
+\end{aligned}
+\]
+When \(|\Field|\ge 2\kappa-1\), we choose \(\kappa\) distinct
+interpolation nodes in \(\Field\), so the Lagrange basis
+polynomials have coefficients in \(\Field\).
+Consequently:
+\[
+    \bm g_A(X),\bm g_B(X)\in\Field[X]^m,
+    \qquad
+    g_C(X)\in\ExtensionField[X].
+\]
+
+We define the residual polynomial:
+\[
+    f(X)
+    \coloneqq
+    \left\langle
+        \ext{\bm l},
+        \bm g_A(X)\circ\bm g_B(X)
+    \right\rangle
+    -
+    g_C(X)
+    \in\ExtensionField[X].
+\]
+At each interpolation root \(\gamma_j\in\mathcal H\),
+the property of the Lagrange basis gives:
+\[
+    f(\gamma_j)
+    =
+    \left\langle
+        \ext{\bm l},
+        \bm a^{(j)}\circ\bm b^{(j)}
+    \right\rangle
+    -
+    \ext{c}_j.
+\]
+Thus, all \(\kappa\) column claims hold if and only if
+\(f\) vanishes on \(\mathcal H\), or equivalently,
+\(\Psi(X)\) divides \(f(X)\).
+Since \(\deg f\le 2\kappa-2\) and \(\deg\Psi=\kappa\),
+this is equivalent to the existence of
+\(h(X)\in\ExtensionField[X]\) with \(\deg h\le\kappa-2\)
+such that
+\begin{equation}
+    f(X)=\Psi(X)h(X).
+\label{eq:hadamard-quotient}
+\end{equation}
+
+For valid claims, the values of \(f\) on \(\mathcal H\)
+are known to be zero.
+When \(|\Field|\ge 2\kappa-1\), the prover can therefore
+recover \(f\) by evaluating it at \(\kappa-1\) distinct
+points in \(\Field\setminus\mathcal H\) and interpolating
+these values together with the known zeros.
+Dividing the resulting polynomial by \(\Psi\) then gives \(h\).
+
+After the prover sends \(\ext{\bm c}\) and \(h\), the verifier
+samples
+\(
+    \ext{x}
+    \sample
+    \ExtensionField\setminus\mathcal H.
+\)
+The Lagrange evaluations give the packing weights:
+\[
+    \ext{\bm\rho}(\ext{x})
+    \coloneqq
+    \bigl(
+        \psi_1(\ext{x}),\ldots,\psi_\kappa(\ext{x})
+    \bigr)^\top \in \ExtensionField^\kappa.
+\]
+The prover computes the packed vectors:
+\[
+\begin{aligned}
+    \ext{\bm a}
+    &\coloneqq
+    \bm A\ext{\bm\rho}(\ext{x})
+    =
+    \bm g_A(\ext{x}) \in \ExtensionField^m,
+    \qquad
+    \ext{\bm b}
+    \coloneqq
+    \bm B\ext{\bm\rho}(\ext{x})
+    =
+    \bm g_B(\ext{x})  \in \ExtensionField^m,
+\end{aligned}
+\]
+and the verifier directly computes a degree-$(\kappa-1)$ polynomial value:
+\[
+    \ext{c}_x
+    \coloneqq
+    g_C(\ext{x})
+    =
+    \left\langle
+        \ext{\bm c},
+        \ext{\bm\rho}(\ext{x})
+    \right\rangle \in \ExtensionField.
+\]
+Evaluating Eq.~\eqref{eq:hadamard-quotient} at \(\ext{x}\)
+reduces the Hadamard-product claim to:
+\begin{equation*}
+    \left\langle
+        \ext{\bm a},
+        \ext{\bm b}\circ\ext{\bm l}
+    \right\rangle
+    =
+    \ext{c}_x
+    +
+    \Psi(\ext{x})h(\ext{x}).
+\end{equation*}
+This is again a length-\(m\) inner-product relation over
+\(\ExtensionField\).
+Applying the inner-product protocol of Fact~\ref{fact:ip}
+reduces it to two MLE claims on
+\(\ext{\bm a}\) and \(\ext{\bm b}\).
+
+Algorithm~\ref{alg:hadamard} in Appendix~\ref{appx:pseudocode}
+specifies the protocol.
+
+\iffalse
+Fact~\ref{fact:ip} reduces this length-\(m\) inner product to two
+MLE claims. Write its challenge point and terminal values as:
+\[
+    \ext{\bm y}\in\ExtensionField^{\log_2m},
+    \qquad
+    \ext{v}_1,\ext{v}_2\in\ExtensionField.
+\]
+The terminal claims on the original vectors are:
+\begin{align}
+\label{eq:hadamard-terminal}
+    \ext{v}_1
+    &\EqOrNot
+    \left\langle
+        \bm a,
+        \ext{\bm\rho}(\ext{x})
+        \kronecker
+        \tensorspan{\ext{\bm y}}
+    \right\rangle,
+    \qquad
+    \ext{v}_2
+    \EqOrNot
+    \left\langle
+        \bm b,
+        \ext{\bm\rho}(\ext{x})
+        \kronecker
+        \left(
+            \ext{\bm l}
+            \circ
+            \tensorspan{\ext{\bm y}}
+        \right)
+    \right\rangle.
+\end{align}
+
+The second row weight is represented by multiplying the corresponding
+two-entry factors, as in Eq.~\eqref{eq:tensor-weight-product};
+it need not be a normalized MLE weight.
+Both claims fit the packed-opening interface in
+Eq.~\eqref{eq:pcs-opening-relation}.
+Algorithm~\ref{alg:hadamard} in Appendix~\ref{appx:pseudocode}
+additionally aggregates the column claims at a fresh MLE point,
+retaining these row factors.
+\fi
+
+\smallskip\noindent\textbf{Small fields via an intermediate field.}
+When \(q=|\Field|<\kappa\), we choose the interpolation roots
+in an intermediate field.
+Starting from the desired extension degree \(\kappa\),
+choose \(t=2\lceil\log_q\kappa\rceil-1\), increasing \(t\)
+if necessary until
+\(
+    q^t\ge  2 t\left\lceil\frac{\kappa}{t}\right\rceil - 1.
+\)
+Then round \(\kappa\) up to the nearest multiple of \(t\).
+We reuse \(\kappa\) for the adjusted degree, which satisfies
+\(t\mid\kappa\), \(q^t\ge 2\kappa-1\), and
+\(t=O(\log_q\kappa)\).
+This gives the field tower:
+\[
+    \Field\subseteq\mathbb K=\mathbb F_{q^t}
+    \subseteq\ExtensionField,
+    \qquad
+    [\ExtensionField:\mathbb K]=\kappa/t.
+\]
+
+Choose \(\mathcal H\subseteq\mathbb K\) of size \(\kappa\)
+and define \(\bm\psi(X),\Psi(X),\bm g_A(X),\bm g_B(X),g_C(X)\) as above.
+After zero padding if needed, arrange the witnesses as
+\(\bm A,\bm B\in\Field^{m\times\kappa}\), with \(N=m\kappa\).
+The witness entries remain over \(\Field\), while:
+\[
+    \bm g_A (X),\bm g_B (X)\in\mathbb K[X]^m,
+    \qquad
+    g_C(X)\in\ExtensionField[X].
+\]
+
+We implement the interpolation procedure using
+precomputed addition and multiplication tables over
+\(\mathbb K\), which also handle inputs in
+\(\Field\times\mathbb K\).
+Together, these tables require \(O(t^2q^{2t})\)
+base-field preprocessing operations and \(O(tq^{2t})\)
+base-field coordinates of storage.
+Caching the evaluation and interpolation data requires
+an additional \(O(\kappa^2t)\) coordinates.
+We charge each table lookup as $O(1)$.
+
+Under this convention, evaluating the witness encodings
+and aggregating their row products costs \(O(N\kappa)\).
+Evaluating \(g_C\), interpolating \(f\), and computing
+the quotient cost \(O(\kappa^3/t)\).
+Including the remaining protocol steps, but excluding PCS
+commitments and openings, the online prover time and
+total storage are
+\[
+    T_{\Prover}=O(N\kappa+\kappa^3),
+    \qquad
+    S_{\Prover}=O(N+\kappa^2t+tq^{2t}),
+\]
+measured in base-field operations and coordinates.
+The storage bound includes all precomputed data and is
+achieved by processing sample points and witness rows
+sequentially.
+For \(m\ge\kappa\), the online prover time simplifies
+to \(O(N\kappa)\).
+
+The packed polynomial identity, challenge sampling over
+\(\ExtensionField\), and terminal extension-field inner-product
+proof carry over to the adjusted parameters.
+The same soundness and complexity bounds for the
+remaining steps therefore apply.
+
+\begin{proposition}[Packed Hadamard-product proof]
+\label{proposition:hadamard-complexity}
+Let \(q=|\Field|\), \(N=m\kappa\), and
+\(t=[\mathbb K:\Field]\), where \(\mathbb K\) is the
+interpolation field and may equal \(\Field\).
+Algorithm~\ref{alg:hadamard} is complete for the weighted
+Hadamard-product relation.
+With the terminal MLE claims verified, its soundness error
+is at most:
+\[
+    \frac{2\kappa-2}{|\ExtensionField|-\kappa}
+    +
+    \frac{2\log_2N}{|\ExtensionField|}.
+\]
+With the precomputed data described above, its online
+prover cost, excluding terminal MLE openings, is
+\(
+    O(N\kappa+\kappa^3)\,\bb.
+\)
+Its peak prover memory, including all precomputed data, is
+\(
+    O\bigl(N+\kappa^2t+(t-1)q^{2t}\bigr) \Field.
+\)
+\end{proposition}
+
+We prove Proposition~\ref{proposition:hadamard-complexity} in
+Appendix~\ref{appx:proof-hadamard}.
+
+
+
+\subsection{Packed Permutation Proof}
+\label{sec:permutation}
+
+We next consider the permutation relation:
+\[
+    \bm a\stackrel{\mathsf{perm}}{=}\bm b,
+    \qquad
+    \bm a,\bm b\in\Field^N.
+\]
+It asserts that the two vectors contain the same multiset of
+entries. Such proofs verify the PLONK copy constraints in
+Eq.~\eqref{eq:plonk2} and are used in lookup
+constructions~\cite{eurocrypt/SettyTW24}.
+After the witness commitments are fixed, the verifier samples
+\(\ext z\sample\ExtensionField\). The prover claims a common
+fingerprint \(\ext\Theta\) and proves:
+\begin{equation}
+    \ext\Theta
+    =\mathsf{GrandProd}(\ext z\bm1+\bm a)
+    =\mathsf{GrandProd}(\ext z\bm1+\bm b).
+\label{eq:packed-permutation-fingerprint}
+\end{equation}
+The two fingerprint polynomials are identical if and only if
+the permutation relation holds. It therefore suffices to prove
+the two grand-product claims. We describe the proof for \(\bm a\).
+
+\smallskip\noindent\textbf{Grand products from Hadamard products.}
+Arrange \(\bm a\) as \(\bm A\in\Field^{m\times\kappa}\), as in
+Eq.~\eqref{eq:matAB}, with \(N=m\kappa\).
+Let \(q=|\Field|\), and assume that \(m,\kappa\) are powers
+of two with \(m\geq\kappa\geq2\).
+We first construct a polynomial product tree over \(\Field\),
+keeping \(\kappa\) columns and halving the number of rows at each
+level:
+\begin{equation}
+\begin{aligned}
+    \bm C_0(Z)&\coloneqq Z \cdot \bm1_{m\times\kappa}+\bm A,\\
+    \bm C_{\tau+1}(Z)
+      &\coloneqq\bm C_{\tau,U}(Z)\circ\bm C_{\tau,D}(Z),
+      \qquad \tau \in [0,\log_2\kappa-1].
+\end{aligned}
+\label{eq:packed-permutation-product-tree}
+\end{equation}
+where \(\bm C_{\tau,U}(Z)\) and \(\bm C_{\tau,D}(Z)\) are the upper
+and lower row halves of \(\bm C_\tau(Z)\). Thus:
+\[
+    \bm C_\tau(Z)\in
+       \Field[Z]^{(m/2^\tau)\times\kappa},
+    \qquad
+    \deg_Z \bm C_\tau(Z)=2^\tau.
+\]
+The prover computes these polynomial coefficients over \(\Field\), then
+evaluates \(\bm C_{\log_2\kappa}(Z)\) using precomputed powers of
+\(\ext z\) and $\Field-\ExtensionField$ products.
+Its \(m\) entries form the vector
+\(\bm c_{\log_2\kappa}(\ext z)\in\ExtensionField^m\).
+The remaining levels are computed over
+\(\ExtensionField\):
+\[
+    \bm c_{\tau+1}(\ext z)
+       =\bm c_{\tau,U}(\ext z)\circ\bm c_{\tau,D}(\ext z),
+    \qquad
+    \tau \in [\log_2\kappa, \log_2 N-1].
+\]
+where \(U,D\) now denote vector halves. The final entry is
+\(\bm c_{\log_2N}(\ext z)=\ext\Theta\).
+
+The proof traverses these trees in reverse. Starting from
+\(\ext\Theta\), weighted Hadamard proofs over \(\ExtensionField\)
+reduce the last \(\log_2m\) levels to an MLE claim on
+\(\bm c_{\log_2\kappa}(\ext z)\).
+Factoring its tensor weight into column and row weights gives:
+\[
+    \ext v_{\log_2\kappa}
+      =\ext{\bm l}_{\log_2\kappa}^{\top}
+         \bm C_{\log_2\kappa}(\ext z)
+         \ext{\bm r}_{\log_2\kappa}.
+\]
+At each subsequent level, the recursive claim has the same form:
+\[
+    \ext v_{\tau+1}
+       =\ext{\bm l}_{\tau+1}^{\top}
+          \bm C_{\tau+1}(\ext z)\ext{\bm r}_{\tau+1},
+    \qquad
+    \ext{\bm l}_{\tau+1}\in\ExtensionField^{m/2^{\tau+1}},
+    \quad
+    \ext{\bm r}_{\tau+1}\in\ExtensionField^\kappa,
+\]
+with a tensor-structured row weight and fixed column weights.
+
+\smallskip\noindent\textbf{Base-field interpolation: \(q\geq2\kappa-1\).}
+In this case, the interpolation points lie in \(\Field\).
+We use the Lagrange basis from Section~\ref{sec:hadamard}:
+\[
+    \bm\psi(X)\coloneqq
+       (\psi_1(X),\ldots,\psi_\kappa(X))^\top,
+    \qquad
+    \bm g_\tau(Z,X)\coloneqq\bm C_\tau(Z)\bm\psi(X).
+\]
+Choose \(\kappa-1\) distinct points
+\(\gamma'_1,\ldots,\gamma'_{\kappa-1}\in
+\Field\setminus\mathcal H\).
+For each level \(\tau\in [\log_2\kappa]\) and point
+\(\gamma'_j\), fix \(X=\gamma'_j\) and retain \(Z\) as a
+variable. Define the polynomial vector:
+\[
+\begin{aligned}
+    \bm\eta_{\tau,j}(Z)
+      &\coloneqq
+      \bm g_{\tau-1,U}(Z,\gamma'_j)
+      \circ\bm g_{\tau-1,D}(Z,\gamma'_j)
+      =\sum_{\nu=0}^{2^\tau}\bm p_{\tau,j,\nu}Z^\nu,
+    \quad
+    \bm p_{\tau,j,\nu}\in\Field^{m/2^\tau}.
+\end{aligned}
+\]
+Each entry has degree at most \(2^\tau\) in \(Z\).
+In particular, since \(\sum_j\psi_j(X)=1\):
+\[
+    \bm g_0(Z,\gamma'_j)
+       =Z \cdot \bm1_m+\bm A\bm\psi(\gamma'_j).
+\]
+The prover computes the coefficients
+\(\bm p_{\tau,j,\nu}\) over \(\Field\). The weighted
+polynomial is:
+\[
+    F_{\tau,j}(Z)
+       \coloneqq\left\langle\ext{\bm l}_\tau,
+                             \bm\eta_{\tau,j}(Z)\right\rangle
+       =\sum_{\nu=0}^{2^\tau}
+          \left\langle\ext{\bm l}_\tau,
+                       \bm p_{\tau,j,\nu}\right\rangle Z^\nu
+       \in\ExtensionField[Z].
+\]
+The prover first aggregates the coefficient vectors
+\(\bm p_{\tau,j,\nu}\) against \(\ext{\bm l}_\tau\), obtaining
+the extension-field coefficients of \(F_{\tau,j}(Z)\).
+It then evaluates this scalar polynomial at \(\ext z\).
+The powers \(1,\ext z,\ldots,\ext z^\kappa\) are shared across
+all levels.
+
+For the transition from \(\bm C_{\tau+1}\) to \(\bm C_\tau\),
+where \(\tau \in [0,\log_2\kappa-1]\), the prover applies
+Section~\ref{sec:hadamard} by sending the column claims:
+\[
+    \ext{\bm u}_{\tau+1}^{\top}
+       \coloneqq
+    \ext{\bm l}_{\tau+1}^{\top}
+        \bigl(\bm C_{\tau,U}(\ext z)
+               \circ\bm C_{\tau,D}(\ext z)\bigr).
+\]
+For each column, the prover first aggregates the coefficients
+of \(\bm C_{\tau+1}(Z)\) against \(\ext{\bm l}_{\tau+1}\),
+then evaluates the resulting scalar polynomial at \(\ext z\).
+The verifier checks
+\(\ext v_{\tau+1}=\ext{\bm u}_{\tau+1}^{\top}
+\ext{\bm r}_{\tau+1}\).
+As in Section~\ref{sec:hadamard}, define:
+\[
+\begin{aligned}
+    g_C(X)&\coloneqq\ext{\bm u}_{\tau+1}^{\top}\bm\psi(X),\\
+    f(X)&\coloneqq
+       \left\langle\ext{\bm l}_{\tau+1},
+          \bm g_{\tau,U}(\ext z,X)
+             \circ\bm g_{\tau,D}(\ext z,X)\right\rangle
+       -g_C(X).
+\end{aligned}
+\]
+For valid column claims, \(f(X)\) vanishes on \(\mathcal H\).
+Its off-domain samples are:
+\[
+    f(\gamma'_j)
+       =F_{\tau+1,j}(\ext z)-g_C(\gamma'_j).
+\]
+Interpolating them together with the zeros on \(\mathcal H\)
+gives \(f(X)\), and division by \(\Psi(X)\)) gives
+\(h(X)\in\ExtensionField[X]\) with \(\deg h (X)\leq\kappa-2\).
+The prover fixes \(\ext{\bm u}_{\tau+1}\) and \(h(X)\) before the
+verifier samples a fresh
+\(\ext x\sample\ExtensionField\setminus\mathcal H\).
+The resulting check is:
+\[
+    \left\langle\ext{\bm l}_{\tau+1},
+       \bm g_{\tau,U}(\ext z,\ext x)
+         \circ\bm g_{\tau,D}(\ext z,\ext x)\right\rangle
+       =g_C(\ext x)+\Psi(\ext x)h(\ext x).
+\]
+This is a weighted Hadamard claim of length \(m/2^{\tau+1}\)
+over \(\ExtensionField\).
+
+\smallskip\noindent\textbf{Recursive queries.}
+We implement each extension-field weighted Hadamard proof by the degree-2 zero-check via
+sumcheck over $\ExtensionField$. The checked polynomial has individual degree at most
+three, and the two child claims use the same row MLE point
+\(\ext{\bm y}\).
+After their values \(\ext v_{\tau,U},\ext v_{\tau,D}\) are fixed,
+the verifier samples a fresh \(\ext y_0\sample\ExtensionField\).
+The next claim is obtained by setting:
+\[
+\begin{aligned}
+    \ext v_\tau
+      &\coloneqq(1-\ext y_0)\ext v_{\tau,U}
+                    +\ext y_0\ext v_{\tau,D},
+                    \qquad
+    \ext{\bm l}_\tau
+      \coloneqq\tensorspan{\ext y_0\mathbin\|\ext{\bm y}},
+    \qquad
+    \ext{\bm r}_\tau
+      \coloneqq\ext{\bm\rho}(\ext x).
+\end{aligned}
+\]
+It has the desired form
+\(\ext v_\tau=\ext{\bm l}_\tau^\top
+\bm C_\tau(\ext z)\ext{\bm r}_\tau\).
+The same packed Hadamard-product proof is applied.
+At level zero, both weight vectors sum to one, leaving the
+claim:
+\[
+    \ext v_0-\ext z
+       =\ext{\bm l}_0^\top\bm A\ext{\bm r}_0.
+\]
+
+\smallskip\noindent\textbf{Cost over \(\Field\).}
+At level \(\tau\), forming the \(\kappa-1\) encodings from
+\(\bm C_{\tau-1}\) costs \(O(N\kappa)\,\bb\).
+Their row products cost \(O(m\kappa2^\tau)\,\bb\), totaling
+\(O(N\kappa)\,\bb\) across all levels.
+Coefficient aggregation costs \(O(N)\,\be\) per level,
+including the column claims. The aggregated polynomials have
+degree at most \(2^\tau\), so evaluating them at \(\ext z\)
+costs \(O(\kappa2^\tau)\,\ee\) per level and
+\(O(\kappa^2)\,\ee\) in total.
+To form the terminal Hadamard vectors, the prover first
+contracts the coefficients of \(\bm C_\tau(Z)\) with
+\(\ext{\bm\rho}(\ext x)\), then evaluates the resulting row
+polynomials at \(\ext z\), at a cost of
+\(O(N)\,\be+O(m)\,\ee\) per level.
+Using shared powers of \(\ext x\), interpolation and public
+query generation cost \(O(\kappa^3)\,\bb\) per level.
+The short Hadamard proofs and extension-field tree have
+total length \(O(m)\).
+Thus, under schoolbook arithmetic, the prover cost for one
+grand-product proof is
+\(
+    O(N\kappa\log_2\kappa+\kappa^4)\bb.
+\)
+
+
+\smallskip\noindent\textbf{Intermediate-field tables over smaller fields: \(q<2\kappa-1\).}
+Choose \(t\) and $\kappa$ such that $q^t \ge 2\kappa-1$ and $t \mid \kappa$, and we can use the tower:
+\[
+    \Field\subseteq\mathbb K=\mathbb F_{q^t}
+       \subseteq\ExtensionField,
+    \qquad [\ExtensionField:\mathbb K]=\kappa/t.
+\]
+We choose \(\mathcal H\) and the additional interpolation nodes
+in \(\mathbb K\). The coefficients of \(\bm C_\tau(X)\) remain
+in \(\Field\), while those of \(\bm g_\tau(X)\) and
+\(\bm\eta_{\tau,j}(X)\) lie in \(\mathbb K\).
+The polynomial identities and recursive queries are unchanged.
+
+We precompute a multiplication table over \(\mathbb K\)
+and count each table lookup as an \(O(1)\)-time operation.
+Representing an extension-field element by \(\kappa/t\)
+coordinates over \(\mathbb K\), a mixed
+\(\mathbb K\times\ExtensionField\) product costs \(O(\kappa)\).
+Using this multiplication table and precomputed Lagrange basis
+evaluations, the grand-product reduction over \(\mathbb K\)
+similarly achieves an online prover cost of
+\(
+    O\!\left(N\kappa\log_2\kappa+\frac{\kappa^4}{t}\right)\,\bb.
+\)
+
+Algorithm~\ref{alg:permutation} in Appendix~\ref{appx:pseudocode}
+specifies the protocol for both cases.
+
+\begin{proposition}[Packed permutation proof]
+\label{proposition:permutation-complexity}
+Let \(q=|\Field|\) be fixed and let
+\(N=m\kappa\), where \(m,\kappa\) are powers of two and
+\(m\geq\kappa\geq2\).
+Algorithm~\ref{alg:permutation} is a proof protocol for the grand-product relation
+with the soundness error:
+\[
+\begin{aligned}
+    \epsilon_{\mathsf{GP}}\leq{}&
+    \frac{\frac32\log_2m(\log_2m-1)+\log_2m}
+         {|\ExtensionField|}+\sum_{\tau=0}^{\log_2\kappa-1}
+      \left(
+        \frac{2\kappa-2}{|\ExtensionField|-\kappa}
+        +\frac{3\log_2(m/2^{\tau+1})+1}{|\ExtensionField|}
+      \right).
+\end{aligned}
+\]
+Consequently, when both input vectors are committed, the
+permutation argument has soundness error at most:
+\[
+    \epsilon_{\mathsf{Perm}}\leq{} \min\left\{1,\frac{N-1}{|\ExtensionField|}\right\}
+       +2\epsilon_{\mathsf{GP}}+\epsilon_{\mathsf{PCS}},
+\]
+where \(\epsilon_{\mathsf{PCS}}\) is the joint soundness error
+of authenticating the two terminal packed-opening claims.
+With the intermediate-field multiplication table and block
+The online prover cost for one
+grand product is
+\(
+    O\!\left(N\kappa\log_2\kappa+\kappa^4\right)\,\bb.
+\)
+The peak prover memory, including all precomputed tables, is:
+\(
+    O(N+\kappa^3+tq^{2t})\Field
+\)
+\end{proposition}
+
+Proof of this proposition is provided in Appendix~\ref{appx:proof-permutation}.
+
+\subsection{Packed Polynomial Commitment Scheme}
+\label{sec:pcs}
+
+We complete the packed reductions by authenticating their
+terminal claims against a fixed-basis commitment.
+Let \(N=m\kappa\) and \(\bm A\in\Field^{m\times\kappa}\).
+The preceding protocols produce claims of the form:
+\[
+    \ext v
+    =\langle\bm A\ext{\bm\rho},\ext{\bm\xi}\rangle
+    =\ext{\bm\xi}^{\top}\bm A\ext{\bm\rho},
+    \qquad
+    \ext{\bm\rho}\in\ExtensionField^\kappa,
+    \quad
+    \ext{\bm\xi}\in\ExtensionField^m,
+\]
+where \(\ext{\bm\xi}\) is a tensor-structured row weight.
+The query weights \(\ext{\bm\rho}\) may differ from the fixed
+\(\Field\)-basis \(\ext{\bm\beta}\in\ExtensionField^\kappa\)
+used to commit to the packed vector:
+\[
+    \ext{\bm a}=\bm A\ext{\bm\beta}\in\ExtensionField^m.
+\]
+
+To relate the two packings, the prover sends the column evaluations
+\(\ext{\bm u}^{\top}\coloneqq\ext{\bm\xi}^{\top}\bm A\).
+The verifier checks
+\(\ext v\EqOrNot\langle\ext{\bm u},\ext{\bm\rho}\rangle\).
+Write the query and the column claims in base-field coordinates:
+\[
+    \ext{\bm\xi}=\bm\Xi\ext{\bm\beta},
+    \qquad
+    \ext{\bm u}^{\top}=\ext{\bm\beta}^{\top}\bm U,
+    \qquad
+    \bm\Xi\in\Field^{m\times\kappa},
+    \quad
+    \bm U\in\Field^{\kappa\times\kappa}.
+\]
+Since \(\bm A\) has base-field entries, the column claims are
+equivalent to \(\bm U=\bm\Xi^\top\bm A\).
+Packing this matrix identity with the fixed basis gives:
+\[
+    \bm U\ext{\bm\beta}
+    =\bm\Xi^\top\bm A\ext{\bm\beta}
+    =\bm\Xi^\top\ext{\bm a}\in\ExtensionField^\kappa.
+\]
+After \(\ext{\bm u}\) is fixed, a fresh random projection reduces
+this vector identity to a length-\(m\) inner-product claim involving
+the committed vector \(\ext{\bm a}\).
+Fact~\ref{fact:ip} then leaves one MLE opening of
+\(\ext{\bm a}\) and one public query evaluation.
+The verifier computes the latter directly from the tensor factors
+of \(\ext{\bm\xi}\).
+
+This is the ring-switching technique~\cite{eurocrypt/DiamondP26}
+expressed in our vector and matrix notation.
+Appendix~\ref{appx:pcs} gives the construction and its analysis;
+Algorithm~\ref{alg:packed-pcs} specifies the protocol.
+Under schoolbook arithmetic and \(m\geq\kappa\), the packed
+opening reduction uses \(O(\kappa N)\,\bb\) and
+\(O(N)\Field\) memory,
+given an underlying extension-field PCS that commits and opens in \(O(m)\ee\) and uses \(O(m)\ExtensionField\) of memory.

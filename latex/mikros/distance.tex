@@ -1,0 +1,381 @@
+\subsection{Distance of Structured Combination of Vectors}
+\label{sec:distance}
+The difficulty in using a tensor-span vector $\bm{r}$ is that the set
+$\TensorSpace(t)$ is not an affine or linear space.
+As a result, a key distance-preservation lemma relied upon by Blaze
+no longer applies.
+This lemma asserts that if one vector is far from a linear space, then a
+random linear combination of this vector with others remains far from the
+space with high probability.
+
+Specifically, Blaze relies on the following result
+\cite[Lemma~6.1]{eurocrypt/BrehmCFRRZ25}, which is originally due to 
+Ben-Sasson \etal~\cite[Theorem~4.1]{ccc/Ben-SassonKS18}:
+
+\begin{lemma}
+\label{lemma:distanceBlaze}
+{\normalfont \cite[Theorem~4.1]{ccc/Ben-SassonKS18}}
+Let $\CodeSpace \subset \Field^\mu$ be a linear space with relative distance $\delta$,
+and let $\bar{\bm{C}} \in \Field^{\mu\times t}$ be a matrix whose columns are vectors in $\Field^\mu$.
+Assume that at least one column of $\bar{\bm{C}}$ is more than $\epsilon$-far from $\CodeSpace$.
+Then for any $0<\iota<\epsilon$ \suchthat~ $\epsilon' \coloneqq \epsilon-\iota < \delta/3$ and a random tensor-spanned vector $\bm{r} \ChooseRandom \Field^t$:
+\[
+    \Pr_{\bm{r} \ChooseRandom \Field^t}\!\left[
+        \delta_H(\bar{\bm{C}}\bm{r}, \CodeSpace) \le \epsilon-\iota
+    \right]
+    \le
+    \frac{1}{\iota|\Field|}.
+\]
+\end{lemma}
+
+\iffalse
+\begin{theorem}
+{\normalfont \cite[Lemma~6.1]{eurocrypt/BrehmCFRRZ25}}
+Let $\Code: \Field^k \to \Field^\mu$ be a linear code with relative distance $\delta$.
+Suppose there exists an MLE-IOPP for the relation $\Relation_\mathsf{MLE}[\Code]$ that, for any proximity parameter $0 < \epsilon' < \delta/3$, achieves soundness error $\kappa^\mathsf{s}$.
+Then, for any \( \iota > 0 \), the protocol obtained by applying this MLE-IOPP to instances of the form \( \bm{m} = \bm{M} \bm{r} \), where \( \bm{r} \ChooseRandom \Field^t \), constitutes a $t$-interleaved MLE-IOPP for the following relation
+\(
+\Relation_{t\mbox{-}\mathsf{MLE\mbox{-}IOPP}}[\Code^t]
+\):
+\begin{equation}
+\label{eq:interleavedIopp}
+\left\{
+    \left(
+    \begin{aligned}
+    & \bm{v}^\top \in \Field^t, \bm{x} \in \Field^{\log_2 k}, \\
+    & \bm{C} \in \Field^{n \times t}, \epsilon \in \mathbb{R}\\
+    \end{aligned}
+    \right)
+    :~
+    % \left(
+    \begin{aligned}
+        & \bm{M} \in \Field^{k \times t} \\
+    \end{aligned}
+    % \right)
+    ~\left|~
+    \begin{aligned}
+    & \bm{v} = \bm{l}^\top \bm{M} \text{ , where } \bm{l} = \tensorspan{\bm{x}} \\
+    & \wedge \delta(\bm{C}, \Enc(\bm{M})) \le \epsilon t
+    \end{aligned}
+    \right.
+\right\},
+\end{equation}
+with proximity parameter $\epsilon = \epsilon' + \iota$ and soundness error at most:
+\[
+\kappa^\mathsf{s} + \frac{1}{\iota |\Field|}.
+\]
+\end{theorem}
+\fi
+
+We now extend this lemma to the following theorem for a tensor-spanned $\bm{r}$.
+
+\begin{theorem}[Distance of Tensor Inner Product]
+\label{theorem:tensordistance}
+{\normalfont (Variant of \cite[Theorem~4.1]{ccc/Ben-SassonKS18})}
+Let $\CodeSpace \subset \Field^\mu$ be a linear space with relative distance $\delta$, and let $\bar{\bm{C}} \in \Field^{\mu \times t}$ be a matrix whose columns are vectors in $\Field^\mu$. Suppose that at least one column of $\bar{\bm{C}}$ is more than $\epsilon$-far from $\CodeSpace$, where $\epsilon \leq \delta/3$. Then for any $0 < \iota < \epsilon/\log_2 t$ and a random tensor-spanned vector $\bm{r} \ChooseRandom \TensorSpace(t)$, it holds that:
+\[
+    \Pr_{\bm{r} \ChooseRandom \TensorSpace(t)}\!\left[
+        \delta(\bar{\bm{C}}\bm{r}, \CodeSpace) \le \epsilon - \iota \cdot \log_2 t
+    \right]
+    \le
+    \frac{\log_2 t}{\iota \cdot (|\Field|-2)}.
+\]
+\end{theorem}
+
+
+The full proof of Theorem~\ref{theorem:tensordistance} is provided in Appendix~\ref{appx:prooftensordistance}.
+Below, we briefly sketch the proof strategy.
+
+Theorem~\ref{theorem:tensordistance} relies on the following lemma.
+\begin{lemma}
+\label{lemma:affinedistance}
+{\normalfont (Corollary of \cite[Lemma~4.2]{ccc/Ben-SassonKS18})}
+Let $\CodeSpace \subset \Field^\mu$ be a linear subspace over a field $\Field$ with relative distance $\delta$. Suppose $\bm{u}^* \in \Field^\mu$ satisfies $\Delta(\bm{u}^*, \CodeSpace) > \epsilon \mu$, and fix any vector $\bm{u} \in \Field^\mu$. For any $0 < \iota < \epsilon$ such that $\epsilon - \iota < \delta/3$, define a set:
+\[
+    A = \left\{ \alpha \in \Field \mid \delta(\bm{u}^* + \alpha \bm{u}, \CodeSpace) \le \epsilon - \iota \right\}.
+\]
+Then $|A| \leq 1/\iota$.
+\end{lemma}
+
+Intuitively, Lemma~\ref{lemma:affinedistance} states that if a vector is far from a
+linear space, then most points in any affine line passing through it remain far
+from the space.
+
+Although $\TensorSpace(t)$ is not an affine space, the key idea is to decompose a
+tensor-spanned vector into a sequence of affine combinations and apply
+Lemma~\ref{lemma:affinedistance} iteratively.
+
+For example, consider $t=4$ and let
+$\bar{\bm{C}} = [\bar{\bm{c}}_1\mid \bm{c}_2 \mid \bm{c}_3\mid \bm{c}_4]$, where
+$\bar{\bm{c}}_1$ is more than $\epsilon$-far from $\CodeSpace$.
+Then, by Lemma~\ref{lemma:affinedistance}, with high probability:
+\[
+    \delta((1-z_1)\bar{\bm{c}}_1 + z_1 \bm{c}_3, \CodeSpace)
+    = \delta(\bar{\bm{c}}_1 + \frac{z_1}{1-z_1} \cdot \bm{c}_3, \CodeSpace)
+    > \epsilon - \iota.
+\]
+Applying Lemma~\ref{lemma:affinedistance} again yields, with high probability:
+\begin{align*}
+    & \delta((1-z_1)(1-z_2)\bar{\bm{c}}_1 +(1-z_1) z_2 \bm{c}_2 + z_1 (1-z_2) \bm{c}_3 + z_1z_2 \bm{c}_4, \CodeSpace)
+    \\
+    = &
+    \delta([(1-z_1)\bar{\bm{c}}_1 + z_1 \bm{c}_3] + \frac{z_2}{1-z_2} \cdot [ (1-z_1)\bar{\bm{c}}_2 + z_1 \bm{c}_4], \CodeSpace)
+    > \epsilon - 2\iota
+\end{align*}
+This process extends inductively to larger $t$,
+yielding the bound in
+Theorem~\ref{theorem:tensordistance}.
+
+
+\iffalse
+\begin{lemma}[Tensor random linear combination escapes a subspace]
+\label{lemma:tensorcombspace}
+Let $\mathbb U \subsetneq \Field^n$ be a linear subspace.
+Let $\bar{\bm U} \in \Field^{n\times t}$ be a matrix.
+Assume that at least one column of $\bar{\bm U}$ lies outside $\mathbb U$.
+Let $\bm r \in \Field^t$ be sampled from $\TensorSpace[n]$.
+Then
+\[
+\Pr\big[ \bar{\bm U}\bm r \in \mathbb U \big]
+\;\le\;
+\frac{\log_2 t}{|\Field|}.
+\]
+\end{lemma}
+
+
+\begin{proof}
+Since $\mathbb U$ is a proper linear subspace of $\Field^n$,
+there exists a nonzero linear functional
+$f: \Field^n \to \Field$ such that
+$\mathbb U = \ker(\ell)$.
+
+Let
+\[
+\bm u := (f(\bar{\bm U}_1), \ldots, f(\bar{\bm U}_t)) \in \Field^t.
+\]
+By assumption, at least one column of $\bar{\bm U}$ lies outside $\mathbb U$,
+hence $\bm u \neq \bm 0$.
+
+We have:
+\[
+\bar{\bm U}\bm r \in \mathbb U
+\quad\Longleftrightarrow\quad
+f(\bar{\bm U}\bm r) = \langle \bm{u}, \bm r \rangle = 0.
+\]
+
+The quantity $\langle \bm{u}, \bm r \rangle$ is a nonzero multilinear polynomial
+in $\log_2 t$ independent random variables.
+By the Schwartz--Zippel lemma,
+\[
+\Pr[\langle \bm{u}, \bm r \rangle = 0] \le \frac{\log_2 t}{|\Field|}.
+\qedhere
+\]
+\end{proof}
+\fi
+
+
+\subsection{Proof of Theorem~\ref{theorem:tensordistance}}
+\label{appx:prooftensordistance}
+
+\begin{proof}
+Suppose the $i$th column of $\bar{\bm{C}}$, denoted by $\bar{\bm{c}}_i$, is $\epsilon$-far from $\CodeSpace$.
+Let $\tau_j$ denote the $j$-th bit of $(i-1)$ in big-endian format.
+
+Given $\bm{z} = (z_1, \dots, z_{\log_2 t})$, we define:
+\begin{align*}
+\alpha_j = 
+\begin{cases}
+\frac{z_j}{1 - z_j}, & \text{if } \tau_j = 0, \\
+\frac{1 - z_j}{z_j}, & \text{if } \tau_j = 1,
+\end{cases}
+\quad z_j \in \Field \setminus \{0,1\},
+\end{align*}
+which is equivalent to:
+\begin{align*}
+z_j = 
+\begin{cases}
+\frac{\alpha_j}{1 + \alpha_j}, & \text{if } \tau_j = 0, \\
+\frac{1}{1 + \alpha_j}, & \text{if } \tau_j = 1,
+\end{cases}
+\quad \alpha_j \in \Field \setminus \{0, -1\}.
+\end{align*}
+
+Consequently, each tensor-span vector:
+\[
+    \bm{r} =
+    (1-z_1,z_1) \kronecker(1-z_2,z_2) \kronecker \cdots
+    \kronecker (1-z_{\log_2},z_{\log_2}).
+\]
+corresponds uniquely to a vector $\bm{\xi}(\bm{\alpha})$ defined as:
+\[
+\resizebox{\linewidth}{!}{$
+\begin{aligned}
+\bm{\xi}(\bm{\alpha})
+:=&
+    \frac{\bm{r}}{\prod_{j=1}^{\log_2t}[(1-\tau_j)(1-z_j)+\tau_jz_j]}
+=
+\bigotimes_{j=1}^{\log_2t}~
+    (~(1-\tau_j)+\tau_j\alpha_j~,~\tau_j+(1-\tau_j)\alpha_j~).
+\end{aligned}
+$}
+\]
+
+Thus, each $\bm{\alpha} \in (\Field \setminus \{0, -1\})^{\log_2 t}$ uniquely determines a vector $\bm{r} \in \TensorSpace(t)$ via $\bm{\xi}(\bm{\alpha})$, and satisfies $\delta(\bar{\bm{C}} \bm{r}, \CodeSpace) = \delta(\bar{\bm{C}} \bm{\xi}, \CodeSpace)$. Hence, it suffices to prove:
+\begin{equation}
+\label{eq:projectrho}
+\Pr_{\bm{\alpha}\ChooseRandom (\Field \setminus \{0,-1\})^{\log_2 t}}
+\left[
+    \delta(\bar{C}\bm{\xi},\CodeSpace) < \epsilon - \iota \cdot \log_2 t
+\right]
+\le
+\frac{\log_2 t}{\iota(|\Field|-2)}.
+\end{equation}
+
+In what follows, we prove Eq.~\eqref{eq:projectrho}.
+For clarity, and without loss of generality, we assume $i = 1$.
+In this case:
+\[
+    \alpha_j =\frac{z_j}{1-j},~\forall j\in[\log_2t],
+    \qquad
+    \rho(\bm{\alpha}) = (1,\alpha_1)\kronecker \cdots \kronecker (1,\alpha_{\log_2 t}).
+\]
+
+
+We call $\bm{\alpha}$ \emph{good} if:
+\[
+    \delta(\bar{\bm{C}} \bm{\xi}(\bm{\alpha}), \CodeSpace) \ge \epsilon - \iota \cdot \log_2 t,
+\]
+and \emph{bad} otherwise.
+
+We define a sequence of intermediate vectors using prefixes of $\bm{\alpha}$:
+\begin{align*}
+&
+    \bm{\xi}_0(\bm{\alpha}) := (1, 0) \kronecker (1,0) \kronecker (1,0)\kronecker \cdots \kronecker (1, 0),
+\\
+&
+    \bm{\xi}_1(\bm{\alpha}) := (1, \alpha_1) \kronecker (1,0) \kronecker (1,0)\kronecker \cdots \kronecker (1, 0),
+\\
+&
+    \bm{\xi}_2(\bm{\alpha}) := (1, \alpha_1) \kronecker (1,\alpha_2) \kronecker (1,0) \kronecker \cdots \kronecker (1, 0),
+\\
+&
+    \cdots
+\\
+&
+    \bm{\xi}_{\log_2 n}(\bm{\alpha}) := (1, \alpha_1) \kronecker (1,\alpha_2) \kronecker (1,\alpha_3) \kronecker \cdots \kronecker (1, \alpha_{\log_2 n}).
+\end{align*}
+Note that $\bm{\xi}_{\log_2 n}(\bm{\alpha})= \bm{\xi}(\bm{\alpha})$.
+
+We say $\bm{\xi}_j(\bm{\alpha})$ is \emph{good} if:
+\[
+    \delta(\bar{\bm{C}} \bm{\xi}_j(\bm{\alpha}), \CodeSpace) \ge \epsilon - \iota \cdot j,
+\]
+and \emph{bad} otherwise.
+Note that $\bm{\xi}_0(\bm{\alpha})$ is always good because:
+\[
+    \delta(\bar{\bm{C}} \bm{\xi}_0(\bm{\alpha}), \CodeSpace) = \delta(\bar{\bm{c}}_1, \CodeSpace) \ge \epsilon.
+\]
+
+
+We now analyze the probability that $\bm{\xi}(\bm{\alpha})$ is bad:
+{\allowdisplaybreaks
+\begin{align}
+\label{eq:serialprobability}
+\nonumber
+& \Pr_{\bm{\alpha}}[~\bm{\xi}(\bm{\alpha}) \text{ is bad}~]
+\\ \nonumber
+= &
+    \Pr_{\bm{\alpha}}[~\bm{\xi}_{\log_2 n}(\bm{\alpha}) \text{ is bad} \mid \bm{\xi}_{\log_2 n -1}(\bm{\alpha}) \text{ is good} ~] \cdot 
+    \Pr_{\bm{\alpha}}[~\bm{\xi}_{\log_2 n -1}(\bm{\alpha}) \text{ is good}~]
+\\ \nonumber
+&
+    +    \Pr_{\bm{\alpha}}[~\bm{\xi}_{\log_2 n}(\bm{\alpha}) \text{ is bad} \mid \bm{\xi}_{\log_2 n -1}(\bm{\alpha}) \text{ is bad} ~] \cdot 
+    \Pr_{\bm{\alpha}}[~\bm{\xi}_{\log_2 n -1}(\bm{\alpha}) \text{ is bad}~]
+\\ \nonumber
+\le &
+    \Pr_{\bm{\alpha}}[~\bm{\xi}_{\log_2 n}(\bm{\alpha}) \text{ is bad} \mid \bm{\xi}_{\log_2 n -1}(\bm{\alpha}) \text{ is good} ~]
+\\ \nonumber
+&
+    +
+    \Pr_{\bm{\alpha}}[~\bm{\xi}_{\log_2 n -1}(\bm{\alpha}) \text{ is bad}~]
+\\ \nonumber
+\le &
+    \Pr_{\bm{\alpha}}[~\bm{\xi}_{\log_2 n}(\bm{\alpha}) \text{ is bad} \mid \bm{\xi}_{\log_2 n -1}(\bm{\alpha}) \text{ is good} ~]
+\\ \nonumber
+&
+    + \Pr_{\bm{\alpha}}[~\bm{\xi}_{\log_2 n - 1}(\bm{\alpha}) \text{ is bad} \mid \bm{\xi}_{\log_2 n -2}(\bm{\alpha}) \text{ is good} ~]
+\\ \nonumber
+&
+    +
+    \Pr_{\bm{\alpha}}[~\bm{\xi}_{\log_2 n - 2}(\bm{\alpha}) \text{ is bad}~]
+\\ \nonumber
+\le &
+    \cdots
+\\ \nonumber
+\le &
+    \Pr_{\bm{\alpha}}[~\bm{\xi}_{\log_2 n}(\bm{\alpha}) \text{ is bad} \mid \bm{\xi}_{\log_2 n -1}(\bm{\alpha}) \text{ is good} ~]
+\\ \nonumber
+&
++ \cdots
+\\ \nonumber
+&
+    + \Pr_{\bm{\alpha}}[~\bm{\xi}_{1}(\bm{\alpha}) \text{ is bad} \mid \bm{\xi}_{0}(\bm{\alpha}) \text{ is good} ~]
+\\ \nonumber
+&
+    +
+    \Pr_{\bm{\alpha}}[~\bm{\xi}_{0}(\bm{\alpha}) \text{ is bad}~]
+\\
+=&
+\sum_{j=1}^{\log_2 n}
+\Pr_{\bm{\alpha}}[~\bm{\xi}_{j}(\bm{\alpha}) \text{ is bad} \mid \bm{\xi}_{j-1}(\bm{\alpha}) \text{ is good} ~].
+\end{align}
+}
+
+Thus, it suffices to show that for all $j \in [\log_2 t]$:
+\begin{equation}
+\label{eq:conditionalprobability}
+    \Pr_{\bm{\alpha}}[~\bm{\xi}_{j}(\bm{\alpha}) \text{ is bad} \mid \bm{\xi}_{j-1}(\bm{\alpha}) \text{ is good} ~]
+    \le \frac{1}{\iota (|\Field|-2)},
+    \quad
+    \forall j \in [\log_2 t].
+\end{equation}
+
+Fix a prefix $(\alpha_1, \ldots, \alpha_{j-1})$ such that $\bm{\xi}_{j-1}(\bm{\alpha})$ is good, and consider the set:
+\[
+    \mathbb{U}_j =
+    \{ (1,\alpha_1) \kronecker \cdots \kronecker (1, \alpha_{j-1})
+    \kronecker
+    (1,\alpha) \kronecker (1,0) \kronecker \cdots \kronecker (1,0) \in \TensorSpace(t) ~|~ \alpha \in \Field \}.
+\]
+This is an affine space, since every vector $\bm{u}_\alpha \in \mathbb{U}_j$ can be written as:
+\begin{align*}
+\bm{u}_\alpha
+=&
+    (1,\alpha_1) \kronecker \cdots \kronecker (1, \alpha_{j-1})
+    \kronecker
+    (1,0) \kronecker (1,0) \kronecker \cdots \kronecker (1,0) 
+\\
+&
+    + \alpha \cdot (1,\alpha_1) \kronecker \cdots \kronecker (1, \alpha_{j-1})
+    \kronecker
+    (0,1) \kronecker (1,0) \kronecker \cdots \kronecker (1,0).
+\end{align*}
+In particular, for $\alpha = 0$, we have $\bm{u}_0 = \bm{\xi}_{j-1}(\bm{\alpha})$, and for $\alpha = \alpha_j$, we obtain $\bm{u}_{\alpha_j} = \bm{\xi}_j(\bm{\alpha})$.
+
+When $\bm{\xi}_{j-1}(\bm{\alpha})$ is good,
+it holds that:
+\[
+    \Delta(\bm{u}_0,\CodeSpace) \ge (\epsilon - \iota \cdot (j-1))n.
+\]
+Applying Lemma~\ref{lemma:affinedistance} to the affine space $\mathbb{U}_j$, we conclude that:
+\[
+    \Pr_{\alpha \in \Field}[\Delta(\bm{u}_\alpha, \CodeSpace) < (\epsilon- \iota j)n] \le \frac{1}{\iota|\Field|}.
+\]
+
+Hence, conditioned on a good prefix $(\alpha_1, \ldots, \alpha_{j-1})$, there are at most $1/\iota$ choices of $\alpha_j \in \Field$ for which $\bm{\xi}_j(\bm{\alpha})$ is bad. Since $\alpha_j$ is sampled uniformly from $\Field \setminus \{0, -1\}$, which has cardinality $|\Field| - 2$, we obtain:
+\[
+    \Pr_{\bm{\alpha}}[~\bm{\xi}_{j}(\bm{\alpha}) \text{ is bad} \mid \bm{\xi}_{j-1}(\bm{\alpha}) \text{ is good} ~]
+    \le \frac{1}{\iota (|\Field|-2)},
+\]
+This establishes Eq.~\eqref{eq:conditionalprobability}, and in turn implies Eq.~\eqref{eq:serialprobability}, thereby completing the proof of Eq.~\eqref{eq:projectrho}.
+\end{proof}

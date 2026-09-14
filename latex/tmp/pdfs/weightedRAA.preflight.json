@@ -1,0 +1,12 @@
+{
+  "schema": "pdf_read_preflight/1",
+  "verdict": "PASS",
+  "file": "C:\\Users\\miranda\\Desktop\\paper\\weightedRAA.pdf",
+  "sha256": "5001764d45c9d8b42da21056a44d84a5b95504a1f5d091e1417c0665fc04722a",
+  "declared_page_count": 14,
+  "enumerated_page_count": 14,
+  "reader_page_count": 14,
+  "warnings": [],
+  "generated_at": "2026-08-15T03:08:26.925970+00:00",
+  "tool": "pdf_read_preflight/1.0.0"
+}

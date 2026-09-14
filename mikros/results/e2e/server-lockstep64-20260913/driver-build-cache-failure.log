@@ -1,0 +1,8 @@
+{"name": "rustc", "exit_code": 0, "wall_seconds": 0.017989816144108772}
+{"name": "build", "exit_code": 101, "wall_seconds": 5.63054975005798}
+Traceback (most recent call last):
+  File "/home/mscong1/mikros-experiments/20260912T-native64/e2e-bit-v1/v3/mikros/server_experiments/run_e2e_64.py", line 94, in <module>
+    run("build", ["cargo", TOOLCHAIN, "build", "--release", "--offline", "--locked", "-j8", "-p", "mikros",
+  File "/home/mscong1/mikros-experiments/20260912T-native64/e2e-bit-v1/v3/mikros/server_experiments/run_e2e_64.py", line 82, in run
+    raise RuntimeError(f"{name} failed; all output retained")
+RuntimeError: build failed; all output retained

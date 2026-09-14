@@ -1,0 +1,168 @@
+{
+  "cleanup": {
+    "batch_before_cleanup_ms": 13181.365426999999,
+    "batch_including_cleanup_ms": 17628.251048,
+    "memory_after_kib": {
+      "VmHWM": 66834432,
+      "VmRSS": 10572,
+      "VmSize": 9052624
+    },
+    "memory_before_kib": {
+      "VmHWM": 66834432,
+      "VmRSS": 48243156,
+      "VmSize": 59382360
+    },
+    "scope": "After all inputs, prepared inputs and proof objects are dropped; includes both warmup and measured work. Batch wall time also includes input generation, verification, source checks and proof output. Cleanup is excluded from per-proof core/total timers.",
+    "shared_scratch_clear_ms": 1068.5318969999998,
+    "total_ms": 4446.691486,
+    "tree_pool_clear_ms": 3378.159199,
+    "tree_pools_before": [
+      {
+        "budget_bytes": 34359738368,
+        "hits": 0,
+        "max_buffers": 32,
+        "min_buffer_bytes": 1048576,
+        "misses": 0,
+        "rejected_buffers": 0,
+        "retained_buffers": 0,
+        "retained_bytes": 0,
+        "retained_f128_buffers": 0,
+        "retained_u8_buffers": 0,
+        "returned_buffers": 0,
+        "reused_bytes": 0
+      },
+      {
+        "budget_bytes": 34359738368,
+        "hits": 0,
+        "max_buffers": 32,
+        "min_buffer_bytes": 1048576,
+        "misses": 62,
+        "rejected_buffers": 30,
+        "retained_buffers": 30,
+        "retained_bytes": 34357641216,
+        "retained_f128_buffers": 26,
+        "retained_u8_buffers": 4,
+        "returned_buffers": 30,
+        "reused_bytes": 0
+      }
+    ]
+  },
+  "metadata": {
+    "affinity": [
+      "Cpus_allowed_list:\t0-55,72-79",
+      "Mems_allowed_list:\t0-1"
+    ],
+    "generator": "4-round balanced Feistel public permutation; SplitMix64 byte witness; full data digest bound before challenges",
+    "log_n": 30,
+    "memory_scope": "VmHWM at prover return is process-lifetime cumulative; separate one-system cold and warm processes measure RSS. Tree pool budgets apply separately; final cleanup outside proof timer is reported explicitly.",
+    "order_policy": "cyclic",
+    "runs": 1,
+    "rustc": "rustc 1.96.0-nightly (ac7f9ec7d 2026-03-20); binary: rustc; commit-hash: ac7f9ec7da74d37fd28667c86bf117a39ba5b02a; commit-date: 2026-03-20; host: x86_64-unknown-linux-gnu; release: 1.96.0-nightly; LLVM version: 22.1.0",
+    "scope": "Same public relation f[sigma[i]]=g[i]; PIOP with every source claim checked directly against inputs; no PCS/grinding. Same-message optimization, not a new batched protocol. Existing global Flock scratch pool shared by old/new Mikros and Flock; reuse and combined additionally have independent bounded tree pools.",
+    "seed": 1,
+    "start_unix_seconds": 1789225558,
+    "systems": [
+      "combined"
+    ],
+    "target_features": [
+      "aes",
+      "pclmulqdq",
+      "avx2",
+      "gfni",
+      "avx512f",
+      "avx512bw",
+      "sse4.1",
+      "vpclmulqdq"
+    ],
+    "threads": 64,
+    "warmups": 0,
+    "width": 1
+  },
+  "samples": [
+    {
+      "input_digest": "a5f5e29ec883c9383d79d7b28ef52c626da5b31db865728ff6ed26bbdf8442ef",
+      "log_n": 30,
+      "memory_at_prover_end_kib": {
+        "VmHWM": 66855760,
+        "VmRSS": 66855760,
+        "VmSize": 77994988
+      },
+      "order": 0,
+      "phases": {
+        "coefficient_eval_ms": 0.0,
+        "compact_build_ms": 0.0,
+        "decode_ms": 0.0,
+        "equality_ms": 24.408095000000014,
+        "extension_build_ms": 393.223029,
+        "fold_and_message_ms": 2507.150308,
+        "folds_ms": 0.0,
+        "fused_leaf_build_ms": 2360.877314,
+        "layer_materialize_ms": 0.007297,
+        "layer_release_ms": 0.43879299999999993,
+        "messages_ms": 872.3079100000001,
+        "scratch_setup_ms": 0.021608,
+        "source_checks_ms": 128.390061
+      },
+      "prepare_ms": 1671.0697859999998,
+      "proof_bytes": 44208,
+      "proof_digest": "25452a2d2967245058e343eb2dd2e2966282b7eb9baa79bbd1119f4aa2bd5e9d",
+      "prover_core_ms": 6288.426779,
+      "prover_total_ms": 7959.496827,
+      "run": 0,
+      "source_check_ms": 1953.177298,
+      "system": "combined",
+      "tree_pools": [
+        {
+          "budget_bytes": 34359738368,
+          "hits": 0,
+          "max_buffers": 32,
+          "min_buffer_bytes": 1048576,
+          "misses": 0,
+          "rejected_buffers": 0,
+          "retained_buffers": 0,
+          "retained_bytes": 0,
+          "retained_f128_buffers": 0,
+          "retained_u8_buffers": 0,
+          "returned_buffers": 0,
+          "reused_bytes": 0
+        },
+        {
+          "budget_bytes": 34359738368,
+          "hits": 0,
+          "max_buffers": 32,
+          "min_buffer_bytes": 1048576,
+          "misses": 62,
+          "rejected_buffers": 30,
+          "retained_buffers": 30,
+          "retained_bytes": 34357641216,
+          "retained_f128_buffers": 26,
+          "retained_u8_buffers": 4,
+          "returned_buffers": 30,
+          "reused_bytes": 0
+        }
+      ],
+      "tree_stats": {
+        "left": {
+          "compact_bytes": 8589934592,
+          "extension_bytes": 8589934576,
+          "max_coefficient_bits": 64,
+          "subfield_bits": 32,
+          "switch_level": 2
+        },
+        "right": {
+          "compact_bytes": 8589934592,
+          "extension_bytes": 8589934576,
+          "max_coefficient_bits": 64,
+          "subfield_bits": 32,
+          "switch_level": 2
+        }
+      },
+      "tuple_bits": 31,
+      "value_bits": 1,
+      "verified": true,
+      "verifier_ms": 0.45791400000000004,
+      "warmup": false
+    }
+  ],
+  "schema_version": 3
+}

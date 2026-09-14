@@ -1,0 +1,240 @@
+{
+  "log_n": 10,
+  "n": 1024,
+  "proofs_identical": true,
+  "rayon_threads": 1,
+  "repeats": 5,
+  "results": [
+    {
+      "detail": {
+        "bincode_bytes": 5168,
+        "field_message_bytes": 4992,
+        "tree_stats": {
+          "left": {
+            "compact_bytes": 0,
+            "extension_bytes": 32752,
+            "max_coefficient_bits": 0,
+            "subfield_bits": 8,
+            "switch_level": 0
+          },
+          "right": {
+            "compact_bytes": 0,
+            "extension_bytes": 32752,
+            "max_coefficient_bits": 0,
+            "subfield_bits": 8,
+            "switch_level": 0
+          }
+        }
+      },
+      "direct_oracle_median_ms": 0.3313,
+      "protocol": "permutation",
+      "prove_median_ms": 0.2844,
+      "samples": [
+        {
+          "direct_oracle_ms": 0.33349999999999996,
+          "prove_ms": 0.3821,
+          "verify_ms": 0.0413
+        },
+        {
+          "direct_oracle_ms": 0.3331,
+          "prove_ms": 0.2847,
+          "verify_ms": 0.0408
+        },
+        {
+          "direct_oracle_ms": 0.3311,
+          "prove_ms": 0.2844,
+          "verify_ms": 0.0409
+        },
+        {
+          "direct_oracle_ms": 0.33,
+          "prove_ms": 0.26489999999999997,
+          "verify_ms": 0.0408
+        },
+        {
+          "direct_oracle_ms": 0.3313,
+          "prove_ms": 0.26689999999999997,
+          "verify_ms": 0.0405
+        }
+      ],
+      "strategy": "full_extension",
+      "verify_median_ms": 0.0408
+    },
+    {
+      "detail": {
+        "bincode_bytes": 5168,
+        "field_message_bytes": 4992,
+        "tree_stats": {
+          "left": {
+            "compact_bytes": 4096,
+            "extension_bytes": 2032,
+            "max_coefficient_bits": 128,
+            "subfield_bits": 8,
+            "switch_level": 4
+          },
+          "right": {
+            "compact_bytes": 4096,
+            "extension_bytes": 2032,
+            "max_coefficient_bits": 128,
+            "subfield_bits": 8,
+            "switch_level": 4
+          }
+        }
+      },
+      "direct_oracle_median_ms": 0.3448,
+      "protocol": "permutation",
+      "prove_median_ms": 0.5651999999999999,
+      "samples": [
+        {
+          "direct_oracle_ms": 0.3448,
+          "prove_ms": 0.5651999999999999,
+          "verify_ms": 0.0405
+        },
+        {
+          "direct_oracle_ms": 0.3463,
+          "prove_ms": 0.5507,
+          "verify_ms": 0.0405
+        },
+        {
+          "direct_oracle_ms": 0.3533,
+          "prove_ms": 0.569,
+          "verify_ms": 0.0413
+        },
+        {
+          "direct_oracle_ms": 0.3327,
+          "prove_ms": 0.5620999999999999,
+          "verify_ms": 0.0413
+        },
+        {
+          "direct_oracle_ms": 0.3433,
+          "prove_ms": 0.5766,
+          "verify_ms": 0.0415
+        }
+      ],
+      "strategy": "bitwidth_aware",
+      "verify_median_ms": 0.0413
+    },
+    {
+      "detail": {
+        "auxiliary_digest_bytes": 96,
+        "bincode_bytes": 41721,
+        "field_message_bytes": 41408,
+        "stats": {
+          "aggregation_challenges": 0,
+          "randomized_tuple": false,
+          "trees": {
+            "left": {
+              "compact_bytes": 0,
+              "extension_bytes": 65520,
+              "max_coefficient_bits": 0,
+              "subfield_bits": 32,
+              "switch_level": 0
+            },
+            "right": {
+              "compact_bytes": 0,
+              "extension_bytes": 65520,
+              "max_coefficient_bits": 0,
+              "subfield_bits": 32,
+              "switch_level": 0
+            }
+          },
+          "tuple_bits": 25
+        }
+      },
+      "direct_oracle_median_ms": 1.6042999999999998,
+      "protocol": "lasso",
+      "prove_median_ms": 2.4565,
+      "samples": [
+        {
+          "direct_oracle_ms": 1.6248,
+          "prove_ms": 2.4565,
+          "verify_ms": 0.45780000000000004
+        },
+        {
+          "direct_oracle_ms": 1.5701,
+          "prove_ms": 2.4408,
+          "verify_ms": 0.4517
+        },
+        {
+          "direct_oracle_ms": 1.562,
+          "prove_ms": 2.5011,
+          "verify_ms": 0.45199999999999996
+        },
+        {
+          "direct_oracle_ms": 1.6042999999999998,
+          "prove_ms": 2.4234,
+          "verify_ms": 0.4514
+        },
+        {
+          "direct_oracle_ms": 1.6318000000000001,
+          "prove_ms": 2.4899,
+          "verify_ms": 0.5037
+        }
+      ],
+      "strategy": "full_extension",
+      "verify_median_ms": 0.45199999999999996
+    },
+    {
+      "detail": {
+        "auxiliary_digest_bytes": 96,
+        "bincode_bytes": 41721,
+        "field_message_bytes": 41408,
+        "stats": {
+          "aggregation_challenges": 0,
+          "randomized_tuple": false,
+          "trees": {
+            "left": {
+              "compact_bytes": 16384,
+              "extension_bytes": 16368,
+              "max_coefficient_bits": 128,
+              "subfield_bits": 32,
+              "switch_level": 2
+            },
+            "right": {
+              "compact_bytes": 16384,
+              "extension_bytes": 16368,
+              "max_coefficient_bits": 128,
+              "subfield_bits": 32,
+              "switch_level": 2
+            }
+          },
+          "tuple_bits": 25
+        }
+      },
+      "direct_oracle_median_ms": 1.5689,
+      "protocol": "lasso",
+      "prove_median_ms": 2.8304,
+      "samples": [
+        {
+          "direct_oracle_ms": 1.5595999999999999,
+          "prove_ms": 2.8008,
+          "verify_ms": 0.4728
+        },
+        {
+          "direct_oracle_ms": 1.6698,
+          "prove_ms": 2.8304,
+          "verify_ms": 0.4515
+        },
+        {
+          "direct_oracle_ms": 1.5713000000000001,
+          "prove_ms": 2.8891,
+          "verify_ms": 0.46509999999999996
+        },
+        {
+          "direct_oracle_ms": 1.5689,
+          "prove_ms": 2.8919,
+          "verify_ms": 0.4572
+        },
+        {
+          "direct_oracle_ms": 1.5613000000000001,
+          "prove_ms": 2.8099000000000003,
+          "verify_ms": 0.45130000000000003
+        }
+      ],
+      "strategy": "bitwidth_aware",
+      "verify_median_ms": 0.4572
+    }
+  ],
+  "scope": "PIOP only; no PCS, no ZK, no grinding; direct oracle timing separate",
+  "table_rows": 64,
+  "value_bits": 8
+}

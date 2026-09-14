@@ -1,0 +1,2 @@
+n=30 threads=64 run=0 previous core=10160.295 total=11782.232 source=2074.940 ms
+n=30 threads=64 run=1 previous core=10413.596 total=11974.534 source=2009.339 ms

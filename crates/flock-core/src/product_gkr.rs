@@ -1256,7 +1256,19 @@ pub fn prove_batched_with_grinding<C: Challenger>(
     grinding: BatchedGrinding,
     ch: &mut C,
 ) -> (ProductGkrBatchedProof, ProductGkrBatchedClaim) {
-    prove_batched_impl(f, g, sigma, live, false, grinding, ch)
+    prove_batched_impl(f, g, sigma, live, false, grinding, None, ch)
+}
+
+/// Dense permutation prover with a challenge-independent sigma encoding
+/// prepared by the caller. `sigma_tags[i] = F128::new(sigma[i] as u64, 0)`.
+/// The verifier still checks the public sigma; a wrong prover cache cannot
+/// authenticate a false endpoint. This only moves static conversion offline.
+pub fn prove_batched_prepared_sigma_with_grinding<C: Challenger>(
+    f: &[F128], g: &[F128], sigma: &[usize], sigma_tags: &[F128],
+    grinding: BatchedGrinding, ch: &mut C,
+) -> (ProductGkrBatchedProof, ProductGkrBatchedClaim) {
+    assert_eq!(sigma_tags.len(), sigma.len());
+    prove_batched_impl(f, g, sigma, None, false, grinding, Some(sigma_tags), ch)
 }
 
 /// The DENSE pipeline forced under a mask — the grouped pipeline's
@@ -1269,7 +1281,7 @@ pub(crate) fn prove_batched_dense_masked_for_tests<C: Challenger>(
     live: Option<&LiveMask>,
     ch: &mut C,
 ) -> (ProductGkrBatchedProof, ProductGkrBatchedClaim) {
-    prove_batched_impl(f, g, sigma, live, true, BatchedGrinding::disabled(), ch)
+    prove_batched_impl(f, g, sigma, live, true, BatchedGrinding::disabled(), None, ch)
 }
 
 /// The sparse masked σ evaluation: `Σ_live eq_lo(row)·eq_hi(slot)·tag(σ(x))`
@@ -1548,6 +1560,7 @@ fn prove_batched_impl<C: Challenger>(
     live: Option<&LiveMask>,
     force_dense: bool,
     grinding: BatchedGrinding,
+    prepared_sigma: Option<&[F128]>,
     ch: &mut C,
 ) -> (ProductGkrBatchedProof, ProductGkrBatchedClaim) {
     let n = f.len();
@@ -1608,14 +1621,16 @@ fn prove_batched_impl<C: Challenger>(
     // leaves read `tag(σ(x))` inline on live cells, and the deferred
     // `live ⊙ s_σ` evaluation happens SPARSELY over the live cells after
     // ρ is known (the dead entries are zero by definition).
-    let s_sig_vec: Vec<F128> = if live.is_some() {
-        Vec::new()
+    let s_sig_vec: std::borrow::Cow<'_, [F128]> = if live.is_some() {
+        std::borrow::Cow::Borrowed(&[])
+    } else if let Some(tags) = prepared_sigma {
+        std::borrow::Cow::Borrowed(tags)
     } else {
-        sigma
+        std::borrow::Cow::Owned(sigma
             .par_iter()
             .with_min_len(par_threshold())
             .map(|&sx| tag(sx))
-            .collect()
+            .collect())
     };
     tp(&mut t, "  s_sigma");
     let lhs: Vec<F128> = f

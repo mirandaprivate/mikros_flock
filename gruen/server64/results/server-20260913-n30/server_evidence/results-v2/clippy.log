@@ -1,0 +1,9 @@
+    Checking crossbeam-utils v0.8.23
+    Checking either v1.18.0
+    Checking gruen-serial-reference v0.1.0 (/home/mscong1/mikros-experiments/20260912T-native64/gruen-20260913-n30/source/reference)
+    Checking crossbeam-epoch v0.9.21
+    Checking crossbeam-deque v0.8.8
+    Checking rayon-core v1.13.0
+    Checking rayon v1.12.0
+    Checking gruen-server64 v0.1.0 (/home/mscong1/mikros-experiments/20260912T-native64/gruen-20260913-n30/source)
+    Finished `release` profile [optimized] target(s) in 2.24s

@@ -1,0 +1,10 @@
+{
+  "valid": true,
+  "source_archives_match": true,
+  "cross_suite_proofs_match": true,
+  "proof_counts": {
+    "results/ablation-20260912-v1": 264,
+    "results/scaling-20260912-v1": 420
+  },
+  "total_proofs": 684
+}

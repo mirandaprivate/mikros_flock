@@ -1,0 +1,12 @@
+{
+  "schema": "pdf_read_preflight/1",
+  "verdict": "PASS",
+  "file": "C:\\Users\\miranda\\Desktop\\paper\\QAcode.pdf",
+  "sha256": "7a474aee398a0834167f41ac18e452bee272a9c83619976c489e65e3d57a7294",
+  "declared_page_count": 40,
+  "enumerated_page_count": 40,
+  "reader_page_count": 40,
+  "warnings": [],
+  "generated_at": "2026-08-15T03:08:27.231652+00:00",
+  "tool": "pdf_read_preflight/1.0.0"
+}

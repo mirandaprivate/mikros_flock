@@ -1,0 +1,45 @@
+   Compiling blake3 v1.8.5
+warning: unused imports: `__m512i`, `_mm512_bslli_epi128`, `_mm512_clmulepi64_epi128`, `_mm512_extracti32x4_epi32`, `_mm512_loadu_si512`, `_mm512_set_epi64`, `_mm512_setzero_si512`, and `_mm512_xor_si512`
+ --> /mnt/c/Users/miranda/git/mikros_flock/crates/flock-field/src/gf2_128/x86_64.rs:2:14
+  |
+2 |     __m128i, __m512i, _mm_clmulepi64_si128, _mm_extract_epi64, _mm_set_epi64x, _mm_slli_si128,
+  |              ^^^^^^^
+3 |     _mm_xor_si128, _mm512_bslli_epi128, _...64_epi128, _...2x4_epi32,
+  |                    ^^^^^^^^^^^^^^^^^^^  ^...^^^^^^^^^  ^...^^^^^^^^^
+4 |     _...adu_si512, _mm512_set_epi64, _...ero_si512, _mm512_xor_si512,
+  |     ^...^^^^^^^^^  ^^^^^^^^^^^^^^^^  ^...^^^^^^^^^  ^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: `flock-field` (lib) generated 1 warning (run `cargo fix --lib -p flock-field` to apply 1 suggestion)
+   Compiling flock-transcript v0.1.0 (/mnt/c/Users/miranda/git/mikros_flock/crates/flock-transcript)
+   Compiling flock-merkle v0.1.0 (/mnt/c/Users/miranda/git/mikros_flock/crates/flock-merkle)
+   Compiling flock-core v0.1.0 (/mnt/c/Users/miranda/git/mikros_flock/crates/flock-core)
+   Compiling mikros v0.1.0 (/mnt/c/Users/miranda/git/mikros_flock/mikros)
+   Compiling mikros-lookup v0.1.0 (/mnt/c/Users/miranda/git/mikros_flock/lookup)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 51.07s
+     Running unittests src/lib.rs (target/debug/deps/mikros_lookup-f1deb4e779339cc4)
+
+running 1 test
+test product_tree_tests::every_saved_layer_equals_independent_direct_block_products ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/protocol.rs (target/debug/deps/protocol-b74038b43ddb7284)
+
+running 12 tests
+test canonical_column_major_storage ... ok
+test actual_subfields_preserve_multiplication_and_frobenius ... ok
+test every_permutation_message_is_bound ... ok
+test lasso_all_parts_and_auxiliary_claims_are_authenticated ... ok
+test lasso_duplicates_unused_addresses_and_empty_queries ... ok
+test lasso_rejects_forged_counters_carries_and_final_state ... ok
+test lasso_rejects_invalid_lookup_and_addresses ... ok
+test lasso_exact_127_128_and_randomized_129_bits ... ok
+test permutation_rejects_wrong_multiplicity_and_shape ... ok
+test permutation_packing_matches_extension_at_all_boundaries ... ok
+test zero_fingerprint_factors_do_not_require_inversion_or_resampling ... ok
+test thread_counts_preserve_proof_and_transcript ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.64s
+

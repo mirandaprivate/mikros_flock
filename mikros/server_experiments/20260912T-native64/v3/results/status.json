@@ -1,0 +1,26 @@
+{
+  "utc": "2026-09-12T08:18:52Z",
+  "stage": "complete",
+  "threads": 64,
+  "systems": [
+    "legacy",
+    "native",
+    "reuse",
+    "flock"
+  ],
+  "logs": [
+    30
+  ],
+  "measured_runs": 8,
+  "profile_runs": 3,
+  "validated_proof_records": 82,
+  "reports": [
+    "smoke.json",
+    "comparison-64t.json",
+    "profile-64t.json",
+    "rss-legacy-n30-64t.json",
+    "rss-native-n30-64t.json",
+    "rss-reuse-n30-64t.json",
+    "rss-flock-n30-64t.json"
+  ]
+}

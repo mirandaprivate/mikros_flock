@@ -1,0 +1,9 @@
+   Compiling flock-hash v0.1.0 (/home/mscong1/mikros-experiments/20260912T-native64/v13-packed-aggregate-probe-20260914/source/crates/flock-hash)
+   Compiling flock-field v0.1.0 (/home/mscong1/mikros-experiments/20260912T-native64/v13-packed-aggregate-probe-20260914/source/crates/flock-field)
+   Compiling flock-parallel v0.1.0 (/home/mscong1/mikros-experiments/20260912T-native64/v13-packed-aggregate-probe-20260914/source/crates/flock-parallel)
+   Compiling flock-multilinear v0.1.0 (/home/mscong1/mikros-experiments/20260912T-native64/v13-packed-aggregate-probe-20260914/source/crates/flock-multilinear)
+   Compiling flock-merkle v0.1.0 (/home/mscong1/mikros-experiments/20260912T-native64/v13-packed-aggregate-probe-20260914/source/crates/flock-merkle)
+   Compiling flock-transcript v0.1.0 (/home/mscong1/mikros-experiments/20260912T-native64/v13-packed-aggregate-probe-20260914/source/crates/flock-transcript)
+   Compiling flock-core v0.1.0 (/home/mscong1/mikros-experiments/20260912T-native64/v13-packed-aggregate-probe-20260914/source/crates/flock-core)
+   Compiling mikros-permutation v0.1.0 (/home/mscong1/mikros-experiments/20260912T-native64/v13-packed-aggregate-probe-20260914/source/mikros/permutation)
+    Finished `release` profile [optimized] target(s) in 23.32s

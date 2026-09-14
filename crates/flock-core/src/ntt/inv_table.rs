@@ -174,6 +174,13 @@ impl InvNttTableByteSingleGf8 {
             unsafe { self.apply_x86_avx512_unchecked(bytes, out) };
             return;
         }
+        #[cfg(all(target_arch = "x86_64", target_feature = "avx512f"))]
+        if self.ell == 128 {
+            // SAFETY: the native build enables AVX-512F; this branch has the
+            // exact 128-lane shape checked by the two-register method.
+            unsafe { self.apply_x86_avx512_128_unchecked(bytes, out) };
+            return;
+        }
         #[cfg(target_arch = "x86_64")]
         if self.ell >= 16 {
             // SAFETY: x86_64 statically guarantees SSE2; ell ≥ 16 ⇒ at least
@@ -373,6 +380,69 @@ impl InvNttTableByteSingleGf8 {
         }
     }
 
+    /// Two-register AVX-512 LDE for `ell = 128`, `n_chunks = 16`.
+    /// The low three chunk bits use the same qword XOR permutations as k=6;
+    /// chunk bit three exchanges the two ZMM halves.
+    ///
+    /// # Safety
+    /// Caller must have AVX-512F and `self.ell == 128`.
+    #[cfg(target_arch = "x86_64")]
+    #[target_feature(enable = "avx512f")]
+    pub unsafe fn apply_x86_avx512_128_unchecked(&self, bytes: &[u8], out: &mut [F8]) {
+        assert_eq!(self.ell, 128);
+        assert_eq!(self.n_chunks, 16);
+        assert_eq!(bytes.len(), 16);
+        assert_eq!(out.len(), 128);
+        // SAFETY: validated slices provide 16 input bytes and 128 output bytes.
+        unsafe {
+            let [low, high] = self.apply_x86_avx512_128_register_unchecked(bytes.as_ptr());
+            _mm512_storeu_si512(out.as_mut_ptr().cast(), low);
+            _mm512_storeu_si512(out.as_mut_ptr().add(64).cast(), high);
+        }
+    }
+
+    /// Register-returning k=7 LDE for fused GFNI consumers.
+    ///
+    /// # Safety
+    /// Requires AVX-512F, `ell == 128`, `n_chunks == 16`, and sixteen readable
+    /// bytes at `bytes`. Each table index is a byte selecting one 128-byte row.
+    #[cfg(target_arch = "x86_64")]
+    #[inline]
+    #[target_feature(enable = "avx512f")]
+    pub unsafe fn apply_x86_avx512_128_register_unchecked(&self, bytes: *const u8) -> [__m512i; 2] {
+        debug_assert_eq!(self.ell, 128);
+        debug_assert_eq!(self.n_chunks, 16);
+        // SAFETY: caller supplies the exact shape and readable input. Both
+        // 64-byte loads remain within the selected, aligned 128-byte LUT row.
+        unsafe {
+            let base = self.data_ptr();
+            let row0 = base.add(*bytes as usize * 128);
+            let mut acc = [
+                _mm512_loadu_si512(row0.cast()),
+                _mm512_loadu_si512(row0.add(64).cast()),
+            ];
+            for b in 1..16 {
+                let row = base.add(*bytes.add(b) as usize * 128);
+                for half in 0..2 {
+                    let v = _mm512_loadu_si512(row.add((half ^ (b >> 3)) * 64).cast());
+                    let perm = match (b >> 1) & 3 {
+                        0 => v,
+                        1 => _mm512_shuffle_i64x2::<0xB1>(v, v),
+                        2 => _mm512_shuffle_i64x2::<0x4E>(v, v),
+                        _ => _mm512_shuffle_i64x2::<0x1B>(v, v),
+                    };
+                    let perm = if b & 1 != 0 {
+                        _mm512_shuffle_epi32::<0x4E>(perm)
+                    } else {
+                        perm
+                    };
+                    acc[half] = _mm512_xor_si512(acc[half], perm);
+                }
+            }
+            acc
+        }
+    }
+
     /// Apply M to three byte-packed rows (a, b, c) — matches the C++ hot-path
     /// signature. Identical math to three `apply` calls; kept separate so the
     /// future NEON port can batch loads across the three rows.
@@ -478,6 +548,36 @@ mod tests {
             table.apply(&bytes, &mut out);
             let expected = naive_apply(&ntt_s, &ntt_l, &bytes);
             assert_eq!(out, expected, "bytes={:02x?}", bytes);
+        }
+    }
+
+    #[test]
+    fn skip7_128_lut_matches_independent_ntt_all_basis_bits_and_random_rows() {
+        let input = AdditiveNttGf8::new(7, F8::ZERO);
+        let output = AdditiveNttGf8::new(7, F8(0x80));
+        let table = InvNttTableByteSingleGf8::new(&input, &output);
+        let mut rng = Rng::new(0x5717_1DE);
+        for case in 0..160 {
+            let mut bytes = [0u8; 16];
+            if case < 128 {
+                bytes[case / 8] = 1 << (case % 8);
+            } else {
+                rng.fill_bytes(&mut bytes);
+            }
+            let mut generic = [F8::ZERO; 128];
+            table.apply(&bytes, &mut generic);
+            let expected = naive_apply(&input, &output, &bytes);
+            assert_eq!(generic.as_slice(), expected, "case={case}");
+            let mut scalar = [F8::ZERO; 128];
+            table.apply_scalar(&bytes, &mut scalar);
+            assert_eq!(generic, scalar);
+            #[cfg(target_arch = "x86_64")]
+            if std::is_x86_feature_detected!("avx512f") {
+                let mut actual = [F8::ZERO; 128];
+                // SAFETY: runtime check above and fixed validated 128-lane shape.
+                unsafe { table.apply_x86_avx512_128_unchecked(&bytes, &mut actual) };
+                assert_eq!(actual, scalar, "AVX-512 case={case}");
+            }
         }
     }
 

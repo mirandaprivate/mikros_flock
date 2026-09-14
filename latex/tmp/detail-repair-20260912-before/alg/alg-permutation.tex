@@ -1,0 +1,266 @@
+% !TEX root = ../main.tex
+\begin{algorithm}[!t]
+\linespread{0.97}\selectfont
+\caption{Packed permutation proof}
+\label{alg:permutation}
+\KwIn{
+\(N=m\kappa\), where \(m,\kappa\in2^{\mathbb N}\);
+\(\bm a,\bm b\in\Field^N\)
+}
+\KwOut{
+Terminal values \(\ext{v}_a,\ext{v}_b\) and MLE points
+\(\ext{\bm y}_a,\ext{\bm y}_b
+\in\ExtensionField^{\log_2N}\);
+acceptance bit \(\mathsf{ok}\)
+}
+
+\tcp{Reduce multiset equality to equality of grand products}
+Fix the commitments to \(\bm a\) and \(\bm b\), then sample
+\(\VtoP\):
+\(\ext z\ChooseRandom\ExtensionField\)\;
+
+\ForEach{\(\bm d\in\{\bm a,\bm b\}\)}{
+    Arrange \(\bm d\) columnwise as
+    \(
+        \bm D^{(\bm d)}
+        \leftarrow
+        \concat{
+            \bm d^{(1)},\ldots,\bm d^{(\kappa)}
+        }
+        \in\Field^{m\times\kappa}.
+    \)
+
+    \(\Prover\) initializes the column-product tree with
+    \(
+        \bm C^{(\bm d)}_0(Z)
+        \leftarrow
+        Z\bm 1_{m\times\kappa}
+        +
+        \bm D^{(\bm d)}
+    \)\;
+
+    \For{\(t=0,\ldots,\log_2\kappa-1\)}{
+        \(
+            \bm C^{(\bm d)}_{t+1}(Z)
+            \leftarrow
+            \bm C^{(\bm d)}_{t,L}(Z)
+            \circ
+            \bm C^{(\bm d)}_{t,R}(Z).
+        \)
+    }
+
+    \(\Prover\) evaluates the last column layer:
+    \(
+        \ext{\bm c}^{(\bm d)}_0
+        \leftarrow
+        \bm C^{(\bm d)}_{\log_2\kappa}(\ext z)
+        \in\ExtensionField^m.
+    \)
+
+    \For{\(i=0,\ldots,\log_2m-1\)}{
+        \(
+            \ext{\bm c}^{(\bm d)}_{i+1}
+            \leftarrow
+            \ext{\bm c}^{(\bm d)}_{i,L}
+            \circ
+            \ext{\bm c}^{(\bm d)}_{i,R}.
+        \)
+    }
+
+    Set
+    \(
+        \Theta_{\bm d}
+        \leftarrow
+        \ext c^{(\bm d)}_{\log_2m}.
+    \)
+}
+
+\(\PtoV\):
+\(\Theta_{\bm a},\Theta_{\bm b}\)\;
+
+\(\Verifier\) checks
+\(
+    \mathsf{ok}_{\mathsf{perm}}
+    \leftarrow
+    \left(
+        \Theta_{\bm a}
+        \EqOrNot
+        \Theta_{\bm b}
+    \right).
+\)
+
+\ForEach{\(\bm d\in\{\bm a,\bm b\}\)}{
+    Set
+    \(
+        \ext{s}^{(\bm d)}_{\log_2m}
+        \leftarrow
+        \Theta_{\bm d}
+    \)
+    and
+    \(
+        \ext{\bm\xi}^{(\bm d)}_{\log_2m}
+        \leftarrow(1).
+    \)
+
+    \tcp{Unfold the row-product tree}
+    \For{\(i=\log_2m-1,\ldots,0\)}{
+        Write the current claim as
+        \(
+            \ext{s}^{(\bm d)}_{i+1}
+            \EqOrNot
+            \left\langle
+                \ext{\bm c}^{(\bm d)}_{i,L},
+                \ext{\bm c}^{(\bm d)}_{i,R}
+                \circ
+                \ext{\bm\xi}^{(\bm d)}_{i+1}
+            \right\rangle.
+        \)
+
+        Apply Fact~\ref{fact:ip} and randomly combine the two
+        terminal claims to obtain
+        \(
+            \ext{s}^{(\bm d)}_i
+            \EqOrNot
+            \left\langle
+                \ext{\bm\xi}^{(\bm d)}_i,
+                \ext{\bm c}^{(\bm d)}_i
+            \right\rangle
+        \)
+        and the acceptance bit
+        \(\mathsf{ok}^{(\bm d)}_{\mathsf{row},i}\), retaining
+        the tensor factors of \(\ext{\bm\xi}^{(\bm d)}_i\)\;
+    }
+
+    Set
+    \(
+        \ext{q}^{(\bm d)}_{\log_2\kappa}
+        \leftarrow
+        \ext{s}^{(\bm d)}_0
+    \)
+    and
+    \(
+        \ext{\bm\zeta}^{(\bm d)}_{\log_2\kappa}
+        \leftarrow
+        \ext{\bm\xi}^{(\bm d)}_0.
+    \)
+
+    \tcp{Unfold the column-product tree}
+    \For{\(t=\log_2\kappa-1,\ldots,0\)}{
+        Write the current claim as
+        \(
+            \ext{q}^{(\bm d)}_{t+1}
+            \EqOrNot
+            \left\langle
+                \ext{\bm\zeta}^{(\bm d)}_{t+1},
+                \operatorname{vec}
+                \bigl(
+                    \bm C^{(\bm d)}_{t,L}(\ext z)
+                \bigr)
+                \circ
+                \operatorname{vec}
+                \bigl(
+                    \bm C^{(\bm d)}_{t,R}(\ext z)
+                \bigr)
+            \right\rangle.
+        \)
+
+        Apply the coefficient-packing reduction of
+        Algorithm~\ref{alg:hadamard} and use Fact~\ref{fact:ip}
+        for its evaluated inner product to obtain
+        \(
+            \ext{q}^{(\bm d)}_t
+            \EqOrNot
+            \left\langle
+                \ext{\bm\zeta}^{(\bm d)}_t,
+                \operatorname{vec}
+                \bigl(
+                    \bm C^{(\bm d)}_t(\ext z)
+                \bigr)
+            \right\rangle
+        \)
+        and the acceptance bit
+        \(\mathsf{ok}^{(\bm d)}_{\mathsf{col},t}\), retaining
+        the tensor factors of \(\ext{\bm\zeta}^{(\bm d)}_t\)\;
+    }
+
+    Write
+    \(
+        \ext{\bm\zeta}^{(\bm d)}_0
+        =
+        \tensorspan{\ext{\bm y}_{\bm d}}
+    \)
+    for
+    \(
+        \ext{\bm y}_{\bm d}
+        \in\ExtensionField^{\log_2N}.
+    \)
+
+    \(\Prover\) and \(\Verifier\) remove the public shift:
+    \(
+        \ext{v}_{\bm d}
+        \leftarrow
+        \ext{q}^{(\bm d)}_0
+        -
+        \ext z
+        \left\langle
+            \ext{\bm\zeta}^{(\bm d)}_0,
+            \bm 1_N
+        \right\rangle.
+    \)
+
+    Output the terminal claim
+    \(
+        \ext{v}_{\bm d}
+        \EqOrNot
+        \left\langle
+            \bm d,
+            \tensorspan{\ext{\bm y}_{\bm d}}
+        \right\rangle.
+    \)
+}
+
+Set
+\(
+    \ext{v}_a\leftarrow\ext{v}_{\bm a}
+\),
+\(
+    \ext{v}_b\leftarrow\ext{v}_{\bm b}
+\),
+\(
+    \ext{\bm y}_a\leftarrow\ext{\bm y}_{\bm a}
+\),
+and
+\(
+    \ext{\bm y}_b\leftarrow\ext{\bm y}_{\bm b}.
+\)
+
+Set
+\(
+    \mathsf{ok}
+    \leftarrow
+    \mathsf{ok}_{\mathsf{perm}}
+    \wedge
+    \bigwedge_{\bm d\in\{\bm a,\bm b\}}
+    \left(
+        \bigwedge_{i=0}^{\log_2m-1}
+        \mathsf{ok}^{(\bm d)}_{\mathsf{row},i}
+    \right)
+    \wedge
+    \bigwedge_{\bm d\in\{\bm a,\bm b\}}
+    \left(
+        \bigwedge_{t=0}^{\log_2\kappa-1}
+        \mathsf{ok}^{(\bm d)}_{\mathsf{col},t}
+    \right).
+\)
+
+\Return
+\(
+    (
+        \mathsf{ok},
+        \ext{v}_a,
+        \ext{v}_b,
+        \ext{\bm y}_a,
+        \ext{\bm y}_b
+    )
+\)\;
+\end{algorithm}

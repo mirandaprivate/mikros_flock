@@ -1,0 +1,2496 @@
+% Version 2.20 of 2017/10/04
+
+\documentclass[runningheads]{llncs}
+\pagestyle{plain}
+\input{0-package}
+\input{0-macro}
+\begin{document}
+
+\title{Mikros: SNARKs over Small Prime Fields}
+% \subtitle{A}foldinverse
+%Efficient zkSNARK for Matrix Expression Through Proof Composition 
+% \title{Revisiting Bulletproofs: Surpassing Sumcheck in the zk-SNARK Campaign}
+%Matilda: Matrix-Integrated Layered-Data Assurance/Authentication
+%Miranda: Matrix-Integrated Recursive Non-interactive Atomic Derivation Assurance
+
+%Sumcheck Replacement, Matrix Expressions, Commitment Reduction
+
+%\titlerunning{}
+\author{Paper \#01 \institute{\,} }
+% \author{\, \institute{\,}}
+% \author{Mingshu Cong
+% \inst{\,\,*}
+% \inst{1} \orcidID{0000-0001-5858-3411}
+% \and
+% Sherman S. M. Chow
+% \inst{2}
+% \orcidID{0000-0002-0629-6792}
+% \and
+% Tsz Hon Yuen
+% \inst{3}
+% \orcidID{0000-0002-0629-6792}
+% \and
+% Siu Ming Yiu
+% \thanks{Siu Ming Yiu is the corresponding author.}
+% \inst{1} \orcidID{0000-0002-3975-8500}}
+
+% \authorrunning{M. Cong et al.}
+% \institute{Department of Computer Science, The University of Hong Kong, Hong Kong SAR, China \\
+% \email{\{mscong,smyiu\}@cs.hku.hk}
+% \institute{Department of Computer Science, The Chinese University of Hong Kong, Hong Kong SAR, China \\
+% \email{smchow@ie.cuhk.edu.hk}
+% \institute{Faculty of Information Technology, Monash University, Melbourne, Australia\\
+% \email{John.tszhonyuen@monash.edu}
+% }
+%
+\maketitle
+
+\begin{abstract}
+Prover memory is a central bottleneck in modern succinct non-interactive
+arguments of knowledge (SNARKs).  We construct SNARKs for arithmetic
+circuits defined directly over a small prime field
+\(\Field=\mathbb F_p\).  Keeping witnesses and intermediate protocol
+states in the base field reduces the concrete memory cost per field
+element, but also creates a soundness challenge: a single random
+evaluation over \(\mathbb F_p\) provides only small-field security.
+
+We address this problem with a tensor-structured multiplicative packing
+of the LiteBullet inner-product argument.  For
+\(h=\lceil\log_2\kappa\rceil\), Packed LiteBullet folds \(\kappa\)
+same-length inner-product claims using \(\kappa\) independent challenges
+in \(\mathbb F_p^h\times\mathbb F_p^\times\).  For
+\(p-1>2(h+1)\), its round error is at most
+\((2(h+1)/(p-1))^\kappa\), while all arithmetic remains in the base
+field.
+The folding matrices are generated on demand from these challenge
+points.
+For aggregate initial vector length \(N\) across the \(\kappa\)
+channels, each channel has length \(m=N/\kappa\) and the folding depth
+is \(d=\log_2 m\).  The prover uses
+\(\Theta(N+\kappa^2)\) field elements of working memory and
+\[
+    O\left(
+      \kappa N+
+      \kappa^3d
+    \right)
+\]
+field operations.  The packed claims may originate from unrelated
+circuits with common padded dimensions, or from repeated copies of one
+claim used for soundness amplification.
+
+We combine this folding argument with a polynomial commitment layer
+constructed from rank-one quasi-Abelian codes and Walsh--Hadamard
+transforms, also directly over \(\mathbb F_p\).  These techniques
+underlie \methodname, a SNARK framework designed for computations native
+to small prime fields.
+\end{abstract}
+
+\section{Technical Overview}
+
+We work throughout over a small odd prime field
+\(\Field=\mathbb F_p\).  The circuit, witness, folding protocol, and
+commitment scheme all use this same base field.  A computation with
+\(N\) stored values therefore occupies
+\(\Theta(N\log_2p)\) bits; when \(p<2^8\), each value fits in one byte.
+This representation is particularly natural for computations already
+arithmetized over a small field, including low-precision and quantized
+workloads.
+
+The main obstacle is soundness rather than arithmetic expressiveness.
+After clearing its \(z\)-denominator, a nonzero round polynomial of
+degree \(D\) vanishes at a uniform point of
+\(\mathbb F_p^h\times\mathbb F_p^\times\) with probability at most
+\(D/(p-1)\), which is too large when \(p\) is small.  Our solution is
+to evaluate the folding relation at several independent base-field
+points and retain the resulting claims in packed form.  This amplifies
+soundness without changing the ambient field.
+
+The construction has two algebraic layers.  Multiplicative Packed
+LiteBullet compresses \(\kappa\) inner-product claims while preserving
+\(\kappa\) independent challenges.  A code-based polynomial commitment
+then binds the folded vector states and supports the terminal openings.
+Both layers use tensor structure to avoid materializing their large
+evaluation matrices.
+
+For lookup constraints, Packed LogUp reshapes the query into
+\(\kappa\) short columns, each with fewer than \(p\) entries and its own
+multiplicity vector.  It combines the resulting rational identities
+with a tensor challenge and evaluates the packed identity at
+\(\kappa\) independent extension-field points.  These challenge pairs
+create \(\kappa\) child columns whose aggregate length is the original
+query length.  Subsequent rounds keep \(\kappa\) columns while halving
+their length.  A packed reciprocal relation binds each child entry
+directly to one row of the original query matrix, eliminating the
+\(\kappa\)-fold inverse trace.
+
+For permutation constraints, Packed Permutation replaces the usual
+grand product by random base-field polynomials.  It first represents
+each column by its first \(p\) power sums, then uses independent random
+coefficient matrices to compress any nonzero moment residue into every
+soundness lane.  The power tables are virtual and are checked through
+degree-two Hadamard relations, so only the original columns are
+committed.  This removes both the bit-decomposition witness and
+extension-field arithmetic.  Exactness requires each packed column to
+contain fewer than \(p\) entries, which is already the intended
+small-channel regime.
+
+\subsection{Computation over a Small Field}
+\label{sec:small-field}
+
+An arithmetic circuit is represented directly by the R1CS relation
+\[
+    (\bm A_L\bm w)\circ(\bm A_R\bm w)
+       =\bm A_O\bm w,
+\]
+where
+\(\bm A_L,\bm A_R,\bm A_O\in\Field^{m\times n}\) and
+\(\bm w\in\Field^n\).  All equalities in the remainder of the paper are
+over \(\Field=\mathbb F_p\) unless stated otherwise.
+
+Small-field arithmetic admits a compact implementation.  For
+\(a,b\in\mathbb F_p\), let \(s\leftarrow a+b\) in an integer type wide
+enough to hold values below \(2p\).  Then
+\[
+    a+b\bmod p
+    =
+    \begin{cases}
+        s-p, & s\ge p,\\
+        s,   & s<p.
+    \end{cases}
+\]
+Thus addition requires one integer addition followed by a conditional
+subtraction.  For multiplication and inversion, we may precompute
+\[
+    \mathsf{Mul}[a,b]:=ab\bmod p,
+    \qquad
+    \mathsf{Inv}[a]:=a^{-1}\bmod p
+    \quad(a\ne0).
+\]
+When \(p<2^8\), these tables require approximately \(p^2+p\) bytes in
+total.  Vector and matrix operations then reduce to independent
+small-integer operations and table lookups.
+
+Direct small-field execution saves memory per element, but it also
+restricts the verifier's challenge space.  One possible remedy is to
+pack several base-field coordinates into one extension-field element.
+We first record this standard algebraic reduction and clarify its cost.
+
+\subsection{Packed Inner-Product Proof over an Extension Field}
+\label{sec:extension-inner-product}
+
+Consider a claimed inner product over \(\Field=\mathbb F_p\):
+\[
+    c\stackrel{?}{=}\langle\bm a,\bm b\rangle,
+    \qquad
+    \bm a,\bm b\in\Field^N.
+\]
+Let \(\kappa\mid N\), set \(m:=N/\kappa\), and partition each vector
+into \(\kappa\) length-\(m\) blocks:
+\[
+    \bm a=
+      \concat{\bm a^{(1)},\ldots,\bm a^{(\kappa)}},
+    \qquad
+    \bm b=
+      \concat{\bm b^{(1)},\ldots,\bm b^{(\kappa)}}.
+\]
+The original relation is therefore
+\begin{equation}
+    c\stackrel{?}{=}
+      \sum_{i=1}^{\kappa}
+      \left\langle\bm a^{(i)},\bm b^{(i)}\right\rangle.
+\label{eq:extension-packed-base-relation}
+\end{equation}
+
+\paragraph{The power basis and its constant-term dual.}
+Let \(f(X)\in\Field[X]\) be a monic irreducible polynomial of degree
+\(\kappa\), and define
+\[
+    \overline{\Field}
+      :=\Field[X]/(f(X))
+      \cong\mathbb F_{p^\kappa},
+    \qquad
+    \alpha:=X\bmod f(X).
+\]
+The tuple
+\begin{equation}
+    \mathcal B
+      :=(1,\alpha,\ldots,\alpha^{\kappa-1})
+\label{eq:extension-power-basis}
+\end{equation}
+is the power basis of \(\overline{\Field}\) over \(\Field\).  Calling
+\(\mathcal B\) a basis means that every
+\(\overline u\in\overline{\Field}\) has a unique representation
+\[
+    \overline u
+      =u_0+u_1\alpha+\cdots+u_{\kappa-1}\alpha^{\kappa-1},
+    \qquad
+    u_0,\ldots,u_{\kappa-1}\in\Field.
+\]
+We write
+\[
+    \mathsf{ct}(\overline u)
+      :=[\alpha^0]\overline u
+      :=u_0
+\]
+for the \(\Field\)-linear map that extracts the constant coordinate in
+this basis.
+
+The constant-term dual basis
+\(\mathcal B^\star=(\gamma_0,\ldots,\gamma_{\kappa-1})\) is defined by
+\begin{equation}
+    \mathsf{ct}(\alpha^i\gamma_j)=\delta_{i,j},
+    \qquad
+    0\leq i,j<\kappa.
+\label{eq:extension-constant-dual-basis}
+\end{equation}
+It exists uniquely because the bilinear form
+\((u,v)\mapsto\mathsf{ct}(uv)\) is non-degenerate: for every
+\(u\ne0\), choosing \(v=u^{-1}\) gives \(\mathsf{ct}(uv)=1\).
+The basis can be precomputed for any irreducible \(f\).  Define
+\begin{equation}
+    (\bm G)_{i,r}
+      :=\mathsf{ct}\!\left(\alpha^{i+r}\right),
+    \qquad
+    0\leq i,r<\kappa.
+\label{eq:extension-constant-gram-matrix}
+\end{equation}
+where multiplication is performed in \(\overline{\Field}\), and hence
+is reduced modulo \(f\).  Then \(\bm G\) is invertible, and the
+\(j\)-th dual element is
+\begin{equation}
+    \gamma_j
+      :=\sum_{r=0}^{\kappa-1}
+        (\bm G^{-1})_{r,j}\alpha^r.
+\label{eq:extension-constant-dual-construction}
+\end{equation}
+
+\paragraph{A sparse dual basis.}
+The basis conversion becomes particularly inexpensive when an
+irreducible trinomial of the form
+\begin{equation}
+    f(X)=X^\kappa+\rho X+\sigma,
+    \qquad \sigma\ne0,
+\label{eq:extension-sparse-modulus}
+\end{equation}
+is available.  Since \(\alpha^\kappa=-\rho\alpha-\sigma\), the dual
+basis has the explicit form
+\begin{equation}
+    \boxed{
+    \gamma_0=1,
+    \qquad
+    \gamma_j=-\sigma^{-1}\alpha^{\kappa-j},
+    \quad j=1,\ldots,\kappa-1.}
+\label{eq:extension-sparse-dual-basis}
+\end{equation}
+The conditions involving \(j=0\) follow immediately from
+\(\gamma_0=1\).  For \(j\geq1\), if \(i<j\), then
+\(\alpha^i\gamma_j\) has degree strictly between zero and \(\kappa\).
+If \(i=j\), then
+\[
+    \alpha^i\gamma_i
+      =-\sigma^{-1}\alpha^\kappa
+      =1+\rho\sigma^{-1}\alpha.
+\]
+Finally, if \(i>j\), writing \(r=i-j\geq1\) gives
+\[
+    \alpha^i\gamma_j
+      =-\sigma^{-1}\alpha^{\kappa+r}
+      =\alpha^r+\rho\sigma^{-1}\alpha^{r+1},
+\]
+which again has no constant term.  This proves
+\eqref{eq:extension-constant-dual-basis} without requiring the cross
+terms themselves to vanish.
+
+\paragraph{Packing the inner product.}
+Pack the blocks coordinate-wise using the power basis in the first
+operand and its constant-term dual in the second:
+\begin{equation}
+\begin{aligned}
+    \overline{\bm a}
+      &:=\sum_{i=0}^{\kappa-1}
+        \alpha^i\bm a^{(i+1)},\\
+    \overline{\bm b}
+      &:=\sum_{j=0}^{\kappa-1}
+        \gamma_j\bm b^{(j+1)}
+       \in\overline{\Field}^{m}.
+\end{aligned}
+\label{eq:extension-inner-product-packing}
+\end{equation}
+For the sparse dual basis in
+\eqref{eq:extension-sparse-dual-basis}, the second equation is simply
+\[
+    \overline{\bm b}
+      =\bm b^{(1)}
+       -\sigma^{-1}
+        \sum_{j=1}^{\kappa-1}
+        \alpha^{\kappa-j}\bm b^{(j+1)};
+\]
+that is, its nonconstant coefficients are reversed and multiplied by
+the single base-field scalar \(-\sigma^{-1}\).
+
+Let
+\(\overline c:=\langle\overline{\bm a},\overline{\bm b}\rangle\).
+By bilinearity and~\eqref{eq:extension-constant-dual-basis},
+\begin{equation}
+\begin{aligned}
+    \mathsf{ct}(\overline c)
+      &=\sum_{i,j=0}^{\kappa-1}
+        \left\langle
+          \bm a^{(i+1)},\bm b^{(j+1)}
+        \right\rangle
+        \mathsf{ct}(\alpha^i\gamma_j)\\
+      &=\sum_{i=1}^{\kappa}
+        \left\langle\bm a^{(i)},\bm b^{(i)}\right\rangle
+       =\langle\bm a,\bm b\rangle.
+\end{aligned}
+\label{eq:extension-inner-product-constant-term}
+\end{equation}
+Consequently, an extension-field proof of
+\[
+    \overline c
+      \stackrel{?}{=}
+      \langle\overline{\bm a},\overline{\bm b}\rangle
+\]
+together with the base-field linear check
+\[
+    c\stackrel{?}{=}\mathsf{ct}(\overline c)
+\]
+proves the original relation, provided that the packed vectors are
+linked to the committed base-field vectors through
+\eqref{eq:extension-inner-product-packing}.  This proves the aggregate
+claim in~\eqref{eq:extension-packed-base-relation}; it does not by
+itself certify separately supplied values
+\(c^{(i)}=\langle\bm a^{(i)},\bm b^{(i)}\rangle\).
+
+For our degree-\(16\) instantiation over \(\mathbb F_{251}\), we use
+\begin{equation}
+    \overline{\Field}
+      :=\mathbb F_{251}[X]/(X^{16}+3X+1).
+\label{eq:extension-concrete-field}
+\end{equation}
+The modulus is irreducible: Rabin's criterion gives
+\[
+    X^{251^{16}}\equiv X\pmod{f(X)},
+    \qquad
+    \gcd\!\left(f(X),X^{251^8}-X\right)=1.
+\]
+Writing \(\alpha:=X\bmod f(X)\), we have
+\[
+    \alpha^{16}=-3\alpha-1.
+\]
+The power basis and its constant-term dual are therefore
+\begin{equation}
+\begin{aligned}
+    \mathcal B
+      &=\left(1,\alpha,\alpha^2,\ldots,\alpha^{15}\right),\\
+    \mathcal B^\star
+      &=\left(1,-\alpha^{15},-\alpha^{14},\ldots,-\alpha\right).
+\end{aligned}
+\label{eq:extension-concrete-dual-basis}
+\end{equation}
+To see the duality explicitly, set
+\(\gamma_0:=1\) and
+\(\gamma_j:=-\alpha^{16-j}\) for \(1\leq j\leq15\).  For
+\(j\geq1\),
+\begin{equation}
+    \alpha^i\gamma_j
+      =
+      \begin{cases}
+        -\alpha^{16+i-j},
+          & i<j,\\
+        1+3\alpha,
+          & i=j,\\
+        \alpha^{i-j}+3\alpha^{i-j+1},
+          & i>j.
+      \end{cases}
+\label{eq:extension-concrete-dual-cases}
+\end{equation}
+In the first and third cases, every exponent lies between \(1\) and
+\(15\), so the constant coordinate is zero; in the middle case, it is
+one.  The case \(j=0\) follows directly from \(\gamma_0=1\).  Hence
+\[
+    \mathsf{ct}(\alpha^i\gamma_j)=\delta_{i,j}
+    \qquad(0\leq i,j\leq15).
+\]
+The concrete packing is consequently
+\begin{equation}
+\begin{aligned}
+    \overline{\bm a}
+      &=\sum_{i=0}^{15}\alpha^i\bm a^{(i+1)},\\
+    \overline{\bm b}
+      &=\bm b^{(1)}-
+        \sum_{j=1}^{15}\alpha^{16-j}\bm b^{(j+1)}.
+\end{aligned}
+\label{eq:extension-concrete-packing}
+\end{equation}
+Thus the second packing requires only reversing and negating its
+nonconstant base-field coordinates.  Moreover,
+\[
+    \lvert\overline{\Field}\rvert
+      =251^{16}\approx2^{127.54},
+\]
+so one extension-field challenge provides an approximately
+\(128\)-bit challenge space.
+
+This reduction replaces a length-\(N\) base-field relation by a
+length-\(m=N/\kappa\) extension-field relation.  Thus it uses
+\(\kappa\) times fewer extension-field coordinates than naively
+embedding all \(N\) entries into \(\overline{\Field}\).  This is not,
+however, a \(\kappa\)-fold reduction in base-field work or memory.  If
+one multiplication in \(\mathbb F_{p^\kappa}\) costs
+\(\mathsf{M}(\kappa)\) base-field operations, the inner product costs
+\[
+    O\!\left(\frac{N}{\kappa}\mathsf{M}(\kappa)\right)
+\]
+base-field operations.  With the sparse dual basis above, packing costs
+only \(O(N)\) base-field operations.  With schoolbook extension
+multiplication, the inner product costs \(O(N\kappa)\), while fast
+polynomial multiplication reduces it to \(\widetilde O(N)\).
+Moreover, \(m\) extension elements contain exactly
+\(\kappa m=N\) base-field coefficients, so materializing the packed
+vectors does not asymptotically reduce their bit-level storage.
+
+Our construction instead keeps the folding protocol over the base
+field and obtains soundness from multiple small-field challenges.  It
+follows the multiple-challenge principle of packed
+sumcheck~\cite{iacr/WeiWXZDWZ25}, but replaces its univariate Lagrange
+encoding by a tensor-structured multiplicative Laurent encoding over
+\(\mathbb F_p\).
+
+\subsection{Multiplicative Packed LiteBullet}
+\subsection{Multiplicative Packed LiteBullet}
+\label{sec:packed-litebullet}
+
+\paragraph{State.}
+Consider \(\kappa\) claimed inner products over
+\(\Field=\mathbb F_p\):
+\[
+    c^{(i)}\stackrel{?}{=}\langle\bm a^{(i)},\bm b^{(i)}\rangle,
+    \qquad i=1,\ldots,\kappa,
+\]
+where all vectors have the same power-of-two length \(m\).
+At the initial round, we write
+\[
+    N:=\kappa m
+    \qquad\text{and hence}\qquad
+    m=\frac{N}{\kappa}
+\]
+for the aggregate vector length across all \(\kappa\) channels.
+We assume that \(p\) is odd, so powers of two are invertible in
+\(\Field\).
+Set
+\[
+    h:=\left\lceil\log_2\kappa\right\rceil,
+    \qquad
+    d:=\log_2 m.
+\]
+For soundness amplification of one claim, the \(\kappa\) initial
+claims are identical copies of that claim.
+The construction uses an address space of size \(2^h\), but only
+the \(\kappa\) occupied addresses correspond to actual claims; no dummy
+claims are required.  We place the full vectors in claim-indexed
+columns:
+\[
+    \bm A \coloneqq \concat{\bm{a}^{(1)}, \ldots, \bm{a}^{(\kappa)}},
+    \quad
+    \bm B \coloneqq \concat{\bm{b}^{(1)}, \ldots, \bm{b}^{(\kappa)}}
+      \in\Field^{m \times \kappa},
+    \qquad
+    \bm c \coloneqq
+      (c^{(1)}, \ldots, c^{(\kappa)})^\top
+      \in\Field^\kappa.
+\]
+The batch relation is therefore
+\begin{equation}
+    \bm c
+      \stackrel{?}{=}
+      \diag(\bm A^\top\bm B).
+\label{eq:packed-parent-matrix-relation}
+\end{equation}
+
+We then split the matrices by rows:
+\[
+    \bm A=
+    \begin{pmatrix}
+    \bm{A}_U\\
+    \bm{A}_D
+    \end{pmatrix}
+    ,\quad
+    \bm B=
+    \begin{pmatrix}
+    \bm{B}_U\\
+    \bm{B}_D
+    \end{pmatrix},
+    \qquad
+    \bm A_U,\bm A_D,\bm B_U,\bm B_D
+      \in\Field^{m/2 \times \kappa}.
+\]
+Thus column \(i\) of \(\bm A_U\) is \(\bm a_U^{(i)}\), and similarly
+for the other three blocks.  The \(i\)-th claim is equivalently
+\begin{equation}
+    c^{(i)}
+      \stackrel{?}{=}
+      \langle\bm a_{U}^{(i)},\bm b_{U}^{(i)}\rangle
+      +
+      \langle\bm a_{D}^{(i)} ,\bm b_{D}^{(i)}\rangle.
+\label{eq:packed-parent-relation}
+\end{equation}
+
+\paragraph{Folding the claim columns and their \(U/D\) halves.}
+The vector \(\bm y\in\Field^h\) folds the claim columns,
+while an independent scalar \(z\in\Field^\times\) folds their \(U/D\)
+halves.  Assign the \(\kappa\) claims distinct addresses
+\[
+    \bm s^{(1)},\ldots,\bm s^{(\kappa)}
+      \in\{0,1\}^{h}.
+\]
+For \(\bm s=(s_1,\ldots,s_h)\), write
+\(\bm y^{\bm s}:=\prod_{t=1}^{h}y_t^{s_t}\), and define
+\begin{equation}
+    \bm\eta_{\bm y}
+      :=
+      \left(
+        \bm y^{\bm s^{(1)}},\ldots,
+        \bm y^{\bm s^{(\kappa)}}
+      \right)^\top
+      \in\Field^\kappa.
+\label{eq:wht-fold-definition}
+\end{equation}
+When \(\kappa=2^h\), this is the usual tensor vector
+\(\bigotimes_{t=1}^{h}(1,y_t)\), up to the ordering of addresses.
+For general \(\kappa\), the unused addresses simply do not appear in
+\(\bm\eta_{\bm y}\); they create neither dummy channels nor additional
+challenges.
+
+The scalar \(z\) folds the two row blocks, using reciprocal weights
+in the two operands.  This gives the length-\(m/2\) vectors
+\begin{equation}
+\begin{aligned}
+    \bm a_{\bm y,z}
+      &:=
+      \left(
+        \bm A_U+
+        z\bm A_D
+      \right) \bm{\eta}_{\bm y},\\
+    \bm b_{\bm y,z}
+      &:=
+      \left(
+        \bm B_U+
+        z^{-1} \bm B_D
+      \right) \bm{\eta}_{\bm y}.
+\end{aligned}
+\label{eq:wht-vector-fold}
+\end{equation}
+
+Define the honest round matrices
+\begin{equation}
+\begin{aligned}
+    \bm C^\star&:=\bm A^\top\bm B,\\
+    \bm U^\star&:=\bm A_D^\top\bm B_U,\\
+    \bm D^\star&:=\bm A_U^\top\bm B_D.
+\end{aligned}
+\label{eq:wht-honest-round-matrices}
+\end{equation}
+Thus
+\(\bm C^\star,\bm U^\star,\bm D^\star
+  \in\Field^{\kappa\times\kappa}\).
+Their folded inner product is the Laurent polynomial
+\begin{equation}
+\begin{aligned}
+    \phi(\bm y,z)
+      &:=
+      \left\langle
+        \bm a_{\bm y,z},
+        \bm b_{\bm y,z}
+      \right\rangle\\
+      &=
+      \bm\eta_{\bm y}^{\top}
+      \left(\bm A_U+z\bm A_D\right)^\top
+      \left(\bm B_U+z^{-1}\bm B_D\right)
+      \bm\eta_{\bm y}\\
+      &=
+      \bm\eta_{\bm y}^{\top}
+      \left(
+        \bm C^\star
+        +z\bm U^\star
+        +z^{-1}\bm D^\star
+      \right)
+      \bm\eta_{\bm y}.
+\end{aligned}
+\label{eq:wht-folded-inner-product}
+\end{equation}
+Expanding the last expression gives
+\begin{equation}
+    \phi(\bm y,z)
+      =
+      \sum_{r,s=1}^{\kappa}
+      \bm y^{\bm s^{(r)}+\bm s^{(s)}}
+      \left(
+        C^\star_{r,s}
+        +zU^\star_{r,s}
+        +z^{-1}D^\star_{r,s}
+      \right).
+\label{eq:wht-folded-inner-product-expansion}
+\end{equation}
+Each \(2\bm s^{(i)}\) is a distinct corner of
+\(\{0,1,2\}^{h}\), and
+\[
+    \bm s^{(r)}+\bm s^{(s)}=2\bm s^{(i)}
+    \quad\Longrightarrow\quad
+    r=s=i.
+\]
+Therefore the corresponding \(z^0\) coefficient isolates exactly the
+\(i\)-th parent inner product:
+\begin{equation}
+    [\bm y^{2\bm s^{(i)}}z^0]\,
+      \phi(\bm y,z)
+      =
+      C^\star_{i,i}
+      =
+      \left\langle\bm a^{(i)},\bm b^{(i)}\right\rangle
+      =:c^{\star(i)}.
+\label{eq:wht-interpolation}
+\end{equation}
+
+
+\paragraph{Round message and random fold.}
+The prover sends three matrices purporting to equal the honest
+matrices in \eqref{eq:wht-honest-round-matrices}:
+\[
+    \widehat{\bm C},\widehat{\bm U},\widehat{\bm D}
+      \in\Field^{\kappa\times\kappa}.
+\]
+The verifier first checks that the diagonal of the claimed parent
+matrix agrees with the current state:
+\begin{equation}
+    \diag(\widehat{\bm C})\EqOrNot\bm c.
+\label{eq:wht-parent-check}
+\end{equation}
+Only after these matrices are fixed, the verifier samples
+\[
+    (\bm y^{(1)},z^{(1)}),\ldots,
+    (\bm y^{(\kappa)},z^{(\kappa)})
+      \ChooseRandom\Field^h\times\Field^\times.
+\]
+For brevity, set
+\[
+    \bm\eta^{(j)}:=\bm\eta_{\bm y^{(j)}},
+    \qquad
+    \bm Y:=
+      \begin{pmatrix}
+        \bm\eta^{(1)}&\cdots&\bm\eta^{(\kappa)}
+      \end{pmatrix},
+    \qquad
+    \bm Z:=\diag\!\left(
+      z^{(1)},\ldots,z^{(\kappa)}
+    \right).
+\]
+The next-round witness matrices are
+\begin{equation}
+\begin{aligned}
+    \bm A'
+      &:=
+      \bm A_U\bm Y+\bm A_D\bm Y\bm Z,\\
+    \bm B'
+      &:=
+      \bm B_U\bm Y+\bm B_D\bm Y\bm Z^{-1},
+\end{aligned}
+\qquad
+    \bm A',\bm B'\in\Field^{(m/2)\times\kappa}.
+\label{eq:wht-random-folds}
+\end{equation}
+Equivalently, their \(j\)-th columns are
+\begin{equation}
+\begin{aligned}
+    \bm a'^{(j)}
+      &=
+      \left(\bm A_U+z^{(j)}\bm A_D\right)\bm\eta^{(j)},\\
+    \bm b'^{(j)}
+      &=
+      \left(\bm B_U+(z^{(j)})^{-1}\bm B_D\right)\bm\eta^{(j)}.
+\end{aligned}
+\label{eq:wht-child-vectors}
+\end{equation}
+The corresponding child claims are defined by
+\begin{equation}
+\begin{aligned}
+    c'^{(j)}
+      &:=
+      (\bm\eta^{(j)})^\top
+      \left(
+        \widehat{\bm C}
+        +z^{(j)}\widehat{\bm U}
+        +(z^{(j)})^{-1}\widehat{\bm D}
+      \right)
+      \bm\eta^{(j)},\\
+    \bm c'
+      &:=
+      \left(c'^{(1)},\ldots,c'^{(\kappa)}\right)^\top.
+\end{aligned}
+\label{eq:wht-state-update}
+\end{equation}
+Equivalently, all child claims can be written at once as
+\[
+    \bm c'
+      =
+      \diag\!\left(
+        \bm Y^\top\widehat{\bm C}\bm Y
+        +\bm Z\bm Y^\top\widehat{\bm U}\bm Y
+        +\bm Z^{-1}\bm Y^\top\widehat{\bm D}\bm Y
+      \right).
+\]
+In the Fiat--Shamir transform, the \(y_t\)-coordinates are sampled
+from \(\Field\), while rejection sampling ensures \(z^{(j)}\ne0\).
+The round, child, and coordinate indices are included as domain
+separators.
+
+\paragraph{Folding invariant.}
+Let
+\[
+    \bm c^\star:=
+      \diag(\bm C^\star)
+      =
+      \left(
+        \langle\bm a^{(1)},\bm b^{(1)}\rangle,
+        \ldots,
+        \langle\bm a^{(\kappa)},\bm b^{(\kappa)}\rangle
+      \right)^\top.
+\]
+For the honest round message
+\[
+    (\widehat{\bm C},\widehat{\bm U},\widehat{\bm D})
+      =
+    (\bm C^\star,\bm U^\star,\bm D^\star),
+\]
+the parent and child states satisfy
+\begin{equation}
+    \boxed{
+    \diag(\bm C^\star)=\bm c^\star,
+    \qquad
+    c'^{(j)}
+      =
+      \left\langle\bm a'^{(j)},\bm b'^{(j)}\right\rangle
+      \quad\text{for every }j.
+    }
+\label{eq:wht-folding-invariant}
+\end{equation}
+Indeed, by \eqref{eq:wht-child-vectors},
+\[
+\begin{aligned}
+    \left\langle\bm a'^{(j)},\bm b'^{(j)}\right\rangle
+      &=
+      (\bm\eta^{(j)})^\top
+      \left(\bm A_U+z^{(j)}\bm A_D\right)^\top
+      \left(\bm B_U+(z^{(j)})^{-1}\bm B_D\right)
+      \bm\eta^{(j)}\\
+      &=
+      (\bm\eta^{(j)})^\top
+      \left(
+        \bm C^\star
+        +z^{(j)}\bm U^\star
+        +(z^{(j)})^{-1}\bm D^\star
+      \right)
+      \bm\eta^{(j)}
+      =c'^{(j)}.
+\end{aligned}
+\]
+Thus one round maps \(\kappa\) inner products of length \(m\) to
+\(\kappa\) inner products of length \(m/2\).
+
+\paragraph{One-claim sanity check.}
+When \(\kappa=1\), we have \(h=0\) and
+\(\bm\eta_{\bm y}=1\).  The parent entry is
+\(C^\star=\langle\bm a,\bm b\rangle\), while the child claim is
+\[
+    c'=C^\star+zU^\star+z^{-1}D^\star
+      =
+      \left\langle
+        \bm a_U+z\bm a_D,\,
+        \bm b_U+z^{-1}\bm b_D
+      \right\rangle,
+\]
+which is the usual multiplicative LiteBullet fold.
+
+\paragraph{Round soundness.}
+Assume that the vectors are binding-linked to the committed witness
+and that at least one parent claim is false, so
+\(\bm c\ne\bm c^\star\).  Suppose nevertheless that
+\eqref{eq:wht-parent-check} accepts.  Define
+\[
+    \bm E_C:=\widehat{\bm C}-\bm C^\star,
+    \qquad
+    \bm E_U:=\widehat{\bm U}-\bm U^\star,
+    \qquad
+    \bm E_D:=\widehat{\bm D}-\bm D^\star.
+\]
+Then
+\[
+    \diag(\bm E_C)=\bm c-\bm c^\star\ne\bm0.
+\]
+Consider the Laurent polynomial
+\begin{equation}
+    \Delta(\bm y,z)
+      :=
+      \bm\eta_{\bm y}^\top
+      \left(\bm E_C+z\bm E_U+z^{-1}\bm E_D\right)
+      \bm\eta_{\bm y}.
+\label{eq:wht-error-polynomial}
+\end{equation}
+This polynomial is nonzero.  In fact, if the \(i\)-th parent claim is
+false, the corner property in \eqref{eq:wht-interpolation} gives
+\[
+    [\bm y^{2\bm s^{(i)}}z^0]\,
+      \Delta(\bm y,z)
+      =
+      (\bm E_C)_{i,i}
+      =
+      c^{(i)}-c^{\star(i)}
+      \ne0.
+\]
+Moreover, \(z\Delta(\bm y,z)\) is an ordinary polynomial with
+individual degree at most two in each variable and total degree at
+most \(2(h+1)\).
+
+The state update gives the exact child-error identity
+\begin{equation}
+    c'^{(j)}
+      -
+      \left\langle\bm a'^{(j)},\bm b'^{(j)}\right\rangle
+      =
+      \Delta(\bm y^{(j)},z^{(j)}).
+\label{eq:wht-child-error-identity}
+\end{equation}
+Consequently, all false information disappears in this round only if
+all \(\kappa\) independent challenges are roots of the same nonzero
+polynomial.  Assuming \(p-1>2(h+1)\), Schwartz--Zippel over
+\(\Field^h\times\Field^\times\) yields
+\[
+    \boxed{
+    \epsilon_{\mathsf{round}}
+      \leq
+      \left(\frac{2(h+1)}{p-1}\right)^\kappa,
+      \qquad
+      h=\left\lceil\log_2\kappa\right\rceil.
+    }
+\]
+For aggregate initial vector length \(N\), each channel has length
+\(m=N/\kappa\).  A union bound over the \(d\) rounds gives
+\[
+    \epsilon_{\mathsf{fold}}
+      \leq
+      d
+      \left(\frac{2(h+1)}{p-1}\right)^\kappa.
+\]
+The complete argument additionally includes the soundness errors of
+the terminal commitment openings and linking checks.  The same proof
+applies to Fiat--Shamir in the random-oracle model, provided that the
+round message is absorbed before the domain-separated challenges are
+derived.
+
+\paragraph{Cost and space.}
+The round message contains \(3\kappa^2\) field elements.  Because
+\(\diag(\widehat{\bm C})=\bm c\) is fixed by the parent state, these
+\(\kappa\) diagonal entries can be omitted, reducing the transmitted
+message to
+\[
+    3\kappa^2-\kappa
+\]
+field elements per round.  Straightforward dense computation of
+\(\bm C^\star,\bm U^\star,\bm D^\star\) costs
+\(O(\kappa^2m)\) field operations.  Constructing
+\(\bm A'\) and \(\bm B'\) also costs \(O(\kappa^2m)\), and evaluating
+the \(\kappa\) quadratic forms in \eqref{eq:wht-state-update} costs
+\(O(\kappa^3)\).  Hence one round costs
+\[
+    O\left(\kappa^2m+\kappa^3\right).
+\]
+Initially \(m=N/\kappa\).  Since the per-channel lengths halve
+geometrically over the \(d\) rounds, the total
+arithmetic cost is
+\[
+    O\left(
+      \kappa N+\kappa^3d
+    \right),
+\]
+and the total folding communication is
+\[
+    (3\kappa^2-\kappa)d
+\]
+field elements.
+
+At vector length \(m\), the current witness matrices contain
+\(2\kappa m\) field elements.  The three round matrices and the
+folding matrix \(\bm Y\) require \(O(\kappa^2)\) additional elements;
+\(\bm Z\) is diagonal and can be generated on demand.  An in-place
+implementation therefore uses
+\[
+    2\kappa m+O(\kappa^2)
+\]
+field elements in a round, and its peak working memory is
+\[
+    \Theta\!\left(N+\kappa^2\right).
+\]
+For independently supplied claims, the \(2N\) input field elements
+already dominate this memory bound whenever \(N=\Omega(\kappa^2)\).
+These bounds count only the algebraic folding layer.  It remains to
+bind the terminal folded values to the initially committed matrices.
+We next reduce this linking relation to the MLE interface used by the
+commitment layer below.
+
+\paragraph{Terminal MLE linking.}
+Write
+\[
+    (\bm A_0,\bm B_0,\bm c_0)
+      :=(\bm A,\bm B,\bm c)
+\]
+for the initial state, and let \(\bm c_\ell\) denote the claim vector
+after round \(\ell\).  For round \(\ell=1,\ldots,d\), let
+\(\bm y_\ell^{(j)},z_\ell^{(j)}\) be the challenge point of channel \(j\),
+and let \(\bm Y_\ell,\bm Z_\ell\) be the corresponding matrices defined as
+in \eqref{eq:wht-random-folds}.  The folded states satisfy
+\begin{equation}
+\begin{aligned}
+    \bm A_\ell
+      &=
+      (\bm A_{\ell-1})_U\bm Y_\ell
+      +(\bm A_{\ell-1})_D\bm Y_\ell\bm Z_\ell,\\
+    \bm B_\ell
+      &=
+      (\bm B_{\ell-1})_U\bm Y_\ell
+      +(\bm B_{\ell-1})_D\bm Y_\ell\bm Z_\ell^{-1},
+\end{aligned}
+\qquad
+    \bm A_\ell,\bm B_\ell
+      \in\Field^{(m/2^\ell)\times\kappa}.
+\label{eq:wht-round-indexed-folds}
+\end{equation}
+At \(\ell=d\), both matrices contain one row.  Denote their channel
+entries by
+\[
+    \bm A_d=
+      \begin{pmatrix}
+        a_d^{(1)}&\cdots&a_d^{(\kappa)}
+      \end{pmatrix},
+    \qquad
+    \bm B_d=
+      \begin{pmatrix}
+        b_d^{(1)}&\cdots&b_d^{(\kappa)}
+      \end{pmatrix}.
+\]
+The terminal inner-product relation is therefore
+\begin{equation}
+    c_d^{(j)}
+      \stackrel{?}{=}
+      a_d^{(j)}b_d^{(j)},
+    \qquad j=1,\ldots,\kappa.
+\label{eq:wht-terminal-products}
+\end{equation}
+
+To make the dependence on the initial matrices explicit, index their
+rows by \(\bm x=(x_1,\ldots,x_d)\in\{0,1\}^d\).  Unrolling
+\eqref{eq:wht-round-indexed-folds} gives
+\begin{equation}
+\begin{aligned}
+    a_d^{(j)}
+      &=
+      \sum_{\bm x\in\{0,1\}^d}
+      \sum_{i=1}^{\kappa}
+      A_{\bm x,i}\,
+      \bm e_i^\top
+      \left(
+        \prod_{\ell=1}^{d}
+          \bm Y_\ell\bm Z_\ell^{x_\ell}
+      \right)
+      \bm e_j,\\
+    b_d^{(j)}
+      &=
+      \sum_{\bm x\in\{0,1\}^d}
+      \sum_{i=1}^{\kappa}
+      B_{\bm x,i}\,
+      \bm e_i^\top
+      \left(
+        \prod_{\ell=1}^{d}
+          \bm Y_\ell\bm Z_\ell^{-x_\ell}
+      \right)
+      \bm e_j.
+\end{aligned}
+\label{eq:wht-terminal-linear-maps}
+\end{equation}
+Here the products are ordered from \(\ell=1\) to \(\ell=d\).  Thus every
+terminal entry is a public, transcript-dependent linear functional of
+one of the two initial matrices.  Notice that these coefficients are
+generally not a tensor-span vector: the dense matrices \(\bm Y_\ell\)
+are interleaved with the row-folding matrices \(\bm Z_\ell^{\pm1}\).
+Consequently, the terminal entries are not themselves MLE evaluations
+of \(\bm A_0\) or \(\bm B_0\).
+
+\paragraph{Folding the terminal rows back to the committed inputs.}
+We link the terminal rows to \(\bm A\) and \(\bm B\) directly by
+folding; no general circuit-evaluation reduction is needed.  Let
+\(\bm e_j\in\Field^\kappa\) denote the \(j\)-th standard basis vector,
+whose only nonzero entry is a one in position \(j\).  Thus
+\[
+    \bm A_d\bm e_j=a_d^{(j)},
+    \qquad
+    \bm B_d\bm e_j=b_d^{(j)}.
+\]
+For terminal channel \(j\), initialize two public test matrices
+\[
+    \bm R_d^{A,(j)}:=\bm e_j^\top,
+    \qquad
+    \bm R_d^{B,(j)}:=\bm e_j^\top.
+\]
+For \(\ell=d,d-1,\ldots,1\), fold these test matrices backward through
+the transpose of the corresponding forward map:
+\begin{equation}
+\begin{aligned}
+    \bm R_{\ell-1}^{A,(j)}
+      &:={}
+      \begin{pmatrix}
+        \bm R_\ell^{A,(j)}\bm Y_\ell^\top\\
+        \bm R_\ell^{A,(j)}\bm Z_\ell\bm Y_\ell^\top
+      \end{pmatrix},\\
+    \bm R_{\ell-1}^{B,(j)}
+      &:={}
+      \begin{pmatrix}
+        \bm R_\ell^{B,(j)}\bm Y_\ell^\top\\
+        \bm R_\ell^{B,(j)}\bm Z_\ell^{-1}\bm Y_\ell^\top
+      \end{pmatrix}.
+\end{aligned}
+\label{eq:wht-adjoint-folds}
+\end{equation}
+For example, the first backward fold is explicitly
+\[
+\begin{aligned}
+    \bm R_{d-1}^{A,(j)}
+      &=
+      \begin{pmatrix}
+        \bm e_j^\top\bm Y_d^\top\\
+        \bm e_j^\top\bm Z_d\bm Y_d^\top
+      \end{pmatrix},
+    &
+    \bm R_{d-1}^{B,(j)}
+      &=
+      \begin{pmatrix}
+        \bm e_j^\top\bm Y_d^\top\\
+        \bm e_j^\top\bm Z_d^{-1}\bm Y_d^\top
+      \end{pmatrix}.
+\end{aligned}
+\]
+After all \(d\) backward folds, the test matrices can be written
+without recursion as
+\begin{equation}
+\begin{aligned}
+    \bm R_0^{A,(j)}
+      &=
+      \left(
+        \bm e_i^\top
+        \left(
+          \prod_{\ell=1}^{d}
+            \bm Y_\ell\bm Z_\ell^{x_\ell}
+        \right)
+        \bm e_j
+      \right)_{
+        \bm x\in\{0,1\}^d,\,i\in[\kappa]
+      },\\
+    \bm R_0^{B,(j)}
+      &=
+      \left(
+        \bm e_i^\top
+        \left(
+          \prod_{\ell=1}^{d}
+            \bm Y_\ell\bm Z_\ell^{-x_\ell}
+        \right)
+        \bm e_j
+      \right)_{
+        \bm x\in\{0,1\}^d,\,i\in[\kappa]
+      }.
+\end{aligned}
+\label{eq:wht-explicit-test-matrices}
+\end{equation}
+Here the outer indices mean that the displayed scalar is placed in row
+\(\bm x\) and column \(i\).  Hence every entry of \(\bm R_0^{A,(j)}\)
+or \(\bm R_0^{B,(j)}\) is exactly the coefficient with which the
+corresponding entry of \(\bm A\) or \(\bm B\) contributes to terminal
+entry \(j\).
+
+Writing \(\langle\cdot,\cdot\rangle_F\) for the Frobenius inner
+product, the forward and backward folds satisfy the exact invariants
+\begin{equation}
+\begin{aligned}
+    \left\langle
+      \bm A_\ell,\bm R_\ell^{A,(j)}
+    \right\rangle_F
+      &=
+    \left\langle
+      \bm A_{\ell-1},\bm R_{\ell-1}^{A,(j)}
+    \right\rangle_F,\\
+    \left\langle
+      \bm B_\ell,\bm R_\ell^{B,(j)}
+    \right\rangle_F
+      &=
+    \left\langle
+      \bm B_{\ell-1},\bm R_{\ell-1}^{B,(j)}
+    \right\rangle_F.
+\end{aligned}
+\label{eq:wht-adjoint-invariant}
+\end{equation}
+Consequently, the two terminal entries are linked to the initially
+committed matrices by the dense linear claims
+\begin{equation}
+\begin{aligned}
+    a_d^{(j)}
+      &\stackrel{?}{=}
+      \left\langle\bm A,\bm R_0^{A,(j)}\right\rangle_F,\\
+    b_d^{(j)}
+      &\stackrel{?}{=}
+      \left\langle\bm B,\bm R_0^{B,(j)}\right\rangle_F.
+\end{aligned}
+\label{eq:wht-dense-terminal-links}
+\end{equation}
+The matrices \(\bm R_0^{A,(j)}\) and \(\bm R_0^{B,(j)}\) depend only
+on the public folding transcript.  They need not be materialized: their
+entries, or their folded values below, can be generated on demand from
+\(\bm Y_1,\bm Z_1,\ldots,\bm Y_d,\bm Z_d\).
+
+\paragraph{Folding a dense linear claim to a monomial-form evaluation.}
+Consider either claim in \eqref{eq:wht-dense-terminal-links}.  Pad the
+unused channel addresses with zeros and flatten the two matrices into
+vectors \(\bm x,\bm r\in\Field^{2^{d+h}}\), so the current claim is
+\[
+    \alpha\stackrel{?}{=}\langle\bm x,\bm r\rangle.
+\]
+For this linking interface, we use the monomial-form multilinear
+evaluation.  For \(\bm q=(q_1,\ldots,q_t)\), write
+\begin{equation}
+    \bm\mu_{\bm q}
+      :=
+      \bigotimes_{i=1}^{t}(1,q_i)
+      \in\Field^{2^t}.
+\label{eq:wht-monomial-tensor}
+\end{equation}
+Throughout this reduction, ``multilinear evaluation'' refers to the
+inner product with \(\bm\mu_{\bm q}\) in
+\eqref{eq:wht-monomial-tensor}.
+
+In one folding step, split both vectors into their two halves.  The
+prover sends the cross terms
+\[
+    \gamma_{UD}:=\langle\bm x_U,\bm r_D\rangle,
+    \qquad
+    \gamma_{DU}:=\langle\bm x_D,\bm r_U\rangle.
+\]
+After these values are fixed, the verifier samples
+\(\rho\ChooseRandom\Field^\times\) and both parties set
+\begin{equation}
+\begin{aligned}
+    \bm x'
+      &:=\bm x_U+\rho\bm x_D,\\
+    \bm r'
+      &:=\bm r_U+\rho^{-1}\bm r_D,\\
+    \alpha'
+      &:=\alpha
+        +\rho^{-1}\gamma_{UD}
+        +\rho\gamma_{DU}.
+\end{aligned}
+\label{eq:wht-link-fold}
+\end{equation}
+The update preserves the inner-product relation:
+\[
+    \alpha'\stackrel{?}{=}\langle\bm x',\bm r'\rangle.
+\]
+For each terminal channel, the \(\bm A\)- and \(\bm B\)-linking
+instances use the same challenge \(\rho\) in every step.  Repeating the
+fold over the \(d\) row coordinates and the \(h\) channel coordinates
+therefore leaves a common point
+\[
+    (\bm r_{\mathsf{row}}^{(j)},
+      \bm r_{\mathsf{ch}}^{(j)})
+      \in\Field^d\times\Field^h.
+\]
+Because the \(\bm x\)-side uses the weights \((1,\rho)\), its
+final value is exactly an inner product with the monomial tensor in
+\eqref{eq:wht-monomial-tensor}.  The two linking instances end with
+\begin{equation}
+\begin{aligned}
+    v_A^{(j)}
+      &\stackrel{?}{=}
+      \bm\mu_{\bm r_{\mathsf{row}}^{(j)}}^\top
+      \bm A
+      \bm\mu_{\bm r_{\mathsf{ch}}^{(j)}},\\
+    v_B^{(j)}
+      &\stackrel{?}{=}
+      \bm\mu_{\bm r_{\mathsf{row}}^{(j)}}^\top
+      \bm B
+      \bm\mu_{\bm r_{\mathsf{ch}}^{(j)}}.
+\end{aligned}
+\label{eq:wht-terminal-ab-mle-claims}
+\end{equation}
+The reciprocal fold of the public \(\bm r\)-side produces a known
+scalar, and the verifier checks the product of this scalar and
+\(v_A^{(j)}\), or \(v_B^{(j)}\), against the corresponding final folded
+claim.
+
+To combine the two openings, define
+\[
+    \bm V\in\Field^{m\times2^{h+1}}
+\]
+with columns indexed by
+\((b,\bm s)\in\{0,1\}\times\{0,1\}^h\), and set
+\begin{equation}
+    V_{\bm x,(0,\bm s^{(i)})}:=A_{\bm x,i},
+    \qquad
+    V_{\bm x,(1,\bm s^{(i)})}:=B_{\bm x,i},
+\label{eq:wht-combined-input}
+\end{equation}
+with all unused channel addresses set to zero.  After
+\(v_A^{(j)}\) and \(v_B^{(j)}\) are fixed, the verifier samples
+\(\beta^{(j)}\ChooseRandom\Field^\times\) and sets
+\[
+    v^{(j)}
+      :=
+      v_A^{(j)}+\beta^{(j)}v_B^{(j)}.
+\]
+The monomial tensor in the selector coordinate gives the single
+opening claim
+\begin{equation}
+    v^{(j)}
+      \stackrel{?}{=}
+      \bm\mu_{\bm r_{\mathsf{row}}^{(j)}}^\top
+      \bm V
+      \left(
+        \begin{pmatrix}1\\ \beta^{(j)}\end{pmatrix}
+        \otimes
+        \bm\mu_{\bm r_{\mathsf{ch}}^{(j)}}
+      \right),
+    \qquad j=1,\ldots,\kappa.
+\label{eq:wht-terminal-mle-claims}
+\end{equation}
+Thus the two terminal rows reduce to exactly \(\kappa\) monomial-form
+multilinear-evaluation claims on one committed matrix \(\bm V\).
+
+\paragraph{Soundness of the terminal linking fold.}
+Suppose a current inner-product claim has nonzero error \(\delta\), and
+let \(\Delta_{UD}\) and \(\Delta_{DU}\) be the errors in the two cross
+terms sent by the prover.  The child claim can become correct only if
+\begin{equation}
+    \rho\delta
+      +\Delta_{UD}
+      +\rho^2\Delta_{DU}
+      =0.
+\label{eq:wht-link-error-polynomial}
+\end{equation}
+This is a nonzero polynomial of degree at most two: if it were
+identically zero, its constant and linear coefficients would imply
+\(\Delta_{UD}=0\) and then \(\delta=0\).  Hence one fold has error at
+most \(2/(p-1)\).  A union bound over the \(d+h\) folds, followed by
+the degree-one \(\beta\)-combination of the final \(\bm A\)- and
+\(\bm B\)-openings, gives
+\begin{equation}
+    \boxed{
+    \epsilon_{\mathsf{link},1}
+      \leq
+      \frac{2(d+h)+1}{p-1}.
+    }
+\label{eq:wht-link-soundness}
+\end{equation}
+This is the soundness bound when every terminal entry is linked once;
+the presence of \(\kappa\) distinct terminal entries alone does not
+raise this bound to the \(\kappa\)-th power, because only one of those
+entries may be false.  If the same linking claim is re-packed in
+\(\kappa\) lanes at every fold and the resulting common nonzero error
+polynomial is evaluated at \(\kappa\) independent challenges, then
+\begin{equation}
+    \epsilon_{\mathsf{link},\kappa}
+      \leq
+      (d+h)\left(\frac{2}{p-1}\right)^\kappa
+      +\left(\frac{1}{p-1}\right)^\kappa
+      \leq
+      \left(\frac{2(d+h+1)}{p-1}\right)^\kappa.
+\label{eq:wht-link-amplified-soundness}
+\end{equation}
+The soundness error of the final batched commitment openings is added
+separately.
+
+\subsection{Small Field Lookup Proof}
+\label{sec:lookup}
+
+Let
+\[
+    \bm v=(v_1,\ldots,v_N)^\top\in\Field^N,
+    \qquad
+    \bm t=(t_1,\ldots,t_M)^\top\in\Field^M
+\]
+be the lookup vector and the table, respectively.  For clarity, assume
+that \(N\) and \(M\) are powers of two, and put
+\[
+    n:=\log_2N,
+    \qquad
+    d:=\log_2M.
+\]
+The general case is obtained by padding to the next power of two and
+constraining every selected address to lie in the unpadded range.
+
+\paragraph{Lookup as a virtual selection matrix.}
+A lookup witness specifies, for every \(i\in[N]\), an address
+\(\iota_i\in[M]\) such that \(v_i=t_{\iota_i}\).  Equivalently, it
+specifies a Boolean selection matrix
+\(\bm\Sigma\in\{0,1\}^{N\times M}\) having exactly one \(1\) in
+each row, with
+\begin{equation}
+    \bm v=\bm\Sigma\bm t.
+\label{eq:small-field-lookup-relation}
+\end{equation}
+We do not materialize or commit to \(\bm\Sigma\).  Instead, let
+\[
+    \bm B=(B_{i,j})
+      \in\{0,1\}^{N\times d}
+\]
+contain the binary addresses: row \(i\) is the \(d\)-bit encoding of
+\(\iota_i-1\).  The constraint
+\begin{equation}
+    \bm B\circ(\bm B-\bm1)=\bm0
+\label{eq:small-field-lookup-booleanity}
+\end{equation}
+ensures that every entry of \(\bm B\) is Boolean and hence that every
+row defines one standard-basis row of \(\bm\Sigma\).
+
+\paragraph{Reducing the lookup to two inner products.}
+After \(\bm v\), \(\bm t\), and \(\bm B\) are bound, the verifier
+samples \(\bm x_l\in\Field^n\) and sets
+\[
+    \bm l
+      :=\bigotimes_{j=1}^{n}(1,x_{l,j})
+      \in\Field^N.
+\]
+The prover computes and commits to the pushforward
+\begin{equation}
+    \bm s:=\bm\Sigma^\top\bm l\in\Field^M.
+\label{eq:small-field-lookup-pushforward}
+\end{equation}
+If \eqref{eq:small-field-lookup-relation} holds, then
+\begin{equation}
+    \boxed{
+    \langle\bm l,\bm v\rangle
+      =\langle\bm s,\bm t\rangle.}
+\label{eq:small-field-lookup-table-check}
+\end{equation}
+It remains to prove that the committed vector \(\bm s\) is indeed the
+pushforward in \eqref{eq:small-field-lookup-pushforward}.
+
+After \(\bm s\) is bound, the verifier samples
+\(\bm x_r\in\Field^d\) and defines the tensor vector
+\begin{equation}
+    \bm r
+      :=\bigotimes_{j=1}^{d}(1,x_{r,j})
+      \in\Field^M.
+\label{eq:small-field-lookup-right-tensor}
+\end{equation}
+Writing
+\(\widetilde{\bm r}:=\bm\Sigma\bm r\in\Field^N\), the adjoint
+identity gives
+\begin{equation}
+    \boxed{
+    \langle\bm s,\bm r\rangle
+      =\langle\bm l,\widetilde{\bm r}\rangle.}
+\label{eq:small-field-lookup-pushforward-check}
+\end{equation}
+Thus the lookup is reduced to
+\eqref{eq:small-field-lookup-table-check} and
+\eqref{eq:small-field-lookup-pushforward-check}, provided that
+\(\widetilde{\bm r}\) is correctly derived from the committed address
+bits.
+
+\paragraph{Evaluating the virtual selection matrix.}
+Let
+\[
+    \bm X:=\bm1_N\bm x_r^\top\in\Field^{N\times d},
+    \qquad
+    \bm R:=\bm1+\bm B\circ(\bm X-\bm1)
+      \in\Field^{N\times d}.
+\]
+Entrywise,
+\[
+    R_{i,j}=1+B_{i,j}(x_{r,j}-1)
+      =
+      \begin{cases}
+        1,&B_{i,j}=0,\\
+        x_{r,j},&B_{i,j}=1.
+      \end{cases}
+\]
+Consequently, row \(i\) selects the tensor entry addressed by its bit
+string:
+\begin{equation}
+    \widetilde r_i
+      =\prod_{j=1}^{d}R_{i,j}
+      =\prod_{j=1}^{d}x_{r,j}^{B_{i,j}}
+      =r_{\iota_i}.
+\label{eq:small-field-lookup-row-product}
+\end{equation}
+Equivalently,
+\[
+    \widetilde{\bm r}
+      =\mathsf{RowProd}(\bm R)
+      =\bm\Sigma\bm r.
+\]
+
+\paragraph{Proving the row products.}
+The prover commits to the prefix-product matrix
+\[
+    \bar{\bm R}\in\Field^{N\times(d-1)},
+    \qquad
+    \bar R_{i,j}:=\prod_{h=1}^{j}R_{i,h},
+\]
+and to \(\widetilde{\bm r}\in\Field^N\).  All row products are then
+captured by the single Hadamard identity
+\begin{equation}
+    \boxed{
+    \left(\bm1_N\,\middle|\,\bar{\bm R}\right)
+      \circ\bm R
+      =
+    \left(\bar{\bm R}\,\middle|\,\widetilde{\bm r}\right).}
+\label{eq:small-field-lookup-prefix-products}
+\end{equation}
+Both sides of \eqref{eq:small-field-lookup-prefix-products} have
+dimension \(N\times d\).  The first column checks
+\(\bar R_{i,1}=R_{i,1}\), every intermediate column checks the next
+prefix product, and the last column checks
+\(\widetilde r_i=\bar R_{i,d-1}R_{i,d}\).
+
+The matrix \(\bm R\) need not be committed separately: it is an affine
+function of the committed \(\bm B\) and the public challenge
+\(\bm x_r\).  After commitments to \(\bm s\),
+\(\bar{\bm R}\), and \(\widetilde{\bm r}\) are fixed, the verifier
+checks
+\eqref{eq:small-field-lookup-booleanity},
+\eqref{eq:small-field-lookup-prefix-products},
+\eqref{eq:small-field-lookup-table-check}, and
+\eqref{eq:small-field-lookup-pushforward-check}.  These matrix and
+inner-product claims can be accumulated into the Packed LiteBullet
+interface of Section~\ref{sec:packed-litebullet}.
+
+\paragraph{Soundness and cost.}
+If \(\bm v\ne\bm\Sigma\bm t\), then
+\[
+    \langle\bm l,\bm v-\bm\Sigma\bm t\rangle
+\]
+is a nonzero multilinear polynomial in \(\bm x_l\) of degree at most
+\(n\).  If \(\bm s\ne\bm\Sigma^\top\bm l\), then
+\[
+    \langle
+      \bm s-\bm\Sigma^\top\bm l,
+      \bm r
+    \rangle
+\]
+is a nonzero multilinear polynomial in \(\bm x_r\) of degree at most
+\(d\).  Hence the two tensor tests contribute at most
+\begin{equation}
+    \epsilon_{\mathsf{lookup}}
+      \leq
+      \min\left\{1,\frac{n+d}{p}\right\}
+      +\epsilon_{\mathsf{row}}
+      +\epsilon_{\mathsf{com}},
+\label{eq:small-field-lookup-soundness}
+\end{equation}
+where \(\epsilon_{\mathsf{row}}\) is the error of the Booleanity and
+prefix-product checks and \(\epsilon_{\mathsf{com}}\) collects the
+binding and opening errors.  Repeating the complete tensor test with
+independent Fiat--Shamir challenges and packing the repetitions into
+independent channels amplifies the tensor-test error multiplicatively.
+
+For one repetition, the protocol commits to \(Nd\) address bits,
+\(N(d-1)\) prefix products, the length-\(N\) vector
+\(\widetilde{\bm r}\), and the length-\(M\) pushforward \(\bm s\).
+Thus its auxiliary witness size is \(O(N\log M+M)\) base-field
+elements.  With \(\kappa\) parallel repetitions, \(\bm B\) is shared,
+whereas the challenge-dependent prefix products, selected vectors, and
+pushforwards occupy \(O(\kappa(N\log M+M))\) elements.  The advantage
+is that every local algebraic relation has degree at most two, while
+the two global fingerprints have degrees only \(\log_2N\) and
+\(\log_2M\), rather than \(N\) or \(M\).
+
+\subsection{Packed LogUp}
+\label{sec:packed-logup}
+
+Logarithmic-derivative lookup arguments reduce a lookup relation to an
+equality between sums of reciprocals~\cite{iacr/Habock22a}.  Over a
+small field, however, a residue can disappear modulo the
+characteristic.  For example,
+\[
+    \underbrace{\frac{1}{X+v}+\cdots+\frac{1}{X+v}}
+      _{p\text{ terms}}
+    =0.
+\]
+We avoid this \emph{characteristic overflow} by placing fewer than
+\(p\) query occurrences in each initial column.  The \(\kappa\) column
+identities are first combined symbolically and then evaluated at
+\(\kappa\) independent pairs of challenges.  Those evaluations form
+\(\kappa\) new columns, which are recursively repacked exactly as in
+the folding protocol above.
+
+\paragraph{Packing the query into \(\kappa\) columns.}
+Let
+\[
+    \bm v=(v_1,\ldots,v_n)^\top\in\Field^n,
+    \qquad
+    \bm t=(t_1,\ldots,t_T)^\top\in\Field^T
+\]
+be the query and table columns.  We assume that the table values are
+distinct; duplicate table entries can be merged.  The goal is to prove
+\[
+    v_i\in\{t_1,\ldots,t_T\}
+    \qquad\text{for all }i\in[n].
+\]
+Set
+\[
+    m:=\left\lceil\frac n\kappa\right\rceil,
+    \qquad
+    h:=\left\lceil\log_2\kappa\right\rceil,
+\]
+and assume
+\begin{equation}
+    m<p.
+\label{eq:packed-logup-short-column-condition}
+\end{equation}
+Thus the strict \(\kappa\)-column form applies when
+\(n\leq\kappa(p-1)\).  For a longer query, the number of initial
+partition columns must be increased, or separated from the number of
+soundness-amplification lanes; using only \(\kappa\) longer columns
+would invalidate the characteristic-overflow argument below.
+Pad the query with a fixed table value and reshape it columnwise as
+\begin{equation}
+    \bm V
+      :=\concat{\bm v^{(1)},\ldots,\bm v^{(\kappa)}}
+      \in\Field^{m\times\kappa}.
+\label{eq:packed-logup-query-matrix}
+\end{equation}
+Padding with a valid table value does not change whether the original
+query satisfies the lookup.
+
+Column \(j\) has its own multiplicity vector.  The honest value at table
+entry \(t_r\) is
+\begin{equation}
+    M_{r,j}
+      :=\#\{i\in[m]:V_{i,j}=t_r\},
+    \qquad
+    \bm M\in\Field^{T\times\kappa}.
+\label{eq:packed-logup-column-multiplicities}
+\end{equation}
+Because every column has length less than \(p\), each integer in
+\eqref{eq:packed-logup-column-multiplicities} embeds into \(\Field\)
+without wraparound.  The prover commits once to \(\bm M\); it need not
+separately prove the counting formula.  Instead, column \(j\) is bound
+to the rational identity
+\begin{equation}
+    F_j(X)
+      :=
+      \sum_{i=1}^{m}\frac{1}{X+V_{i,j}}
+      -
+      \sum_{r=1}^{T}\frac{M_{r,j}}{X+t_r}
+      \stackrel{?}{=}0.
+\label{eq:packed-logup-column-identity}
+\end{equation}
+If the column is valid, its honest multiplicities make this an identity
+of rational functions.  Conversely, an invalid value produces a pole
+that does not occur on the table side.
+
+\paragraph{Combining the column identities.}
+Assign the \(\kappa\) columns distinct addresses
+\[
+    \bm s^{(1)},\ldots,\bm s^{(\kappa)}
+      \in\{0,1\}^{h}.
+\]
+For \(\bm y\in\Field^h\), define
+\begin{equation}
+    \bm\eta_{\bm y}
+      :=
+      \left(
+        \bm y^{\bm s^{(1)}},\ldots,
+        \bm y^{\bm s^{(\kappa)}}
+      \right)^\top,
+    \qquad
+    \bm y^{\bm s}:=\prod_{q=1}^{h}y_q^{s_q}.
+\label{eq:packed-logup-column-weights}
+\end{equation}
+The packed rational error is
+\begin{equation}
+    F_{\bm y}(X)
+      :=\sum_{j=1}^{\kappa}
+        (\bm\eta_{\bm y})_j F_j(X).
+\label{eq:packed-logup-packed-rational-error}
+\end{equation}
+The monomials associated with the occupied addresses are distinct.
+Hence, if at least one \(F_j\) is nonzero, then
+\(F_{\bm y}(X)\) is a nonzero polynomial in \(\bm y\) whose
+coefficients are rational functions of \(X\).
+
+\paragraph{Independent packed evaluations.}
+Let
+\[
+    \mathbb E:=\Field[\vartheta]/(\vartheta^2-\nu)
+      \cong\mathbb F_{p^2},
+\]
+where \(\nu\in\Field\) is a quadratic non-residue.  After \(\bm V\)
+and \(\bm M\) are bound, the verifier samples \(\kappa\) independent
+pairs
+\begin{equation}
+    \left(x^{(c)},\bm y^{(c)}\right)
+      \ChooseRandom
+      (\mathbb E\setminus\Field)\times\Field^h,
+    \qquad c\in[\kappa],
+\label{eq:packed-logup-initial-challenges}
+\end{equation}
+and writes \(\bm\eta^{(c)}:=\bm\eta_{\bm y^{(c)}}\).  The intended
+child claim in lane \(c\) is
+\[
+    F_{\bm y^{(c)}}(x^{(c)})=0.
+\]
+
+\paragraph{Creating the \(\kappa\) child columns.}
+For every row \(i\in[m]\) and lane \(c\in[\kappa]\), define
+\begin{equation}
+    a_i^{(c)}
+      :=
+      \sum_{j=1}^{\kappa}
+        \frac{\eta_j^{(c)}}{x^{(c)}+V_{i,j}},
+    \qquad
+    \bm A
+      :=\concat{\bm a^{(1)},\ldots,\bm a^{(\kappa)}}
+      \in\mathbb E^{m\times\kappa}.
+\label{eq:packed-logup-child-columns}
+\end{equation}
+Although every child uses a different \(x^{(c)}\), the matrix
+\(\bm A\) has only \(m\kappa=n+O(\kappa)\) extension-field entries.
+In particular, it is not a \(\kappa\)-fold copy of the query.
+
+The entries of \(\bm A\) are linked directly to the already-bound
+matrix \(\bm V\).  Since \(x^{(c)}\notin\Field\), every denominator is
+nonzero, and \eqref{eq:packed-logup-child-columns} is equivalent to the
+polynomial relation
+\begin{equation}
+\boxed{
+    a_i^{(c)}
+      \prod_{j=1}^{\kappa}(x^{(c)}+V_{i,j})
+    =
+      \sum_{j=1}^{\kappa}
+        \eta_j^{(c)}
+        \prod_{q\in[\kappa]\setminus\{j\}}
+          (x^{(c)}+V_{i,q}).}
+\label{eq:packed-logup-packed-reciprocal}
+\end{equation}
+Thus the prover commits only to the combined values
+\(a_i^{(c)}\), rather than to all
+\(\kappa^2m\) individual inverses.  Relation
+\eqref{eq:packed-logup-packed-reciprocal} has total degree
+\(\kappa+1\) over \(\mathbb E\); equivalently, it gives two base-field
+relations after expanding in the basis \((1,\vartheta)\).
+
+The table side is reduced before any table-sized child vector is
+formed.  Define
+\begin{equation}
+    \beta^{(c)}
+      :=
+      \sum_{r=1}^{T}
+        \frac{(\bm M\bm\eta^{(c)})_r}
+             {x^{(c)}+t_r}
+      =
+      \bm q_{x^{(c)}}^\top
+      \bm M\bm\eta^{(c)},
+    \qquad
+    (\bm q_x)_r:=\frac1{x+t_r}.
+\label{eq:packed-logup-table-opening}
+\end{equation}
+The vector \(\bm q_x\) is public.  Hence each \(\beta^{(c)}\) is a
+rank-one linear opening of the single committed matrix \(\bm M\), not
+a commitment to a \(T\times\kappa\) inverse matrix.  Its two base-field
+coordinates are proved by the packed inner-product primitive.
+
+By construction,
+\begin{equation}
+    F_{\bm y^{(c)}}(x^{(c)})
+      =\bm1^\top\bm a^{(c)}-\beta^{(c)}.
+\label{eq:packed-logup-child-sum}
+\end{equation}
+Consequently, the \(\kappa\) rational identities have become the
+\(\kappa\) linear claims
+\begin{equation}
+    \boxed{
+    \bm\beta
+      \EqOrNot
+      \bm A^\top\bm1,}
+    \qquad
+    \bm\beta
+      :=(\beta^{(1)},\ldots,\beta^{(\kappa)})^\top.
+\label{eq:packed-logup-initial-child-state}
+\end{equation}
+
+\paragraph{Recursive \(\kappa\)-to-\(\kappa\) repacking.}
+Pad \(\bm A\) with zero rows to a power-of-two length.  At any later
+round, the state is a matrix
+\(\bm A\in\mathbb E^{m'\times\kappa}\) and a vector
+\(\bm c\in\mathbb E^\kappa\) with the claimed invariant
+\begin{equation}
+    \bm c\EqOrNot\bm A^\top\bm1.
+\label{eq:packed-logup-linear-invariant}
+\end{equation}
+Initially, \(\bm c=\bm\beta\).  Split the rows as
+\[
+    \bm A=
+      \begin{pmatrix}\bm A_U\\\bm A_D\end{pmatrix}.
+\]
+The prover sends vectors \(\widehat{\bm u},\widehat{\bm d}
+\in\mathbb E^\kappa\), purportedly equal to
+\(\bm A_U^\top\bm1\) and \(\bm A_D^\top\bm1\), and the verifier checks
+\begin{equation}
+    \widehat{\bm u}+\widehat{\bm d}\EqOrNot\bm c.
+\label{eq:packed-logup-parent-sum-check}
+\end{equation}
+
+After this message is bound, the verifier samples \(\kappa\) fresh
+pairs
+\[
+    (\bm y_1,z_1),\ldots,(\bm y_\kappa,z_\kappa)
+      \ChooseRandom\Field^h\times\Field.
+\]
+Set
+\[
+    \bm Y
+      :=\begin{pmatrix}
+          \bm\eta_{\bm y_1}&\cdots&\bm\eta_{\bm y_\kappa}
+        \end{pmatrix},
+    \qquad
+    \bm Z:=\diag(z_1,\ldots,z_\kappa).
+\]
+The next \(\kappa\) columns and claims are
+\begin{equation}
+\boxed{
+\begin{aligned}
+    \bm A'
+      &:=\bm A_U\bm Y+\bm A_D\bm Y\bm Z,\\
+    \bm c'
+      &:=\bm Y^\top\widehat{\bm u}
+        +\bm Z\bm Y^\top\widehat{\bm d}.
+\end{aligned}}
+\label{eq:packed-logup-recursive-repacking}
+\end{equation}
+Thus every round maps \(\kappa\) columns of length \(m'\) to
+\(\kappa\) columns of length \(m'/2\).  When one row remains, the
+verifier checks \eqref{eq:packed-logup-linear-invariant} by opening the
+terminal row.  The initial \(\kappa\) pairs
+\((x^{(c)},\bm y^{(c)})\) create the first \(\kappa\) columns, and every
+subsequent collection of \(\kappa\) pairs
+\((\bm y_c,z_c)\) creates the next \(\kappa\) columns.
+
+\paragraph{Folding invariant and round soundness.}
+For an honest round, let
+\[
+    \bm u^\star:=\bm A_U^\top\bm1,
+    \qquad
+    \bm d^\star:=\bm A_D^\top\bm1.
+\]
+Then \eqref{eq:packed-logup-recursive-repacking} satisfies
+\[
+    (\bm A')^\top\bm1
+      =\bm Y^\top\bm u^\star
+       +\bm Z\bm Y^\top\bm d^\star,
+\]
+so the invariant is preserved.
+
+For soundness, write
+\[
+    \bm e_U:=\widehat{\bm u}-\bm u^\star,
+    \qquad
+    \bm e_D:=\widehat{\bm d}-\bm d^\star.
+\]
+If a parent claim is false while
+\eqref{eq:packed-logup-parent-sum-check} accepts, then
+\(\bm e_U+\bm e_D\ne\bm0\).  The error in a child sampled at
+\((\bm y,z)\) is
+\begin{equation}
+    \Delta(\bm y,z)
+      :=\bm\eta_{\bm y}^\top(\bm e_U+z\bm e_D).
+\label{eq:packed-logup-fold-error}
+\end{equation}
+This is a nonzero polynomial of total degree at most \(h+1\): setting
+\(z=1\) leaves the nonzero channel polynomial
+\(\bm\eta_{\bm y}^\top(\bm e_U+\bm e_D)\).  Therefore all
+\(\kappa\) independently sampled children become correct with
+probability at most
+\begin{equation}
+    \epsilon_{\mathsf{linear\mbox{-}round}}
+      \leq
+      \left(\frac{h+1}{p}\right)^\kappa.
+\label{eq:packed-logup-linear-round-soundness}
+\end{equation}
+
+\paragraph{Lookup soundness.}
+Suppose that
+\(v^\star\notin\{t_1,\ldots,t_T\}\) occurs in the query, and let
+\(n_j^\star\) be the number of its occurrences in column \(j\).  By
+\eqref{eq:packed-logup-short-column-condition},
+\[
+    0\leq n_j^\star<p,
+    \qquad
+    (n_1^\star,\ldots,n_\kappa^\star)\ne\bm0.
+\]
+Its residue in the packed rational function is
+\begin{equation}
+    R_{v^\star}(\bm y)
+      :=\sum_{j=1}^{\kappa}
+        n_j^\star(\bm\eta_{\bm y})_j.
+\label{eq:packed-logup-invalid-residue}
+\end{equation}
+This is a nonzero polynomial of total degree at most \(h\), so it
+vanishes at a random \(\bm y\in\Field^h\) with probability at most
+\(h/p\).  Conditioned on a nonzero residue, the resulting rational
+function has a pole at \(-v^\star\) that cannot occur on the table side.
+After its at most \(p\) distinct denominators are combined, its
+numerator has degree at most \(p-1\).  A uniform
+\(x\in\mathbb E\setminus\Field\) is therefore a root with probability
+at most \(1/p\).  One initial pair fails to expose the invalid lookup
+with probability at most
+\[
+    \delta
+      :=\frac hp+\left(1-\frac hp\right)\frac1p
+      \leq\frac{h+1}{p}.
+\]
+Because the \(\kappa\) pairs in
+\eqref{eq:packed-logup-initial-challenges} are independent, all initial
+child claims are correct with probability at most \(\delta^\kappa\).
+If \(L=\lceil\log_2m\rceil\), a union bound over the initial packing and
+the subsequent linear folds gives
+\begin{equation}
+\boxed{
+    \epsilon_{\mathsf{PackedLogUp}}
+      \leq
+      (L+1)
+      \left(\frac{h+1}{p}\right)^\kappa
+      +\epsilon_{\mathsf{link}}
+      +\epsilon_{\mathsf{com}}.}
+\label{eq:packed-logup-soundness}
+\end{equation}
+Here \(\epsilon_{\mathsf{link}}\) contains the soundness errors of the
+packed reciprocal relation and the rank-one openings of \(\bm M\), and
+\(\epsilon_{\mathsf{com}}\) contains commitment binding and terminal
+opening errors.
+
+\paragraph{Commitments, cost, and memory.}
+The transcript order is
+\begin{equation}
+\begin{aligned}
+  \mathsf{Com}(\bm v,\bm t)
+    &\longrightarrow \mathsf{Com}(\bm M)
+    \longrightarrow
+      \{(x^{(c)},\bm y^{(c)})\}_{c=1}^{\kappa}\\
+    &\longrightarrow \mathsf{Com}(\bm A)
+    \longrightarrow
+      \text{linking proofs and recursive folds}.
+\end{aligned}
+\label{eq:packed-logup-transcript-order}
+\end{equation}
+The table commitment is omitted when the table is public.  No
+query-by-challenge or table-by-challenge inverse matrix is committed.
+There are only two logical lookup-specific witness commitments: the
+multiplicity matrix \(\bm M\), bound before the initial challenges, and
+the combined child matrix \(\bm A\), bound afterward.  Since
+\(\bm A\) is extension-valued, its logical commitment consists of two
+base-field coordinate commitments.
+
+An honest multiplicity matrix has at most \(m\kappa\) nonzero entries,
+even though its ambient dimension is \(T\times\kappa\).  It can
+therefore be kept in sparse column form and fed to a single commitment;
+streaming the encoder changes the prover schedule but not the
+commitment or proof size.  The matrix \(\bm A\) itself has
+\(m\kappa=n+O(\kappa)\) extension-field entries.  Hence the peak
+working memory, excluding the public table, is
+\begin{equation}
+    \boxed{O(n+\kappa^2)}
+\label{eq:packed-logup-working-memory}
+\end{equation}
+base-field elements, up to the constant factor for representing
+\(\mathbb E\).  If the commitment implementation requires a resident
+dense encoding of \(\bm M\), its \(T\kappa\) storage must instead be
+added to this bound; the algebraic packing does not by itself remove
+that implementation cost.
+
+The memory bound also assumes that
+\eqref{eq:packed-logup-packed-reciprocal} is handled as a direct
+degree-\((\kappa+1)\) packed gate, or by a product check whose
+intermediate values are streamed.  Expanding every product into
+quadratic gates and materializing all partial products would add
+\(\Theta(n\kappa)\) witness entries and would forfeit the intended
+space saving.  Thus this construction trades the large inverse trace
+for one moderate-degree linking relation; its efficient realization is
+part of \(\epsilon_{\mathsf{link}}\) and the corresponding linking cost.
+
+Computing all entries in \eqref{eq:packed-logup-child-columns}, all
+table openings in \eqref{eq:packed-logup-table-opening}, and all dense
+column folds costs \(O(n\kappa)\) extension-field operations when
+\(\bm M\) is stored sparsely.  In each recursive round,
+\(\widehat{\bm d}=\bm c-\widehat{\bm u}\) may be omitted, so the prover
+sends \(\kappa\) extension-field elements.  The \(L\) linear folds
+therefore contribute \(2\kappa L\) base-field elements, in addition to
+the packed reciprocal proof, the rank-one openings of \(\bm M\), and
+the terminal commitment opening.  If the two base-field coordinates of
+the table openings are instantiated with Multiplicative Packed
+LiteBullet, they add at most
+\[
+    2(3\kappa^2-\kappa)
+      \left\lceil\log_2(T\kappa)\right\rceil
+\]
+base-field elements before terminal openings.
+
+Packed LogUp proves membership with unrestricted reuse of table
+entries.  Capacitated lookup or exact multiset equality additionally
+requires a range-safe constraint on the multiplicities.
+
+
+\subsection{Packed Permutation}
+\label{sec:packed-permutation}
+
+\paragraph{State.}
+Let
+\[
+    \bm A=
+      \left(\bm a^{(1)}\,\middle|\,\cdots\,\middle|\,
+      \bm a^{(\kappa)}\right),
+    \qquad
+    \bm B=
+      \left(\bm b^{(1)}\,\middle|\,\cdots\,\middle|\,
+      \bm b^{(\kappa)}\right)
+      \in\Field^{m\times\kappa},
+\]
+and write \(N:=m\kappa\) for the total number of entries.  We prove
+the \(\kappa\) independent statements
+\begin{equation}
+    \bm b^{(c)}
+      \text{ is a permutation of }
+    \bm a^{(c)},
+    \qquad c\in[\kappa].
+\label{eq:packed-permutation-column-statements}
+\end{equation}
+The permutations may differ across columns, and repeated values are
+allowed.  We assume throughout that
+\begin{equation}
+    m<p.
+\label{eq:packed-permutation-channel-bound}
+\end{equation}
+This condition is needed only to interpret field-valued multiplicities
+as integer multiplicities: every difference lies in \([-m,m]\), so a
+nonzero difference cannot vanish modulo \(p\).
+
+\paragraph{Power-sum representation.}
+Set \(\bm X_A:=\bm A\) and \(\bm X_B:=\bm B\).  For
+\(\sigma\in\{A,B\}\) and \(d=0,\ldots,p-1\), define the virtual power
+tables
+\begin{equation}
+    \bm P_{\sigma,d}:=\bm X_\sigma^{\circ d}
+      \in\Field^{m\times\kappa},
+    \qquad
+    \bm P_{\sigma,0}:=\bm 1_{m\times\kappa},
+\label{eq:packed-permutation-power-tables}
+\end{equation}
+Stack their column sums by degree:
+\begin{equation}
+    \bm M_\sigma
+      :=
+      \begin{pmatrix}
+        \bm 1_m^\top\bm P_{\sigma,0}\\
+        \bm 1_m^\top\bm P_{\sigma,1}\\
+        \vdots\\
+        \bm 1_m^\top\bm P_{\sigma,p-1}
+      \end{pmatrix}
+      \in\Field^{p\times\kappa}.
+\label{eq:packed-permutation-moment-matrix}
+\end{equation}
+
+For column \(c\), let \(\bm h^{(c)}\in\Field^p\) be its multiplicity
+residue, indexed by \(x\in\Field\):
+\[
+    h_x^{(c)}
+      :=
+      \#\{i:A_{i,c}=x\}
+      -\#\{i:B_{i,c}=x\}.
+\]
+Let \(\bm V=(x^d)_{x\in\Field,\,0\leq d<p}\) be the \(p\)-by-\(p\)
+Vandermonde matrix over all elements of \(\Field\).  The \(c\)-th
+column of the moment residue satisfies
+\begin{equation}
+    (\bm M_A-\bm M_B)[:,c]
+      =\bm V^\top\bm h^{(c)}.
+\label{eq:packed-permutation-vandermonde-link}
+\end{equation}
+The evaluation points indexing the rows of \(\bm V\) are distinct, so
+\(\bm V\) is invertible.  Together with \(m<p\), this gives the exact
+equivalence
+\begin{equation}
+    \boxed{
+    \bm M_A=\bm M_B
+      \quad\Longleftrightarrow\quad
+    \bm b^{(c)}\text{ is a permutation of }\bm a^{(c)}
+      \text{ for every }c\in[\kappa].
+    }
+\label{eq:packed-permutation-moment-equivalence}
+\end{equation}
+
+\paragraph{Random-polynomial fingerprint.}
+Let \(s\) denote the number of soundness lanes.  After the commitments
+to \(\bm A\) and \(\bm B\) are fixed, Fiat--Shamir generates
+independent uniform coefficient matrices
+\[
+    \bm R^{(1)},\ldots,\bm R^{(s)}
+      \ChooseRandom\Field^{p\times\kappa}.
+\]
+Lane \(t\) checks the scalar fingerprint
+\begin{equation}
+    \boxed{
+    0
+      \EqOrNot
+      \Phi_t
+      :=
+      \left\langle
+        \bm R^{(t)},\bm M_A-\bm M_B
+      \right\rangle.
+    }
+\label{eq:packed-permutation-random-fingerprint}
+\end{equation}
+Equivalently, the coefficients in column \(c\) define the random
+polynomial
+\begin{equation}
+    f_{t,c}(X)
+      :=
+      \sum_{d=0}^{p-1}R^{(t)}_{d,c}X^d,
+\label{eq:packed-permutation-random-polynomial}
+\end{equation}
+and
+\begin{equation}
+    \Phi_t
+      =
+      \sum_{c=1}^{\kappa}\sum_{i=1}^{m}
+      \left(
+        f_{t,c}(A_{i,c})-f_{t,c}(B_{i,c})
+      \right).
+\label{eq:packed-permutation-polynomial-evaluation}
+\end{equation}
+Using a full random coefficient matrix, rather than one coefficient
+vector shared by all columns, is essential: every soundness lane tests
+the complete column-residue matrix through an independent projection.
+
+\paragraph{Reducing the virtual power tables.}
+The prover need not commit \(\bm M_A\), \(\bm M_B\), or the power
+tables.  Their entries are generated by the degree-two recurrence
+\begin{equation}
+\begin{aligned}
+    \bm P_{A,d+1}&=\bm P_{A,d}\circ\bm A,\\
+    \bm P_{B,d+1}&=\bm P_{B,d}\circ\bm B,
+\end{aligned}
+\qquad d=1,\ldots,p-2,
+\label{eq:packed-permutation-power-recurrence}
+\end{equation}
+with public layer \(\bm P_{\sigma,0}=\bm 1\) and committed layer
+\(\bm P_{A,1}=\bm A\), \(\bm P_{B,1}=\bm B\).
+
+Write \((\bm r_d^{(t)})^\top:=\bm R^{(t)}[d,:]\) and define the public
+weight matrix
+\[
+    \bm W_d^{(t)}:=\bm 1_m(\bm r_d^{(t)})^\top
+      \in\Field^{m\times\kappa}.
+\]
+Then the initial claim in lane \(t\) is
+\begin{equation}
+    \Phi_t
+      =
+      \sum_{d=0}^{p-1}
+      \left\langle
+        \bm W_d^{(t)},
+        \bm P_{A,d}-\bm P_{B,d}
+      \right\rangle.
+\label{eq:packed-permutation-weighted-powers}
+\end{equation}
+For either operand and any public weight matrix \(\bm W\), one power
+step has the inner-product form
+\begin{equation}
+    \left\langle\bm W,\bm P_{\sigma,d+1}\right\rangle
+      =
+      \left\langle
+        \operatorname{vec}(\bm W\circ\bm P_{\sigma,d}),
+        \operatorname{vec}(\bm X_\sigma)
+      \right\rangle.
+\label{eq:packed-permutation-power-inner-product}
+\end{equation}
+Stacking \eqref{eq:packed-permutation-power-inner-product} over
+\(t\in[s]\) gives one \(s\)-channel Packed LiteBullet instance for
+that degree.  Its returned linear claims on \(\bm P_{\sigma,d}\) are
+re-packed with the degree-\(d\) contribution in
+\eqref{eq:packed-permutation-weighted-powers} before the next step.
+Iterating from \(d=p-1\) to \(d=1\) leaves only public claims on
+\(\bm P_{\sigma,0}\) and dense linear claims on the committed matrices
+\(\bm A\) and \(\bm B\).  The latter are accumulated and discharged by
+the dense-linear-to-MLE link from Section~\ref{sec:packed-litebullet}.
+
+\paragraph{Commitments and transcript order.}
+The only persistent witness commitments are
+\begin{equation}
+    \boxed{
+      \mathsf{Com}_{\Field}(\bm A),
+      \qquad
+      \mathsf{Com}_{\Field}(\bm B).
+    }
+\label{eq:packed-permutation-commitments}
+\end{equation}
+The coefficient matrices are derived from the Fiat--Shamir transcript
+after these commitments and can be generated from their transcript
+seeds on demand.  No bit decomposition, permutation matrix, moment
+matrix, or power-table commitment is introduced.  Fresh re-packing
+challenges are sampled only after the preceding Packed LiteBullet
+messages have been absorbed.
+
+\paragraph{Soundness.}
+Suppose that at least one column statement is false.  By
+\eqref{eq:packed-permutation-moment-equivalence}, the fixed residue
+\[
+    \bm E:=\bm M_A-\bm M_B
+\]
+is nonzero.  For a uniform \(\bm R^{(t)}\), the inner product
+\(\langle\bm R^{(t)},\bm E\rangle\) is uniform in \(\Field\), and hence
+\[
+    \Pr[\Phi_t=0\mid\bm E\neq\bm0]=\frac1p.
+\]
+The \(s\) coefficient matrices are independent, so
+\begin{equation}
+    \boxed{
+    \epsilon_{\mathsf{perm\mbox{-}fingerprint}}
+      =p^{-s}.
+    }
+\label{eq:packed-permutation-soundness}
+\end{equation}
+Taking \(s=\kappa\) gives \(p^{-\kappa}\).  The complete error bound is
+\[
+    \epsilon_{\mathsf{PackedPerm}}
+      \leq
+      p^{-s}
+      +\epsilon_{\mathsf{power}}
+      +\epsilon_{\mathsf{PackedLiteBullet}}
+      +\epsilon_{\mathsf{link}}
+      +\epsilon_{\mathsf{com}},
+\]
+where \(\epsilon_{\mathsf{power}}\) collects the fresh re-packing
+errors across the \(p-2\) power steps.
+
+The bound \(m<p\) is essential.  If a multiplicity residue is a
+nonzero multiple of \(p\), then it is already zero in \(\Field\), so
+neither random coefficients nor an extension of \(\Field\) can recover
+the lost integer count.  Longer columns require range-safe count limbs
+or a preliminary partition into channels of length smaller than \(p\).
+
+\paragraph{Cost and memory.}
+Constructing all virtual powers and their column sums once costs
+\begin{equation}
+    O(pN)
+\label{eq:packed-permutation-trace-cost}
+\end{equation}
+base-field operations.  Forming \(s\) fingerprints from the moment
+matrix costs another \(O(sp\kappa)\) operations.  Proving all
+\(p-2\) degree transitions with \(s\)-channel Packed LiteBullet costs
+\(O(spN)\) prover operations up to the logarithmic factors of the
+inner-product reduction.  Thus, for \(s=\kappa\), the proof-generation
+cost is \(O(p\kappa N)\) up to those factors.
+
+The proof contains \(p-2\) packed power-step reductions, followed by
+the terminal dense openings.  Hence its size is \(p-2\) times the size
+of one \(s\)-channel Packed LiteBullet instance, up to the final
+opening terms.  The \(sp\kappa\) random coefficients are generated
+from Fiat--Shamir seeds and are not transmitted in the proof.
+
+Materializing every power layer requires \(O(pN)\) field elements.
+Instead, the prover may retain one \(m\)-by-\(\kappa\) power layer and
+the \(p\)-by-\(\kappa\) moment matrix, for
+\begin{equation}
+    O(N+p\kappa)
+\label{eq:packed-permutation-streaming-memory}
+\end{equation}
+working memory.  Layers needed later by the recursive proof are
+recomputed from \(\bm A\) and \(\bm B\), giving the usual time--memory
+tradeoff.  The random-polynomial construction therefore removes the
+bit matrix, the grand product, and extension-field state, at the price
+of \(p-2\) degree-two power transitions.  This tradeoff is attractive
+precisely when \(p\) is small.
+
+\subsection{Polynomial Commitments over Small Fields}
+\label{sec:pcs-small-field}
+
+We instantiate the commitment layer with rank-one QA codes over
+\(\Field=\mathbb F_p\).
+
+\begin{definition}[Walsh--Hadamard transform]
+Let \(N\) be a power of two and assume that \(N\) is invertible in
+\(\Field\).  Define the \(N\times N\) Hadamard matrix recursively by
+\[
+    \bm H_1:=(1),
+    \qquad
+    \bm H_N
+    :=
+    \begin{pmatrix}
+        \bm H_{N/2} & \bm H_{N/2}\\
+        \bm H_{N/2} & -\bm H_{N/2}
+    \end{pmatrix}
+    =
+    \begin{pmatrix}
+        1&1\\
+        1&-1
+    \end{pmatrix}^{\otimes\log_2N}.
+\]
+For \(\bm a\in\Field^N\), its Walsh--Hadamard transform is the matrix--vector
+product
+\[
+    \mathsf{WHT}_N(\bm a):=\bm H_N\bm a.
+\]
+Since \(\bm H_N^2=N\bm I_N\), it satisfies
+\[
+    \mathsf{WHT}_N(\mathsf{WHT}_N(\bm a))=N\bm a,
+    \qquad
+    \mathsf{WHT}_N^{-1}=N^{-1}\mathsf{WHT}_N.
+\]
+We omit the subscript \(N\) when the vector length is clear.
+\end{definition}
+
+\begin{lemma}[MLE reduction through the Walsh--Hadamard transform]
+\label{lemma:wht-mle}
+Let \(\bm A\in\Field^{N\times M}\), and define the column-wise
+Walsh--Hadamard transform by
+\[
+    \mathsf{WHT}_N(\bm A):=\bm H_N\bm A.
+\]
+For
+\(
+    \bm l=\tensorspan{\bm x_l}\in\Field^N
+\)
+and
+\(
+    \bm r=\tensorspan{\bm x_r}\in\Field^M
+\),
+we have
+\[
+    \bm l^\top\mathsf{WHT}_N(\bm A)\bm r
+    =
+    \widetilde{\bm l}^{\top}\bm A\bm r,
+    \qquad
+    \widetilde{\bm l}
+    :=
+    \bigotimes_{i=1}^{\log_2N}(1,1-2x_{l,i}).
+\]
+Moreover, if \(x_{l,i}\ne1\) for every \(i\), define
+\[
+    \lambda_l
+    :=
+    \prod_{i=1}^{\log_2N}(2-2x_{l,i}),
+    \qquad
+    \bm x_l'
+    :=
+    \frac{\bm{1}-2\bm x_l}{2\bm{1}-2\bm x_l}.
+\]
+Then
+\[
+    \widetilde{\bm l}
+    =
+    \lambda_l\tensorspan{\bm x_l'},
+\]
+and hence
+\[
+    \bm l^\top\mathsf{WHT}_N(\bm A)\bm r
+    =
+    \lambda_l\,
+    \tensorspan{\bm x_l'}^\top\bm A\bm r.
+\]
+\end{lemma}
+
+\begin{proof}
+Since \(\bm H_N\) is symmetric,
+\[
+    \bm l^\top\bm H_N\bm A\bm r
+    =
+    (\bm H_N\bm l)^\top\bm A\bm r.
+\]
+For every \(i\),
+\[
+    \begin{pmatrix}1&1\\1&-1\end{pmatrix}
+    \begin{pmatrix}1-x_{l,i}\\x_{l,i}\end{pmatrix}
+    =
+    \begin{pmatrix}1\\1-2x_{l,i}\end{pmatrix}.
+\]
+Taking the tensor product over all \(i\) gives the expression for
+\(\widetilde{\bm l}\).  Finally,
+\[
+    (1,1-2x_{l,i})
+    =
+    (2-2x_{l,i})
+    \left(
+        1-\frac{1-2x_{l,i}}{2-2x_{l,i}},
+        \frac{1-2x_{l,i}}{2-2x_{l,i}}
+    \right),
+\]
+which proves the normalized form.
+\end{proof}
+
+\begin{definition}[Quasi-Abelian code {\cite[Theorem~4.3]{iacr/LiLXYY26}}]
+Let \(c=r\) be the index of the QA code, so its rate is \(1/c=1/r\), and let
+\(\bm a_1,\ldots,\bm a_c\in\Field^{k_j}\) be the coefficient vectors of
+its defining group-algebra elements.  Define
+\[
+    \bm\alpha_i
+    :=
+    k_j^{-1}\mathsf{WHT}(\bm a_i),
+    \qquad i\in[c].
+\]
+For a message \(\bm m\in\Field^{k_j}\), its encoding is
+\[
+    \Enc(\bm m)
+    :=
+    \concat{
+        \mathsf{WHT}\!\left(
+            \mathsf{WHT}(\bm m)\circ\bm\alpha_1
+        \right),
+        \ldots,
+        \mathsf{WHT}\!\left(
+            \mathsf{WHT}(\bm m)\circ\bm\alpha_c
+        \right)
+    },
+\]
+where \(\circ\) denotes component-wise multiplication.
+In the systematic variant, one sets \(\bm a_1\) to the multiplicative
+identity, in which case the first output block equals \(\bm m\).
+\end{definition}
+
+\begin{fact}[Relative distance of the QA code
+{\cite[Corollary~3.21]{iacr/LiLXYY26}}]
+\label{fact:qa-distance}
+Let \(k_j=2^n\), let \(\Field=\mathbb F_p\) for an odd prime \(p\), and define
+\[
+    g_p(\delta)
+    :=
+    1-\delta\log_p(p-1)
+      +\delta\log_p\delta
+      +(1-\delta)\log_p(1-\delta).
+\]
+For a target relative distance \(\delta\), suppose that
+\[
+    \epsilon
+    :=
+    g_p(\delta)-\frac{1+\log_p k_j}{c}
+    >0.
+\]
+Then a uniformly sampled rank-one QA code of index \(c\) over
+\(\mathbb F_p[\mathbb Z_2^n]\) has rate \(1/c\), length \(ck_j\), and
+relative distance at least \(\delta\) with probability at least
+\[
+    \max\left\{
+        1-\frac{c(c-1)k_j}{2p^2}
+          -\frac{
+              p^{-\left\lceil\frac{c-1}{c\delta}\right\rceil c\epsilon}
+          }{
+              (1-p^{-c\epsilon})(p-1)
+          },
+        \;
+        1-\frac{ck_j}{p}
+          -\frac{
+              p^{-\left\lceil\frac{1}{\delta}\right\rceil c\epsilon}
+          }{
+              (1-p^{-c\epsilon})(p-1)
+          }
+    \right\}.
+\]
+The same distance analysis applies to the systematic construction above
+by~\cite[Theorem~4.4]{iacr/LiLXYY26}.
+\end{fact}
+
+\medskip
+\noindent
+\textbf{Instantiating \methodname.}
+We call the resulting instantiation \qafold.
+At every level \(j\), \qafold instantiates \(\Code_j\) with a rank-one QA code
+over \(\Field[\mathbb Z_2^{\log_2 k_j}]\) and uses its WHT encoder as
+\(\Enc_j\).  Its generator matrix is
+\[
+    \bm G_j
+    =
+    \begin{pmatrix}
+        \bm H_{k_j}\diag(\bm\alpha_1)\bm H_{k_j}\\
+        \vdots\\
+        \bm H_{k_j}\diag(\bm\alpha_c)\bm H_{k_j}
+    \end{pmatrix}
+    \in
+    \Field^{ck_j\times k_j}.
+\]
+The fixed matrix used to reduce MLE claims on \(\bm G_j\) is
+\[
+    \bm H_j
+    :=
+    \concat{\bm\alpha_1,\ldots,\bm\alpha_c}
+    \in
+    \Field^{k_j\times c}.
+\]
+Applying Lemma~\ref{lemma:wht-mle} to the two WHT layers reduces every
+MLE claim on \(\bm G_j\) to an MLE claim on \(\bm H_j\), together with
+the corresponding scalar normalization factors.  Thus, in the notation
+of Section~\ref{sec:decider}, the setup commitment at level \(j\)
+authenticates \(\concat{\bm T_j,\bm H_j}\), while \(\bm S_j\) is the empty
+matrix and no dynamic commitment is needed.  The carry commitment to
+\(\bm W_j\) and the recursive code switch between
+\(\widehat{\Code}_j\) and \(\widehat{\Code}_{j-1}^{t}\) are unchanged.
+Consequently, the same recursive opening procedure applies until the
+remaining MLE claims on \(\bm G_0\) are evaluated directly by the verifier.
+
+
+\subsection{Packing Independent Circuits}
+\label{sec:independent-circuits}
+Packed LiteBullet requires the \(\kappa\) claims to share only the base
+field and the current vector length.  Their circuits may otherwise have
+unrelated matrices, wiring, constants, public inputs, and witnesses.
+Circuits of different sizes are padded to a common length before
+packing.
+
+\medskip \noindent
+{\bf Allocating Circuits to the Channels.}
+Each computation may occupy one or more of the \(\kappa\) channels.
+A single channel suffices for one inner-product claim, whereas a
+computation containing several inner-product checks may use several
+channels.  The \(\kappa\) channels count only occupied positions, so
+the address space of size \(2^h\) introduces no dummy claims.  When
+the channels are used only for soundness amplification, they instead
+contain copies of the same initial claim.
+
+The columns of \(\bm A\) and \(\bm B\) are formed independently from
+these claims.  In the quadratic form
+\(\bm\eta_{\bm y}^\top\bm C^\star\bm\eta_{\bm y}\), column pair
+\((r,s)\) is assigned the monomial
+\(\bm y^{\bm s^{(r)}+\bm s^{(s)}}\).  The diagonal pair \((i,i)\)
+occupies the distinct corner \(\bm y^{2\bm s^{(i)}}\), while no
+cross-column pair can occupy that corner.
+Equation~\eqref{eq:wht-interpolation} therefore isolates each parent
+claim independently.  The reciprocal \(z\)-weights place the two
+matching \(U/D\)-half products in the \(z^0\) coefficient and the
+cross-half products in the \(z\) and \(z^{-1}\) coefficients.
+Finally, \(\bm Y\) and \(\bm Z\) fold the witness columns and their
+\(U/D\) halves at the same challenge points used to define the child
+values in \eqref{eq:wht-state-update}.  The folding invariant then
+ensures that every honest child claim remains the inner product of its
+correspondingly folded witness columns.
+Consequently, batching does not require the circuits to share their
+arithmetic structure; they share only the field, dimensions, and
+folding schedule.
+
+\input{preliminary}
+
+\clearpage
+
+\section*{Acknowledgement}
+The authors acknowledge the use of a generative AI tool for grammar, spelling, and minor language editing during manuscript preparation. No scientific content in this paper was generated by AI.
+
+\bibliographystyle{splncs04}
+\bibliography{ref}
+
+\appendix
+\input{appx-def}
+\input{appx-proof}
+
+\end{document}

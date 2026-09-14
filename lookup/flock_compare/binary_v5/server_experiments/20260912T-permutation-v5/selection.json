@@ -1,0 +1,13 @@
+{
+  "utc": "2026-09-12T14:59:50Z",
+  "rule": "minimum measured mean prover_core_ms among register/reuse/combined; exact tie by name",
+  "selected": "combined",
+  "candidate_mean_core_ms": {
+    "register": 826.28795525,
+    "reuse": 607.12824475,
+    "combined": 601.990806
+  },
+  "screening_file": "screening-w1-n26-64t-attempt1.json",
+  "screening_sha256": "40f6439d38d310df6497203c8dd6ba5ba9a8321d4cb1a88f638c6cd0144522e6",
+  "executable_sha256": "57cc3e617f657fceddfdac55218c1fcae0186d804d51e8a3c75f231020a0e7df"
+}

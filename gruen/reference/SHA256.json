@@ -1,0 +1,30 @@
+[
+  {
+    "file": "hyperplonk__Cargo.toml",
+    "sha256": "098ACD42C74FEEAD6E8C14C6B24DD30AF75E82952AD7E14DFBCFE403CD828F2F"
+  },
+  {
+    "file": "hyperplonk__src__sumcheck__air__mod.rs",
+    "sha256": "17A418CED8370348F89872705F66C5F25F8589697B9F607D7DE8B1ABD52090DC"
+  },
+  {
+    "file": "hyperplonk__src__sumcheck__air__regular.rs",
+    "sha256": "0C9CB9990856895CE4FCC0DD1E815188CAFA1248499BCC02251FD85C542BE69C"
+  },
+  {
+    "file": "hyperplonk__src__sumcheck__air__univariate_skip.rs",
+    "sha256": "D292323370BE669BA00D7141F4092A860FD7102631D7040A7D562DDB50D684FA"
+  },
+  {
+    "file": "hyperplonk__src__sumcheck__mod.rs",
+    "sha256": "EA575CE4CDEDA88881C6412E82B8D48ED3AAEACDA3BDF5BC33D8968FFD55E004"
+  },
+  {
+    "file": "LICENSE-APACHE",
+    "sha256": "3708458DEE7F359AC6C9C5558023ED481BE87E5372C43EBD7F2CA7AD23C12026"
+  },
+  {
+    "file": "LICENSE-MIT",
+    "sha256": "D6543A1B0A0A51D10B5F8C389324C7DFEBA556B7F39815EFD292927BDE808700"
+  }
+]

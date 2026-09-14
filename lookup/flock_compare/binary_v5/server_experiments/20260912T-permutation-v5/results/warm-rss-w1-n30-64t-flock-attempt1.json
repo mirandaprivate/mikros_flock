@@ -1,0 +1,194 @@
+{
+  "cleanup": {
+    "batch_before_cleanup_ms": 39636.222448,
+    "batch_including_cleanup_ms": 42187.885006000004,
+    "memory_after_kib": {
+      "VmHWM": 171966744,
+      "VmRSS": 10604,
+      "VmSize": 9052516
+    },
+    "memory_before_kib": {
+      "VmHWM": 171966744,
+      "VmRSS": 39856528,
+      "VmSize": 50995592
+    },
+    "scope": "After all inputs, prepared inputs and proof objects are dropped; includes both warmup and measured work. Batch wall time also includes input generation, verification, source checks and proof output. Cleanup is excluded from per-proof core/total timers.",
+    "shared_scratch_clear_ms": 2551.472847,
+    "total_ms": 2551.473226,
+    "tree_pool_clear_ms": 0.000276,
+    "tree_pools_before": [
+      {
+        "budget_bytes": 34359738368,
+        "hits": 0,
+        "max_buffers": 32,
+        "min_buffer_bytes": 1048576,
+        "misses": 0,
+        "rejected_buffers": 0,
+        "retained_buffers": 0,
+        "retained_bytes": 0,
+        "retained_f128_buffers": 0,
+        "retained_u8_buffers": 0,
+        "returned_buffers": 0,
+        "reused_bytes": 0
+      },
+      {
+        "budget_bytes": 34359738368,
+        "hits": 0,
+        "max_buffers": 32,
+        "min_buffer_bytes": 1048576,
+        "misses": 0,
+        "rejected_buffers": 0,
+        "retained_buffers": 0,
+        "retained_bytes": 0,
+        "retained_f128_buffers": 0,
+        "retained_u8_buffers": 0,
+        "returned_buffers": 0,
+        "reused_bytes": 0
+      }
+    ]
+  },
+  "metadata": {
+    "affinity": [
+      "Cpus_allowed_list:\t0-55,72-79",
+      "Mems_allowed_list:\t0-1"
+    ],
+    "generator": "4-round balanced Feistel public permutation; SplitMix64 byte witness; full data digest bound before challenges",
+    "log_n": 30,
+    "memory_scope": "VmHWM at prover return is process-lifetime cumulative; separate one-system cold and warm processes measure RSS. Tree pool budgets apply separately; final cleanup outside proof timer is reported explicitly.",
+    "order_policy": "cyclic",
+    "runs": 1,
+    "rustc": "rustc 1.96.0-nightly (ac7f9ec7d 2026-03-20); binary: rustc; commit-hash: ac7f9ec7da74d37fd28667c86bf117a39ba5b02a; commit-date: 2026-03-20; host: x86_64-unknown-linux-gnu; release: 1.96.0-nightly; LLVM version: 22.1.0",
+    "scope": "Same public relation f[sigma[i]]=g[i]; PIOP with every source claim checked directly against inputs; no PCS/grinding. Same-message optimization, not a new batched protocol. Existing global Flock scratch pool shared by old/new Mikros and Flock; reuse and combined additionally have independent bounded tree pools.",
+    "seed": 0,
+    "start_unix_seconds": 1789225709,
+    "systems": [
+      "flock"
+    ],
+    "target_features": [
+      "aes",
+      "pclmulqdq",
+      "avx2",
+      "gfni",
+      "avx512f",
+      "avx512bw",
+      "sse4.1",
+      "vpclmulqdq"
+    ],
+    "threads": 64,
+    "warmups": 1,
+    "width": 1
+  },
+  "samples": [
+    {
+      "input_digest": "75525c104b4c86e840995ed8f0bbf8eb52d5e2101ee2cf7321a0f593415886cd",
+      "log_n": 30,
+      "memory_at_prover_end_kib": {
+        "VmHWM": 165676832,
+        "VmRSS": 77621552,
+        "VmSize": 95052704
+      },
+      "order": 0,
+      "phases": null,
+      "prepare_ms": 1044.0000830000001,
+      "proof_bytes": 16176,
+      "proof_digest": "fc15d9b3acb03c69a373a143458249c5fca0b40bfb95cbf25475a067889d5658",
+      "prover_core_ms": 13016.903145,
+      "prover_total_ms": 14060.903609,
+      "run": 0,
+      "source_check_ms": 808.265981,
+      "system": "flock",
+      "tree_pools": [
+        {
+          "budget_bytes": 34359738368,
+          "hits": 0,
+          "max_buffers": 32,
+          "min_buffer_bytes": 1048576,
+          "misses": 0,
+          "rejected_buffers": 0,
+          "retained_buffers": 0,
+          "retained_bytes": 0,
+          "retained_f128_buffers": 0,
+          "retained_u8_buffers": 0,
+          "returned_buffers": 0,
+          "reused_bytes": 0
+        },
+        {
+          "budget_bytes": 34359738368,
+          "hits": 0,
+          "max_buffers": 32,
+          "min_buffer_bytes": 1048576,
+          "misses": 0,
+          "rejected_buffers": 0,
+          "retained_buffers": 0,
+          "retained_bytes": 0,
+          "retained_f128_buffers": 0,
+          "retained_u8_buffers": 0,
+          "returned_buffers": 0,
+          "reused_bytes": 0
+        }
+      ],
+      "tree_stats": null,
+      "tuple_bits": 31,
+      "value_bits": 1,
+      "verified": true,
+      "verifier_ms": 0.779512,
+      "warmup": true
+    },
+    {
+      "input_digest": "a5f5e29ec883c9383d79d7b28ef52c626da5b31db865728ff6ed26bbdf8442ef",
+      "log_n": 30,
+      "memory_at_prover_end_kib": {
+        "VmHWM": 171966744,
+        "VmRSS": 83978296,
+        "VmSize": 95117484
+      },
+      "order": 0,
+      "phases": null,
+      "prepare_ms": 1176.7863670000002,
+      "proof_bytes": 16176,
+      "proof_digest": "46e59b224f63ef724a9a3fe088a098ffd9f4cfc4ff7a54714b73dbd6c9aa9ad7",
+      "prover_core_ms": 13106.893245,
+      "prover_total_ms": 14283.679953,
+      "run": 1,
+      "source_check_ms": 631.430874,
+      "system": "flock",
+      "tree_pools": [
+        {
+          "budget_bytes": 34359738368,
+          "hits": 0,
+          "max_buffers": 32,
+          "min_buffer_bytes": 1048576,
+          "misses": 0,
+          "rejected_buffers": 0,
+          "retained_buffers": 0,
+          "retained_bytes": 0,
+          "retained_f128_buffers": 0,
+          "retained_u8_buffers": 0,
+          "returned_buffers": 0,
+          "reused_bytes": 0
+        },
+        {
+          "budget_bytes": 34359738368,
+          "hits": 0,
+          "max_buffers": 32,
+          "min_buffer_bytes": 1048576,
+          "misses": 0,
+          "rejected_buffers": 0,
+          "retained_buffers": 0,
+          "retained_bytes": 0,
+          "retained_f128_buffers": 0,
+          "retained_u8_buffers": 0,
+          "returned_buffers": 0,
+          "reused_bytes": 0
+        }
+      ],
+      "tree_stats": null,
+      "tuple_bits": 31,
+      "value_bits": 1,
+      "verified": true,
+      "verifier_ms": 0.796255,
+      "warmup": false
+    }
+  ],
+  "schema_version": 3
+}

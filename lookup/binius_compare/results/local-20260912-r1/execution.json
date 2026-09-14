@@ -1,0 +1,204 @@
+[
+  {
+    "case": "n16-w1-1t",
+    "command": [
+      "taskset",
+      "-c",
+      "2",
+      "/mnt/c/Users/miranda/git/mikros_flock/lookup/binius_compare/target/release/mikros-binius-permutation",
+      "--logs",
+      "16",
+      "--widths",
+      "1",
+      "--runs",
+      "4",
+      "--threads",
+      "1",
+      "--out",
+      "/mnt/c/Users/miranda/git/mikros_flock/lookup/binius_compare/results/local-20260912-r1/n16-w1-1t.jsonl"
+    ],
+    "seconds": 1.5072994232177734,
+    "exit_code": 0,
+    "competing_builds": [],
+    "valid_run": true
+  },
+  {
+    "case": "n16-w8-1t",
+    "command": [
+      "taskset",
+      "-c",
+      "2",
+      "/mnt/c/Users/miranda/git/mikros_flock/lookup/binius_compare/target/release/mikros-binius-permutation",
+      "--logs",
+      "16",
+      "--widths",
+      "8",
+      "--runs",
+      "4",
+      "--threads",
+      "1",
+      "--out",
+      "/mnt/c/Users/miranda/git/mikros_flock/lookup/binius_compare/results/local-20260912-r1/n16-w8-1t.jsonl"
+    ],
+    "seconds": 1.5065534114837646,
+    "exit_code": 0,
+    "competing_builds": [],
+    "valid_run": true
+  },
+  {
+    "case": "n16-w32-1t",
+    "command": [
+      "taskset",
+      "-c",
+      "2",
+      "/mnt/c/Users/miranda/git/mikros_flock/lookup/binius_compare/target/release/mikros-binius-permutation",
+      "--logs",
+      "16",
+      "--widths",
+      "32",
+      "--runs",
+      "4",
+      "--threads",
+      "1",
+      "--out",
+      "/mnt/c/Users/miranda/git/mikros_flock/lookup/binius_compare/results/local-20260912-r1/n16-w32-1t.jsonl"
+    ],
+    "seconds": 2.0071184635162354,
+    "exit_code": 0,
+    "competing_builds": [],
+    "valid_run": true
+  },
+  {
+    "case": "n18-w1-1t",
+    "command": [
+      "taskset",
+      "-c",
+      "2",
+      "/mnt/c/Users/miranda/git/mikros_flock/lookup/binius_compare/target/release/mikros-binius-permutation",
+      "--logs",
+      "18",
+      "--widths",
+      "1",
+      "--runs",
+      "4",
+      "--threads",
+      "1",
+      "--out",
+      "/mnt/c/Users/miranda/git/mikros_flock/lookup/binius_compare/results/local-20260912-r1/n18-w1-1t.jsonl"
+    ],
+    "seconds": 3.0099217891693115,
+    "exit_code": 0,
+    "competing_builds": [],
+    "valid_run": true
+  },
+  {
+    "case": "n18-w8-1t",
+    "command": [
+      "taskset",
+      "-c",
+      "2",
+      "/mnt/c/Users/miranda/git/mikros_flock/lookup/binius_compare/target/release/mikros-binius-permutation",
+      "--logs",
+      "18",
+      "--widths",
+      "8",
+      "--runs",
+      "4",
+      "--threads",
+      "1",
+      "--out",
+      "/mnt/c/Users/miranda/git/mikros_flock/lookup/binius_compare/results/local-20260912-r1/n18-w8-1t.jsonl"
+    ],
+    "seconds": 4.016812324523926,
+    "exit_code": 0,
+    "competing_builds": [],
+    "valid_run": true
+  },
+  {
+    "case": "n18-w32-1t",
+    "command": [
+      "taskset",
+      "-c",
+      "2",
+      "/mnt/c/Users/miranda/git/mikros_flock/lookup/binius_compare/target/release/mikros-binius-permutation",
+      "--logs",
+      "18",
+      "--widths",
+      "32",
+      "--runs",
+      "4",
+      "--threads",
+      "1",
+      "--out",
+      "/mnt/c/Users/miranda/git/mikros_flock/lookup/binius_compare/results/local-20260912-r1/n18-w32-1t.jsonl"
+    ],
+    "seconds": 5.518968343734741,
+    "exit_code": 0,
+    "competing_builds": [],
+    "valid_run": true
+  },
+  {
+    "case": "n20-w1-1t",
+    "command": [
+      "taskset",
+      "-c",
+      "2",
+      "/mnt/c/Users/miranda/git/mikros_flock/lookup/binius_compare/target/release/mikros-binius-permutation",
+      "--logs",
+      "20",
+      "--widths",
+      "1",
+      "--runs",
+      "4",
+      "--threads",
+      "1",
+      "--out",
+      "/mnt/c/Users/miranda/git/mikros_flock/lookup/binius_compare/results/local-20260912-r1/n20-w1-1t.jsonl"
+    ],
+    "seconds": 9.022626876831055,
+    "exit_code": 0,
+    "competing_builds": [
+      {
+        "pid": 15772,
+        "name": "cargo"
+      },
+      {
+        "pid": 15772,
+        "name": "cargo"
+      },
+      {
+        "pid": 15772,
+        "name": "cargo"
+      },
+      {
+        "pid": 15772,
+        "name": "cargo"
+      },
+      {
+        "pid": 15783,
+        "name": "rustc"
+      },
+      {
+        "pid": 15788,
+        "name": "rustc"
+      },
+      {
+        "pid": 15772,
+        "name": "cargo"
+      },
+      {
+        "pid": 15788,
+        "name": "rustc"
+      },
+      {
+        "pid": 15772,
+        "name": "cargo"
+      },
+      {
+        "pid": 15788,
+        "name": "rustc"
+      }
+    ],
+    "valid_run": false
+  }
+]

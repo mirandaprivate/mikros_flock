@@ -1,0 +1,16 @@
+{
+  "utc": "2026-09-12T12:15:40.158263+00:00",
+  "systems": [
+    "basisreuse",
+    "pairreuse",
+    "jointreuse",
+    "flock128"
+  ],
+  "logs": [
+    30
+  ],
+  "runs": 8,
+  "profile_runs": 4,
+  "rss": true,
+  "reason": "N26 pair and joint clearly beat basis in this batch; their relative ordering differs between mean and median, so retain both finalists for an independent N30 comparison. Four systems, eight main runs give two balanced rotations; profile is a separate four-run rotation. Same executable, no source changes."
+}

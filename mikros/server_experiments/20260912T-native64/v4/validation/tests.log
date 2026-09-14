@@ -1,0 +1,7 @@
+
+running 2 tests
+test skip7_combined_interpolates_degree254_vanishing_on_all_s_nodes ... ok
+test skip7_lambda_interpolates_degree127_at_all_nodes_and_outside_points ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+

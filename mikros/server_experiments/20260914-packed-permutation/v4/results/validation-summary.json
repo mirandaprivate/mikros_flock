@@ -1,0 +1,288 @@
+{
+  "standalone": {
+    "metadata": {
+      "all_core_threads": 64,
+      "fixture": "bit-copy-xor131-random-two-cycles",
+      "fixture_ms": 1.533398,
+      "legacy_prepare_ms": 2.814685,
+      "legacy_prepared_bytes": 278528,
+      "log_n": 14,
+      "order": "alternate legacy/packed each iteration; fixed transcript per variant",
+      "packed_kappa": 8,
+      "packed_prepare_ms": 6.653664,
+      "packed_prepared_bytes": 434176,
+      "permutation_cells": 16384,
+      "record": "metadata",
+      "reps": 2,
+      "schema_version": 1,
+      "shared_public_bytes": 393216,
+      "target_features": [
+        "avx512f",
+        "avx512bw",
+        "gfni",
+        "vpclmulqdq"
+      ],
+      "threads": 64,
+      "timing_boundary": "online proof and original-source query conversion; excludes offline preparation, verification, source oracle, serialization; standalone PIOP, no PCS or grinding",
+      "tuple_width": 15,
+      "warmups": 0,
+      "witness_blake3": "2aabdf3c85393d160cc7d5740974e3cf80b8fcd3c51cc9ca8bf65c7883272601"
+    },
+    "all_original_source_checks_passed": true,
+    "legacy": {
+      "prover_ms": 1.956563,
+      "source_check_ms": 0.042994,
+      "proof_bytes": 9904,
+      "proof_blake3": "312f0e5aa3277b315ca2a722393f969c821f1ffdd17ba79f72b95d9dfabe254c",
+      "verify_ms": 0.38990400000000003,
+      "prover_range_ms": [
+        1.470343,
+        2.442783
+      ],
+      "repetitions": 2,
+      "logical_field_elements": 604,
+      "phases_ms": {
+        "coefficient_eval_ms": 0.1749035,
+        "compact_build_ms": 0.0,
+        "decode_ms": 0.0,
+        "equality_ms": 0.033931499999999996,
+        "extension_build_ms": 0.024559499999999998,
+        "fold_and_message_ms": 0.6750580000000002,
+        "folds_ms": 0.0,
+        "fused_leaf_build_ms": 0.0,
+        "layer_materialize_ms": 0.000814,
+        "layer_release_ms": 0.0023974999999999995,
+        "messages_ms": 0.639883,
+        "packed_aggregate_ms": 0.0,
+        "packed_extension_gkr_ms": 0.0,
+        "packed_projection_ms": 0.0,
+        "scratch_setup_ms": 0.013316000000000001,
+        "source_checks_ms": 0.0,
+        "source_reduction_ms": 0.25721499999999997
+      }
+    },
+    "packed": {
+      "prover_ms": 5.4058835,
+      "source_check_ms": 0.029234500000000004,
+      "proof_bytes": 10584,
+      "proof_blake3": "b008aa066de6e19b7d4dbca94255da8b818a08029abb2bff4c73579baef5ba9a",
+      "verify_ms": 0.339532,
+      "prover_range_ms": [
+        5.366197,
+        5.44557
+      ],
+      "repetitions": 2,
+      "logical_field_elements": 640,
+      "phases_ms": {
+        "coefficient_eval_ms": 0.2644325,
+        "compact_build_ms": 0.0,
+        "decode_ms": 0.0,
+        "equality_ms": 0.03109,
+        "extension_build_ms": 0.036206,
+        "fold_and_message_ms": 0.18165250000000002,
+        "folds_ms": 0.0,
+        "fused_leaf_build_ms": 0.0,
+        "layer_materialize_ms": 1.6162925,
+        "layer_release_ms": 0.004569999999999999,
+        "messages_ms": 2.769161,
+        "packed_aggregate_ms": 2.600752,
+        "packed_extension_gkr_ms": 0.31641300000000006,
+        "packed_projection_ms": 1.615572,
+        "scratch_setup_ms": 0.0093655,
+        "source_checks_ms": 0.0,
+        "source_reduction_ms": 0.29745699999999997
+      }
+    },
+    "packed_over_legacy": 2.7629488547008196,
+    "packed_speedup": 0.36193214300678145
+  },
+  "e2e": {
+    "metadata": {
+      "all_core_threads": 64,
+      "commit_layout": "same union.compact_witness and commit_lane_major as production; virtual padded PIOP claims translated by shared merged transport",
+      "committed_words": 32768,
+      "compacted_witness_blake3": "60000c5790f40d538fa10684c94ad1504212ffd372e759e5e2edbb810f750f6e",
+      "compression_kappa": 128,
+      "dense_m": 22,
+      "dense_words": 2985,
+      "fixture": "sha256-binary-tree",
+      "flock_skip": 7,
+      "gather_audit_bits": 2,
+      "gather_audit_degree": 3,
+      "log_leaves": 3,
+      "logical_bit_log": 22,
+      "native_root_u32": [
+        1829750793,
+        1243752048,
+        2431495361,
+        257169080,
+        535594008,
+        1319316701,
+        57792931,
+        3246298657
+      ],
+      "offline_circuit_ms": 1844.548058,
+      "offline_compaction_ms": 0.714414,
+      "offline_flock_sigma_tag_bytes": 4194304,
+      "offline_flock_value_bytes": 4194304,
+      "offline_mikros_coefficients_ms": 9.896172,
+      "offline_mikros_coefficients_resident_bytes": 6316032,
+      "offline_mikros_sigma_tag_bytes": 4194304,
+      "offline_packed_coefficients_ms": 16.470164999999998,
+      "offline_packed_coefficients_resident_bytes": 9437184,
+      "offline_wiring_ms": 13.529039,
+      "offline_witness_ms": 2.554984,
+      "packed_column_challenge_policy": "ceil(log2(2*kappa-2)) PoW bits on each labeled x attempt; other tail events PoW2",
+      "packed_permutation_kappa": 4,
+      "pcs_config_blake3": "3550bfc61301548320bf4067a2ac67462bb6a520922f7caad644a80aa491e52b",
+      "pcs_fold_grinding_bits": [
+        0,
+        0,
+        0
+      ],
+      "pcs_params": {
+        "log_batch_size": 6,
+        "log_inv_rate": 1,
+        "m": 22,
+        "merkle_hash": "blake3",
+        "num_lanes": 6,
+        "profile": "fast"
+      },
+      "pcs_path": "flock-production-dense-merged",
+      "pcs_policy": "unchanged embedded Fast config and OpeningGrinding",
+      "pcs_queries": [
+        244,
+        79,
+        48
+      ],
+      "pcs_query_grinding_bits": [
+        16,
+        16,
+        16
+      ],
+      "permutation": "both",
+      "piop_policy": "Boolean challenges PoW8; permutation fingerprint PoW log2(bit count), Flock native tail policy, Mikros cubic PoW2; cube table audit explicit PoW2 for degree <=3, all 8 values bound before sampling; per-event work factors, no total-128 claim",
+      "record": "metadata",
+      "reduction": "lockstep",
+      "row_log": 7,
+      "schema_version": 4,
+      "sha_compressions": 15,
+      "systems": [
+        "Flock",
+        "Mikros",
+        "MikrosPacked"
+      ],
+      "target_features": [
+        "pclmulqdq",
+        "avx2",
+        "avx512f",
+        "avx512bw",
+        "gfni",
+        "vpclmulqdq"
+      ],
+      "threads": 64,
+      "timing": "offline prepared inputs, compaction and q clones excluded; prover=commit+parallel Boolean and bit-wiring PIOPs+all gather and query conversions+Flock production merged PCS",
+      "verifier": "public data and proof only; all terminal claims authenticated",
+      "wiring_bit_log": 18,
+      "wiring_bits": 262144,
+      "wiring_grinding_scope": "Mikros permutation wrapper PoW-and-squeeze wall time only, including fingerprint; cube gather and PCS excluded from this diagnostic; Flock unmeasured=null; all grinding remains included in online prover_ms",
+      "zero_knowledge": false
+    },
+    "same_commitment": true,
+    "same_production_pcs_config": true,
+    "all_terminal_claims_authenticated": true,
+    "commitment_blake3": "cdd828df056dcf22b554b15a05258750365eef2ea98a586e5368a08b3db6d649",
+    "flock": {
+      "prover_ms": 146.16680200000002,
+      "commit_ms": 0.952682,
+      "boolean_ms": 21.604934,
+      "wiring_ms": 47.732509,
+      "parallel_piops_ms": 47.816323000000004,
+      "pcs_open_ms": 97.36938,
+      "proof_bytes": 142162,
+      "proof_blake3": "8ceef2f3920251ce19fab18c70e48c03967f2b045e7688672c9151725e2a02ca",
+      "verify_ms": 29.541368,
+      "prover_range_ms": [
+        146.16680200000002,
+        146.16680200000002
+      ],
+      "repetitions": 1,
+      "tensor_claims": 4,
+      "pcs_ring_claims": 4,
+      "pcs_inner_openings": 1,
+      "wiring_grinding_ms": null,
+      "initial_fingerprint_grinding_ms": null,
+      "wiring_compute_ms": null
+    },
+    "mikros": {
+      "prover_ms": 179.24031000000002,
+      "commit_ms": 2.290919,
+      "boolean_ms": 50.851107,
+      "wiring_ms": 22.779049,
+      "parallel_piops_ms": 50.953836,
+      "pcs_open_ms": 125.93894499999999,
+      "proof_bytes": 162506,
+      "proof_blake3": "409ded508bab7bd9ffc413d99bc7ee69c150dc2e20ca62aa8cffefaeab7bc890",
+      "verify_ms": 20.061488999999998,
+      "prover_range_ms": [
+        179.24031000000002,
+        179.24031000000002
+      ],
+      "repetitions": 1,
+      "tensor_claims": 5,
+      "pcs_ring_claims": 5,
+      "pcs_inner_openings": 1,
+      "wiring_grinding_ms": 2.1606319999999983,
+      "initial_fingerprint_grinding_ms": 1.467609,
+      "wiring_compute_ms": 20.618417
+    },
+    "mikros_packed": {
+      "prover_ms": 144.175621,
+      "commit_ms": 1.800791,
+      "boolean_ms": 22.308152,
+      "wiring_ms": 28.218674999999998,
+      "parallel_piops_ms": 28.318348,
+      "pcs_open_ms": 114.01359799999999,
+      "proof_bytes": 162618,
+      "proof_blake3": "9957d29059f5ed289fe360a750e64d761026504141317f118a30e99c8292efb0",
+      "verify_ms": 21.980828000000002,
+      "prover_range_ms": [
+        144.175621,
+        144.175621
+      ],
+      "repetitions": 1,
+      "tensor_claims": 5,
+      "pcs_ring_claims": 5,
+      "pcs_inner_openings": 1,
+      "wiring_grinding_ms": 2.1079209999999997,
+      "initial_fingerprint_grinding_ms": 1.335028,
+      "wiring_compute_ms": 26.110753999999996
+    },
+    "mikros_packed_over_mikros": 0.8043705179934134,
+    "mikros_packed_over_flock": 0.9863773375844946,
+    "mikros_over_flock": 1.2262723651845375,
+    "packed_wiring_over_legacy": 1.23879952143744,
+    "packed_wiring_compute_over_legacy": 1.2663801493587017,
+    "grinding_attribution": "Primary prover_ms includes all PoW. Wiring compute is the median of per-sample wiring_ms minus wiring_grinding_ms. Each system uses a different transcript and a fixed nonce workload across repetitions, so differences in initial fingerprint grinding are not protocol speedups. Flock grinding attribution is unavailable. Do not subtract wiring grinding from parallel E2E wall time.",
+    "negative_tests": [
+      {
+        "permutation_variant": "not_applicable",
+        "record": "negative_tests",
+        "rejected": 19,
+        "system": "flock"
+      },
+      {
+        "permutation_variant": "legacy",
+        "record": "negative_tests",
+        "rejected": 23,
+        "system": "mikros"
+      },
+      {
+        "permutation_variant": "packed",
+        "record": "negative_tests",
+        "rejected": 30,
+        "system": "mikros_packed"
+      }
+    ]
+  }
+}

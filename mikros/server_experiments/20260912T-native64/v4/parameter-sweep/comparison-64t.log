@@ -1,0 +1,15 @@
+PIOP reductions, BLAKE3 transcript, no grinding, 64 thread(s)
+Generation/digest and original-input claim checks excluded from prove/verify time.
+  warmup n=2^30 flock    : 101.684 ms
+  warmup n=2^30 flock128 : 122.585 ms
+  n=2^30 run=1 flock    : prove 142.120 ms, verify 0.350 ms, 2896 bytes
+  n=2^30 run=1 flock128 : prove 114.396 ms, verify 0.654 ms, 4912 bytes
+  n=2^30 run=2 flock128 : prove 118.518 ms, verify 0.595 ms, 4912 bytes
+  n=2^30 run=2 flock    : prove 134.357 ms, verify 0.409 ms, 2896 bytes
+  n=2^30 run=3 flock128 : prove 92.588 ms, verify 1.100 ms, 4912 bytes
+  n=2^30 run=3 flock    : prove 90.774 ms, verify 0.281 ms, 2896 bytes
+  n=2^30 run=4 flock    : prove 94.675 ms, verify 0.431 ms, 2896 bytes
+  n=2^30 run=4 flock128 : prove 126.965 ms, verify 0.498 ms, 4912 bytes
+  median n=2^30 flock    : 114.516 ms prove [90.774, 142.120], 0.380 ms verify
+  median n=2^30 flock128 : 116.457 ms prove [92.588, 126.965], 0.625 ms verify
+JSON: /home/mscong1/mikros-experiments/20260912T-native64/v4/parameter-sweep/comparison-64t.json

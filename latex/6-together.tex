@@ -1,0 +1,540 @@
+\section{Putting Everything Together}
+\label{sec:together}
+
+We combine the reductions of Section~\ref{sec:blocks} with the
+PCS of Section~\ref{sec:pcs} to prove the PLONK relation in
+Definition~\ref{def:plonk}. The choice of packing determines how
+we check gates and copy constraints. Within a single instance,
+we use packed Hadamard proofs for the gates and encode wire values
+with their positions over
+\(\Field\subset\mathbb K\subset\ExtensionField\).
+Across instances of the same circuit, we pack corresponding wires.
+The shared selectors and wiring commute with this packing, leaving
+one packed Hadamard proof for all multiplication gates in the batch.
+Sections~\ref{sec:plonk-packing} and~\ref{sec:multi-instance-packing}
+take \(\Field=\mathbb F_q\) for an odd prime \(q\).
+Section~\ref{sec:binary-packing} gives the binary-field instantiation.
+
+\subsection{Packing for a Single Instance}
+\label{sec:plonk-packing}
+
+Let \(N=m\kappa\) be the number of gates, where \(m,\kappa\)
+are powers of two and \(q=|\Field|>\kappa\).
+The circuit fixes the selectors and augmented wiring permutation
+of Definition~\ref{def:plonk}; the public statement supplies
+\(\bm{\mathsf{io}}\).
+Before receiving any challenge, the prover arranges each of
+\(\bm w_L,\bm w_R,\bm w_O\) as an \(m\times\kappa\) matrix
+and commits using Section~\ref{sec:pcs}.
+We treat \(\bm w_M\coloneqq\bm w_L\circ\bm w_R\) as a virtual
+vector whose evaluations are proved from these commitments.
+Algorithm~\ref{alg:single-instance-packing} in
+Appendix~\ref{appx:pseudocode} gives the complete protocol.
+
+\paragraph{Gate constraints.}
+We reduce the gate constraints to weighted Hadamard claims by
+evaluating the residual's multilinear extension. The verifier samples
+\(\ext{\bm x}\sample\ExtensionField^{\log_2N}\) and sets
+\(\ext{\bm\xi}=\tensorspan{\ext{\bm x}}\).
+It checks one random projection of the gate residual:
+\begin{equation}
+    \left\langle \ext{\bm\xi},
+    \bm q_L\circ\bm w_L+\bm q_R\circ\bm w_R
+    +\bm q_M\circ(\bm w_L\circ\bm w_R)
+    +\bm q_O\circ\bm w_O+\bm q_C\right\rangle=0.
+\label{eq:plonkWeight}
+\end{equation}
+The prover sends
+\(\ext c_L,\ext c_R,\ext c_M,\ext c_O,\ext c_C\);
+the verifier checks their sum and the following claims:
+\begin{align}
+    \ext c_L+\ext c_R+\ext c_M+\ext c_O+\ext c_C&=0,
+    \nonumber\\
+    \ext c_L&=\langle\ext{\bm\xi},\bm q_L\circ\bm w_L\rangle,
+    \quad
+    \ext c_R=\langle\ext{\bm\xi},\bm q_R\circ\bm w_R\rangle,
+    \quad
+    \ext c_O=\langle\ext{\bm\xi},\bm q_O\circ\bm w_O\rangle,
+    \label{eq:plonkWeightedHadamard1}\\
+    \ext c_M&=\langle\ext{\bm\xi},\bm q_M\circ\bm w_M\rangle,
+    \quad
+    \ext c_C=\langle\ext{\bm\xi},\bm q_C\rangle.
+    \label{eq:plonkWeightedHadamard2}
+\end{align}
+Each of the three products in
+Eq.~\eqref{eq:plonkWeightedHadamard1} has the form of
+Eq.~\eqref{eq:hadamard-claim}. Algorithm~\ref{alg:hadamard}
+reduces each to a selector evaluation and an evaluation of a committed
+wire vector.
+
+For \(\ext c_M\), the same reduction leaves an evaluation of
+\(\bm q_M\) and an evaluation of \(\bm w_M\). The latter is
+itself a weighted Hadamard claim on \(\bm w_L,\bm w_R\), which
+we prove with a second invocation of Algorithm~\ref{alg:hadamard}.
+The resulting queries have arbitrary column weights and tensor
+row weights, as required by Eq.~\eqref{eq:hadamard-claim} and
+Section~\ref{sec:pcs}. Including the direct evaluation of
+\(\bm q_C\), the gate argument uses five packed Hadamard proofs
+and ten packed openings: five for selectors and five for wires.
+
+\paragraph{Joint encoding of positions and permutation images.}
+To use the permutation proof for copy constraints, we encode each
+wire value together with its position. The position labels must be
+distinct even when the number of wires exceeds \(|\Field|\).
+We therefore represent each position by several base-field digits
+and pack these digits into an intermediate field \(\mathbb K\).
+
+Pad the augmented assignment to a power-of-two length
+\(L\geq3N+n_{\mathsf{io}}\), and extend \(\sigma\) by fixed points
+on the zero padding.
+Positions follow their order in
+\((\bm w_L\mathbin{\|}\bm w_R\mathbin{\|}\bm w_O
+\mathbin{\|}\bm{\mathsf{io}}\mathbin{\|}\bm0)\).
+Let \(\underline q=2^s\) be the largest power of two below \(q\),
+set \(\gamma=\lceil\log_{\underline q}L\rceil\), and define
+\(\delta_t=2^{s-t}\in\Field\) for \(t\in[s]\).
+Since \(\underline q<q\), the bit-to-field map
+\((b_1,\ldots,b_s)\mapsto\sum_{t=1}^s\delta_tb_t\)
+is injective on \(\{0,1\}^s\).
+Choose compatible fields and bases:
+\begin{equation}
+    \Field\subset\mathbb K\subset\ExtensionField,
+    \qquad [\mathbb K:\Field]=d\geq\gamma+1,
+    \qquad [\ExtensionField:\mathbb K]
+       =\kappa_{\mathbb K}=\kappa/d\geq2,
+\label{eq:together-field-tower}
+\end{equation}
+where \(d\mid\kappa\) and \(\kappa_{\mathbb K}\) is a power of two.
+Fix an \(\Field\)-basis
+\((\ext\theta_1,\ldots,\ext\theta_d)\) of \(\mathbb K\).
+Write \(i-1\) as a most-significant-bit-first string of
+\(\gamma s\) bits, with leading zeros as necessary.
+Split it into \(\gamma\) consecutive blocks of \(s\) bits,
+and let \(e_{i,j}\in\Field\) be the image of block \(j\)
+under the bit-to-field map. These radix-\(\underline q\) digits
+encode the lexicographically numbered positions injectively. Define:
+\begin{equation}
+    \ext\tau_i=\sum_{j=1}^{\gamma}e_{i,j}\ext\theta_j,
+    \qquad
+    \ext\tau_{\sigma,i}
+       =\sum_{j=1}^{\gamma}e_{\sigma(i),j}\ext\theta_j.
+\label{eq:together-wiring-encoding}
+\end{equation}
+The setup commits to the \(\gamma\) digit vectors
+\(\bm\tau_{\sigma,j}=(e_{\sigma(i),j})_{i=1}^L\in\Field^L\)
+using the \(\Field\)-based packed PCS.
+The verifier evaluates the identity labels
+\(\ext{\bm\tau}\) directly using the following proposition.
+
+\begin{proposition}[Efficient MLE evaluation of position encodings]
+\label{proposition:position-encoding-evaluation}
+Let \(L=2^\mu\), \(\underline q=2^s\), and
+\(\gamma=\lceil\mu/s\rceil\), with digit coefficients
+\(\delta_1,\ldots,\delta_s\) as above.
+For \(\ext{\bm x}\in\ExtensionField^\mu\), prepend zeros and
+split the resulting vector into \(\gamma\) blocks of length \(s\):
+\[
+    \widehat{\bm x}
+       =\bm0_{\gamma s-\mu}\mathbin{\|}\ext{\bm x}
+       =\widehat{\bm x}^{(1)}\mathbin{\|}\cdots
+          \mathbin{\|}\widehat{\bm x}^{(\gamma)}.
+\]
+Then the position-label MLE is:
+\begin{equation}
+    \left\langle\ext{\bm\tau},
+       \tensorspan{\ext{\bm x}}\right\rangle
+       =\sum_{j=1}^{\gamma}\ext\theta_j
+          \sum_{t=1}^{s}\delta_t\widehat{x}^{(j)}_t.
+\label{eq:position-encoding-evaluation}
+\end{equation}
+It can be evaluated in \(O(\log L)\) field operations.
+The same bound holds for a query given by arbitrary two-entry
+tensor factors.
+\end{proposition}
+
+The proof is deferred to
+Appendix~\ref{appx:proof-position-encoding}.
+
+\paragraph{Copy constraints.}
+Reserve the last basis coordinate for the wire value:
+\begin{equation}
+    \ext{\bm a}=\ext\theta_d\bm w+\ext{\bm\tau},
+    \qquad
+    \ext{\bm b}=\ext\theta_d\bm w+\ext{\bm\tau}_\sigma
+       \in\mathbb K^L.
+\label{eq:together-copy-operands}
+\end{equation}
+The position digits and wire value occupy linearly independent
+basis coordinates. Their joint encoding is therefore injective,
+giving:
+\begin{equation}
+    \sigma(\bm w)=\bm w
+    \quad\Longleftrightarrow\quad
+    \ext{\bm a}\stackrel{\mathsf{perm}}{=}\ext{\bm b}.
+\label{eq:together-copy-equivalence}
+\end{equation}
+We now treat \(\mathbb K\) as the base field and apply
+Algorithm~\ref{alg:permutation} with length \(L\), packing width
+\(\kappa_{\mathbb K}\), and extension field \(\ExtensionField\).
+Both operands are fixed by the existing witness and circuit
+commitments.
+
+Each terminal copy query is a linear combination of evaluations
+of the three wires, public I/O, and labels. Restricting the query to
+the aligned power-of-two wire segments preserves its packed tensor
+form. The verifier evaluates the public I/O and identity labels
+directly; the query to \(\ext{\bm b}\) additionally requires
+\(\gamma\) permuted-digit openings. All these openings use the
+\(\Field\)-based packed PCS.
+Together with the gate argument, the circuit tables contain
+\(5N+\gamma L\) base-field entries, and the online protocol uses
+\(16+\gamma\) packed openings.
+
+\paragraph{Efficiency and soundness.}
+Let \(\epsilon_{\mathsf{HP}}\) be the bound in
+Proposition~\ref{proposition:hadamard-complexity} for length \(N\),
+and let \(\epsilon_{\mathsf{GP}}^{\mathbb K}\) be the one-grand-product
+bound in Proposition~\ref{proposition:permutation-complexity}
+with parameters
+\((\mathbb K,\ExtensionField,L,L/\kappa_{\mathbb K},
+\kappa_{\mathbb K})\).
+Both bounds exclude terminal openings. Let
+\(\epsilon_{\mathsf{PCS}}\) bound the underlying PCS error for
+each adaptive evaluation claim, and let \(\epsilon_{\mathsf{bind}}\)
+bound the joint binding failure of the three witness commitments.
+For a length-\(n\) base-field vector, the packed opening error is:
+\begin{equation}
+    \epsilon_{\mathsf{open}}(n)
+       =\epsilon_{\mathsf{PCS}}
+        +\frac{1+2\log_2(n/\kappa)}{|\ExtensionField|}.
+\label{eq:together-opening-error}
+\end{equation}
+The public query contraction is checked exactly by
+Eq.~\eqref{eq:pcs-query-recurrence}, with no repetition step.
+For efficiency, use schoolbook arithmetic in compatible polynomial
+bases for the tower and the corresponding product basis for
+the \(\Field\)-based PCS.
+
+\begin{theorem}[Single-instance packing]
+\label{theorem:single-instance-packing}
+Assume the parameters above, \(m\geq\kappa\), and the PCS
+assumptions of Proposition~\ref{proposition:packed-pcs}.
+The single-instance protocol is complete, with soundness error
+at most:
+\begin{equation}
+\begin{aligned}
+    &\epsilon_{\mathsf{bind}}
+       +\frac{\log_2N}{|\ExtensionField|}
+       +5\epsilon_{\mathsf{HP}}
+       +\min\left\{1,\frac{L-1}{|\ExtensionField|}\right\}\\
+    &\qquad{}
+       +2\epsilon_{\mathsf{GP}}^{\mathbb K}
+       +16\epsilon_{\mathsf{open}}(N)
+       +\gamma\epsilon_{\mathsf{open}}(L).
+\end{aligned}
+\label{eq:together-soundness}
+\end{equation}
+With preprocessed circuit tables and packing polynomials, the
+online costs, including the packed opening reductions, are:
+\begin{equation}
+\begin{aligned}
+    \text{Prover time}\quad
+       &O\left(\kappa N+
+          \kappa(d+\gamma)L
+          +\kappa^2(\log_2L)^2\right)\bb,\\
+    \text{Verifier time}\quad
+       &O\left(\kappa^2\left[
+          (\gamma+1)\kappa(1+\log_2L)+(\log_2L)^2
+          +n_{\mathsf{io}}
+          \right]\right)\bb,\\
+    \text{Communication}\quad
+       &O\left((\gamma+1)\kappa^2+\kappa(\log_2L)^2\right),\\
+    \text{Prover space}\quad
+       &O(N+Ld).
+\end{aligned}
+\label{eq:together-single-efficiency}
+\end{equation}
+Communication and space are measured in \(\Field\)-coordinates.
+The bounds exclude circuit preprocessing and the underlying PCS.
+To obtain the total online costs, add three witness commitments
+and \(16+\gamma\) underlying openings: sixteen at vector length
+\(m\) and \(\gamma\) at vector length \(L/\kappa\), all over
+\(\ExtensionField\). Add the underlying PCS workspace to the
+space bound.
+\end{theorem}
+
+The proof is deferred to Appendix~\ref{appx:proof-single-instance}.
+
+\subsection{Packing Multiple Instances of the Same Circuit}
+\label{sec:multi-instance-packing}
+
+Packing across instances preserves every shared linear constraint:
+the same selector acts on each column, and the wiring permutation
+permutes rows in every column. We use this structure to check the
+packed gate relation directly and invoke a packed Hadamard proof
+only for the multiplication terms.
+Consider \(\kappa\) instances of an \(m\)-gate circuit, with
+\(N=m\kappa\), and arrange their wire assignments columnwise:
+\[
+    \bm W_\ell
+       =\concat{\bm w_\ell^{(1)},\ldots,\bm w_\ell^{(\kappa)}}
+       \in\Field^{m\times\kappa},
+       \qquad \ell\in\{L,R,O\}.
+\]
+Fix the basis \(\ext{\bm\beta}\) from Section~\ref{sec:pcs}.
+The prover commits to the three packed vectors; the product
+vector remains virtual:
+\begin{equation}
+    \ext{\bm w}_\ell=\bm W_\ell\ext{\bm\beta}
+       \quad(\ell\in\{L,R,O\}),
+    \qquad
+    \ext{\bm w}_M=(\bm W_L\circ\bm W_R)\ext{\bm\beta}.
+\label{eq:together-multiple-wires}
+\end{equation}
+The fixed basis makes each packing injective, and all commitments
+precede the verifier's challenges.
+Algorithm~\ref{alg:multiple-instance-packing} in
+Appendix~\ref{appx:pseudocode} gives the complete protocol.
+
+\paragraph{Gate constraints.}
+The selectors now have length \(m\) and are shared by all
+instances. Multiplying the matrix of gate residuals by
+\(\ext{\bm\beta}\) yields:
+\begin{equation}
+    \bm q_L\circ\ext{\bm w}_L
+    +\bm q_R\circ\ext{\bm w}_R
+    +\bm q_M\circ\ext{\bm w}_M
+    +\bm q_O\circ\ext{\bm w}_O
+    +\left(\sum_{j=1}^{\kappa}\ext\beta_j\right)\bm q_C
+       =\bm0_m.
+\label{eq:together-multiple-gates}
+\end{equation}
+By linear independence of the basis, this identity holds exactly
+when the gate constraints hold in all \(\kappa\) instances.
+The factor \(\sum_j\ext\beta_j\) accounts for the constant
+selector in every column.
+
+The verifier takes a random tensor projection of the length-\(m\)
+residual. A degree-three sum-check over \(\ExtensionField\)
+reduces the projected claim to five selector evaluations and four
+packed wire evaluations at a common point.
+The five selectors and
+\(\ext{\bm w}_L,\ext{\bm w}_R,\ext{\bm w}_O\)
+are opened directly using the underlying multilinear PCS.
+For the remaining evaluation, with tensor weight
+\(\ext{\bm\chi}\), the parties prove:
+\begin{equation}
+    \left\langle\ext{\bm w}_M,\ext{\bm\chi}\right\rangle
+       =\ext{\bm\chi}^{\top}
+          (\bm W_L\circ\bm W_R)\ext{\bm\beta}.
+\label{eq:together-multiple-product-opening}
+\end{equation}
+We apply Algorithm~\ref{alg:hadamard} with column weights
+\(\ext{\bm\beta}\) and row weights \(\ext{\bm\chi}\), then
+authenticate its two terminal queries with the packed opening
+protocol. This single Hadamard proof checks the multiplication
+terms for the entire batch.
+
+\paragraph{Copy constraints.}
+Here \(L\geq3m+n_{\mathsf{io}}\) is a power of two bounding
+the augmented assignment length of \emph{one} instance.
+Pack the public-I/O columns in the same basis and concatenate:
+\[
+    \ext{\bm w}
+       =\ext{\bm w}_L\mathbin{\|}\ext{\bm w}_R
+          \mathbin{\|}\ext{\bm w}_O
+          \mathbin{\|}\ext{\bm{\mathsf{io}}}\mathbin{\|}\bm0
+       \in\ExtensionField^L.
+\]
+Since the shared permutation acts on rows,
+\(\sigma(\ext{\bm w})=\ext{\bm w}\) is equivalent to the copy
+constraints in every instance.
+Use the same radix-\(\underline q\) position digits, now with
+\(\gamma=\lceil\log_{\underline q}L\rceil\leq\kappa\), and embed
+the labels directly in \(\ExtensionField\):
+\begin{equation}
+    \ext\tau_i=\sum_{j=1}^{\gamma}e_{i,j}\ext\beta_j,
+    \qquad
+    \ext\tau_{\sigma,i}
+       =\sum_{j=1}^{\gamma}e_{\sigma(i),j}\ext\beta_j.
+\label{eq:together-multiple-labels}
+\end{equation}
+The setup commits to \(\ext{\bm\tau}_\sigma\in\ExtensionField^L\)
+using the underlying PCS. The verifier evaluates the identity
+labels by Proposition~\ref{proposition:position-encoding-evaluation},
+with \(\ext\theta_j=\ext\beta_j\).
+
+The packed wire values use all \(\kappa\) basis coordinates.
+We therefore combine values and labels with a random coefficient.
+After the witness commitments are fixed, the verifier samples
+independent \(\ext y,\ext z\sample\ExtensionField\), and the
+parties prove:
+\begin{equation}
+    \prod_{i=1}^{L}
+       (\ext z+\ext w_i+\ext y\ext\tau_i)
+       =
+    \prod_{i=1}^{L}
+       (\ext z+\ext w_i+\ext y\ext\tau_{\sigma,i}).
+\label{eq:together-multiple-copy}
+\end{equation}
+This randomized fingerprint is defined entirely over
+\(\ExtensionField\).
+
+Each grand product is proved by a binary product tree directly
+over \(\ExtensionField\). At each level, a degree-three sum-check
+reduces the current weighted product claim to two child
+evaluations. A fresh random linear combination merges them into
+one evaluation of the preceding layer.
+The two trees leave one evaluation of each virtual operand.
+We authenticate these evaluations with six direct wire openings
+and one direct opening of \(\ext{\bm\tau}_\sigma\), while the
+verifier evaluates the identity labels and public I/O.
+The batch shares five length-\(m\) selector commitments and one
+length-\(L\) label commitment, all over \(\ExtensionField\).
+
+\paragraph{Efficiency and soundness.}
+Use \(\epsilon_{\mathsf{HP}}\), \(\epsilon_{\mathsf{bind}}\),
+and \(\epsilon_{\mathsf{PCS}}\) as above.
+Use \(\epsilon_{\mathsf{open}}(N)\) from
+Eq.~\eqref{eq:together-opening-error}.
+Set \(\mu=\log_2L\).
+We bound the fingerprint error in
+Eq.~\eqref{eq:together-multiple-copy} jointly over
+\(\ext y\) and \(\ext z\).
+
+\begin{theorem}[Multiple-instance packing]
+\label{theorem:multiple-instance-packing}
+Let \(m,\kappa\) be powers of two with \(m\geq\kappa\geq2\),
+\(N=m\kappa\), and \(q>\kappa\).
+Under the parameters and PCS assumptions above, the protocol for
+\(\kappa\) instances of the same circuit is complete, with
+soundness error at most:
+\begin{equation}
+\begin{aligned}
+    &\epsilon_{\mathsf{bind}}
+       +\frac{4\log_2m}{|\ExtensionField|}
+       +\epsilon_{\mathsf{HP}}
+       +\min\left\{1,\frac{L-1}{|\ExtensionField|}\right\}\\
+    &\qquad{}
+       +\frac{3\mu(\mu-1)+2\mu}{|\ExtensionField|}
+       +15\epsilon_{\mathsf{PCS}}
+       +2\epsilon_{\mathsf{open}}(N).
+\end{aligned}
+\label{eq:together-multiple-soundness}
+\end{equation}
+With preprocessed circuit tables and packing polynomials, the
+online costs under schoolbook arithmetic are:
+\begin{equation}
+\begin{aligned}
+    \text{Prover time}\quad
+       &O\left(\kappa N+
+          \kappa^2[L+(\log_2L)^2]\right)\bb,\\
+    \text{Verifier time}\quad
+       &O\left(\kappa^2\left[
+          \kappa(1+\log_2m)+(\log_2L)^2+n_{\mathsf{io}}
+          \right]\right)\bb,\\
+    \text{Communication}\quad
+       &O\left(\kappa^2+\kappa(\log_2L)^2\right),\\
+    \text{Prover space}\quad
+       &O(N+\kappa L).
+\end{aligned}
+\label{eq:together-multiple-efficiency}
+\end{equation}
+Communication and space are measured in \(\Field\)-coordinates.
+The bounds include the two packed opening reductions. To obtain
+the total online costs, add three witness commitments and
+seventeen underlying openings: sixteen at vector length \(m\)
+and one at vector length \(L\), all over \(\ExtensionField\).
+Add the underlying PCS workspace to the space bound. One-time
+circuit preprocessing is excluded.
+In particular, if \(n_{\mathsf{io}}=O(m)\) and \(L=O(m)\),
+the prover cost excluding the underlying PCS is
+\(O(\kappa N+\kappa^2(\log_2m)^2)\bb\) for the whole batch,
+or \(O(\kappa m+\kappa(\log_2m)^2)\bb\) per instance.
+\end{theorem}
+
+The proof is deferred to
+Appendix~\ref{appx:proof-multiple-instance}.
+
+Both compositions prove the constraint relation. Obtaining zero
+knowledge additionally requires compatible masking of the
+subprotocol transcripts.
+
+\subsection{Binary-Field Instantiation}
+\label{sec:binary-packing}
+
+For binary circuits, we use a small binary extension as the working
+field of the entire PIOP. By contrast, the intermediate-field
+Hadamard variant in Section~\ref{sec:hadamard} retains the
+original base-field witness and its fixed-basis commitment,
+using the intermediate field only for certificate construction.
+For power-of-two \(\kappa\), its tabulated implementation has
+\(O(N\kappa)\) online base-field cost for \(N\geq\kappa^2\), with additional
+read-only table storage.
+The working-field instantiation here supplies interpolation nodes
+and represents the witness in byte-field coordinates. Choose:
+\[
+    \mathbb F_2\subset\mathbb K=\mathbb F_{2^8}
+       \subset\ExtensionField,
+    \qquad [\mathbb K:\mathbb F_2]=8,
+    \qquad [\ExtensionField:\mathbb K]=\kappa_{\mathbb K}.
+\]
+Arithmetize the circuit over \(\mathbb K\), including constraints
+\(w^2-w=0\) for the binary wires, and define \(m,N\) for this
+arithmetization. Instantiate the building blocks, packed PCS, and
+multiple-instance composition with
+\((\Field,q,\kappa)=(\mathbb K,256,\kappa_{\mathbb K})\).
+Here \(N=m\kappa_{\mathbb K}\) counts working-field entries.
+
+\paragraph{Packing and openings.}
+Choose \(\kappa_{\mathbb K}\) distinct interpolation nodes in
+\(\mathbb K\) and represent \(\ExtensionField\) in a
+\(\mathbb K\)-basis. All coordinate matrices in
+Section~\ref{sec:pcs} use this basis. The verifier checks public
+query contractions using Eq.~\eqref{eq:pcs-query-recurrence},
+while the gate and copy challenges lie in \(\ExtensionField\).
+
+\paragraph{Position encoding.}
+Set \(s=8\), \(\underline q=256\), and
+\(\gamma=\lceil\log_{256}L\rceil\leq\kappa_{\mathbb K}\).
+Choose an \(\mathbb F_2\)-basis
+\((\delta_1,\ldots,\delta_8)\) of \(\mathbb K\) and encode each
+eight-bit position block as \(\sum_{t=1}^8\delta_tb_t\).
+These digits give injective labels in \(\ExtensionField\) through
+Eq.~\eqref{eq:together-multiple-labels}.
+The proof in Appendix~\ref{appx:proof-position-encoding} applies
+to these coefficients and gives the same MLE identity,
+Eq.~\eqref{eq:position-encoding-evaluation}.
+Thus the randomized copy argument operates in the stated tower.
+The role of \(\mathbb K\) here is to support the PIOP arithmetic.
+Using \(\mathbb F_{2^8}\) instead for the joint value-and-position
+encoding of Section~\ref{sec:plonk-packing} over \(\mathbb F_2\)
+would impose \(1+\lceil\log_2L\rceil\leq8\), or \(L\leq2^7\).
+
+\paragraph{Using a binary linear code.}
+Appendix~\ref{appx:pcs} gives the code-switching
+instantiation of the PCS. A binary generator matrix extends
+first to \(\mathbb K\) and then to \(\ExtensionField\) without
+changing its entries. The source encoding can therefore be
+computed on the eight bit-coordinate matrices over \(\mathbb F_2\),
+while the packed opening reduction uses the
+\(\ExtensionField/\mathbb K\) basis.
+Code switching supplies the terminal extension-field opening
+through a characteristic-two-compatible BaseFold
+instantiation~\cite{eurocrypt/DiamondP26}.
+
+\paragraph{Efficiency and soundness.}
+The proof of Theorem~\ref{theorem:multiple-instance-packing} uses
+field identities, injective labels, and polynomial degree bounds,
+which apply in characteristic two. With the packed PCS of
+Section~\ref{sec:pcs}, its efficiency and soundness bounds hold with
+\(q=256\) and \(\kappa=\kappa_{\mathbb K}\), subject to the
+stated field-size and packing conditions.
+Each packed opening has error at most
+\(\epsilon_{\mathsf{PCS}}+(1+2\log_2m)/|\ExtensionField|\).
+Arithmetic costs are measured in \(\mathbb K\)-operations,
+and communication and space in \(\mathbb K\)-coordinates.
+For the code-based instantiation, substitute the underlying PCS
+error and costs of the chosen Blaze construction as specified in
+Appendix~\ref{appx:pcs}. The packed-opening, gate,
+Hadamard, and copy-reduction bounds apply with the same parameters.

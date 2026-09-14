@@ -1,0 +1,45 @@
+{
+  "state": "complete",
+  "pid": 3895335,
+  "completed": [
+    {
+      "name": "rustc",
+      "exit_code": 0,
+      "timed_out": false,
+      "wall_seconds": 0.032181170070543885
+    },
+    {
+      "name": "native-cfg",
+      "exit_code": 0,
+      "timed_out": false,
+      "wall_seconds": 0.03205591603182256
+    },
+    {
+      "name": "build-tests",
+      "exit_code": 0,
+      "timed_out": false,
+      "wall_seconds": 23.751094913110137
+    },
+    {
+      "name": "list-tests",
+      "exit_code": 0,
+      "timed_out": false,
+      "wall_seconds": 0.008634783094748855
+    },
+    {
+      "name": "test-permutation-lib",
+      "exit_code": 0,
+      "timed_out": false,
+      "wall_seconds": 1.9674720019102097
+    },
+    {
+      "name": "probe",
+      "exit_code": 0,
+      "timed_out": false,
+      "wall_seconds": 0.5157531059812754
+    }
+  ],
+  "failed": [],
+  "started_utc": "2026-09-14T03:37:24Z",
+  "finished_utc": "2026-09-14T03:37:53Z"
+}

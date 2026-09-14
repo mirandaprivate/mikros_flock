@@ -1,0 +1,26 @@
+[package]
+name = "gruen-server64"
+version = "0.1.0"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+
+[workspace]
+members = ["reference"]
+
+[lib]
+name = "gruen_experiments"
+
+[dependencies]
+rayon = "1.12"
+
+[dev-dependencies]
+reference = { package = "gruen-serial-reference", path = "reference" }
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1
+
+[[bin]]
+name = "compare"
+path = "src/bin/compare.rs"

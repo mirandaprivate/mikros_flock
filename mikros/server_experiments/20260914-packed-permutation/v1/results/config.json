@@ -1,0 +1,15 @@
+{
+  "logs": "results-packed-permutation",
+  "log_n": 30,
+  "log_leaves": 14,
+  "reps": 8,
+  "e2e_reps": 6,
+  "warmups": 1,
+  "e2e_warmups": 1,
+  "cpu_affinity_spec": "0-47,48-55,72-79",
+  "toolchain": "+nightly-2026-03-21",
+  "rustflags": "-C target-cpu=native",
+  "cleared_environment_keys": [],
+  "source_manifest_sha256": "2b808eecf24c2f0fca6df20589590f8b58e0184fd6d81b56b098357298a10e53",
+  "tests_skipped": false
+}

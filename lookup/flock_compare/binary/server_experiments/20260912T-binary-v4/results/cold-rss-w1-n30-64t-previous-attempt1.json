@@ -1,0 +1,87 @@
+{
+  "metadata": {
+    "affinity": [
+      "Cpus_allowed_list:\t0-55,72-79",
+      "Mems_allowed_list:\t0-1"
+    ],
+    "generator": "4-round balanced Feistel public permutation; SplitMix64 byte witness; full data digest bound before challenges",
+    "log_n": 30,
+    "memory_scope": "VmHWM at prover return is process-lifetime cumulative; use separate cold one-system process for comparable RSS",
+    "runs": 1,
+    "rustc": "rustc 1.96.0-nightly (ac7f9ec7d 2026-03-20); binary: rustc; commit-hash: ac7f9ec7da74d37fd28667c86bf117a39ba5b02a; commit-date: 2026-03-20; host: x86_64-unknown-linux-gnu; release: 1.96.0-nightly; LLVM version: 22.1.0",
+    "scope": "Same public relation f[sigma[i]]=g[i]; PIOP with every source claim authenticated; no PCS/grinding. Same-message optimization, not a new batched protocol. Pool reuse enabled for Mikros and Flock.",
+    "seed": 1,
+    "start_unix_seconds": 1789222673,
+    "systems": [
+      "previous"
+    ],
+    "target_features": [
+      "aes",
+      "pclmulqdq",
+      "avx2",
+      "gfni",
+      "avx512f",
+      "vpclmulqdq"
+    ],
+    "threads": 64,
+    "warmups": 0,
+    "width": 1
+  },
+  "samples": [
+    {
+      "input_digest": "a5f5e29ec883c9383d79d7b28ef52c626da5b31db865728ff6ed26bbdf8442ef",
+      "log_n": 30,
+      "memory_at_prover_end_kib": {
+        "VmHWM": 52151976,
+        "VmRSS": 33303284,
+        "VmSize": 44442672
+      },
+      "order": 0,
+      "phases": {
+        "coefficient_eval_ms": 852.412815,
+        "compact_build_ms": 1780.4032670000001,
+        "decode_ms": 1713.789211,
+        "equality_ms": 29.297532000000007,
+        "extension_build_ms": 438.098727,
+        "fold_and_message_ms": 2643.016033999999,
+        "folds_ms": 0.0,
+        "fused_leaf_build_ms": 0.0,
+        "layer_materialize_ms": 0.010508,
+        "layer_release_ms": 2013.5042380000004,
+        "messages_ms": 943.882018,
+        "scratch_setup_ms": 0.027954,
+        "source_checks_ms": 121.122668
+      },
+      "prepare_ms": 1757.031856,
+      "proof_bytes": 44208,
+      "proof_digest": "25452a2d2967245058e343eb2dd2e2966282b7eb9baa79bbd1119f4aa2bd5e9d",
+      "prover_core_ms": 10537.236869,
+      "prover_total_ms": 12294.269071,
+      "run": 0,
+      "source_check_ms": 2146.968055,
+      "system": "previous",
+      "tree_stats": {
+        "left": {
+          "compact_bytes": 8589934592,
+          "extension_bytes": 8589934576,
+          "max_coefficient_bits": 128,
+          "subfield_bits": 32,
+          "switch_level": 2
+        },
+        "right": {
+          "compact_bytes": 8589934592,
+          "extension_bytes": 8589934576,
+          "max_coefficient_bits": 128,
+          "subfield_bits": 32,
+          "switch_level": 2
+        }
+      },
+      "tuple_bits": 31,
+      "value_bits": 1,
+      "verified": true,
+      "verifier_ms": 0.503259,
+      "warmup": false
+    }
+  ],
+  "schema_version": 2
+}

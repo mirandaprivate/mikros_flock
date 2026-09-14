@@ -1,0 +1,27 @@
+PIOP reductions, BLAKE3 transcript, no grinding, 64 thread(s)
+Generation/digest and original-input claim checks excluded from prove/verify time.
+  warmup n=2^30 reuse    : 112.629 ms
+  warmup n=2^30 factoredreuse: 97.273 ms
+  warmup n=2^30 flock128 : 97.892 ms
+  n=2^30 run=1 reuse    : prove 131.203 ms, verify 0.200 ms, 35800 bytes
+  n=2^30 run=1 factoredreuse: prove 88.960 ms, verify 0.131 ms, 35800 bytes
+  n=2^30 run=1 flock128 : prove 92.593 ms, verify 0.628 ms, 4912 bytes
+  n=2^30 run=2 flock128 : prove 95.632 ms, verify 0.868 ms, 4912 bytes
+  n=2^30 run=2 factoredreuse: prove 96.251 ms, verify 0.216 ms, 35800 bytes
+  n=2^30 run=2 reuse    : prove 99.425 ms, verify 0.329 ms, 35800 bytes
+  n=2^30 run=3 factoredreuse: prove 90.278 ms, verify 0.296 ms, 35800 bytes
+  n=2^30 run=3 flock128 : prove 116.641 ms, verify 0.765 ms, 4912 bytes
+  n=2^30 run=3 reuse    : prove 98.071 ms, verify 0.212 ms, 35800 bytes
+  n=2^30 run=4 reuse    : prove 121.236 ms, verify 0.251 ms, 35800 bytes
+  n=2^30 run=4 flock128 : prove 108.644 ms, verify 0.970 ms, 4912 bytes
+  n=2^30 run=4 factoredreuse: prove 110.019 ms, verify 0.295 ms, 35800 bytes
+  n=2^30 run=5 flock128 : prove 87.789 ms, verify 0.447 ms, 4912 bytes
+  n=2^30 run=5 reuse    : prove 111.112 ms, verify 0.500 ms, 35800 bytes
+  n=2^30 run=5 factoredreuse: prove 81.111 ms, verify 0.258 ms, 35800 bytes
+  n=2^30 run=6 factoredreuse: prove 89.180 ms, verify 0.225 ms, 35800 bytes
+  n=2^30 run=6 reuse    : prove 93.181 ms, verify 0.306 ms, 35800 bytes
+  n=2^30 run=6 flock128 : prove 126.713 ms, verify 0.686 ms, 4912 bytes
+  median n=2^30 reuse    : 105.268 ms prove [93.181, 131.203], 0.278 ms verify
+  median n=2^30 factoredreuse: 89.729 ms prove [81.111, 110.019], 0.241 ms verify
+  median n=2^30 flock128 : 102.138 ms prove [87.789, 126.713], 0.726 ms verify
+JSON: /home/mscong1/mikros-experiments/20260912T-native64/v4/results/comparison-64t.json

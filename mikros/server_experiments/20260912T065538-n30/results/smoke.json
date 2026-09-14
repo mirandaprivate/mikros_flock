@@ -1,0 +1,225 @@
+{
+  "schema_version": 1,
+  "metadata": {
+    "arch": "x86_64",
+    "compiled_target_features": [
+      "aes",
+      "pclmulqdq",
+      "gfni",
+      "avx2",
+      "avx512f",
+      "avx512bw",
+      "vpclmulqdq"
+    ],
+    "cpu": "Intel(R) Xeon(R) Gold 6342 CPU @ 2.80GHz",
+    "git_dirty": null,
+    "git_revision": null,
+    "git_status": null,
+    "grinding": "disabled for both; no equal-128-bit-security claim",
+    "input": "deterministic packed uniform a,b; c=a&b; same per-run triple and observed BLAKE3 input digest for all systems",
+    "logs": [
+      20
+    ],
+    "measured_setup": {
+      "isolated_table_setup_ms": null,
+      "policy": "warmup samples include first-proof setup; no setup costs subtracted from prover timing"
+    },
+    "memory": "Linux-only process VmHWM after prove and before verify/input checks; includes inputs, runtime and tables; requires --rss with one system/dimension in a fresh process; unavailable elsewhere",
+    "mikros_kernel_variants": "reference: scalar oracle; lookup: original per-row LUT; packed8: eight-row blocks; packed: selected packed blocks; both packed variants use fused binding and fused IP tail",
+    "mikros_phase_profiling": false,
+    "mikros_sources_blake3": "8b3e1454063885e319f23b7d51ef16b53619d8c33491aa488967c4f19b168956",
+    "mode": "paired_warm_timing",
+    "os": "linux",
+    "proof_digest": "BLAKE3 of bincode proof outside all timings; identical Mikros kernels must have identical digests on paired input",
+    "rayon_actual_threads": 1,
+    "repository_default_rustflags": "-C target-cpu=native",
+    "runs": 1,
+    "rustc": "rustc 1.96.0-nightly (ac7f9ec7d 2026-03-20); binary: rustc; commit-hash: ac7f9ec7da74d37fd28667c86bf117a39ba5b02a; commit-date: 2026-03-20; host: x86_64-unknown-linux-gnu; release: 1.96.0-nightly; LLVM version: 22.1.0",
+    "scope": "PIOP reductions only; no PCS commitments or openings; every returned claim checked directly against original input outside timings",
+    "systems": [
+      "lookup",
+      "packed",
+      "flock"
+    ],
+    "threads": 1,
+    "timing": "input generation, digest, challenger initialization, serialization, direct input claim checks excluded; all per-proof work inside prove included",
+    "transcript_hash": "blake3",
+    "tuning_environment": {},
+    "unix_timestamp_seconds": 1789196894,
+    "warmups_per_system_per_dimension": 1
+  },
+  "summaries": [
+    {
+      "log_n": 20,
+      "constraints": 1048576,
+      "system": "lookup",
+      "runs": 1,
+      "prover_ms": {
+        "median": 16.9971,
+        "min": 16.9971,
+        "max": 16.9971
+      },
+      "verifier_ms": {
+        "median": 0.114884,
+        "min": 0.114884,
+        "max": 0.114884
+      },
+      "input_claim_check_ms": {
+        "median": 12.956488,
+        "min": 12.956488,
+        "max": 12.956488
+      },
+      "payload_field_elements": 2216,
+      "payload_field_bytes": 35456,
+      "bincode_bytes": 35480
+    },
+    {
+      "log_n": 20,
+      "constraints": 1048576,
+      "system": "packed",
+      "runs": 1,
+      "prover_ms": {
+        "median": 9.630281,
+        "min": 9.630281,
+        "max": 9.630281
+      },
+      "verifier_ms": {
+        "median": 0.11994600000000001,
+        "min": 0.11994600000000001,
+        "max": 0.11994600000000001
+      },
+      "input_claim_check_ms": {
+        "median": 12.947971,
+        "min": 12.947971,
+        "max": 12.947971
+      },
+      "payload_field_elements": 2216,
+      "payload_field_bytes": 35456,
+      "bincode_bytes": 35480
+    },
+    {
+      "log_n": 20,
+      "constraints": 1048576,
+      "system": "flock",
+      "runs": 1,
+      "prover_ms": {
+        "median": 1.1490879999999999,
+        "min": 1.1490879999999999,
+        "max": 1.1490879999999999
+      },
+      "verifier_ms": {
+        "median": 0.20236099999999999,
+        "min": 0.20236099999999999,
+        "max": 0.20236099999999999
+      },
+      "input_claim_check_ms": {
+        "median": 8.832591,
+        "min": 8.832591,
+        "max": 8.832591
+      },
+      "payload_field_elements": 159,
+      "payload_field_bytes": 2544,
+      "bincode_bytes": 2576
+    }
+  ],
+  "warmups": [
+    {
+      "log_n": 20,
+      "system": "lookup",
+      "run": 0,
+      "order": 0,
+      "input_digest": "e68b67b6a648d49b3aca95e3a12fe3044663534a0bae5eca8920f16c3cff813a",
+      "prover_ms": 17.17195,
+      "verifier_ms": 0.116786,
+      "input_claim_check_ms": 12.978318000000002,
+      "payload_field_elements": 2216,
+      "payload_field_bytes": 35456,
+      "bincode_bytes": 35480,
+      "proof_digest": "94d9c008bfc5ce88c7c308405babf8096f930446b5b9ae9249488bab5788f605",
+      "vm_rss_before_prove_kib": null,
+      "vm_hwm_after_prove_kib": null
+    },
+    {
+      "log_n": 20,
+      "system": "packed",
+      "run": 0,
+      "order": 1,
+      "input_digest": "e68b67b6a648d49b3aca95e3a12fe3044663534a0bae5eca8920f16c3cff813a",
+      "prover_ms": 9.677777,
+      "verifier_ms": 0.114766,
+      "input_claim_check_ms": 12.934364,
+      "payload_field_elements": 2216,
+      "payload_field_bytes": 35456,
+      "bincode_bytes": 35480,
+      "proof_digest": "94d9c008bfc5ce88c7c308405babf8096f930446b5b9ae9249488bab5788f605",
+      "vm_rss_before_prove_kib": null,
+      "vm_hwm_after_prove_kib": null
+    },
+    {
+      "log_n": 20,
+      "system": "flock",
+      "run": 0,
+      "order": 2,
+      "input_digest": "e68b67b6a648d49b3aca95e3a12fe3044663534a0bae5eca8920f16c3cff813a",
+      "prover_ms": 1.391483,
+      "verifier_ms": 0.202881,
+      "input_claim_check_ms": 9.095446,
+      "payload_field_elements": 159,
+      "payload_field_bytes": 2544,
+      "bincode_bytes": 2576,
+      "proof_digest": "e5fd388e65386222a30d89ad2a892f99cc21b0872fe034d3838c06cd3a3d596f",
+      "vm_rss_before_prove_kib": null,
+      "vm_hwm_after_prove_kib": null
+    }
+  ],
+  "samples": [
+    {
+      "log_n": 20,
+      "system": "lookup",
+      "run": 1,
+      "order": 0,
+      "input_digest": "f80434d3d630b7826675ce4e040ac70321d8d3862ce1a7b56655d7e7de53ad65",
+      "prover_ms": 16.9971,
+      "verifier_ms": 0.114884,
+      "input_claim_check_ms": 12.956488,
+      "payload_field_elements": 2216,
+      "payload_field_bytes": 35456,
+      "bincode_bytes": 35480,
+      "proof_digest": "29e4fc9bc8437a43033396cc04222b0ccc90ca0d9aa4e7f85e70735363ad9907",
+      "vm_rss_before_prove_kib": null,
+      "vm_hwm_after_prove_kib": null
+    },
+    {
+      "log_n": 20,
+      "system": "packed",
+      "run": 1,
+      "order": 1,
+      "input_digest": "f80434d3d630b7826675ce4e040ac70321d8d3862ce1a7b56655d7e7de53ad65",
+      "prover_ms": 9.630281,
+      "verifier_ms": 0.11994600000000001,
+      "input_claim_check_ms": 12.947971,
+      "payload_field_elements": 2216,
+      "payload_field_bytes": 35456,
+      "bincode_bytes": 35480,
+      "proof_digest": "29e4fc9bc8437a43033396cc04222b0ccc90ca0d9aa4e7f85e70735363ad9907",
+      "vm_rss_before_prove_kib": null,
+      "vm_hwm_after_prove_kib": null
+    },
+    {
+      "log_n": 20,
+      "system": "flock",
+      "run": 1,
+      "order": 2,
+      "input_digest": "f80434d3d630b7826675ce4e040ac70321d8d3862ce1a7b56655d7e7de53ad65",
+      "prover_ms": 1.1490879999999999,
+      "verifier_ms": 0.20236099999999999,
+      "input_claim_check_ms": 8.832591,
+      "payload_field_elements": 159,
+      "payload_field_bytes": 2544,
+      "bincode_bytes": 2576,
+      "proof_digest": "3be372a270d084202bc66e008698677ccf01ad16288169592dab59fecdb20ffe",
+      "vm_rss_before_prove_kib": null,
+      "vm_hwm_after_prove_kib": null
+    }
+  ]
+}

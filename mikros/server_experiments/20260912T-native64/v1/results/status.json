@@ -1,0 +1,26 @@
+{
+  "utc": "2026-09-12T07:42:26Z",
+  "stage": "complete",
+  "threads": 64,
+  "systems": [
+    "legacy",
+    "stream",
+    "simd",
+    "native"
+  ],
+  "logs": [
+    24
+  ],
+  "measured_runs": 8,
+  "profile_runs": 3,
+  "validated_proof_records": 72,
+  "reports": [
+    "smoke.json",
+    "comparison-64t.json",
+    "profile-64t.json",
+    "rss-legacy-n24-64t.json",
+    "rss-stream-n24-64t.json",
+    "rss-simd-n24-64t.json",
+    "rss-native-n24-64t.json"
+  ]
+}

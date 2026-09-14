@@ -1,0 +1,12 @@
+{
+  "schema": "pdf_read_preflight/1",
+  "verdict": "PASS",
+  "file": "C:\\Users\\miranda\\Desktop\\paper\\packedSumcheck.pdf",
+  "sha256": "8d996b1cb32a8c2feff1b1749d53d45d32dcd889fe5f5c5767fee2d0ddbc1dbc",
+  "declared_page_count": 47,
+  "enumerated_page_count": 47,
+  "reader_page_count": 47,
+  "warnings": [],
+  "generated_at": "2026-08-01T14:17:44.439195+00:00",
+  "tool": "pdf_read_preflight/1.0.0"
+}

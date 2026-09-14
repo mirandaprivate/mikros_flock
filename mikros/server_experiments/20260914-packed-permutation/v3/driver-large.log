@@ -1,0 +1,6 @@
+{"name": "rustc", "exit_code": 0, "timed_out": false, "wall_seconds": 0.032281992956995964}
+{"name": "native-cfg", "exit_code": 0, "timed_out": false, "wall_seconds": 0.032228657975792885}
+{"name": "build-tests", "exit_code": 0, "timed_out": false, "wall_seconds": 23.40096286102198}
+{"name": "list-tests", "exit_code": 0, "timed_out": false, "wall_seconds": 0.008559356909245253}
+{"name": "test-permutation-lib", "exit_code": 0, "timed_out": false, "wall_seconds": 2.017693375935778}
+{"name": "probe", "exit_code": 0, "timed_out": false, "wall_seconds": 5.678687074920163}

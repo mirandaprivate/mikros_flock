@@ -1,0 +1,6 @@
+n=20 threads=48 run=0 previous core=25.066 total=29.466 source=2.731 ms
+n=20 threads=48 run=0 optimized core=23.533 total=27.505 source=3.059 ms
+n=20 threads=48 run=0 flock core=32.915 total=35.386 source=1.274 ms
+n=20 threads=48 run=1 previous core=24.590 total=29.508 source=3.142 ms
+n=20 threads=48 run=1 optimized core=25.408 total=30.061 source=3.447 ms
+n=20 threads=48 run=1 flock core=38.774 total=40.444 source=1.480 ms

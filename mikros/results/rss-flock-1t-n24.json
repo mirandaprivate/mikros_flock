@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "metadata": {
+    "arch": "x86_64",
+    "compiled_target_features": [
+      "aes",
+      "pclmulqdq",
+      "avx2"
+    ],
+    "cpu": "Intel(R) Core(TM) i7-8700K CPU @ 3.70GHz",
+    "git_dirty": true,
+    "git_revision": "b684b1258e4b1f202bec24afd660ace851b09e5e",
+    "git_status": "M Cargo.lock\n M Cargo.toml\n?? latex/\n?? mikros/",
+    "grinding": "disabled for both; no equal-128-bit-security claim",
+    "input": "deterministic packed uniform a,b; c=a&b; same per-run triple and observed BLAKE3 input digest for all systems",
+    "logs": [
+      24
+    ],
+    "measured_setup": {
+      "isolated_table_setup_ms": null,
+      "policy": "warmup samples include first-proof setup; no setup costs subtracted from prover timing"
+    },
+    "memory": "Linux-only process VmHWM after prove and before verify/input checks; includes inputs, runtime and tables; requires --rss with one system/dimension in a fresh process; unavailable elsewhere",
+    "mode": "fresh_process_rss_cold_proof",
+    "os": "linux",
+    "rayon_actual_threads": 1,
+    "repository_default_rustflags": "-C target-cpu=native",
+    "runs": 1,
+    "rustc": "rustc 1.96.0-nightly (ac7f9ec7d 2026-03-20); binary: rustc; commit-hash: ac7f9ec7da74d37fd28667c86bf117a39ba5b02a; commit-date: 2026-03-20; host: x86_64-unknown-linux-gnu; release: 1.96.0-nightly; LLVM version: 22.1.0",
+    "scope": "PIOP reductions only; no PCS commitments or openings; every returned claim checked directly against original input outside timings",
+    "systems": [
+      "flock"
+    ],
+    "threads": 1,
+    "timing": "input generation, digest, challenger initialization, serialization, direct input claim checks excluded; all per-proof work inside prove included",
+    "transcript_hash": "blake3",
+    "tuning_environment": {},
+    "unix_timestamp_seconds": 1789191860,
+    "warmups_per_system_per_dimension": 0
+  },
+  "summaries": [
+    {
+      "log_n": 24,
+      "constraints": 16777216,
+      "system": "flock",
+      "runs": 1,
+      "prover_ms": {
+        "median": 58.6642,
+        "min": 58.6642,
+        "max": 58.6642
+      },
+      "verifier_ms": {
+        "median": 0.1786,
+        "min": 0.1786,
+        "max": 0.1786
+      },
+      "input_claim_check_ms": {
+        "median": 45.6567,
+        "min": 45.6567,
+        "max": 45.6567
+      },
+      "payload_field_elements": 167,
+      "payload_field_bytes": 2672,
+      "bincode_bytes": 2704
+    }
+  ],
+  "warmups": [],
+  "samples": [
+    {
+      "log_n": 24,
+      "system": "flock",
+      "run": 1,
+      "order": 0,
+      "input_digest": "fd0f1b45ee82cdf45134f0795347861f1a256c43754d7754b707e2ea1ecc4f6c",
+      "prover_ms": 58.6642,
+      "verifier_ms": 0.1786,
+      "input_claim_check_ms": 45.6567,
+      "payload_field_elements": 167,
+      "payload_field_bytes": 2672,
+      "bincode_bytes": 2704,
+      "vm_rss_before_prove_kib": 8924,
+      "vm_hwm_after_prove_kib": 21280
+    }
+  ]
+}

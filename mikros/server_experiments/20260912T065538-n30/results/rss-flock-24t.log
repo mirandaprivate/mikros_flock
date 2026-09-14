@@ -1,0 +1,6 @@
+PIOP reductions, BLAKE3 transcript, no grinding, 24 thread(s)
+Generation/digest and original-input claim checks excluded from prove/verify time.
+RSS mode: one cold proof in this process, no warmup; VmHWM read before verification/input checks.
+  n=2^30 run=1 flock    : prove 87.010 ms, verify 0.223 ms, 2896 bytes
+  median n=2^30 flock    : 87.010 ms prove [87.010, 87.010], 0.223 ms verify
+JSON: /home/mscong1/mikros-experiments/20260912T065538-n30/results/rss-flock-24t.json

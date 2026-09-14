@@ -1,0 +1,76 @@
+% !TEX root = main.tex
+\begin{table}[!t]
+\centering
+\resizebox{\linewidth}{!}{
+\begin{threeparttable}
+\caption{Comparing Hash-Based Multilinear Polynomial Commitment Schemes}
+\label{table:pcs}
+\begin{tabular}
+	{>{\arraybackslash}p{2.8cm}
+	>{\centering\arraybackslash}p{3.3cm}
+	>{\centering\arraybackslash}p{4.4cm}
+	>{\centering\arraybackslash}p{4.0cm}
+	}
+	\hline
+	 & \makecell{Commitment time}
+	 & \makecell{Opening time}
+	 & \makecell{Proof size}
+	\\
+	\hline
+	Brakedown\cite{crypto/GolovnevLSTW23}
+	 & $25.5n\Field,\, 2n\hashes$
+	 & $O(n)\Field$
+	 & $O(\lambda n)\Field$
+	\\
+    \hline
+	BaseFold\cite{crypto/ZeilbergerCF24}
+	 & $O(n\log n)\Field,\, 8n \log_2 n\hashes$
+	 & $O(n)\Field$
+	 &  $\log_2^2 n \cdot \lambda  \mpath$
+	\\
+	\hline
+	Blaze(RAA)~\cite{eurocrypt/BrehmCFRRZ25}
+	 & $8n\Field_{+},\, 4n\hashes$
+	 & $O(n)\Field,\, O(n)\hashes$
+	 & $(11+ \log_2 n) \cdot \lambda\mpath$
+	\\
+	\hline
+	FRI
+	 & $4 n\log n \Field,\, 4 n \hashes$
+	 & $O(n)\Field,\, O(n)\hashes$
+	 & $O(\log n \cdot \lambda) \mpath$
+	\\
+	\hline
+    WHIR~\cite{eurocrypt/ArnonCFY25}
+	 & $2 n\log n \Field,\, 4n \hashes$
+	 & $\tilde{O}(n)\Field,\, O(n)\hashes$
+	 & $O(\log \log n \cdot \lambda) \mpath$
+     \\
+	\hline
+    TensorSwitch(RAA)
+	 & $42n\Field_{+},\, 3n \Field,\, 16n\hashes$
+	 & $6n\Field, (\lambda n)^{0.51} \hashes$
+	 & $19\log_2n \cdot \lambda \hashes$
+	\\
+	\hline
+    \hline
+    \methodname(RAA)
+	 & $8n\Field_{+}, n\log_2n\Field, \, 4n\hashes$
+	 & $(8n/log_2n)\Field_{+}, n\Field,\, (4n/log_2n)\hashes$
+	 & $(16 + O(\log\log n)) \cdot \lambda \mpath$
+	\\
+    \hline
+\end{tabular}
+\begin{tablenotes}
+	\item[Note] 
+	$\Field$ denote field elements or operations, $\hashes$ are pairing and hashing.
+	$\epsilon \ge 2$ is a constant integer.
+    For Basefold, we report the result for a code with $1/8$ rate.
+    Brakedown is instantiated with $\rho = 0.58$.
+    The RAA code in Blaze, TensorSwitch(Blaze), TensorSwitch+(Blaze), and DualSwitch(Blaze) is instantiated with rate $\rho = 1/4$.
+    For WHIR and \tensorswitchplus and \methodname,
+    we assume using reed-solomon code of rate $1/4$.
+\end{tablenotes}
+\end{threeparttable}
+}
+\end{table}

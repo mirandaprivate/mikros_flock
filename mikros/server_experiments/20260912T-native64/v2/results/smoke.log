@@ -1,0 +1,36 @@
+PIOP reductions, BLAKE3 transcript, no grinding, 64 thread(s)
+Generation/digest and original-input claim checks excluded from prove/verify time.
+  warmup n=2^20 lookup   : 5.741 ms
+  warmup n=2^20 legacy   : 2.946 ms
+  warmup n=2^20 stream   : 1.722 ms
+  warmup n=2^20 simdv1   : 2.016 ms
+  warmup n=2^20 simd     : 1.890 ms
+  warmup n=2^20 wide     : 2.058 ms
+  warmup n=2^20 fused    : 2.258 ms
+  warmup n=2^20 native   : 1.393 ms
+  warmup n=2^20 reuse    : 1.412 ms
+  warmup n=2^20 packed   : 1.593 ms
+  warmup n=2^20 flock    : 2.531 ms
+  n=2^20 run=1 lookup   : prove 6.093 ms, verify 0.130 ms, 35480 bytes
+  n=2^20 run=1 legacy   : prove 3.990 ms, verify 0.116 ms, 35480 bytes
+  n=2^20 run=1 stream   : prove 2.674 ms, verify 0.483 ms, 35480 bytes
+  n=2^20 run=1 simdv1   : prove 2.564 ms, verify 0.117 ms, 35480 bytes
+  n=2^20 run=1 simd     : prove 2.207 ms, verify 0.118 ms, 35480 bytes
+  n=2^20 run=1 wide     : prove 1.968 ms, verify 0.118 ms, 35480 bytes
+  n=2^20 run=1 fused    : prove 1.921 ms, verify 0.120 ms, 35480 bytes
+  n=2^20 run=1 native   : prove 2.196 ms, verify 0.313 ms, 35480 bytes
+  n=2^20 run=1 reuse    : prove 1.572 ms, verify 0.118 ms, 35480 bytes
+  n=2^20 run=1 packed   : prove 1.828 ms, verify 0.358 ms, 35480 bytes
+  n=2^20 run=1 flock    : prove 1.605 ms, verify 0.206 ms, 2576 bytes
+  median n=2^20 lookup   : 6.093 ms prove [6.093, 6.093], 0.130 ms verify
+  median n=2^20 legacy   : 3.990 ms prove [3.990, 3.990], 0.116 ms verify
+  median n=2^20 stream   : 2.674 ms prove [2.674, 2.674], 0.483 ms verify
+  median n=2^20 simdv1   : 2.564 ms prove [2.564, 2.564], 0.117 ms verify
+  median n=2^20 simd     : 2.207 ms prove [2.207, 2.207], 0.118 ms verify
+  median n=2^20 wide     : 1.968 ms prove [1.968, 1.968], 0.118 ms verify
+  median n=2^20 fused    : 1.921 ms prove [1.921, 1.921], 0.120 ms verify
+  median n=2^20 native   : 2.196 ms prove [2.196, 2.196], 0.313 ms verify
+  median n=2^20 reuse    : 1.572 ms prove [1.572, 1.572], 0.118 ms verify
+  median n=2^20 packed   : 1.828 ms prove [1.828, 1.828], 0.358 ms verify
+  median n=2^20 flock    : 1.605 ms prove [1.605, 1.605], 0.206 ms verify
+JSON: /home/mscong1/mikros-experiments/20260912T-native64/v2/results/smoke.json

@@ -1,0 +1,52 @@
+n=26 run=0 basisreuse: 16.008 ms, 4736 bytes (warmup)
+n=26 run=0 registerreuse: 13.932 ms, 4736 bytes (warmup)
+n=26 run=0 registerpackedreuse: 14.034 ms, 4736 bytes (warmup)
+n=26 run=0 flock128: 13.214 ms, 4752 bytes (warmup)
+n=26 run=1 registerreuse: 16.402 ms, 4736 bytes
+n=26 run=1 registerpackedreuse: 11.576 ms, 4736 bytes
+n=26 run=1 flock128: 11.082 ms, 4752 bytes
+n=26 run=1 basisreuse: 17.490 ms, 4736 bytes
+n=26 run=2 registerpackedreuse: 10.384 ms, 4736 bytes
+n=26 run=2 flock128: 11.340 ms, 4752 bytes
+n=26 run=2 basisreuse: 10.033 ms, 4736 bytes
+n=26 run=2 registerreuse: 10.715 ms, 4736 bytes
+n=26 run=3 flock128: 11.638 ms, 4752 bytes
+n=26 run=3 basisreuse: 12.678 ms, 4736 bytes
+n=26 run=3 registerreuse: 9.592 ms, 4736 bytes
+n=26 run=3 registerpackedreuse: 9.893 ms, 4736 bytes
+n=26 run=4 basisreuse: 9.994 ms, 4736 bytes
+n=26 run=4 registerreuse: 9.431 ms, 4736 bytes
+n=26 run=4 registerpackedreuse: 9.214 ms, 4736 bytes
+n=26 run=4 flock128: 11.585 ms, 4752 bytes
+n=26 run=5 registerreuse: 10.116 ms, 4736 bytes
+n=26 run=5 registerpackedreuse: 9.791 ms, 4736 bytes
+n=26 run=5 flock128: 11.724 ms, 4752 bytes
+n=26 run=5 basisreuse: 9.375 ms, 4736 bytes
+n=26 run=6 registerpackedreuse: 9.403 ms, 4736 bytes
+n=26 run=6 flock128: 11.253 ms, 4752 bytes
+n=26 run=6 basisreuse: 9.270 ms, 4736 bytes
+n=26 run=6 registerreuse: 9.376 ms, 4736 bytes
+n=26 run=7 flock128: 10.425 ms, 4752 bytes
+n=26 run=7 basisreuse: 13.167 ms, 4736 bytes
+n=26 run=7 registerreuse: 9.142 ms, 4736 bytes
+n=26 run=7 registerpackedreuse: 9.271 ms, 4736 bytes
+n=26 run=8 basisreuse: 10.264 ms, 4736 bytes
+n=26 run=8 registerreuse: 10.086 ms, 4736 bytes
+n=26 run=8 registerpackedreuse: 10.155 ms, 4736 bytes
+n=26 run=8 flock128: 11.387 ms, 4752 bytes
+n=26 run=9 registerreuse: 9.470 ms, 4736 bytes
+n=26 run=9 registerpackedreuse: 9.788 ms, 4736 bytes
+n=26 run=9 flock128: 9.724 ms, 4752 bytes
+n=26 run=9 basisreuse: 10.169 ms, 4736 bytes
+n=26 run=10 registerpackedreuse: 8.956 ms, 4736 bytes
+n=26 run=10 flock128: 11.216 ms, 4752 bytes
+n=26 run=10 basisreuse: 9.857 ms, 4736 bytes
+n=26 run=10 registerreuse: 9.667 ms, 4736 bytes
+n=26 run=11 flock128: 10.974 ms, 4752 bytes
+n=26 run=11 basisreuse: 9.145 ms, 4736 bytes
+n=26 run=11 registerreuse: 9.863 ms, 4736 bytes
+n=26 run=11 registerpackedreuse: 9.468 ms, 4736 bytes
+n=26 run=12 basisreuse: 9.363 ms, 4736 bytes
+n=26 run=12 registerreuse: 9.779 ms, 4736 bytes
+n=26 run=12 registerpackedreuse: 9.425 ms, 4736 bytes
+n=26 run=12 flock128: 10.218 ms, 4752 bytes

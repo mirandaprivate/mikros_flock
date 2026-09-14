@@ -1,0 +1,6 @@
+PIOP reductions, BLAKE3 transcript, no grinding, 64 thread(s)
+Generation/digest and original-input claim checks excluded from prove/verify time.
+RSS mode: one cold proof in this process, no warmup; VmHWM read before verification/input checks.
+  n=2^24 run=1 native   : prove 8.526 ms, verify 0.227 ms, 35608 bytes
+  median n=2^24 native   : 8.526 ms prove [8.526, 8.526], 0.227 ms verify
+JSON: /home/mscong1/mikros-experiments/20260912T-native64/v1/results/rss-native-n24-64t.json

@@ -1,0 +1,5 @@
+n=20 threads=64 run=0 previous core=27.153 total=32.328 source=3.262 ms
+n=20 threads=64 run=0 register core=23.593 total=27.903 source=3.054 ms
+n=20 threads=64 run=0 reuse core=20.543 total=25.396 source=3.005 ms
+n=20 threads=64 run=0 combined core=18.552 total=22.572 source=2.481 ms
+n=20 threads=64 run=0 flock core=36.268 total=39.440 source=1.118 ms

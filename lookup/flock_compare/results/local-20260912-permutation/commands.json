@@ -1,0 +1,795 @@
+[
+  {
+    "stage": "smoke",
+    "argv": [
+      "taskset",
+      "-c",
+      "0",
+      "/mnt/c/Users/miranda/git/mikros_flock/lookup/flock_compare/target/release/permutation-flock-compare",
+      "--logs",
+      "10",
+      "--widths",
+      "8",
+      "--runs",
+      "1",
+      "--threads",
+      "1",
+      "--out",
+      "/mnt/c/Users/miranda/git/mikros_flock/lookup/flock_compare/results/local-20260912-permutation/smoke.json"
+    ],
+    "loadavg_start": [
+      0.7734375,
+      2.80419921875,
+      3.41748046875
+    ],
+    "utc_start": "2026-09-12T08:17:48Z",
+    "competing_build_observations": [],
+    "returncode": 0,
+    "wall_seconds": 2.0077111999999033,
+    "loadavg_end": [
+      0.7734375,
+      2.80419921875,
+      3.41748046875
+    ]
+  },
+  {
+    "stage": "comparison-1t",
+    "argv": [
+      "taskset",
+      "-c",
+      "0",
+      "/mnt/c/Users/miranda/git/mikros_flock/lookup/flock_compare/target/release/permutation-flock-compare",
+      "--logs",
+      "12,16,20",
+      "--widths",
+      "1,8,32",
+      "--runs",
+      "6",
+      "--threads",
+      "1",
+      "--out",
+      "/mnt/c/Users/miranda/git/mikros_flock/lookup/flock_compare/results/local-20260912-permutation/comparison-1t.json"
+    ],
+    "loadavg_start": [
+      0.6015625,
+      2.666015625,
+      3.36181640625
+    ],
+    "utc_start": "2026-09-12T08:18:05Z",
+    "competing_build_observations": [
+      {
+        "elapsed_seconds": 36.053203600000415,
+        "processes": [
+          {
+            "pid": 4198,
+            "comm": "cargo"
+          }
+        ]
+      },
+      {
+        "elapsed_seconds": 38.0558635999987,
+        "processes": [
+          {
+            "pid": 4198,
+            "comm": "cargo"
+          },
+          {
+            "pid": 4305,
+            "comm": "rustc"
+          },
+          {
+            "pid": 4307,
+            "comm": "rustc"
+          }
+        ]
+      },
+      {
+        "elapsed_seconds": 40.058538899997075,
+        "processes": [
+          {
+            "pid": 4198,
+            "comm": "cargo"
+          },
+          {
+            "pid": 4305,
+            "comm": "rustc"
+          },
+          {
+            "pid": 4307,
+            "comm": "rustc"
+          }
+        ]
+      },
+      {
+        "elapsed_seconds": 42.061467500003346,
+        "processes": [
+          {
+            "pid": 4198,
+            "comm": "cargo"
+          },
+          {
+            "pid": 4305,
+            "comm": "rustc"
+          },
+          {
+            "pid": 4379,
+            "comm": "rustc"
+          }
+        ]
+      },
+      {
+        "elapsed_seconds": 44.064051300003484,
+        "processes": [
+          {
+            "pid": 4198,
+            "comm": "cargo"
+          },
+          {
+            "pid": 4391,
+            "comm": "rustc"
+          },
+          {
+            "pid": 4424,
+            "comm": "rustc"
+          }
+        ]
+      },
+      {
+        "elapsed_seconds": 46.06670920000033,
+        "processes": [
+          {
+            "pid": 4198,
+            "comm": "cargo"
+          },
+          {
+            "pid": 4424,
+            "comm": "rustc"
+          },
+          {
+            "pid": 4506,
+            "comm": "rustc"
+          }
+        ]
+      },
+      {
+        "elapsed_seconds": 48.071533200003614,
+        "processes": [
+          {
+            "pid": 4198,
+            "comm": "cargo"
+          },
+          {
+            "pid": 4581,
+            "comm": "rustc"
+          },
+          {
+            "pid": 4598,
+            "comm": "rustc"
+          }
+        ]
+      },
+      {
+        "elapsed_seconds": 50.074219100002665,
+        "processes": [
+          {
+            "pid": 4198,
+            "comm": "cargo"
+          },
+          {
+            "pid": 4679,
+            "comm": "rustc"
+          },
+          {
+            "pid": 4684,
+            "comm": "rustc"
+          }
+        ]
+      },
+      {
+        "elapsed_seconds": 52.07684619999782,
+        "processes": [
+          {
+            "pid": 4198,
+            "comm": "cargo"
+          },
+          {
+            "pid": 4784,
+            "comm": "rustc"
+          },
+          {
+            "pid": 4795,
+            "comm": "rustc"
+          }
+        ]
+      },
+      {
+        "elapsed_seconds": 54.07895750000171,
+        "processes": [
+          {
+            "pid": 4198,
+            "comm": "cargo"
+          },
+          {
+            "pid": 4784,
+            "comm": "rustc"
+          },
+          {
+            "pid": 4827,
+            "comm": "rustc"
+          }
+        ]
+      },
+      {
+        "elapsed_seconds": 56.081570200003625,
+        "processes": [
+          {
+            "pid": 4198,
+            "comm": "cargo"
+          },
+          {
+            "pid": 4942,
+            "comm": "rustc"
+          },
+          {
+            "pid": 4947,
+            "comm": "rustc"
+          }
+        ]
+      },
+      {
+        "elapsed_seconds": 58.084322700000484,
+        "processes": [
+          {
+            "pid": 4198,
+            "comm": "cargo"
+          },
+          {
+            "pid": 4991,
+            "comm": "rustc"
+          },
+          {
+            "pid": 5018,
+            "comm": "rustc"
+          },
+          {
+            "pid": 5022,
+            "comm": "rust-lld"
+          },
+          {
+            "pid": 5028,
+            "comm": "rust-lld"
+          }
+        ]
+      },
+      {
+        "elapsed_seconds": 60.0869434999986,
+        "processes": [
+          {
+            "pid": 4198,
+            "comm": "cargo"
+          },
+          {
+            "pid": 5081,
+            "comm": "rustc"
+          },
+          {
+            "pid": 5114,
+            "comm": "rustc"
+          }
+        ]
+      },
+      {
+        "elapsed_seconds": 62.089208899997175,
+        "processes": [
+          {
+            "pid": 4198,
+            "comm": "cargo"
+          },
+          {
+            "pid": 5081,
+            "comm": "rustc"
+          },
+          {
+            "pid": 5155,
+            "comm": "rustc"
+          },
+          {
+            "pid": 5169,
+            "comm": "rust-lld"
+          }
+        ]
+      },
+      {
+        "elapsed_seconds": 64.09182970000256,
+        "processes": [
+          {
+            "pid": 4198,
+            "comm": "cargo"
+          },
+          {
+            "pid": 5222,
+            "comm": "rustc"
+          },
+          {
+            "pid": 5257,
+            "comm": "rustc"
+          }
+        ]
+      },
+      {
+        "elapsed_seconds": 66.09446520000347,
+        "processes": [
+          {
+            "pid": 4198,
+            "comm": "cargo"
+          },
+          {
+            "pid": 5222,
+            "comm": "rustc"
+          },
+          {
+            "pid": 5299,
+            "comm": "rustc"
+          }
+        ]
+      },
+      {
+        "elapsed_seconds": 68.09715510000387,
+        "processes": [
+          {
+            "pid": 4198,
+            "comm": "cargo"
+          },
+          {
+            "pid": 5222,
+            "comm": "rustc"
+          },
+          {
+            "pid": 5299,
+            "comm": "rustc"
+          },
+          {
+            "pid": 5336,
+            "comm": "rust-lld"
+          }
+        ]
+      },
+      {
+        "elapsed_seconds": 70.09885029999714,
+        "processes": [
+          {
+            "pid": 4198,
+            "comm": "cargo"
+          },
+          {
+            "pid": 5222,
+            "comm": "rustc"
+          },
+          {
+            "pid": 5399,
+            "comm": "rustc"
+          }
+        ]
+      },
+      {
+        "elapsed_seconds": 72.10142759999871,
+        "processes": [
+          {
+            "pid": 4198,
+            "comm": "cargo"
+          },
+          {
+            "pid": 5427,
+            "comm": "rustc"
+          },
+          {
+            "pid": 5432,
+            "comm": "rustc"
+          }
+        ]
+      },
+      {
+        "elapsed_seconds": 74.10401750000165,
+        "processes": [
+          {
+            "pid": 4198,
+            "comm": "cargo"
+          },
+          {
+            "pid": 5526,
+            "comm": "rustc"
+          },
+          {
+            "pid": 5541,
+            "comm": "rustc"
+          }
+        ]
+      },
+      {
+        "elapsed_seconds": 76.10669449999841,
+        "processes": [
+          {
+            "pid": 4198,
+            "comm": "cargo"
+          },
+          {
+            "pid": 5551,
+            "comm": "rustc"
+          },
+          {
+            "pid": 5554,
+            "comm": "rustc"
+          },
+          {
+            "pid": 5580,
+            "comm": "rust-lld"
+          }
+        ]
+      },
+      {
+        "elapsed_seconds": 78.10932950000279,
+        "processes": [
+          {
+            "pid": 4198,
+            "comm": "cargo"
+          },
+          {
+            "pid": 5554,
+            "comm": "rustc"
+          },
+          {
+            "pid": 5617,
+            "comm": "rustc"
+          }
+        ]
+      },
+      {
+        "elapsed_seconds": 80.11196270000073,
+        "processes": [
+          {
+            "pid": 4198,
+            "comm": "cargo"
+          },
+          {
+            "pid": 5554,
+            "comm": "rustc"
+          },
+          {
+            "pid": 5617,
+            "comm": "rustc"
+          }
+        ]
+      },
+      {
+        "elapsed_seconds": 82.11459820000164,
+        "processes": [
+          {
+            "pid": 4198,
+            "comm": "cargo"
+          },
+          {
+            "pid": 5554,
+            "comm": "rustc"
+          },
+          {
+            "pid": 5617,
+            "comm": "rustc"
+          }
+        ]
+      },
+      {
+        "elapsed_seconds": 84.11779299999762,
+        "processes": [
+          {
+            "pid": 4198,
+            "comm": "cargo"
+          },
+          {
+            "pid": 5554,
+            "comm": "rustc"
+          },
+          {
+            "pid": 5617,
+            "comm": "rustc"
+          }
+        ]
+      },
+      {
+        "elapsed_seconds": 86.12043899999844,
+        "processes": [
+          {
+            "pid": 4198,
+            "comm": "cargo"
+          },
+          {
+            "pid": 5617,
+            "comm": "rustc"
+          },
+          {
+            "pid": 5652,
+            "comm": "rustc"
+          }
+        ]
+      },
+      {
+        "elapsed_seconds": 88.1231140000018,
+        "processes": [
+          {
+            "pid": 4198,
+            "comm": "cargo"
+          },
+          {
+            "pid": 5617,
+            "comm": "rustc"
+          },
+          {
+            "pid": 5678,
+            "comm": "rustc"
+          }
+        ]
+      },
+      {
+        "elapsed_seconds": 90.12607150000258,
+        "processes": [
+          {
+            "pid": 4198,
+            "comm": "cargo"
+          },
+          {
+            "pid": 5707,
+            "comm": "rustc"
+          },
+          {
+            "pid": 5743,
+            "comm": "rustc"
+          }
+        ]
+      },
+      {
+        "elapsed_seconds": 92.12910820000252,
+        "processes": [
+          {
+            "pid": 4198,
+            "comm": "cargo"
+          },
+          {
+            "pid": 5707,
+            "comm": "rustc"
+          },
+          {
+            "pid": 5795,
+            "comm": "rustc"
+          }
+        ]
+      },
+      {
+        "elapsed_seconds": 94.13201680000202,
+        "processes": [
+          {
+            "pid": 4198,
+            "comm": "cargo"
+          },
+          {
+            "pid": 5795,
+            "comm": "rustc"
+          },
+          {
+            "pid": 5802,
+            "comm": "rustc"
+          }
+        ]
+      },
+      {
+        "elapsed_seconds": 96.13537129999895,
+        "processes": [
+          {
+            "pid": 4198,
+            "comm": "cargo"
+          },
+          {
+            "pid": 5802,
+            "comm": "rustc"
+          },
+          {
+            "pid": 5838,
+            "comm": "rustc"
+          }
+        ]
+      },
+      {
+        "elapsed_seconds": 98.1387063000002,
+        "processes": [
+          {
+            "pid": 4198,
+            "comm": "cargo"
+          },
+          {
+            "pid": 5802,
+            "comm": "rustc"
+          },
+          {
+            "pid": 5882,
+            "comm": "rustc"
+          }
+        ]
+      },
+      {
+        "elapsed_seconds": 100.14168739999877,
+        "processes": [
+          {
+            "pid": 4198,
+            "comm": "cargo"
+          },
+          {
+            "pid": 5802,
+            "comm": "rustc"
+          },
+          {
+            "pid": 5882,
+            "comm": "rustc"
+          }
+        ]
+      },
+      {
+        "elapsed_seconds": 102.14493560000119,
+        "processes": [
+          {
+            "pid": 4198,
+            "comm": "cargo"
+          },
+          {
+            "pid": 5802,
+            "comm": "rustc"
+          },
+          {
+            "pid": 5950,
+            "comm": "rustc"
+          }
+        ]
+      },
+      {
+        "elapsed_seconds": 104.14797669999825,
+        "processes": [
+          {
+            "pid": 4198,
+            "comm": "cargo"
+          },
+          {
+            "pid": 5802,
+            "comm": "rustc"
+          },
+          {
+            "pid": 5950,
+            "comm": "rustc"
+          }
+        ]
+      },
+      {
+        "elapsed_seconds": 106.15160530000139,
+        "processes": [
+          {
+            "pid": 4198,
+            "comm": "cargo"
+          },
+          {
+            "pid": 5802,
+            "comm": "rustc"
+          },
+          {
+            "pid": 5950,
+            "comm": "rustc"
+          }
+        ]
+      },
+      {
+        "elapsed_seconds": 108.1543657000002,
+        "processes": [
+          {
+            "pid": 4198,
+            "comm": "cargo"
+          },
+          {
+            "pid": 5802,
+            "comm": "rustc"
+          },
+          {
+            "pid": 5950,
+            "comm": "rustc"
+          }
+        ]
+      },
+      {
+        "elapsed_seconds": 110.15771990000212,
+        "processes": [
+          {
+            "pid": 4198,
+            "comm": "cargo"
+          },
+          {
+            "pid": 5802,
+            "comm": "rustc"
+          },
+          {
+            "pid": 5950,
+            "comm": "rustc"
+          }
+        ]
+      },
+      {
+        "elapsed_seconds": 112.1604903999978,
+        "processes": [
+          {
+            "pid": 4198,
+            "comm": "cargo"
+          },
+          {
+            "pid": 5802,
+            "comm": "rustc"
+          },
+          {
+            "pid": 5950,
+            "comm": "rustc"
+          }
+        ]
+      },
+      {
+        "elapsed_seconds": 114.1631017999971,
+        "processes": [
+          {
+            "pid": 4198,
+            "comm": "cargo"
+          },
+          {
+            "pid": 5802,
+            "comm": "rustc"
+          },
+          {
+            "pid": 5950,
+            "comm": "rustc"
+          }
+        ]
+      },
+      {
+        "elapsed_seconds": 116.16580020000401,
+        "processes": [
+          {
+            "pid": 4198,
+            "comm": "cargo"
+          },
+          {
+            "pid": 5802,
+            "comm": "rustc"
+          },
+          {
+            "pid": 5950,
+            "comm": "rustc"
+          }
+        ]
+      },
+      {
+        "elapsed_seconds": 118.1687396999987,
+        "processes": [
+          {
+            "pid": 4198,
+            "comm": "cargo"
+          },
+          {
+            "pid": 5802,
+            "comm": "rustc"
+          },
+          {
+            "pid": 5950,
+            "comm": "rustc"
+          }
+        ]
+      }
+    ],
+    "returncode": 0,
+    "wall_seconds": 120.17091739999887,
+    "loadavg_end": [
+      2.47998046875,
+      2.62451171875,
+      3.251953125
+    ]
+  }
+]

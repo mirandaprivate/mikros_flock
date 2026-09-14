@@ -1,0 +1,1609 @@
+[
+  {
+    "stage": "tests",
+    "argv": [
+      "taskset",
+      "-c",
+      "0-47,48-55,72-79",
+      "/home/mscong1/.cargo/bin/cargo",
+      "+nightly-2026-03-21",
+      "test",
+      "-p",
+      "mikros",
+      "--release",
+      "--locked",
+      "--offline"
+    ],
+    "utc_start": "2026-09-12T08:04:29Z",
+    "loadavg_start": [
+      0.06396484375,
+      0.1220703125,
+      0.31201171875
+    ],
+    "memory_start_kib": {
+      "MemTotal": 395848532,
+      "MemAvailable": 381481440,
+      "SwapTotal": 2097148,
+      "SwapFree": 1639688
+    },
+    "effective_cgroups_start": {
+      "utc": "2026-09-12T08:04:29Z",
+      "pid": 3495780,
+      "proc_self_cgroup": "0::/user.slice/user-1008.slice/session-1933.scope",
+      "available": true,
+      "mount_root": "/",
+      "mount_point": "/sys/fs/cgroup",
+      "ancestors": [
+        {
+          "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-1933.scope",
+          "cpu.stat": "usage_usec 1030982257\nuser_usec 942030571\nsystem_usec 88951685\ncore_sched.force_idle_usec 0",
+          "memory.max": "max",
+          "memory.current": "858750976",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+          "cpu.stat": "usage_usec 157347215330\nuser_usec 146330665063\nsystem_usec 11016550267\ncore_sched.force_idle_usec 0",
+          "memory.max": "max",
+          "memory.current": "9125027840",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup/user.slice",
+          "cpu.max": "max 100000",
+          "cpu.stat": "usage_usec 5340034052868\nuser_usec 4013850495636\nsystem_usec 1326183557231\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+          "memory.max": "max",
+          "memory.current": "159854784512",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup",
+          "cpu.stat": "usage_usec 5400114505000\nuser_usec 4042859373000\nsystem_usec 1357255132000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+          "cpuset.cpus.effective": "0-95",
+          "cpuset.mems.effective": "0-1"
+        }
+      ]
+    },
+    "environment_overrides": {},
+    "pid": 3495783,
+    "returncode": 0,
+    "wall_seconds": 26.137112752068788,
+    "utc_end": "2026-09-12T08:04:55Z",
+    "loadavg_end": [
+      0.5205078125,
+      0.2255859375,
+      0.34228515625
+    ],
+    "memory_end_kib": {
+      "MemTotal": 395848532,
+      "MemAvailable": 380422208,
+      "SwapTotal": 2097148,
+      "SwapFree": 1639688
+    },
+    "effective_cgroups_end": {
+      "utc": "2026-09-12T08:04:55Z",
+      "pid": 3495780,
+      "proc_self_cgroup": "0::/user.slice/user-1008.slice/session-1933.scope",
+      "available": true,
+      "mount_root": "/",
+      "mount_point": "/sys/fs/cgroup",
+      "ancestors": [
+        {
+          "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-1933.scope",
+          "cpu.stat": "usage_usec 1152858935\nuser_usec 1057248145\nsystem_usec 95610790\ncore_sched.force_idle_usec 0",
+          "memory.max": "max",
+          "memory.current": "1022550016",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+          "cpu.stat": "usage_usec 157469132097\nuser_usec 146445894561\nsystem_usec 11023237536\ncore_sched.force_idle_usec 0",
+          "memory.max": "max",
+          "memory.current": "9288392704",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup/user.slice",
+          "cpu.max": "max 100000",
+          "cpu.stat": "usage_usec 5340156171972\nuser_usec 4013965865435\nsystem_usec 1326190306537\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+          "memory.max": "max",
+          "memory.current": "160022515712",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup",
+          "cpu.stat": "usage_usec 5400242936000\nuser_usec 4042979917000\nsystem_usec 1357263019000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+          "cpuset.cpus.effective": "0-95",
+          "cpuset.mems.effective": "0-1"
+        }
+      ]
+    }
+  },
+  {
+    "stage": "build",
+    "argv": [
+      "taskset",
+      "-c",
+      "0-47,48-55,72-79",
+      "/home/mscong1/.cargo/bin/cargo",
+      "+nightly-2026-03-21",
+      "bench",
+      "-p",
+      "mikros",
+      "--bench",
+      "hadamard_vs_flock",
+      "--no-run",
+      "--locked",
+      "--offline",
+      "--message-format=json"
+    ],
+    "utc_start": "2026-09-12T08:04:55Z",
+    "loadavg_start": [
+      0.5205078125,
+      0.2255859375,
+      0.34228515625
+    ],
+    "memory_start_kib": {
+      "MemTotal": 395848532,
+      "MemAvailable": 380422208,
+      "SwapTotal": 2097148,
+      "SwapFree": 1639688
+    },
+    "effective_cgroups_start": {
+      "utc": "2026-09-12T08:04:55Z",
+      "pid": 3495780,
+      "proc_self_cgroup": "0::/user.slice/user-1008.slice/session-1933.scope",
+      "available": true,
+      "mount_root": "/",
+      "mount_point": "/sys/fs/cgroup",
+      "ancestors": [
+        {
+          "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-1933.scope",
+          "cpu.stat": "usage_usec 1152860934\nuser_usec 1057249144\nsystem_usec 95611790\ncore_sched.force_idle_usec 0",
+          "memory.max": "max",
+          "memory.current": "1022799872",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+          "cpu.stat": "usage_usec 157469134096\nuser_usec 146445895558\nsystem_usec 11023238537\ncore_sched.force_idle_usec 0",
+          "memory.max": "max",
+          "memory.current": "9288642560",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup/user.slice",
+          "cpu.max": "max 100000",
+          "cpu.stat": "usage_usec 5340156173964\nuser_usec 4013965867427\nsystem_usec 1326190306537\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+          "memory.max": "max",
+          "memory.current": "160022765568",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup",
+          "cpu.stat": "usage_usec 5400242939000\nuser_usec 4042979919000\nsystem_usec 1357263020000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+          "cpuset.cpus.effective": "0-95",
+          "cpuset.mems.effective": "0-1"
+        }
+      ]
+    },
+    "environment_overrides": {},
+    "pid": 3497483,
+    "returncode": 0,
+    "wall_seconds": 45.74269308592193,
+    "utc_end": "2026-09-12T08:05:41Z",
+    "loadavg_end": [
+      1.27099609375,
+      0.4609375,
+      0.4169921875
+    ],
+    "memory_end_kib": {
+      "MemTotal": 395848532,
+      "MemAvailable": 379909964,
+      "SwapTotal": 2097148,
+      "SwapFree": 1639688
+    },
+    "effective_cgroups_end": {
+      "utc": "2026-09-12T08:05:41Z",
+      "pid": 3495780,
+      "proc_self_cgroup": "0::/user.slice/user-1008.slice/session-1933.scope",
+      "available": true,
+      "mount_root": "/",
+      "mount_point": "/sys/fs/cgroup",
+      "ancestors": [
+        {
+          "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-1933.scope",
+          "cpu.stat": "usage_usec 1235763969\nuser_usec 1134341056\nsystem_usec 101422913\ncore_sched.force_idle_usec 0",
+          "memory.max": "max",
+          "memory.current": "1275527168",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+          "cpu.stat": "usage_usec 157552147256\nuser_usec 146523014889\nsystem_usec 11029132366\ncore_sched.force_idle_usec 0",
+          "memory.max": "max",
+          "memory.current": "9541484544",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup/user.slice",
+          "cpu.max": "max 100000",
+          "cpu.stat": "usage_usec 5340239644514\nuser_usec 4014043276492\nsystem_usec 1326196368021\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+          "memory.max": "max",
+          "memory.current": "160282804224",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup",
+          "cpu.stat": "usage_usec 5400329056000\nuser_usec 4043058410000\nsystem_usec 1357270646000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+          "cpuset.cpus.effective": "0-95",
+          "cpuset.mems.effective": "0-1"
+        }
+      ]
+    }
+  },
+  {
+    "stage": "smoke",
+    "argv": [
+      "taskset",
+      "-c",
+      "0-47,48-55,72-79",
+      "/home/mscong1/mikros-experiments/20260912T-native64/v3/source/target/release/deps/hadamard_vs_flock-d08b442f28b508e0",
+      "--logs",
+      "20",
+      "--runs",
+      "1",
+      "--threads",
+      "64",
+      "--systems",
+      "lookup,legacy,stream,simdv1,simd,wide,fused,native,reuse,factored,factoredreuse,packed,flock",
+      "--output",
+      "/home/mscong1/mikros-experiments/20260912T-native64/v3/ablation/smoke.json"
+    ],
+    "utc_start": "2026-09-12T08:05:41Z",
+    "loadavg_start": [
+      1.27099609375,
+      0.4609375,
+      0.4169921875
+    ],
+    "memory_start_kib": {
+      "MemTotal": 395848532,
+      "MemAvailable": 379908816,
+      "SwapTotal": 2097148,
+      "SwapFree": 1639688
+    },
+    "effective_cgroups_start": {
+      "utc": "2026-09-12T08:05:41Z",
+      "pid": 3495780,
+      "proc_self_cgroup": "0::/user.slice/user-1008.slice/session-1933.scope",
+      "available": true,
+      "mount_root": "/",
+      "mount_point": "/sys/fs/cgroup",
+      "ancestors": [
+        {
+          "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-1933.scope",
+          "cpu.stat": "usage_usec 1235798802\nuser_usec 1134369902\nsystem_usec 101428899\ncore_sched.force_idle_usec 0",
+          "memory.max": "max",
+          "memory.current": "1275572224",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+          "cpu.stat": "usage_usec 157552183089\nuser_usec 146523043726\nsystem_usec 11029139363\ncore_sched.force_idle_usec 0",
+          "memory.max": "max",
+          "memory.current": "9541529600",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup/user.slice",
+          "cpu.max": "max 100000",
+          "cpu.stat": "usage_usec 5340239679523\nuser_usec 4014043304750\nsystem_usec 1326196374773\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+          "memory.max": "max",
+          "memory.current": "160282849280",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup",
+          "cpu.stat": "usage_usec 5400329093000\nuser_usec 4043058440000\nsystem_usec 1357270653000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+          "cpuset.cpus.effective": "0-95",
+          "cpuset.mems.effective": "0-1"
+        }
+      ]
+    },
+    "environment_overrides": {},
+    "pid": 3498548,
+    "returncode": 0,
+    "wall_seconds": 0.42494618194177747,
+    "utc_end": "2026-09-12T08:05:41Z",
+    "loadavg_end": [
+      1.27099609375,
+      0.4609375,
+      0.4169921875
+    ],
+    "memory_end_kib": {
+      "MemTotal": 395848532,
+      "MemAvailable": 379981460,
+      "SwapTotal": 2097148,
+      "SwapFree": 1639688
+    },
+    "effective_cgroups_end": {
+      "utc": "2026-09-12T08:05:41Z",
+      "pid": 3495780,
+      "proc_self_cgroup": "0::/user.slice/user-1008.slice/session-1933.scope",
+      "available": true,
+      "mount_root": "/",
+      "mount_point": "/sys/fs/cgroup",
+      "ancestors": [
+        {
+          "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-1933.scope",
+          "cpu.stat": "usage_usec 1238859189\nuser_usec 1136830019\nsystem_usec 102029169\ncore_sched.force_idle_usec 0",
+          "memory.max": "max",
+          "memory.current": "1281388544",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+          "cpu.stat": "usage_usec 157555242531\nuser_usec 146525504884\nsystem_usec 11029737647\ncore_sched.force_idle_usec 0",
+          "memory.max": "max",
+          "memory.current": "9547345920",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup/user.slice",
+          "cpu.max": "max 100000",
+          "cpu.stat": "usage_usec 5340242744086\nuser_usec 4014045744078\nsystem_usec 1326197000008\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+          "memory.max": "max",
+          "memory.current": "160288002048",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup",
+          "cpu.stat": "usage_usec 5400332043000\nuser_usec 4043060782000\nsystem_usec 1357271261000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+          "cpuset.cpus.effective": "0-95",
+          "cpuset.mems.effective": "0-1"
+        }
+      ]
+    }
+  },
+  {
+    "stage": "comparison-64t",
+    "argv": [
+      "taskset",
+      "-c",
+      "0-47,48-55,72-79",
+      "/home/mscong1/mikros-experiments/20260912T-native64/v3/source/target/release/deps/hadamard_vs_flock-d08b442f28b508e0",
+      "--logs",
+      "24",
+      "--runs",
+      "16",
+      "--threads",
+      "64",
+      "--systems",
+      "legacy,stream,simdv1,simd,wide,fused,native,factored",
+      "--output",
+      "/home/mscong1/mikros-experiments/20260912T-native64/v3/ablation/comparison-64t.json"
+    ],
+    "utc_start": "2026-09-12T08:05:41Z",
+    "loadavg_start": [
+      1.27099609375,
+      0.4609375,
+      0.4169921875
+    ],
+    "memory_start_kib": {
+      "MemTotal": 395848532,
+      "MemAvailable": 379981460,
+      "SwapTotal": 2097148,
+      "SwapFree": 1639688
+    },
+    "effective_cgroups_start": {
+      "utc": "2026-09-12T08:05:41Z",
+      "pid": 3495780,
+      "proc_self_cgroup": "0::/user.slice/user-1008.slice/session-1933.scope",
+      "available": true,
+      "mount_root": "/",
+      "mount_point": "/sys/fs/cgroup",
+      "ancestors": [
+        {
+          "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-1933.scope",
+          "cpu.stat": "usage_usec 1238866125\nuser_usec 1136833960\nsystem_usec 102032164\ncore_sched.force_idle_usec 0",
+          "memory.max": "max",
+          "memory.current": "1279561728",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+          "cpu.stat": "usage_usec 157555250467\nuser_usec 146525509820\nsystem_usec 11029740647\ncore_sched.force_idle_usec 0",
+          "memory.max": "max",
+          "memory.current": "9545519104",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup/user.slice",
+          "cpu.max": "max 100000",
+          "cpu.stat": "usage_usec 5340242751044\nuser_usec 4014045749046\nsystem_usec 1326197001997\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+          "memory.max": "max",
+          "memory.current": "160286183424",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup",
+          "cpu.stat": "usage_usec 5400332051000\nuser_usec 4043060788000\nsystem_usec 1357271263000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+          "cpuset.cpus.effective": "0-95",
+          "cpuset.mems.effective": "0-1"
+        }
+      ]
+    },
+    "environment_overrides": {},
+    "pid": 3498679,
+    "returncode": 0,
+    "wall_seconds": 29.653051264816895,
+    "utc_end": "2026-09-12T08:06:11Z",
+    "loadavg_end": [
+      1.1630859375,
+      0.51416015625,
+      0.4375
+    ],
+    "memory_end_kib": {
+      "MemTotal": 395848532,
+      "MemAvailable": 381495544,
+      "SwapTotal": 2097148,
+      "SwapFree": 1639688
+    },
+    "effective_cgroups_end": {
+      "utc": "2026-09-12T08:06:11Z",
+      "pid": 3495780,
+      "proc_self_cgroup": "0::/user.slice/user-1008.slice/session-1933.scope",
+      "available": true,
+      "mount_root": "/",
+      "mount_point": "/sys/fs/cgroup",
+      "ancestors": [
+        {
+          "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-1933.scope",
+          "cpu.stat": "usage_usec 1340754387\nuser_usec 1220727820\nsystem_usec 120026566\ncore_sched.force_idle_usec 0",
+          "memory.max": "max",
+          "memory.current": "1281552384",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+          "cpu.stat": "usage_usec 157657214161\nuser_usec 146609391748\nsystem_usec 11047822413\ncore_sched.force_idle_usec 0",
+          "memory.max": "max",
+          "memory.current": "9547481088",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup/user.slice",
+          "cpu.max": "max 100000",
+          "cpu.stat": "usage_usec 5340345087025\nuser_usec 4014129995959\nsystem_usec 1326215091066\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+          "memory.max": "max",
+          "memory.current": "160292454400",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup",
+          "cpu.stat": "usage_usec 5400436593000\nuser_usec 4043146119000\nsystem_usec 1357290474000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+          "cpuset.cpus.effective": "0-95",
+          "cpuset.mems.effective": "0-1"
+        }
+      ]
+    }
+  },
+  {
+    "stage": "profile-64t",
+    "argv": [
+      "taskset",
+      "-c",
+      "0-47,48-55,72-79",
+      "/home/mscong1/mikros-experiments/20260912T-native64/v3/source/target/release/deps/hadamard_vs_flock-d08b442f28b508e0",
+      "--logs",
+      "24",
+      "--runs",
+      "3",
+      "--threads",
+      "64",
+      "--systems",
+      "legacy,stream,simdv1,simd,wide,fused,native,factored",
+      "--output",
+      "/home/mscong1/mikros-experiments/20260912T-native64/v3/ablation/profile-64t.json",
+      "--profile"
+    ],
+    "utc_start": "2026-09-12T08:06:11Z",
+    "loadavg_start": [
+      1.1630859375,
+      0.51416015625,
+      0.4375
+    ],
+    "memory_start_kib": {
+      "MemTotal": 395848532,
+      "MemAvailable": 381510716,
+      "SwapTotal": 2097148,
+      "SwapFree": 1639688
+    },
+    "effective_cgroups_start": {
+      "utc": "2026-09-12T08:06:11Z",
+      "pid": 3495780,
+      "proc_self_cgroup": "0::/user.slice/user-1008.slice/session-1933.scope",
+      "available": true,
+      "mount_root": "/",
+      "mount_point": "/sys/fs/cgroup",
+      "ancestors": [
+        {
+          "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-1933.scope",
+          "cpu.stat": "usage_usec 1340761312\nuser_usec 1220732752\nsystem_usec 120028559\ncore_sched.force_idle_usec 0",
+          "memory.max": "max",
+          "memory.current": "1279700992",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+          "cpu.stat": "usage_usec 157657222086\nuser_usec 146609396674\nsystem_usec 11047825412\ncore_sched.force_idle_usec 0",
+          "memory.max": "max",
+          "memory.current": "9545355264",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup/user.slice",
+          "cpu.max": "max 100000",
+          "cpu.stat": "usage_usec 5340345093974\nuser_usec 4014130000920\nsystem_usec 1326215093053\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+          "memory.max": "max",
+          "memory.current": "160290070528",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup",
+          "cpu.stat": "usage_usec 5400436600000\nuser_usec 4043146124000\nsystem_usec 1357290476000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+          "cpuset.cpus.effective": "0-95",
+          "cpuset.mems.effective": "0-1"
+        }
+      ]
+    },
+    "environment_overrides": {
+      "FLOCK_ZC_TIMING": "1"
+    },
+    "pid": 3498838,
+    "returncode": 0,
+    "wall_seconds": 6.997573287924752,
+    "utc_end": "2026-09-12T08:06:18Z",
+    "loadavg_end": [
+      1.14990234375,
+      0.5224609375,
+      0.44091796875
+    ],
+    "memory_end_kib": {
+      "MemTotal": 395848532,
+      "MemAvailable": 381532936,
+      "SwapTotal": 2097148,
+      "SwapFree": 1639688
+    },
+    "effective_cgroups_end": {
+      "utc": "2026-09-12T08:06:18Z",
+      "pid": 3495780,
+      "proc_self_cgroup": "0::/user.slice/user-1008.slice/session-1933.scope",
+      "available": true,
+      "mount_root": "/",
+      "mount_point": "/sys/fs/cgroup",
+      "ancestors": [
+        {
+          "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-1933.scope",
+          "cpu.stat": "usage_usec 1363579756\nuser_usec 1239438713\nsystem_usec 124141042\ncore_sched.force_idle_usec 0",
+          "memory.max": "max",
+          "memory.current": "1280942080",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+          "cpu.stat": "usage_usec 157680077923\nuser_usec 146628105200\nsystem_usec 11051972722\ncore_sched.force_idle_usec 0",
+          "memory.max": "max",
+          "memory.current": "9546772480",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup/user.slice",
+          "cpu.max": "max 100000",
+          "cpu.stat": "usage_usec 5340368010896\nuser_usec 4014148736856\nsystem_usec 1326219274040\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+          "memory.max": "max",
+          "memory.current": "160292270080",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup",
+          "cpu.stat": "usage_usec 5400459712000\nuser_usec 4043164889000\nsystem_usec 1357294823000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+          "cpuset.cpus.effective": "0-95",
+          "cpuset.mems.effective": "0-1"
+        }
+      ]
+    }
+  },
+  {
+    "stage": "rss-legacy-n24-64t",
+    "argv": [
+      "taskset",
+      "-c",
+      "0-47,48-55,72-79",
+      "/home/mscong1/mikros-experiments/20260912T-native64/v3/source/target/release/deps/hadamard_vs_flock-d08b442f28b508e0",
+      "--logs",
+      "24",
+      "--runs",
+      "1",
+      "--threads",
+      "64",
+      "--systems",
+      "legacy",
+      "--output",
+      "/home/mscong1/mikros-experiments/20260912T-native64/v3/ablation/rss-legacy-n24-64t.json",
+      "--rss"
+    ],
+    "utc_start": "2026-09-12T08:06:18Z",
+    "loadavg_start": [
+      1.14990234375,
+      0.5224609375,
+      0.44091796875
+    ],
+    "memory_start_kib": {
+      "MemTotal": 395848532,
+      "MemAvailable": 381535456,
+      "SwapTotal": 2097148,
+      "SwapFree": 1639688
+    },
+    "effective_cgroups_start": {
+      "utc": "2026-09-12T08:06:18Z",
+      "pid": 3495780,
+      "proc_self_cgroup": "0::/user.slice/user-1008.slice/session-1933.scope",
+      "available": true,
+      "mount_root": "/",
+      "mount_point": "/sys/fs/cgroup",
+      "ancestors": [
+        {
+          "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-1933.scope",
+          "cpu.stat": "usage_usec 1363589754\nuser_usec 1239445712\nsystem_usec 124144042\ncore_sched.force_idle_usec 0",
+          "memory.max": "max",
+          "memory.current": "1280323584",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+          "cpu.stat": "usage_usec 157680087921\nuser_usec 146628112194\nsystem_usec 11051975726\ncore_sched.force_idle_usec 0",
+          "memory.max": "max",
+          "memory.current": "9546153984",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup/user.slice",
+          "cpu.max": "max 100000",
+          "cpu.stat": "usage_usec 5340368020918\nuser_usec 4014148743871\nsystem_usec 1326219277046\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+          "memory.max": "max",
+          "memory.current": "160291397632",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup",
+          "cpu.stat": "usage_usec 5400459724000\nuser_usec 4043164896000\nsystem_usec 1357294828000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+          "cpuset.cpus.effective": "0-95",
+          "cpuset.mems.effective": "0-1"
+        }
+      ]
+    },
+    "environment_overrides": {},
+    "pid": 3498974,
+    "returncode": 0,
+    "wall_seconds": 0.26964012417010963,
+    "utc_end": "2026-09-12T08:06:18Z",
+    "loadavg_end": [
+      1.1376953125,
+      0.53076171875,
+      0.4443359375
+    ],
+    "memory_end_kib": {
+      "MemTotal": 395848532,
+      "MemAvailable": 381515668,
+      "SwapTotal": 2097148,
+      "SwapFree": 1639688
+    },
+    "effective_cgroups_end": {
+      "utc": "2026-09-12T08:06:18Z",
+      "pid": 3495780,
+      "proc_self_cgroup": "0::/user.slice/user-1008.slice/session-1933.scope",
+      "available": true,
+      "mount_root": "/",
+      "mount_point": "/sys/fs/cgroup",
+      "ancestors": [
+        {
+          "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-1933.scope",
+          "cpu.stat": "usage_usec 1364297592\nuser_usec 1239965216\nsystem_usec 124332376\ncore_sched.force_idle_usec 0",
+          "memory.max": "max",
+          "memory.current": "1281585152",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+          "cpu.stat": "usage_usec 157680795786\nuser_usec 146628631754\nsystem_usec 11052164032\ncore_sched.force_idle_usec 0",
+          "memory.max": "max",
+          "memory.current": "9547419648",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup/user.slice",
+          "cpu.max": "max 100000",
+          "cpu.stat": "usage_usec 5340368730599\nuser_usec 4014149261636\nsystem_usec 1326219468962\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+          "memory.max": "max",
+          "memory.current": "160293511168",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup",
+          "cpu.stat": "usage_usec 5400460426000\nuser_usec 4043165405000\nsystem_usec 1357295021000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+          "cpuset.cpus.effective": "0-95",
+          "cpuset.mems.effective": "0-1"
+        }
+      ]
+    }
+  },
+  {
+    "stage": "rss-stream-n24-64t",
+    "argv": [
+      "taskset",
+      "-c",
+      "0-47,48-55,72-79",
+      "/home/mscong1/mikros-experiments/20260912T-native64/v3/source/target/release/deps/hadamard_vs_flock-d08b442f28b508e0",
+      "--logs",
+      "24",
+      "--runs",
+      "1",
+      "--threads",
+      "64",
+      "--systems",
+      "stream",
+      "--output",
+      "/home/mscong1/mikros-experiments/20260912T-native64/v3/ablation/rss-stream-n24-64t.json",
+      "--rss"
+    ],
+    "utc_start": "2026-09-12T08:06:18Z",
+    "loadavg_start": [
+      1.1376953125,
+      0.53076171875,
+      0.4443359375
+    ],
+    "memory_start_kib": {
+      "MemTotal": 395848532,
+      "MemAvailable": 381520204,
+      "SwapTotal": 2097148,
+      "SwapFree": 1639688
+    },
+    "effective_cgroups_start": {
+      "utc": "2026-09-12T08:06:18Z",
+      "pid": 3495780,
+      "proc_self_cgroup": "0::/user.slice/user-1008.slice/session-1933.scope",
+      "available": true,
+      "mount_root": "/",
+      "mount_point": "/sys/fs/cgroup",
+      "ancestors": [
+        {
+          "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-1933.scope",
+          "cpu.stat": "usage_usec 1364304591\nuser_usec 1239970215\nsystem_usec 124334376\ncore_sched.force_idle_usec 0",
+          "memory.max": "max",
+          "memory.current": "1281126400",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+          "cpu.stat": "usage_usec 157680803785\nuser_usec 146628637750\nsystem_usec 11052166034\ncore_sched.force_idle_usec 0",
+          "memory.max": "max",
+          "memory.current": "9546960896",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup/user.slice",
+          "cpu.max": "max 100000",
+          "cpu.stat": "usage_usec 5340368738641\nuser_usec 4014149267668\nsystem_usec 1326219470972\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+          "memory.max": "max",
+          "memory.current": "160292540416",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup",
+          "cpu.stat": "usage_usec 5400460434000\nuser_usec 4043165410000\nsystem_usec 1357295024000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+          "cpuset.cpus.effective": "0-95",
+          "cpuset.mems.effective": "0-1"
+        }
+      ]
+    },
+    "environment_overrides": {},
+    "pid": 3499105,
+    "returncode": 0,
+    "wall_seconds": 0.2584254560060799,
+    "utc_end": "2026-09-12T08:06:19Z",
+    "loadavg_end": [
+      1.1376953125,
+      0.53076171875,
+      0.4443359375
+    ],
+    "memory_end_kib": {
+      "MemTotal": 395848532,
+      "MemAvailable": 381512044,
+      "SwapTotal": 2097148,
+      "SwapFree": 1639688
+    },
+    "effective_cgroups_end": {
+      "utc": "2026-09-12T08:06:19Z",
+      "pid": 3495780,
+      "proc_self_cgroup": "0::/user.slice/user-1008.slice/session-1933.scope",
+      "available": true,
+      "mount_root": "/",
+      "mount_point": "/sys/fs/cgroup",
+      "ancestors": [
+        {
+          "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-1933.scope",
+          "cpu.stat": "usage_usec 1364946835\nuser_usec 1240397472\nsystem_usec 124549362\ncore_sched.force_idle_usec 0",
+          "memory.max": "max",
+          "memory.current": "1283133440",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+          "cpu.stat": "usage_usec 157681445050\nuser_usec 146629062754\nsystem_usec 11052382295\ncore_sched.force_idle_usec 0",
+          "memory.max": "max",
+          "memory.current": "9548967936",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup/user.slice",
+          "cpu.max": "max 100000",
+          "cpu.stat": "usage_usec 5340369380342\nuser_usec 4014149702306\nsystem_usec 1326219678035\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+          "memory.max": "max",
+          "memory.current": "160294883328",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup",
+          "cpu.stat": "usage_usec 5400461128000\nuser_usec 4043165879000\nsystem_usec 1357295249000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+          "cpuset.cpus.effective": "0-95",
+          "cpuset.mems.effective": "0-1"
+        }
+      ]
+    }
+  },
+  {
+    "stage": "rss-simdv1-n24-64t",
+    "argv": [
+      "taskset",
+      "-c",
+      "0-47,48-55,72-79",
+      "/home/mscong1/mikros-experiments/20260912T-native64/v3/source/target/release/deps/hadamard_vs_flock-d08b442f28b508e0",
+      "--logs",
+      "24",
+      "--runs",
+      "1",
+      "--threads",
+      "64",
+      "--systems",
+      "simdv1",
+      "--output",
+      "/home/mscong1/mikros-experiments/20260912T-native64/v3/ablation/rss-simdv1-n24-64t.json",
+      "--rss"
+    ],
+    "utc_start": "2026-09-12T08:06:19Z",
+    "loadavg_start": [
+      1.1376953125,
+      0.53076171875,
+      0.4443359375
+    ],
+    "memory_start_kib": {
+      "MemTotal": 395848532,
+      "MemAvailable": 381512044,
+      "SwapTotal": 2097148,
+      "SwapFree": 1639688
+    },
+    "effective_cgroups_start": {
+      "utc": "2026-09-12T08:06:19Z",
+      "pid": 3495780,
+      "proc_self_cgroup": "0::/user.slice/user-1008.slice/session-1933.scope",
+      "available": true,
+      "mount_root": "/",
+      "mount_point": "/sys/fs/cgroup",
+      "ancestors": [
+        {
+          "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-1933.scope",
+          "cpu.stat": "usage_usec 1364949836\nuser_usec 1240399473\nsystem_usec 124550362\ncore_sched.force_idle_usec 0",
+          "memory.max": "max",
+          "memory.current": "1283444736",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+          "cpu.stat": "usage_usec 157681448050\nuser_usec 146629064753\nsystem_usec 11052383296\ncore_sched.force_idle_usec 0",
+          "memory.max": "max",
+          "memory.current": "9549004800",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup/user.slice",
+          "cpu.max": "max 100000",
+          "cpu.stat": "usage_usec 5340369384375\nuser_usec 4014149704330\nsystem_usec 1326219680045\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+          "memory.max": "max",
+          "memory.current": "160294662144",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup",
+          "cpu.stat": "usage_usec 5400461131000\nuser_usec 4043165881000\nsystem_usec 1357295250000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+          "cpuset.cpus.effective": "0-95",
+          "cpuset.mems.effective": "0-1"
+        }
+      ]
+    },
+    "environment_overrides": {},
+    "pid": 3499236,
+    "returncode": 0,
+    "wall_seconds": 0.24976526200771332,
+    "utc_end": "2026-09-12T08:06:19Z",
+    "loadavg_end": [
+      1.1376953125,
+      0.53076171875,
+      0.4443359375
+    ],
+    "memory_end_kib": {
+      "MemTotal": 395848532,
+      "MemAvailable": 381518276,
+      "SwapTotal": 2097148,
+      "SwapFree": 1639688
+    },
+    "effective_cgroups_end": {
+      "utc": "2026-09-12T08:06:19Z",
+      "pid": 3495780,
+      "proc_self_cgroup": "0::/user.slice/user-1008.slice/session-1933.scope",
+      "available": true,
+      "mount_root": "/",
+      "mount_point": "/sys/fs/cgroup",
+      "ancestors": [
+        {
+          "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-1933.scope",
+          "cpu.stat": "usage_usec 1365537680\nuser_usec 1240819597\nsystem_usec 124718083\ncore_sched.force_idle_usec 0",
+          "memory.max": "max",
+          "memory.current": "1282195456",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+          "cpu.stat": "usage_usec 157682035942\nuser_usec 146629485998\nsystem_usec 11052549943\ncore_sched.force_idle_usec 0",
+          "memory.max": "max",
+          "memory.current": "9548029952",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup/user.slice",
+          "cpu.max": "max 100000",
+          "cpu.stat": "usage_usec 5340369974136\nuser_usec 4014150116214\nsystem_usec 1326219857921\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+          "memory.max": "max",
+          "memory.current": "160293990400",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup",
+          "cpu.stat": "usage_usec 5400461660000\nuser_usec 4043166245000\nsystem_usec 1357295415000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+          "cpuset.cpus.effective": "0-95",
+          "cpuset.mems.effective": "0-1"
+        }
+      ]
+    }
+  },
+  {
+    "stage": "rss-simd-n24-64t",
+    "argv": [
+      "taskset",
+      "-c",
+      "0-47,48-55,72-79",
+      "/home/mscong1/mikros-experiments/20260912T-native64/v3/source/target/release/deps/hadamard_vs_flock-d08b442f28b508e0",
+      "--logs",
+      "24",
+      "--runs",
+      "1",
+      "--threads",
+      "64",
+      "--systems",
+      "simd",
+      "--output",
+      "/home/mscong1/mikros-experiments/20260912T-native64/v3/ablation/rss-simd-n24-64t.json",
+      "--rss"
+    ],
+    "utc_start": "2026-09-12T08:06:19Z",
+    "loadavg_start": [
+      1.1376953125,
+      0.53076171875,
+      0.4443359375
+    ],
+    "memory_start_kib": {
+      "MemTotal": 395848532,
+      "MemAvailable": 381518276,
+      "SwapTotal": 2097148,
+      "SwapFree": 1639688
+    },
+    "effective_cgroups_start": {
+      "utc": "2026-09-12T08:06:19Z",
+      "pid": 3495780,
+      "proc_self_cgroup": "0::/user.slice/user-1008.slice/session-1933.scope",
+      "available": true,
+      "mount_root": "/",
+      "mount_point": "/sys/fs/cgroup",
+      "ancestors": [
+        {
+          "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-1933.scope",
+          "cpu.stat": "usage_usec 1365543681\nuser_usec 1240823598\nsystem_usec 124720083\ncore_sched.force_idle_usec 0",
+          "memory.max": "max",
+          "memory.current": "1282482176",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+          "cpu.stat": "usage_usec 157682042943\nuser_usec 146629490996\nsystem_usec 11052551946\ncore_sched.force_idle_usec 0",
+          "memory.max": "max",
+          "memory.current": "9548316672",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup/user.slice",
+          "cpu.max": "max 100000",
+          "cpu.stat": "usage_usec 5340369980145\nuser_usec 4014150120221\nsystem_usec 1326219859924\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+          "memory.max": "max",
+          "memory.current": "160294277120",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup",
+          "cpu.stat": "usage_usec 5400461668000\nuser_usec 4043166250000\nsystem_usec 1357295418000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+          "cpuset.cpus.effective": "0-95",
+          "cpuset.mems.effective": "0-1"
+        }
+      ]
+    },
+    "environment_overrides": {},
+    "pid": 3499367,
+    "returncode": 0,
+    "wall_seconds": 0.25541239813901484,
+    "utc_end": "2026-09-12T08:06:19Z",
+    "loadavg_end": [
+      1.1376953125,
+      0.53076171875,
+      0.4443359375
+    ],
+    "memory_end_kib": {
+      "MemTotal": 395848532,
+      "MemAvailable": 381497400,
+      "SwapTotal": 2097148,
+      "SwapFree": 1639688
+    },
+    "effective_cgroups_end": {
+      "utc": "2026-09-12T08:06:19Z",
+      "pid": 3495780,
+      "proc_self_cgroup": "0::/user.slice/user-1008.slice/session-1933.scope",
+      "available": true,
+      "mount_root": "/",
+      "mount_point": "/sys/fs/cgroup",
+      "ancestors": [
+        {
+          "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-1933.scope",
+          "cpu.stat": "usage_usec 1366142039\nuser_usec 1241271998\nsystem_usec 124870040\ncore_sched.force_idle_usec 0",
+          "memory.max": "max",
+          "memory.current": "1282088960",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+          "cpu.stat": "usage_usec 157682640320\nuser_usec 146629939358\nsystem_usec 11052700961\ncore_sched.force_idle_usec 0",
+          "memory.max": "max",
+          "memory.current": "9547923456",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup/user.slice",
+          "cpu.max": "max 100000",
+          "cpu.stat": "usage_usec 5340370579542\nuser_usec 4014150559845\nsystem_usec 1326220019696\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+          "memory.max": "max",
+          "memory.current": "160293691392",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup",
+          "cpu.stat": "usage_usec 5400462221000\nuser_usec 4043166650000\nsystem_usec 1357295571000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+          "cpuset.cpus.effective": "0-95",
+          "cpuset.mems.effective": "0-1"
+        }
+      ]
+    }
+  },
+  {
+    "stage": "rss-wide-n24-64t",
+    "argv": [
+      "taskset",
+      "-c",
+      "0-47,48-55,72-79",
+      "/home/mscong1/mikros-experiments/20260912T-native64/v3/source/target/release/deps/hadamard_vs_flock-d08b442f28b508e0",
+      "--logs",
+      "24",
+      "--runs",
+      "1",
+      "--threads",
+      "64",
+      "--systems",
+      "wide",
+      "--output",
+      "/home/mscong1/mikros-experiments/20260912T-native64/v3/ablation/rss-wide-n24-64t.json",
+      "--rss"
+    ],
+    "utc_start": "2026-09-12T08:06:19Z",
+    "loadavg_start": [
+      1.1376953125,
+      0.53076171875,
+      0.4443359375
+    ],
+    "memory_start_kib": {
+      "MemTotal": 395848532,
+      "MemAvailable": 381497400,
+      "SwapTotal": 2097148,
+      "SwapFree": 1639688
+    },
+    "effective_cgroups_start": {
+      "utc": "2026-09-12T08:06:19Z",
+      "pid": 3495780,
+      "proc_self_cgroup": "0::/user.slice/user-1008.slice/session-1933.scope",
+      "available": true,
+      "mount_root": "/",
+      "mount_point": "/sys/fs/cgroup",
+      "ancestors": [
+        {
+          "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-1933.scope",
+          "cpu.stat": "usage_usec 1366144040\nuser_usec 1241273999\nsystem_usec 124870040\ncore_sched.force_idle_usec 0",
+          "memory.max": "max",
+          "memory.current": "1282170880",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+          "cpu.stat": "usage_usec 157682642320\nuser_usec 146629941358\nsystem_usec 11052700961\ncore_sched.force_idle_usec 0",
+          "memory.max": "max",
+          "memory.current": "9548005376",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup/user.slice",
+          "cpu.max": "max 100000",
+          "cpu.stat": "usage_usec 5340370582542\nuser_usec 4014150561846\nsystem_usec 1326220020696\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+          "memory.max": "max",
+          "memory.current": "160293773312",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup",
+          "cpu.stat": "usage_usec 5400462223000\nuser_usec 4043166651000\nsystem_usec 1357295572000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+          "cpuset.cpus.effective": "0-95",
+          "cpuset.mems.effective": "0-1"
+        }
+      ]
+    },
+    "environment_overrides": {},
+    "pid": 3499498,
+    "returncode": 0,
+    "wall_seconds": 0.24521483713760972,
+    "utc_end": "2026-09-12T08:06:19Z",
+    "loadavg_end": [
+      1.1376953125,
+      0.53076171875,
+      0.4443359375
+    ],
+    "memory_end_kib": {
+      "MemTotal": 395848532,
+      "MemAvailable": 381484872,
+      "SwapTotal": 2097148,
+      "SwapFree": 1639688
+    },
+    "effective_cgroups_end": {
+      "utc": "2026-09-12T08:06:19Z",
+      "pid": 3495780,
+      "proc_self_cgroup": "0::/user.slice/user-1008.slice/session-1933.scope",
+      "available": true,
+      "mount_root": "/",
+      "mount_point": "/sys/fs/cgroup",
+      "ancestors": [
+        {
+          "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-1933.scope",
+          "cpu.stat": "usage_usec 1366665385\nuser_usec 1241681513\nsystem_usec 124983872\ncore_sched.force_idle_usec 0",
+          "memory.max": "max",
+          "memory.current": "1281658880",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+          "cpu.stat": "usage_usec 157683164682\nuser_usec 146630349229\nsystem_usec 11052815453\ncore_sched.force_idle_usec 0",
+          "memory.max": "max",
+          "memory.current": "9547493376",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup/user.slice",
+          "cpu.max": "max 100000",
+          "cpu.stat": "usage_usec 5340371106131\nuser_usec 4014150974522\nsystem_usec 1326220131608\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+          "memory.max": "max",
+          "memory.current": "160293347328",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup",
+          "cpu.stat": "usage_usec 5400462793000\nuser_usec 4043167087000\nsystem_usec 1357295706000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+          "cpuset.cpus.effective": "0-95",
+          "cpuset.mems.effective": "0-1"
+        }
+      ]
+    }
+  },
+  {
+    "stage": "rss-fused-n24-64t",
+    "argv": [
+      "taskset",
+      "-c",
+      "0-47,48-55,72-79",
+      "/home/mscong1/mikros-experiments/20260912T-native64/v3/source/target/release/deps/hadamard_vs_flock-d08b442f28b508e0",
+      "--logs",
+      "24",
+      "--runs",
+      "1",
+      "--threads",
+      "64",
+      "--systems",
+      "fused",
+      "--output",
+      "/home/mscong1/mikros-experiments/20260912T-native64/v3/ablation/rss-fused-n24-64t.json",
+      "--rss"
+    ],
+    "utc_start": "2026-09-12T08:06:19Z",
+    "loadavg_start": [
+      1.1376953125,
+      0.53076171875,
+      0.4443359375
+    ],
+    "memory_start_kib": {
+      "MemTotal": 395848532,
+      "MemAvailable": 381484872,
+      "SwapTotal": 2097148,
+      "SwapFree": 1639688
+    },
+    "effective_cgroups_start": {
+      "utc": "2026-09-12T08:06:19Z",
+      "pid": 3495780,
+      "proc_self_cgroup": "0::/user.slice/user-1008.slice/session-1933.scope",
+      "available": true,
+      "mount_root": "/",
+      "mount_point": "/sys/fs/cgroup",
+      "ancestors": [
+        {
+          "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-1933.scope",
+          "cpu.stat": "usage_usec 1366673385\nuser_usec 1241687513\nsystem_usec 124985872\ncore_sched.force_idle_usec 0",
+          "memory.max": "max",
+          "memory.current": "1281937408",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+          "cpu.stat": "usage_usec 157683171680\nuser_usec 146630354225\nsystem_usec 11052817455\ncore_sched.force_idle_usec 0",
+          "memory.max": "max",
+          "memory.current": "9547771904",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup/user.slice",
+          "cpu.max": "max 100000",
+          "cpu.stat": "usage_usec 5340371113152\nuser_usec 4014150979537\nsystem_usec 1326220133614\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+          "memory.max": "max",
+          "memory.current": "160293888000",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup",
+          "cpu.stat": "usage_usec 5400462808000\nuser_usec 4043167097000\nsystem_usec 1357295711000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+          "cpuset.cpus.effective": "0-95",
+          "cpuset.mems.effective": "0-1"
+        }
+      ]
+    },
+    "environment_overrides": {},
+    "pid": 3499629,
+    "returncode": 0,
+    "wall_seconds": 0.24941486702300608,
+    "utc_end": "2026-09-12T08:06:20Z",
+    "loadavg_end": [
+      1.1376953125,
+      0.53076171875,
+      0.4443359375
+    ],
+    "memory_end_kib": {
+      "MemTotal": 395848532,
+      "MemAvailable": 381503340,
+      "SwapTotal": 2097148,
+      "SwapFree": 1639688
+    },
+    "effective_cgroups_end": {
+      "utc": "2026-09-12T08:06:20Z",
+      "pid": 3495780,
+      "proc_self_cgroup": "0::/user.slice/user-1008.slice/session-1933.scope",
+      "available": true,
+      "mount_root": "/",
+      "mount_point": "/sys/fs/cgroup",
+      "ancestors": [
+        {
+          "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-1933.scope",
+          "cpu.stat": "usage_usec 1367182055\nuser_usec 1242071476\nsystem_usec 125110579\ncore_sched.force_idle_usec 0",
+          "memory.max": "max",
+          "memory.current": "1283604480",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+          "cpu.stat": "usage_usec 157683681365\nuser_usec 146630738659\nsystem_usec 11052942706\ncore_sched.force_idle_usec 0",
+          "memory.max": "max",
+          "memory.current": "9549438976",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup/user.slice",
+          "cpu.max": "max 100000",
+          "cpu.stat": "usage_usec 5340371623147\nuser_usec 4014151359832\nsystem_usec 1326220263315\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+          "memory.max": "max",
+          "memory.current": "160295354368",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup",
+          "cpu.stat": "usage_usec 5400463327000\nuser_usec 4043167474000\nsystem_usec 1357295853000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+          "cpuset.cpus.effective": "0-95",
+          "cpuset.mems.effective": "0-1"
+        }
+      ]
+    }
+  },
+  {
+    "stage": "rss-native-n24-64t",
+    "argv": [
+      "taskset",
+      "-c",
+      "0-47,48-55,72-79",
+      "/home/mscong1/mikros-experiments/20260912T-native64/v3/source/target/release/deps/hadamard_vs_flock-d08b442f28b508e0",
+      "--logs",
+      "24",
+      "--runs",
+      "1",
+      "--threads",
+      "64",
+      "--systems",
+      "native",
+      "--output",
+      "/home/mscong1/mikros-experiments/20260912T-native64/v3/ablation/rss-native-n24-64t.json",
+      "--rss"
+    ],
+    "utc_start": "2026-09-12T08:06:20Z",
+    "loadavg_start": [
+      1.1376953125,
+      0.53076171875,
+      0.4443359375
+    ],
+    "memory_start_kib": {
+      "MemTotal": 395848532,
+      "MemAvailable": 381510648,
+      "SwapTotal": 2097148,
+      "SwapFree": 1639688
+    },
+    "effective_cgroups_start": {
+      "utc": "2026-09-12T08:06:20Z",
+      "pid": 3495780,
+      "proc_self_cgroup": "0::/user.slice/user-1008.slice/session-1933.scope",
+      "available": true,
+      "mount_root": "/",
+      "mount_point": "/sys/fs/cgroup",
+      "ancestors": [
+        {
+          "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-1933.scope",
+          "cpu.stat": "usage_usec 1367189055\nuser_usec 1242077475\nsystem_usec 125111579\ncore_sched.force_idle_usec 0",
+          "memory.max": "max",
+          "memory.current": "1281482752",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+          "cpu.stat": "usage_usec 157683687363\nuser_usec 146630744656\nsystem_usec 11052942706\ncore_sched.force_idle_usec 0",
+          "memory.max": "max",
+          "memory.current": "9547317248",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup/user.slice",
+          "cpu.max": "max 100000",
+          "cpu.stat": "usage_usec 5340371630170\nuser_usec 4014151365850\nsystem_usec 1326220264320\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+          "memory.max": "max",
+          "memory.current": "160293232640",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup",
+          "cpu.stat": "usage_usec 5400463333000\nuser_usec 4043167479000\nsystem_usec 1357295854000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+          "cpuset.cpus.effective": "0-95",
+          "cpuset.mems.effective": "0-1"
+        }
+      ]
+    },
+    "environment_overrides": {},
+    "pid": 3499760,
+    "returncode": 0,
+    "wall_seconds": 0.24761883006431162,
+    "utc_end": "2026-09-12T08:06:20Z",
+    "loadavg_end": [
+      1.1376953125,
+      0.53076171875,
+      0.4443359375
+    ],
+    "memory_end_kib": {
+      "MemTotal": 395848532,
+      "MemAvailable": 381500372,
+      "SwapTotal": 2097148,
+      "SwapFree": 1639688
+    },
+    "effective_cgroups_end": {
+      "utc": "2026-09-12T08:06:20Z",
+      "pid": 3495780,
+      "proc_self_cgroup": "0::/user.slice/user-1008.slice/session-1933.scope",
+      "available": true,
+      "mount_root": "/",
+      "mount_point": "/sys/fs/cgroup",
+      "ancestors": [
+        {
+          "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-1933.scope",
+          "cpu.stat": "usage_usec 1367635730\nuser_usec 1242345771\nsystem_usec 125289958\ncore_sched.force_idle_usec 0",
+          "memory.max": "max",
+          "memory.current": "1282473984",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+          "cpu.stat": "usage_usec 157684134053\nuser_usec 146631011591\nsystem_usec 11053122461\ncore_sched.force_idle_usec 0",
+          "memory.max": "max",
+          "memory.current": "9548308480",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup/user.slice",
+          "cpu.max": "max 100000",
+          "cpu.stat": "usage_usec 5340372078967\nuser_usec 4014151641527\nsystem_usec 1326220437439\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+          "memory.max": "max",
+          "memory.current": "160294227968",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup",
+          "cpu.stat": "usage_usec 5400463840000\nuser_usec 4043167796000\nsystem_usec 1357296044000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+          "cpuset.cpus.effective": "0-95",
+          "cpuset.mems.effective": "0-1"
+        }
+      ]
+    }
+  },
+  {
+    "stage": "rss-factored-n24-64t",
+    "argv": [
+      "taskset",
+      "-c",
+      "0-47,48-55,72-79",
+      "/home/mscong1/mikros-experiments/20260912T-native64/v3/source/target/release/deps/hadamard_vs_flock-d08b442f28b508e0",
+      "--logs",
+      "24",
+      "--runs",
+      "1",
+      "--threads",
+      "64",
+      "--systems",
+      "factored",
+      "--output",
+      "/home/mscong1/mikros-experiments/20260912T-native64/v3/ablation/rss-factored-n24-64t.json",
+      "--rss"
+    ],
+    "utc_start": "2026-09-12T08:06:20Z",
+    "loadavg_start": [
+      1.1376953125,
+      0.53076171875,
+      0.4443359375
+    ],
+    "memory_start_kib": {
+      "MemTotal": 395848532,
+      "MemAvailable": 381500372,
+      "SwapTotal": 2097148,
+      "SwapFree": 1639688
+    },
+    "effective_cgroups_start": {
+      "utc": "2026-09-12T08:06:20Z",
+      "pid": 3495780,
+      "proc_self_cgroup": "0::/user.slice/user-1008.slice/session-1933.scope",
+      "available": true,
+      "mount_root": "/",
+      "mount_point": "/sys/fs/cgroup",
+      "ancestors": [
+        {
+          "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-1933.scope",
+          "cpu.stat": "usage_usec 1367639732\nuser_usec 1242347773\nsystem_usec 125291958\ncore_sched.force_idle_usec 0",
+          "memory.max": "max",
+          "memory.current": "1282805760",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+          "cpu.stat": "usage_usec 157684138055\nuser_usec 146631013590\nsystem_usec 11053124465\ncore_sched.force_idle_usec 0",
+          "memory.max": "max",
+          "memory.current": "9548640256",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup/user.slice",
+          "cpu.max": "max 100000",
+          "cpu.stat": "usage_usec 5340372082965\nuser_usec 4014151643525\nsystem_usec 1326220439440\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+          "memory.max": "max",
+          "memory.current": "160294559744",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup",
+          "cpu.stat": "usage_usec 5400463844000\nuser_usec 4043167798000\nsystem_usec 1357296046000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+          "cpuset.cpus.effective": "0-95",
+          "cpuset.mems.effective": "0-1"
+        }
+      ]
+    },
+    "environment_overrides": {},
+    "pid": 3499891,
+    "returncode": 0,
+    "wall_seconds": 0.24658514512702823,
+    "utc_end": "2026-09-12T08:06:20Z",
+    "loadavg_end": [
+      1.1376953125,
+      0.53076171875,
+      0.4443359375
+    ],
+    "memory_end_kib": {
+      "MemTotal": 395848532,
+      "MemAvailable": 381486644,
+      "SwapTotal": 2097148,
+      "SwapFree": 1639688
+    },
+    "effective_cgroups_end": {
+      "utc": "2026-09-12T08:06:20Z",
+      "pid": 3495780,
+      "proc_self_cgroup": "0::/user.slice/user-1008.slice/session-1933.scope",
+      "available": true,
+      "mount_root": "/",
+      "mount_point": "/sys/fs/cgroup",
+      "ancestors": [
+        {
+          "path": "/sys/fs/cgroup/user.slice/user-1008.slice/session-1933.scope",
+          "cpu.stat": "usage_usec 1368125160\nuser_usec 1242695281\nsystem_usec 125429879\ncore_sched.force_idle_usec 0",
+          "memory.max": "max",
+          "memory.current": "1282379776",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup/user.slice/user-1008.slice",
+          "cpu.stat": "usage_usec 157684623518\nuser_usec 146631360434\nsystem_usec 11053263084\ncore_sched.force_idle_usec 0",
+          "memory.max": "max",
+          "memory.current": "9548214272",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup/user.slice",
+          "cpu.max": "max 100000",
+          "cpu.stat": "usage_usec 5340372569298\nuser_usec 4014151996221\nsystem_usec 1326220573076\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+          "memory.max": "max",
+          "memory.current": "160293953536",
+          "memory.events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+        },
+        {
+          "path": "/sys/fs/cgroup",
+          "cpu.stat": "usage_usec 5400464361000\nuser_usec 4043168169000\nsystem_usec 1357296192000\ncore_sched.force_idle_usec 0\nnr_periods 0\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0",
+          "cpuset.cpus.effective": "0-95",
+          "cpuset.mems.effective": "0-1"
+        }
+      ]
+    }
+  }
+]

@@ -1,0 +1,96 @@
+{
+  "metadata": {
+    "arch": "x86_64",
+    "build_configuration_blake3": "cf6b3d7e00e2656f6c7e59dc47db0a7f6141344dd7f4f065edacbf2cae37b876",
+    "compiled_target_features": [
+      "gfni",
+      "avx512f",
+      "avx512bw",
+      "avx512vbmi",
+      "vpclmulqdq",
+      "pclmulqdq",
+      "avx2",
+      "sse4.1"
+    ],
+    "cpu": "Intel(R) Xeon(R) Gold 6342 CPU @ 2.80GHz",
+    "extension_coordinates": 16,
+    "flock_skip_rounds": 7,
+    "flock_sources_blake3": "2db6742de4472a0ab577e3dca4a3fd2f4c8f011f569b081101913f1970ce096c",
+    "grinding": "disabled; no equal-security claim",
+    "intermediate_field_bits": 8,
+    "kappa": 128,
+    "kernel_scope": "reference/lookup/native select the first aggregation only; all reuse native packing, C projection, weights and IP with hardware fallbacks",
+    "latex": "latex/4-block.tex",
+    "logs": [
+      30
+    ],
+    "memory": "VmHWM read immediately after prove, before verify and source checks; includes input and runtime",
+    "mikros_sources_blake3": "27a073b63239a2186bb605581a3c63971ac3c2942b6b25f6848083c0f3cfddb2",
+    "mode": "fresh_process_rss_cold_proof",
+    "native_backend": "gfni-avx512",
+    "os": "linux",
+    "position_balanced": true,
+    "profile": false,
+    "protocol": "mikros-univariate-gf256-v1",
+    "rayon_actual_threads": 64,
+    "runs": 1,
+    "rustc": "rustc 1.96.0-nightly (ac7f9ec7d 2026-03-20); binary: rustc; commit-hash: ac7f9ec7da74d37fd28667c86bf117a39ba5b02a; commit-date: 2026-03-20; host: x86_64-unknown-linux-gnu; release: 1.96.0-nightly; LLVM version: 22.1.0",
+    "scope": "Direct packed-opening PIOP only; no extra column-to-tensor aggregation or PCS; all source claims independently checked outside timings",
+    "scratch": "reuse retains allocation capacity; other Mikros modes allocate per proof; all dynamic values rebuilt; Flock uses its production pool",
+    "setup": "fixed tables initialized inside first proof and included in warmup/cold timing; no costs subtracted",
+    "systems": [
+      "flock128"
+    ],
+    "threads": 64,
+    "timing": "input generation/digest, challenger creation, serialization and source claim checks excluded; verifier is reduction replay only",
+    "unix_timestamp_seconds": 1789208629
+  },
+  "samples": [
+    {
+      "bincode_bytes": 4912,
+      "input_claim_check_ms": 9079.877571,
+      "input_digest": "e527f65e39324179c618aa7530540274238543700a629a71045fa4afbc09fd34",
+      "log_n": 30,
+      "mikros_phases": null,
+      "order": 0,
+      "payload_field_bytes": 4880,
+      "payload_field_elements": 305,
+      "proof_digest": "605dc9b172e6a3d3e14b7febff3109248a71524661c4a079391a278634997d0e",
+      "prover_ms": 85.873837,
+      "run": 0,
+      "source_claims_verified": true,
+      "system": "flock128",
+      "transcript_matched": true,
+      "verifier_ms": 0.552168,
+      "verifier_passed": true,
+      "vm_hwm_after_prove_kib": 810888,
+      "vm_rss_before_prove_kib": 405304
+    }
+  ],
+  "schema_version": 1,
+  "summaries": [
+    {
+      "bincode_bytes": 4912,
+      "input_claim_check_ms": {
+        "max": 9079.877571,
+        "median": 9079.877571,
+        "min": 9079.877571
+      },
+      "log_n": 30,
+      "payload_field_bytes": 4880,
+      "prover_ms": {
+        "max": 85.873837,
+        "median": 85.873837,
+        "min": 85.873837
+      },
+      "runs": 1,
+      "system": "flock128",
+      "verifier_ms": {
+        "max": 0.552168,
+        "median": 0.552168,
+        "min": 0.552168
+      }
+    }
+  ],
+  "warmups": []
+}

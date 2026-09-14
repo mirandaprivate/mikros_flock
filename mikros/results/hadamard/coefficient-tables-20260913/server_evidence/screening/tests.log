@@ -1,0 +1,135 @@
+   Compiling mikros v0.1.0 (/home/mscong1/mikros-experiments/20260912T-native64/v9-coefficient-v2/source/mikros)
+    Finished `release` profile [optimized] target(s) in 6.32s
+     Running unittests src/lib.rs (target/release/deps/mikros-7dea876f4688de0a)
+
+running 67 tests
+test flock_baseline::tests::equality_weights_use_low_to_high_coordinates ... ok
+test inner_product::tests::native_pair_messages_match_scalar_with_partial_vector_tails ... ok
+test lookup::tests::packing_rejects_partial_rows - should panic ... ok
+test lookup::x86_64::tests::wide_packing_unaligned_outputs_preserve_canaries_and_odd_tails ... ok
+test packed_ip::tests::carryless_coefficients_match_all_column_pairs_without_reduction ... ok
+test tensor::packed::tests::streamed_masks_match_independent_materialized_random_tensors ... ok
+test tensor::packed::tests::swar_transpose_matches_every_basis_bit_and_random_matrices ... ok
+test tensor::packed::tests::subset_table_uses_arbitrary_field_weights_and_zero_padded_lanes ... ok
+test tensor::packed::tests::swar_eight_column_expansion_matches_scalar_for_all_row_masks ... ok
+test tensor::packed::tests::wide_transform_matches_eight_row_blocks_with_partial_final_lanes ... ok
+test tensor::packed::x86_64::tests::hardware_matrix_builder_and_mask_planes_match_scalar_layouts ... ok
+test tensor::tests::aggregate_rejects_missing_row_weights - should panic ... ok
+test tensor::tests::column_and_quotient_slots_partition_the_tensor ... ok
+test tensor::tests::every_byte_lookup_matches_independent_scalar_transform ... ok
+test tensor::packed::x86_64::tests::affine_matrix_encoding_matches_every_subset_of_arbitrary_weights ... ok
+test tensor::packed::tests::wide_transpose_maps_every_matrix_basis_bit_and_random_words ... ok
+test univariate::coefficient::tests::incomplete_rows_are_rejected - should panic ... ok
+test univariate::coefficient::tests::truncated_quotient_input_is_rejected - should panic ... ok
+test univariate::coefficient::tests::triangular_schoolbook_matches_full_product_and_native_boundaries ... ok
+test tensor::packed::x86_64::tests::hardware_wide_consumer_matches_scalar_and_eight_coefficient_consumer ... ok
+test univariate::field::tests::coordinate_affine_matrices_match_every_binary_basis_vector ... ok
+test univariate::field::tests::coordinate_batch_rejects_mismatched_output_length - should panic ... ok
+test univariate::field::tests::coordinate_batch_matches_both_binary_bases ... ok
+test univariate::field::tests::coordinate_batch_matches_random_rows_tails_and_unaligned_buffers ... ok
+test univariate::field::tests::register_coordinate_batch_rejects_mismatched_output_length - should panic ... ok
+test univariate::field::tests::small_field_binary_bases_roundtrip ... ok
+test univariate::coefficient::tests::sparse_quotient_matches_full_extension_long_division ... ok
+test univariate::field::tests::small_field_coordinates_use_embedding_not_raw_ghash_bytes ... ok
+test univariate::field::tests::small_field_random_roundtrip ... ok
+test univariate::field::tests::small_field_all_products_match_f8 ... ok
+test univariate::tiled::affine_h::tests::affine_h_matches_bitwise_weights_all_subsets_tails_and_accumulation ... ok
+test univariate::field::tests::register_coordinate_batch_matches_scalar_and_original_batch ... ok
+test univariate::coefficient::tests::valid_binary_residual_has_zero_remainder_in_full_f8_division ... ok
+test tensor::packed::x86_64::tests::hardware_gfni_transpose_matches_all_basis_bits_and_partial_rows ... ok
+test tensor::tests::mixed_basis_certificate_matches_direct_multilinear_products ... ok
+test univariate::field::tests::small_field_coordinate_scaling_matches_extension_multiplication ... ok
+test univariate::tiled::eight::tests::aggregate_eight_consumers_match_scalar_all_lanes_and_partial_tiles ... ok
+test lookup::tests::packing_random_rows_and_coordinate_basis_agrees ... ok
+test tensor::packed::x86_64::tests::hardware_gfni_consumption_matches_all_masks_output_bits_and_padding ... ok
+test flock_baseline::tests::honest_claims_match_original_inputs_and_changed_inputs_fail ... ok
+test lookup::tests::all_byte_subsets_at_every_position_match_direct_sum ... ok
+test inner_product::tests::uninitialized_parallel_output_remains_empty_after_panic_and_can_be_reused ... ok
+test e2e_lincheck::tests::e2e_lincheck_two_different_general_tensors_match_batch_major_sources ... ok
+test univariate::domain::tests::paired_register_continuation_matches_single_and_scalar_all_lanes ... ok
+test tensor::tests::full_transform_preserves_lexicographic_coordinates ... ok
+test flock_baseline::tests::skip7_claims_check_all_three_inputs_and_both_row_halves ... ok
+test tensor::packed::tests::packed_transform_keeps_all_columns_and_row_lanes_in_order ... ok
+test univariate::domain::tests::extension_lagrange_weights_match_independent_polynomial ... ok
+test univariate::domain::tests::quotient_matches_direct_polynomial_product_and_long_division ... ok
+test packed_ip::extension::tests::f128_laurent_roundtrip_and_tamper ... ok
+test inner_product::tests::fused_fold_and_message_matches_direct_work_at_chunk_boundaries ... ok
+test univariate::coefficient::tests::zero_one_basis_and_square_rows_have_expected_high_coefficients ... ok
+test tensor::packed::tests::packed_aggregation_is_independent_of_parallel_partition ... ok
+test lookup::tests::wide_packing_matches_direct_and_original_across_tails_threads_and_reuse ... ok
+test univariate::tests::hardware_register_tiles_match_lookup_at_partial_tiles_and_workers ... ok
+test univariate::domain::tests::row_tables_and_native_continuation_match_newton_oracle ... ok
+test tensor::packed::tests::factored_equality_weights_match_full_weights_including_boolean_challenges ... ok
+test lookup::tests::fused_binding_and_projection_match_independent_bit_sums ... ok
+test weights::tests::blocked_weights_match_original_across_lengths_points_and_reuse ... ok
+test univariate::tiled::eight::tests::aggregate_eight_schedules_match_reference_across_row_boundaries ... ok
+test tensor::packed::tests::wide_transform_preserves_column_halves_and_every_u64_row_lane ... ok
+test tensor::tests::aggregate_lookup_matches_reference_and_column_products ... ok
+test univariate::coefficient::tests::weighted_aggregate_matches_lookup_and_pair_quotients_at_worker_boundaries ... ok
+test tensor::packed::tests::streamed_masks_preserve_every_column_and_lane_with_zero_padding ... ok
+test univariate::coefficient::tests::monomial_byte_tables_match_existing_domain_on_every_sample ... ok
+test inner_product::tests::packed_proof_and_transcript_match_baseline_across_lengths_and_threads ... ok
+test tensor::packed::tests::packed_aggregation_matches_reference_at_block_and_chunk_boundaries ... ok
+
+test result: ok. 67 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.45s
+
+     Running tests/flock_skip7_interpolation.rs (target/release/deps/flock_skip7_interpolation-7595324c513462e6)
+
+running 2 tests
+test skip7_combined_interpolates_degree254_vanishing_on_all_s_nodes ... ok
+test skip7_lambda_interpolates_degree127_at_all_nodes_and_outside_points ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/hadamard_roundtrip.rs (target/release/deps/hadamard_roundtrip-de978724b8c0609d)
+
+running 12 tests
+test malformed_shapes_and_dimensions_return_errors ... ok
+test weighted_b_query_is_not_an_mle_at_coordinatewise_products ... ok
+test product_preserving_tampering_requires_and_fails_source_authentication ... ok
+test source_authentication_checks_all_three_original_columns ... ok
+test lookup_proofs_are_independent_of_thread_count ... ok
+test structured_and_boundary_bit_inputs_roundtrip ... ok
+test every_message_class_is_bound_to_the_transcript ... ok
+test profiling_preserves_proof_claims_and_transcript ... ok
+test all_native_ablations_and_reused_scratch_preserve_protocol_across_new_witnesses ... ok
+test false_c_is_rejected_even_when_prover_constructs_a_proof ... ok
+test reference_and_lookup_are_message_identical_and_source_verified ... ok
+test packed_proofs_match_lookup_on_structured_and_parallel_domains ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.27s
+
+     Running tests/packed_ip_roundtrip.rs (target/release/deps/packed_ip_roundtrip-00ce8ce86b49b075)
+
+running 6 tests
+test packed_ip_rejects_bad_claim_dimensions_padding_and_messages ... ok
+test packed_ip_binds_coefficients_before_nonzero_challenge_and_accepts_one ... ok
+test packed_ip_handles_zero_one_and_extreme_laurent_exponents ... ok
+test packed_ip_roundtrips_real_monomial_queries_and_transcripts ... ok
+test packed_ip_authenticates_both_sources_and_reused_scratch ... ok
+test packed_ip_one_and_four_threads_match ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/univariate_roundtrip.rs (target/release/deps/univariate_roundtrip-f647403ec2be715a)
+
+running 10 tests
+test univariate_rejects_wrong_lengths_and_truncated_or_extended_messages ... ok
+test univariate_product_preserving_forgery_needs_source_authentication ... ok
+test univariate_source_checks_all_inputs_and_preserves_weighted_b_factors ... ok
+test univariate_reused_scratch_does_not_retain_witness_or_shape_state ... ok
+test univariate_profiling_preserves_proofs_and_transcripts ... ok
+test univariate_rejects_h_challenges_then_accepts_lambda_or_extension_point ... ok
+test univariate_kernels_have_identical_bytes_claims_and_transcripts ... ok
+test univariate_binds_every_message_class_and_rejects_false_c ... ok
+test univariate_structured_rows_and_boundary_bits ... ok
+test univariate_one_and_four_threads_produce_identical_proofs ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.61s
+
+   Doc-tests mikros
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

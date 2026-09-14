@@ -1,0 +1,8 @@
+{
+  "src/lib.rs": "c4b58141ff4d75fda88fb0768e7d122d4d9e118728fe90b7f9778d4ebc24608b",
+  "src/field.rs": "92b9496f5bc8cca86666fd338788dc62e38ecea7f8f7a486acdc83401e507599",
+  "src/poly.rs": "7f4d8c25d987398a94ff6a75fd0fe857fcd21ea094ef52ee2166cddb542e8968",
+  "src/mikros.rs": "d9399a74fc63fd7e6de4dd6ab382ab67453431765c090e271796b8f25d5e4ac3",
+  "tests/correctness.rs": "4daab033f94f031decc7ab79f2ff152a7d16d1c96c248d934aba7c082e1cd826",
+  "tests/mikros.rs": "237a75faea8ec063b8f734eb52e6b809dadc44bd0ae3c92d6907ac109daac0ed"
+}

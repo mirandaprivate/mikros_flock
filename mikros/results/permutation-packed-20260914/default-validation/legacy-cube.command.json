@@ -1,0 +1,17 @@
+[
+  "target/release/examples/e2e_bit_compare",
+  "--log-leaves",
+  "3",
+  "--threads",
+  "4",
+  "--reps",
+  "1",
+  "--warmups",
+  "0",
+  "--system",
+  "mikros",
+  "--permutation",
+  "legacy",
+  "--reduction",
+  "cube"
+]

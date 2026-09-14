@@ -1,0 +1,12 @@
+n=14 run=0 reference: 9.002 ms, 4352 bytes (warmup)
+n=14 run=0 lookup: 0.687 ms, 4352 bytes (warmup)
+n=14 run=0 native: 0.464 ms, 4352 bytes (warmup)
+n=14 run=0 tiled: 0.464 ms, 4352 bytes (warmup)
+n=14 run=0 basis: 0.466 ms, 4352 bytes (warmup)
+n=14 run=0 flock128: 1.187 ms, 4368 bytes (warmup)
+n=14 run=1 lookup: 0.671 ms, 4352 bytes
+n=14 run=1 native: 0.420 ms, 4352 bytes
+n=14 run=1 tiled: 0.392 ms, 4352 bytes
+n=14 run=1 basis: 0.383 ms, 4352 bytes
+n=14 run=1 flock128: 1.182 ms, 4368 bytes
+n=14 run=1 reference: 1.207 ms, 4352 bytes

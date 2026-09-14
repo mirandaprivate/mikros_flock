@@ -1,0 +1,21 @@
+[
+  "/usr/bin/time",
+  "-v",
+  "-o",
+  "/home/mscong1/mikros-experiments/20260912T-native64/v11-packed-permutation-20260914/source/results-packed-permutation/test-pcs-merged-tensor.resource.txt",
+  "taskset",
+  "-c",
+  "0-47,48-55,72-79",
+  "cargo",
+  "+nightly-2026-03-21",
+  "test",
+  "--release",
+  "--offline",
+  "--locked",
+  "-j8",
+  "-p",
+  "flock-core",
+  "pcs::merged_tensor::tests",
+  "--",
+  "--include-ignored"
+]

@@ -1,0 +1,18 @@
+{
+  "date": "2026-09-12",
+  "scope": "Read-only local source reference for the scalar gruen/src/mikros.rs port and KoalaBear profile; no sibling source modified",
+  "files": [
+    {
+      "reference": "../mikros/mikros/src/hadamard.rs",
+      "sha256": "962d14d2a6b51a1436a485abdec1a62bb89dd4f76c595f1ef52e3c271da0642b"
+    },
+    {
+      "reference": "../mikros/mikros/src/common.rs",
+      "sha256": "52815744cd768c8f32ae4f02c33c27dfb6ebf9d0873eb8b3ca884913bdbc59f7"
+    },
+    {
+      "reference": "../mikros/koala-bear/src/koala_bear.rs",
+      "sha256": "8abc03dd0f576d9839867d2a2f8025f5dd70f325df3c65535d498f9e3e304180"
+    }
+  ]
+}

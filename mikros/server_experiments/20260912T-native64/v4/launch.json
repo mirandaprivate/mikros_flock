@@ -1,0 +1,16 @@
+{
+  "pid": 3506373,
+  "source_sha256": "815a7b0c5b5746d7c19343ba1a020f26a0321c0f2bdd3277a39c54928af0be89",
+  "utc": "2026-09-12T09:07:56.550428+00:00",
+  "systems_main": [
+    "reuse",
+    "factoredreuse",
+    "flock128"
+  ],
+  "runs_main": 6,
+  "systems_parameter": [
+    "flock",
+    "flock128"
+  ],
+  "runs_parameter": 4
+}

@@ -1,0 +1,10 @@
+n=14 run=0 reference: 10.195 ms, 4352 bytes (warmup)
+n=14 run=0 pairreuse: 0.475 ms, 4352 bytes (warmup)
+n=14 run=0 coefflookupreuse: 2.026 ms, 4352 bytes (warmup)
+n=14 run=0 coeffnativereuse: 0.117 ms, 4352 bytes (warmup)
+n=14 run=0 flock128: 2.288 ms, 4368 bytes (warmup)
+n=14 run=1 pairreuse: 0.416 ms, 4352 bytes
+n=14 run=1 coefflookupreuse: 1.097 ms, 4352 bytes
+n=14 run=1 coeffnativereuse: 0.105 ms, 4352 bytes
+n=14 run=1 flock128: 0.999 ms, 4368 bytes
+n=14 run=1 reference: 0.953 ms, 4352 bytes

@@ -1,0 +1,9 @@
+{
+"flint_version":"3.6.0","gmp_version":"6.2.1","mpfr_version":"4.1.0",
+"flint_bits":64,"element_header_bytes":48,"threads":1,"batch":256,"reps":1,"target_seconds":0.010000,
+"fields":[
+{"name":"F241","p":"241","degree":16,"nonresidue":7,"polynomial":"X^16-7","log2_order":126.606229380,"sparse_modulus":1,"input_alloc_coefficients":16,"output_alloc_coefficients":32,"context_and_irreducibility_seconds":0.055259700},
+{"name":"F61441","p":"61441","degree":8,"nonresidue":11,"polynomial":"X^8-11","log2_order":127.255312614,"sparse_modulus":1,"input_alloc_coefficients":8,"output_alloc_coefficients":16,"context_and_irreducibility_seconds":0.004660400},
+{"name":"KoalaBear","p":"2130706433","degree":4,"nonresidue":3,"polynomial":"X^4-3","log2_order":123.954738750,"sparse_modulus":1,"input_alloc_coefficients":4,"output_alloc_coefficients":8,"context_and_irreducibility_seconds":0.000040500},
+{"name":"Goldilocks","p":"18446744069414584321","degree":2,"nonresidue":7,"polynomial":"X^2-7","log2_order":127.999999999,"sparse_modulus":1,"input_alloc_coefficients":2,"output_alloc_coefficients":4,"context_and_irreducibility_seconds":0.000045500}
+]}

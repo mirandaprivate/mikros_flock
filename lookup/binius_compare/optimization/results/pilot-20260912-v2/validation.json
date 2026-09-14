@@ -1,0 +1,10 @@
+{
+  "valid": true,
+  "proofs": 22,
+  "measured": 11,
+  "paired_statements": true,
+  "all_pcs_verified": true,
+  "same_protocol_bytes": true,
+  "cross_thread_differentials": true,
+  "order_checked": true
+}

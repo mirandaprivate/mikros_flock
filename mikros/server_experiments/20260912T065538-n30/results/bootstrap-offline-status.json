@@ -1,0 +1,7 @@
+{
+  "utc": "2026-09-12T07:05:38Z",
+  "stage": "failed",
+  "failed_stage": "tests",
+  "returncode": 101,
+  "log": "tests.log"
+}

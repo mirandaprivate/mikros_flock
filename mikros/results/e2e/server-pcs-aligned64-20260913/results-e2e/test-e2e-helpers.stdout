@@ -1,0 +1,10 @@
+
+running 5 tests
+test grinding::tests::replay_and_tamper ... ok
+test e2e_common::bit_wiring::tests::prepared_sigma_preserves_gkr_proof ... ok
+test e2e_common::flock_boolean::tests::skip128_roundtrip_and_all_pcs_endpoints ... ok
+test e2e_common::bit_wiring::tests::bit_expansion_and_general_gathers ... ok
+test e2e_common::bit_wiring::tests::flock_bit_piop_replay_binds_both_sides ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.96s
+

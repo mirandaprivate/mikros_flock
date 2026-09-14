@@ -1,0 +1,760 @@
+[
+  {
+    "case": "n20-w8-1t",
+    "attempt": 1,
+    "sample_file": "n20-w8-1t-attempt1.jsonl",
+    "command": [
+      "taskset",
+      "-c",
+      "2",
+      "/mnt/c/Users/miranda/git/mikros_flock/lookup/binius_compare/optimization/target/release/mikros-binius-optimized",
+      "--logs",
+      "20",
+      "--widths",
+      "8",
+      "--runs",
+      "11",
+      "--threads",
+      "1",
+      "--modes",
+      "reference,full_extension,direct,lookup,fused,batched,bridge,full_optimized,packed",
+      "--out",
+      "/mnt/c/Users/miranda/git/mikros_flock/lookup/binius_compare/optimization/results/ablation-20260912-v1/n20-w8-1t-attempt1.jsonl"
+    ],
+    "exit_code": 0,
+    "seconds": 100.20683288574219,
+    "interference": [],
+    "valid_run": true
+  },
+  {
+    "case": "n20-w8-6t",
+    "attempt": 1,
+    "sample_file": "n20-w8-6t-attempt1.jsonl",
+    "command": [
+      "taskset",
+      "-c",
+      "0,2,4,6,8,10",
+      "/mnt/c/Users/miranda/git/mikros_flock/lookup/binius_compare/optimization/target/release/mikros-binius-optimized",
+      "--logs",
+      "20",
+      "--widths",
+      "8",
+      "--runs",
+      "11",
+      "--threads",
+      "6",
+      "--modes",
+      "reference,full_extension,direct,lookup,fused,batched,bridge,full_optimized,packed",
+      "--out",
+      "/mnt/c/Users/miranda/git/mikros_flock/lookup/binius_compare/optimization/results/ablation-20260912-v1/n20-w8-6t-attempt1.jsonl"
+    ],
+    "exit_code": 0,
+    "seconds": 77.160964012146,
+    "interference": [
+      {
+        "pid": 23064,
+        "name": "rustc"
+      },
+      {
+        "pid": 23064,
+        "name": "rustc"
+      }
+    ],
+    "valid_run": false
+  },
+  {
+    "case": "n20-w8-6t",
+    "attempt": 2,
+    "sample_file": "n20-w8-6t-attempt2.jsonl",
+    "command": [
+      "taskset",
+      "-c",
+      "0,2,4,6,8,10",
+      "/mnt/c/Users/miranda/git/mikros_flock/lookup/binius_compare/optimization/target/release/mikros-binius-optimized",
+      "--logs",
+      "20",
+      "--widths",
+      "8",
+      "--runs",
+      "11",
+      "--threads",
+      "6",
+      "--modes",
+      "reference,full_extension,direct,lookup,fused,batched,bridge,full_optimized,packed",
+      "--out",
+      "/mnt/c/Users/miranda/git/mikros_flock/lookup/binius_compare/optimization/results/ablation-20260912-v1/n20-w8-6t-attempt2.jsonl"
+    ],
+    "exit_code": 0,
+    "seconds": 84.21777892112732,
+    "interference": [
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23172,
+        "name": "rustc"
+      },
+      {
+        "pid": 23177,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23177,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23177,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23177,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23177,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23177,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23177,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23177,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23177,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23177,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23177,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23177,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23177,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23177,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23177,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23177,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23177,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23177,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23177,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23177,
+        "name": "rustc"
+      },
+      {
+        "pid": 23209,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23177,
+        "name": "rustc"
+      },
+      {
+        "pid": 23209,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23177,
+        "name": "rustc"
+      },
+      {
+        "pid": 23209,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23177,
+        "name": "rustc"
+      },
+      {
+        "pid": 23209,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23177,
+        "name": "rustc"
+      },
+      {
+        "pid": 23209,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23177,
+        "name": "rustc"
+      },
+      {
+        "pid": 23209,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23177,
+        "name": "rustc"
+      },
+      {
+        "pid": 23209,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23177,
+        "name": "rustc"
+      },
+      {
+        "pid": 23209,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23177,
+        "name": "rustc"
+      },
+      {
+        "pid": 23209,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23177,
+        "name": "rustc"
+      },
+      {
+        "pid": 23209,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23177,
+        "name": "rustc"
+      },
+      {
+        "pid": 23209,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23177,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23177,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23177,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23177,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23177,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23177,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23177,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23177,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23177,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23177,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23177,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23177,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23177,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23177,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23177,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23177,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23177,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23177,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23177,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23177,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23177,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23177,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23177,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23285,
+        "name": "rustc"
+      },
+      {
+        "pid": 23286,
+        "name": "rustc"
+      },
+      {
+        "pid": 23287,
+        "name": "rustc"
+      },
+      {
+        "pid": 23288,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23285,
+        "name": "rustc"
+      },
+      {
+        "pid": 23286,
+        "name": "rustc"
+      },
+      {
+        "pid": 23287,
+        "name": "rustc"
+      },
+      {
+        "pid": 23288,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23285,
+        "name": "rustc"
+      },
+      {
+        "pid": 23286,
+        "name": "rustc"
+      },
+      {
+        "pid": 23288,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23285,
+        "name": "rustc"
+      },
+      {
+        "pid": 23286,
+        "name": "rustc"
+      },
+      {
+        "pid": 23288,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23286,
+        "name": "rustc"
+      },
+      {
+        "pid": 23288,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23286,
+        "name": "rustc"
+      },
+      {
+        "pid": 23288,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23286,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23286,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23286,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23286,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23286,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23286,
+        "name": "rustc"
+      },
+      {
+        "pid": 23131,
+        "name": "cargo"
+      },
+      {
+        "pid": 23286,
+        "name": "rustc"
+      }
+    ],
+    "valid_run": false
+  },
+  {
+    "case": "n20-w8-6t",
+    "attempt": 3,
+    "sample_file": "n20-w8-6t-attempt3.jsonl",
+    "command": [
+      "taskset",
+      "-c",
+      "0,2,4,6,8,10",
+      "/mnt/c/Users/miranda/git/mikros_flock/lookup/binius_compare/optimization/target/release/mikros-binius-optimized",
+      "--logs",
+      "20",
+      "--widths",
+      "8",
+      "--runs",
+      "11",
+      "--threads",
+      "6",
+      "--modes",
+      "reference,full_extension,direct,lookup,fused,batched,bridge,full_optimized,packed",
+      "--out",
+      "/mnt/c/Users/miranda/git/mikros_flock/lookup/binius_compare/optimization/results/ablation-20260912-v1/n20-w8-6t-attempt3.jsonl"
+    ],
+    "exit_code": 0,
+    "seconds": 78.6863853931427,
+    "interference": [],
+    "valid_run": true
+  }
+]

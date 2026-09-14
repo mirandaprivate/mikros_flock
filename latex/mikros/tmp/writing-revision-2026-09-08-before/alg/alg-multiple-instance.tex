@@ -1,0 +1,95 @@
+% !TEX root = ../main.tex
+\begin{algorithm}[!t]
+\footnotesize
+\caption{PLONK proof with packing across instances of the same circuit}
+\label{alg:multiple-instance-packing}
+\KwPubIn{
+Parameters of Theorem~\ref{theorem:multiple-instance-packing};
+the \(\kappa\) public-I/O vectors;
+underlying PCS commitments to the five selectors and
+\(\ext{\bm\tau}_\sigma\)
+}
+\KwPriIn{
+\(\Prover\): \(\bm W_L,\bm W_R,\bm W_O\in\Field^{m\times\kappa}\);
+circuit tables and their opening data
+}
+\KwOut{Acceptance bit \(\mathsf{ok}\)}
+
+\(\Verifier\) returns \(0\) on any malformed message,
+failed equality, reduction, or opening\;
+\tcp{Commit in the fixed basis}
+\(\Prover\) sets
+\(\ext{\bm w}_\ell\leftarrow\bm W_\ell\ext{\bm\beta}\)
+for \(\ell\in\{L,R,O\}\), and
+\(\ext{\bm w}_M\leftarrow
+(\bm W_L\circ\bm W_R)\ext{\bm\beta}\)\;
+\(\PtoV\): three underlying PCS commitments to
+\(\ext{\bm w}_L,\ext{\bm w}_R,\ext{\bm w}_O\);
+keep \(\ext{\bm w}_M\) virtual\;
+
+\tcp{Gate sum-check and one packed Hadamard reduction}
+\(\VtoP\): \(\ext{\bm x}\ChooseRandom
+\ExtensionField^{\log_2m}\)\;
+Run degree-three sum-check with initial claim \(0\) for the
+\(\tensorspan{\ext{\bm x}}\)-weighted residual in
+Eq.~\eqref{eq:together-multiple-gates};
+obtain terminal point \(\ext{\bm t}\) and claim \(\ext c\)\;
+\(\PtoV\): claimed selector evaluations \(\ext v_\ell\)
+for \(\ell\in\{L,R,M,O,C\}\), and wire evaluations
+\(\ext u_\ell\) for \(\ell\in\{L,R,M,O\}\), at \(\ext{\bm t}\)\;
+\(\Verifier\) checks
+\(\ext c\EqOrNot
+\langle\tensorspan{\ext{\bm x}},\tensorspan{\ext{\bm t}}\rangle
+[\sum_{\ell\in\{L,R,M,O\}}\ext v_\ell\ext u_\ell+
+(\sum_{j=1}^{\kappa}\ext\beta_j)\ext v_C]\)\;
+Verify the five selector and three committed-wire evaluations
+by direct underlying PCS openings\;
+Apply the packed Hadamard reduction of Section~\ref{sec:hadamard}
+to
+\(\ext u_M\EqOrNot
+\tensorspan{\ext{\bm t}}^\top
+(\bm W_L\circ\bm W_R)\ext{\bm\beta}\);
+verify its two weighted terminal claims using
+Algorithm~\ref{alg:packed-pcs}\;
+
+\tcp{Two direct extension-field product trees}
+\(\Prover\) forms the padded packed assignment
+\(\ext{\bm w}\in\ExtensionField^L\), including the public I/O\;
+\(\VtoP\): fresh independent
+\(\ext y,\ext z\ChooseRandom\ExtensionField\)\;
+\(\Prover\) constructs binary product trees on
+\(\ext z\bm1_L+\ext{\bm w}+\ext y\ext{\bm\tau}\)
+and
+\(\ext z\bm1_L+\ext{\bm w}+\ext y\ext{\bm\tau}_\sigma\)\;
+\(\PtoV\): the two roots; \(\Verifier\) checks their equality\;
+\ForEach{tree}{
+    Set the current claim to its root and the current point
+    \(\ext{\bm x}\leftarrow()\), with \(\tensorspan{()}=(1)\)\;
+    \For{\(\ell=0,\ldots,\log_2L-1\)}{
+        Run degree-three sum-check for the current weighted
+        parent-product claim, as in
+        Appendix~\ref{appx:proof-multiple-instance};
+        obtain \(\ext c,\ext{\bm t}\)\;
+        \(\PtoV\): child evaluations
+        \(\ext v_L,\ext v_R\) at \(\ext{\bm t}\)\;
+        \(\Verifier\) checks
+        \(\ext c\EqOrNot
+        \langle\tensorspan{\ext{\bm x}},
+        \tensorspan{\ext{\bm t}}\rangle\ext v_L\ext v_R\)\;
+        \(\VtoP\): fresh \(\ext\eta\ChooseRandom\ExtensionField\)\;
+        Set the current claim to
+        \((1-\ext\eta)\ext v_L+\ext\eta\ext v_R\)
+        and \(\ext{\bm x}\leftarrow\ext\eta\mathbin{\|}
+        \ext{\bm t}\)\;
+    }
+    Retain the terminal input claim and its evaluation point\;
+}
+Expand the two terminal input claims into their known shifts,
+wire, public-I/O, and label contributions\;
+Verify the six wire claims and the one
+\(\ext{\bm\tau}_\sigma\) claim by direct underlying PCS openings\;
+\(\Verifier\) evaluates the public I/O and identity labels
+directly, and checks both recombination equalities, including
+the shift \(\ext z\) and label coefficient \(\ext y\)\;
+\Return \(1\)\;
+\end{algorithm}

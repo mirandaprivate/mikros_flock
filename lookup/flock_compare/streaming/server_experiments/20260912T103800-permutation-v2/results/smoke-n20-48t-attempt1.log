@@ -1,0 +1,12 @@
+n=20 threads=48 run=0 previous core=29.339 total=34.154 source=3.175 ms
+n=20 threads=48 run=0 release core=25.860 total=29.909 source=3.707 ms
+n=20 threads=48 run=0 optimized core=24.602 total=28.844 source=3.273 ms
+n=20 threads=48 run=0 previous_full core=22.107 total=26.747 source=3.419 ms
+n=20 threads=48 run=0 full core=25.030 total=29.891 source=8.155 ms
+n=20 threads=48 run=0 flock core=29.577 total=34.395 source=1.448 ms
+n=20 threads=48 run=1 previous core=35.045 total=39.421 source=3.778 ms
+n=20 threads=48 run=1 release core=40.629 total=45.933 source=4.256 ms
+n=20 threads=48 run=1 optimized core=40.164 total=45.885 source=4.656 ms
+n=20 threads=48 run=1 previous_full core=24.402 total=29.840 source=4.759 ms
+n=20 threads=48 run=1 full core=34.562 total=40.334 source=5.178 ms
+n=20 threads=48 run=1 flock core=38.834 total=40.404 source=2.101 ms

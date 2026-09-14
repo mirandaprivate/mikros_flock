@@ -1,0 +1,42 @@
+{
+  "stage": "complete",
+  "tests": 2,
+  "utc": "2026-09-12T09:19:54.729282+00:00",
+  "source_sha256": "b8323074dbdcbe05db22eab9f32219f0cafafd64dd2d878b50761d7200ac87af",
+  "rlib_path": "/home/mscong1/mikros-experiments/20260912T-native64/v4/source/target/release/deps/libflock_core-73cf0cab85eeb32e.rlib",
+  "rlib_sha256": "9919ff9134e2baa62b294c7761b262fa069791aaf23d3d2942e747a176e9a263",
+  "executable_sha256": "a249e96a41cabcc5f04565a31689e7f7a47e71daa86dd54604edca7b06a272b0",
+  "commands": [
+    {
+      "argv": [
+        "/home/mscong1/.cargo/bin/rustup",
+        "run",
+        "nightly-2026-03-21",
+        "rustc",
+        "--edition=2024",
+        "--test",
+        "-C",
+        "target-cpu=native",
+        "-O",
+        "-L",
+        "dependency=/home/mscong1/mikros-experiments/20260912T-native64/v4/source/target/release/deps",
+        "--extern",
+        "flock_core=/home/mscong1/mikros-experiments/20260912T-native64/v4/source/target/release/deps/libflock_core-73cf0cab85eeb32e.rlib",
+        "/home/mscong1/mikros-experiments/20260912T-native64/v4/flock_skip7_interpolation.rs",
+        "-o",
+        "/home/mscong1/mikros-experiments/20260912T-native64/v4/validation/skip7_interpolation"
+      ],
+      "exit": 0
+    },
+    {
+      "argv": [
+        "taskset",
+        "-c",
+        "0-47,48-55,72-79",
+        "/home/mscong1/mikros-experiments/20260912T-native64/v4/validation/skip7_interpolation"
+      ],
+      "exit": 0
+    }
+  ],
+  "scope": "Standalone boundary tests linked against the exact Flock rlib in the frozen benchmark build; run after all timed experiments."
+}

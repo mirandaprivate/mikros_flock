@@ -1,0 +1,90 @@
+{"stage": "waiting_for_idle", "utc": "2026-09-12T10:39:03Z", "competing_processes": [], "available_bytes": 390732431360, "required_bytes": 0, "quiet_checks": 0}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T10:39:08Z", "competing_processes": [], "available_bytes": 390765400064, "required_bytes": 0, "quiet_checks": 1}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T10:39:13Z", "competing_processes": [], "available_bytes": 390769487872, "required_bytes": 0, "quiet_checks": 2}
+{"stage": "fetch", "utc": "2026-09-12T10:39:18Z"}
+{"stage": "fetch", "utc": "2026-09-12T10:39:18Z", "pid": 3522079}
+{"stage": "native-tests", "utc": "2026-09-12T10:39:20Z"}
+{"stage": "native-tests", "utc": "2026-09-12T10:39:20Z", "pid": 3522096}
+{"stage": "native-build", "utc": "2026-09-12T10:39:48Z"}
+{"stage": "native-build", "utc": "2026-09-12T10:39:48Z", "pid": 3525306}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T10:39:50Z", "competing_processes": [{"pid": 3523395, "comm": "cargo"}, {"pid": 3525321, "comm": "rustc"}, {"pid": 3525322, "comm": "rustc"}, {"pid": 3525323, "comm": "rustc"}], "available_bytes": 389048487936, "required_bytes": 0, "quiet_checks": 0}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T10:39:55Z", "competing_processes": [{"pid": 3525972, "comm": "cargo"}, {"pid": 3526690, "comm": "rustc"}, {"pid": 3526748, "comm": "rustc"}, {"pid": 3526755, "comm": "rustc"}], "available_bytes": 388547821568, "required_bytes": 0, "quiet_checks": 0}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T10:40:00Z", "competing_processes": [{"pid": 3525972, "comm": "cargo"}, {"pid": 3526866, "comm": "rustc"}, {"pid": 3526899, "comm": "rustc"}], "available_bytes": 388519546880, "required_bytes": 0, "quiet_checks": 0}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T10:40:05Z", "competing_processes": [{"pid": 3525972, "comm": "cargo"}, {"pid": 3526899, "comm": "rustc"}, {"pid": 3526907, "comm": "rustc"}], "available_bytes": 388439515136, "required_bytes": 0, "quiet_checks": 0}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T10:40:10Z", "competing_processes": [{"pid": 3525972, "comm": "cargo"}, {"pid": 3526899, "comm": "rustc"}], "available_bytes": 388310159360, "required_bytes": 0, "quiet_checks": 0}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T10:40:15Z", "competing_processes": [{"pid": 3525972, "comm": "cargo"}, {"pid": 3526899, "comm": "rustc"}], "available_bytes": 388706451456, "required_bytes": 0, "quiet_checks": 0}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T10:40:20Z", "competing_processes": [{"pid": 3525972, "comm": "cargo"}, {"pid": 3526899, "comm": "rustc"}], "available_bytes": 388832165888, "required_bytes": 0, "quiet_checks": 0}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T10:40:25Z", "competing_processes": [{"pid": 3525972, "comm": "cargo"}, {"pid": 3526899, "comm": "rustc"}], "available_bytes": 388877971456, "required_bytes": 0, "quiet_checks": 0}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T10:40:31Z", "competing_processes": [{"pid": 3525972, "comm": "cargo"}, {"pid": 3526899, "comm": "rustc"}], "available_bytes": 388893859840, "required_bytes": 0, "quiet_checks": 0}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T10:40:36Z", "competing_processes": [{"pid": 3525972, "comm": "cargo"}, {"pid": 3526943, "comm": "rustc"}], "available_bytes": 389479153664, "required_bytes": 0, "quiet_checks": 0}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T10:40:41Z", "competing_processes": [], "available_bytes": 389437788160, "required_bytes": 0, "quiet_checks": 0}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T10:40:46Z", "competing_processes": [], "available_bytes": 389654302720, "required_bytes": 0, "quiet_checks": 1}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T10:40:51Z", "competing_processes": [], "available_bytes": 389910376448, "required_bytes": 0, "quiet_checks": 2}
+{"stage": "smoke-n20-48t-attempt1", "utc": "2026-09-12T10:40:56Z"}
+{"stage": "smoke-n20-48t-attempt1", "utc": "2026-09-12T10:40:56Z", "pid": 3527304}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T10:40:58Z", "competing_processes": [], "available_bytes": 390199599104, "required_bytes": 0, "quiet_checks": 0}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T10:41:03Z", "competing_processes": [], "available_bytes": 390159343616, "required_bytes": 0, "quiet_checks": 1}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T10:41:08Z", "competing_processes": [], "available_bytes": 390268534784, "required_bytes": 0, "quiet_checks": 2}
+{"stage": "ablation-n26-48t-attempt1", "utc": "2026-09-12T10:41:13Z"}
+{"stage": "ablation-n26-48t-attempt1", "utc": "2026-09-12T10:41:13Z", "pid": 3527423}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T10:42:03Z", "competing_processes": [], "available_bytes": 387054379008, "required_bytes": 236223201280, "quiet_checks": 0}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T10:42:08Z", "competing_processes": [], "available_bytes": 387143626752, "required_bytes": 236223201280, "quiet_checks": 1}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T10:42:13Z", "competing_processes": [], "available_bytes": 387221323776, "required_bytes": 236223201280, "quiet_checks": 2}
+{"stage": "main-n30-24t-attempt1", "utc": "2026-09-12T10:42:18Z"}
+{"stage": "main-n30-24t-attempt1", "utc": "2026-09-12T10:42:18Z", "pid": 3527695}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T10:53:15Z", "competing_processes": [], "available_bytes": 384319057920, "required_bytes": 236223201280, "quiet_checks": 0}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T10:53:20Z", "competing_processes": [], "available_bytes": 384510726144, "required_bytes": 236223201280, "quiet_checks": 1}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T10:53:25Z", "competing_processes": [], "available_bytes": 384998838272, "required_bytes": 236223201280, "quiet_checks": 2}
+{"stage": "cold-rss-n30-24t-previous-attempt1", "utc": "2026-09-12T10:53:30Z"}
+{"stage": "cold-rss-n30-24t-previous-attempt1", "utc": "2026-09-12T10:53:30Z", "pid": 3529123}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T10:53:59Z", "competing_processes": [], "available_bytes": 389180702720, "required_bytes": 236223201280, "quiet_checks": 0}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T10:54:04Z", "competing_processes": [], "available_bytes": 389240926208, "required_bytes": 236223201280, "quiet_checks": 1}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T10:54:09Z", "competing_processes": [], "available_bytes": 389301846016, "required_bytes": 236223201280, "quiet_checks": 2}
+{"stage": "cold-rss-n30-24t-previous_full-attempt1", "utc": "2026-09-12T10:54:14Z"}
+{"stage": "cold-rss-n30-24t-previous_full-attempt1", "utc": "2026-09-12T10:54:14Z", "pid": 3529207}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T10:54:38Z", "competing_processes": [], "available_bytes": 389393899520, "required_bytes": 236223201280, "quiet_checks": 0}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T10:54:43Z", "competing_processes": [], "available_bytes": 389427101696, "required_bytes": 236223201280, "quiet_checks": 1}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T10:54:48Z", "competing_processes": [], "available_bytes": 389480312832, "required_bytes": 236223201280, "quiet_checks": 2}
+{"stage": "cold-rss-n30-24t-optimized-attempt1", "utc": "2026-09-12T10:54:53Z"}
+{"stage": "cold-rss-n30-24t-optimized-attempt1", "utc": "2026-09-12T10:54:53Z", "pid": 3529354}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T10:55:19Z", "competing_processes": [], "available_bytes": 387099402240, "required_bytes": 236223201280, "quiet_checks": 0}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T10:55:25Z", "competing_processes": [], "available_bytes": 387222167552, "required_bytes": 236223201280, "quiet_checks": 1}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T10:55:30Z", "competing_processes": [], "available_bytes": 387314606080, "required_bytes": 236223201280, "quiet_checks": 2}
+{"stage": "cold-rss-n30-24t-full-attempt1", "utc": "2026-09-12T10:55:35Z"}
+{"stage": "cold-rss-n30-24t-full-attempt1", "utc": "2026-09-12T10:55:35Z", "pid": 3529434}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T10:55:59Z", "competing_processes": [], "available_bytes": 385998503936, "required_bytes": 236223201280, "quiet_checks": 0}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T10:56:04Z", "competing_processes": [], "available_bytes": 386164764672, "required_bytes": 236223201280, "quiet_checks": 1}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T10:56:09Z", "competing_processes": [], "available_bytes": 386330025984, "required_bytes": 236223201280, "quiet_checks": 2}
+{"stage": "cold-rss-n30-24t-flock-attempt1", "utc": "2026-09-12T10:56:14Z"}
+{"stage": "cold-rss-n30-24t-flock-attempt1", "utc": "2026-09-12T10:56:14Z", "pid": 3529520}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T10:56:36Z", "competing_processes": [], "available_bytes": 389609652224, "required_bytes": 236223201280, "quiet_checks": 0}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T10:56:41Z", "competing_processes": [], "available_bytes": 389642178560, "required_bytes": 236223201280, "quiet_checks": 1}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T10:56:46Z", "competing_processes": [], "available_bytes": 389667209216, "required_bytes": 236223201280, "quiet_checks": 2}
+{"stage": "main-n30-48t-attempt1", "utc": "2026-09-12T10:56:51Z"}
+{"stage": "main-n30-48t-attempt1", "utc": "2026-09-12T10:56:51Z", "pid": 3529583}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T11:05:42Z", "competing_processes": [], "available_bytes": 387208110080, "required_bytes": 236223201280, "quiet_checks": 0}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T11:05:47Z", "competing_processes": [], "available_bytes": 387351658496, "required_bytes": 236223201280, "quiet_checks": 1}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T11:05:52Z", "competing_processes": [], "available_bytes": 387444117504, "required_bytes": 236223201280, "quiet_checks": 2}
+{"stage": "cold-rss-n30-48t-previous-attempt1", "utc": "2026-09-12T11:05:57Z"}
+{"stage": "cold-rss-n30-48t-previous-attempt1", "utc": "2026-09-12T11:05:57Z", "pid": 3530332}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T11:06:23Z", "competing_processes": [], "available_bytes": 389448495104, "required_bytes": 236223201280, "quiet_checks": 0}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T11:06:28Z", "competing_processes": [], "available_bytes": 389506809856, "required_bytes": 236223201280, "quiet_checks": 1}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T11:06:33Z", "competing_processes": [], "available_bytes": 389554012160, "required_bytes": 236223201280, "quiet_checks": 2}
+{"stage": "cold-rss-n30-48t-previous_full-attempt1", "utc": "2026-09-12T11:06:38Z"}
+{"stage": "cold-rss-n30-48t-previous_full-attempt1", "utc": "2026-09-12T11:06:38Z", "pid": 3530456}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T11:07:01Z", "competing_processes": [], "available_bytes": 389302624256, "required_bytes": 236223201280, "quiet_checks": 0}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T11:07:06Z", "competing_processes": [], "available_bytes": 389391237120, "required_bytes": 236223201280, "quiet_checks": 1}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T11:07:11Z", "competing_processes": [], "available_bytes": 389492404224, "required_bytes": 236223201280, "quiet_checks": 2}
+{"stage": "cold-rss-n30-48t-optimized-attempt1", "utc": "2026-09-12T11:07:16Z"}
+{"stage": "cold-rss-n30-48t-optimized-attempt1", "utc": "2026-09-12T11:07:16Z", "pid": 3530587}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T11:07:38Z", "competing_processes": [], "available_bytes": 388188454912, "required_bytes": 236223201280, "quiet_checks": 0}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T11:07:43Z", "competing_processes": [], "available_bytes": 388243668992, "required_bytes": 236223201280, "quiet_checks": 1}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T11:07:48Z", "competing_processes": [], "available_bytes": 388286529536, "required_bytes": 236223201280, "quiet_checks": 2}
+{"stage": "cold-rss-n30-48t-full-attempt1", "utc": "2026-09-12T11:07:53Z"}
+{"stage": "cold-rss-n30-48t-full-attempt1", "utc": "2026-09-12T11:07:53Z", "pid": 3530696}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T11:08:15Z", "competing_processes": [], "available_bytes": 388047831040, "required_bytes": 236223201280, "quiet_checks": 0}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T11:08:20Z", "competing_processes": [], "available_bytes": 388076572672, "required_bytes": 236223201280, "quiet_checks": 1}
+{"stage": "waiting_for_idle", "utc": "2026-09-12T11:08:25Z", "competing_processes": [], "available_bytes": 388114014208, "required_bytes": 236223201280, "quiet_checks": 2}
+{"stage": "cold-rss-n30-48t-flock-attempt1", "utc": "2026-09-12T11:08:30Z"}
+{"stage": "cold-rss-n30-48t-flock-attempt1", "utc": "2026-09-12T11:08:30Z", "pid": 3530824}
+{"stage": "complete", "utc": "2026-09-12T11:08:54Z", "accepted_cases": 14}

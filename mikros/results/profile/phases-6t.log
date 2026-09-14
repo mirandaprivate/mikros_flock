@@ -1,0 +1,79 @@
+PIOP reductions, BLAKE3 transcript, no grinding, 6 thread(s)
+Generation/digest and original-input claim checks excluded from prove/verify time.
+  warmup n=2^20 lookup   : 5.862 ms
+[zc-timing] round1 URM: 1.10 ms
+[zc-timing] gates: sparse=false single_run=true runs=1 n_mlv=14 compact_k=false r2_la=false
+[zc-timing] round2 fused fold: 3.20 ms
+[zc-timing] rounds 3+ tail: 1.69 ms
+  warmup n=2^20 flock    : 9.064 ms
+  n=2^20 run=1 lookup   : prove 6.850 ms, verify 0.110 ms, 35480 bytes
+[zc-timing] round1 URM: 1.44 ms
+[zc-timing] gates: sparse=false single_run=true runs=1 n_mlv=14 compact_k=false r2_la=false
+[zc-timing] round2 fused fold: 2.63 ms
+[zc-timing] rounds 3+ tail: 1.81 ms
+  n=2^20 run=1 flock    : prove 8.512 ms, verify 0.165 ms, 2576 bytes
+[zc-timing] round1 URM: 1.33 ms
+[zc-timing] gates: sparse=false single_run=true runs=1 n_mlv=14 compact_k=false r2_la=false
+[zc-timing] round2 fused fold: 2.85 ms
+[zc-timing] rounds 3+ tail: 1.33 ms
+  n=2^20 run=2 flock    : prove 8.639 ms, verify 0.167 ms, 2576 bytes
+  n=2^20 run=2 lookup   : prove 7.039 ms, verify 0.168 ms, 35480 bytes
+[zc-timing] round1 URM: 1.25 ms
+[zc-timing] gates: sparse=false single_run=true runs=1 n_mlv=14 compact_k=false r2_la=false
+[zc-timing] round2 fused fold: 4.18 ms
+[zc-timing] rounds 3+ tail: 1.99 ms
+  n=2^20 run=3 flock    : prove 10.727 ms, verify 0.165 ms, 2576 bytes
+  n=2^20 run=3 lookup   : prove 6.900 ms, verify 0.185 ms, 35480 bytes
+  n=2^20 run=4 lookup   : prove 5.973 ms, verify 0.111 ms, 35480 bytes
+[zc-timing] round1 URM: 1.09 ms
+[zc-timing] gates: sparse=false single_run=true runs=1 n_mlv=14 compact_k=false r2_la=false
+[zc-timing] round2 fused fold: 3.03 ms
+[zc-timing] rounds 3+ tail: 2.03 ms
+  n=2^20 run=4 flock    : prove 9.211 ms, verify 0.172 ms, 2576 bytes
+  n=2^20 run=5 lookup   : prove 5.973 ms, verify 0.108 ms, 35480 bytes
+[zc-timing] round1 URM: 1.12 ms
+[zc-timing] gates: sparse=false single_run=true runs=1 n_mlv=14 compact_k=false r2_la=false
+[zc-timing] round2 fused fold: 2.52 ms
+[zc-timing] rounds 3+ tail: 1.71 ms
+  n=2^20 run=5 flock    : prove 8.292 ms, verify 0.166 ms, 2576 bytes
+  median n=2^20 lookup   : 6.850 ms prove [5.973, 7.039], 0.111 ms verify
+  median n=2^20 flock    : 8.639 ms prove [8.292, 10.727], 0.166 ms verify
+  warmup n=2^24 lookup   : 54.097 ms
+[zc-timing] round1 URM: 11.67 ms
+[zc-timing] gates: sparse=false single_run=true runs=1 n_mlv=18 compact_k=false r2_la=false
+[zc-timing] round2 fused fold: 6.74 ms
+[zc-timing] rounds 3+ tail: 5.35 ms
+  warmup n=2^24 flock    : 26.424 ms
+  n=2^24 run=1 lookup   : prove 60.777 ms, verify 0.220 ms, 35608 bytes
+[zc-timing] round1 URM: 10.62 ms
+[zc-timing] gates: sparse=false single_run=true runs=1 n_mlv=18 compact_k=false r2_la=false
+[zc-timing] round2 fused fold: 2.77 ms
+[zc-timing] rounds 3+ tail: 5.32 ms
+  n=2^24 run=1 flock    : prove 21.103 ms, verify 0.183 ms, 2704 bytes
+[zc-timing] round1 URM: 10.72 ms
+[zc-timing] gates: sparse=false single_run=true runs=1 n_mlv=18 compact_k=false r2_la=false
+[zc-timing] round2 fused fold: 4.66 ms
+[zc-timing] rounds 3+ tail: 5.99 ms
+  n=2^24 run=2 flock    : prove 23.654 ms, verify 0.171 ms, 2704 bytes
+  n=2^24 run=2 lookup   : prove 55.683 ms, verify 0.111 ms, 35608 bytes
+[zc-timing] round1 URM: 11.27 ms
+[zc-timing] gates: sparse=false single_run=true runs=1 n_mlv=18 compact_k=false r2_la=false
+[zc-timing] round2 fused fold: 4.21 ms
+[zc-timing] rounds 3+ tail: 3.63 ms
+  n=2^24 run=3 flock    : prove 22.638 ms, verify 0.171 ms, 2704 bytes
+  n=2^24 run=3 lookup   : prove 55.080 ms, verify 0.118 ms, 35608 bytes
+  n=2^24 run=4 lookup   : prove 56.811 ms, verify 0.162 ms, 35608 bytes
+[zc-timing] round1 URM: 10.30 ms
+[zc-timing] gates: sparse=false single_run=true runs=1 n_mlv=18 compact_k=false r2_la=false
+[zc-timing] round2 fused fold: 4.06 ms
+[zc-timing] rounds 3+ tail: 7.43 ms
+  n=2^24 run=4 flock    : prove 24.924 ms, verify 0.182 ms, 2704 bytes
+  n=2^24 run=5 lookup   : prove 55.070 ms, verify 0.114 ms, 35608 bytes
+[zc-timing] round1 URM: 10.93 ms
+[zc-timing] gates: sparse=false single_run=true runs=1 n_mlv=18 compact_k=false r2_la=false
+[zc-timing] round2 fused fold: 3.50 ms
+[zc-timing] rounds 3+ tail: 3.95 ms
+  n=2^24 run=5 flock    : prove 21.020 ms, verify 0.183 ms, 2704 bytes
+  median n=2^24 lookup   : 55.683 ms prove [55.070, 60.777], 0.118 ms verify
+  median n=2^24 flock    : 22.638 ms prove [21.020, 24.924], 0.182 ms verify
+JSON: /mnt/c/Users/miranda/git/mikros_flock/mikros/results/profile/phases-6t.json

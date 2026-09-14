@@ -1,0 +1,6 @@
+   Compiling mikros-permutation v0.1.0 (/home/mscong1/mikros-experiments/20260912T-native64/v12-packed-gfni-20260914/source/mikros/permutation)
+    Finished `release` profile [optimized] target(s) in 4.35s
+     Running unittests src/lib.rs (target/release/deps/mikros_permutation-cba0d33989686e8e)
+     Running tests/composition.rs (target/release/deps/composition-800383c64255b6d1)
+     Running tests/packed_wiring.rs (target/release/deps/packed_wiring-4faae8f4874a2764)
+   Doc-tests mikros_permutation

@@ -1,0 +1,207 @@
+{
+  "executable": "/home/mscong1/mikros-experiments/20260912T-native64/v7-register/source/target/release/deps/univariate_vs_flock-22020f7b8413c02d",
+  "executable_sha256": "3da890dca453354ffff72a039c9a3715b05b08f7b4a0dd7a2b65e12a80c572ea",
+  "functions": [
+    {
+      "file": "diagnostics/function-0.asm",
+      "header": "0000000000655130 <_RINvMs4_NtCsiKyBw8IgE1b_10rayon_core8registryNtB6_8Registry14in_worker_coldNCINvNtB8_4join12join_contextNCINvNvNtNtCsgA7WsSuASij_5rayon4iter8plumbing24bridge_producer_consumer6helperINtNtB1N_9enumerate17EnumerateProducerINtNtB1N_3zip11ZipProducerINtNtNtB1P_5slice6chunks17ChunksMutProducerINtNtNtCsk9TLBDxQNFU_4core3mem12maybe_uninit11MaybeUninitNtNtCskPVWNEMsUTt_11flock_field7gf2_1284F128EEB3W_EEINtNtB1N_3map11MapConsumerINtNtB1N_6reduce14ReduceConsumerNCNvNtCs5Palesvl9wF_6mikros6lookup36pack_pair_weighted_with_message_intos1_0NCB7m_s0_0ENCB7m_s_0EE0NCB1G_s_0ANtB5A_13F256Unreducedj2_B94_E0TB94_B94_EEB7q_>:",
+      "lines": 110,
+      "gfni_mul": 0,
+      "gfni_affine": 0,
+      "vpclmul": 0
+    },
+    {
+      "file": "diagnostics/function-1.asm",
+      "header": "0000000000655320 <_RINvMs4_NtCsiKyBw8IgE1b_10rayon_core8registryNtB6_8Registry14in_worker_coldNCINvNtB8_4join12join_contextNCINvNvNtNtCsgA7WsSuASij_5rayon4iter8plumbing24bridge_producer_consumer6helperINtNtB1N_9enumerate17EnumerateProducerINtNtB1N_3zip11ZipProducerINtNtNtB1P_5slice6chunks17ChunksMutProducerINtNtNtCsk9TLBDxQNFU_4core3mem12maybe_uninit11MaybeUninitNtNtCskPVWNEMsUTt_11flock_field7gf2_1284F128EEB3W_EEINtNtB1N_3map11MapConsumerINtNtB1N_6reduce14ReduceConsumerNCNvNtCs5Palesvl9wF_6mikros6lookup41pack_pair_weighted_with_wide_message_intos1_0NCB7m_s0_0ENCB7m_s_0EE0NCB1G_s_0ANtB5A_13F256Unreducedj2_B99_E0TB99_B99_EEB7q_>:",
+      "lines": 110,
+      "gfni_mul": 0,
+      "gfni_affine": 0,
+      "vpclmul": 0
+    },
+    {
+      "file": "diagnostics/function-2.asm",
+      "header": "00000000006560a0 <_RINvMs4_NtCsiKyBw8IgE1b_10rayon_core8registryNtB6_8Registry15in_worker_crossNCINvNtB8_4join12join_contextNCINvNvNtNtCsgA7WsSuASij_5rayon4iter8plumbing24bridge_producer_consumer6helperINtNtB1O_9enumerate17EnumerateProducerINtNtB1O_3zip11ZipProducerINtNtNtB1Q_5slice6chunks17ChunksMutProducerINtNtNtCsk9TLBDxQNFU_4core3mem12maybe_uninit11MaybeUninitNtNtCskPVWNEMsUTt_11flock_field7gf2_1284F128EEB3X_EEINtNtB1O_3map11MapConsumerINtNtB1O_6reduce14ReduceConsumerNCNvNtCs5Palesvl9wF_6mikros6lookup36pack_pair_weighted_with_message_intos1_0NCB7n_s0_0ENCB7n_s_0EE0NCB1H_s_0ANtB5B_13F256Unreducedj2_B95_E0TB95_B95_EEB7r_>:",
+      "lines": 117,
+      "gfni_mul": 0,
+      "gfni_affine": 0,
+      "vpclmul": 0
+    },
+    {
+      "file": "diagnostics/function-3.asm",
+      "header": "00000000006562e0 <_RINvMs4_NtCsiKyBw8IgE1b_10rayon_core8registryNtB6_8Registry15in_worker_crossNCINvNtB8_4join12join_contextNCINvNvNtNtCsgA7WsSuASij_5rayon4iter8plumbing24bridge_producer_consumer6helperINtNtB1O_9enumerate17EnumerateProducerINtNtB1O_3zip11ZipProducerINtNtNtB1Q_5slice6chunks17ChunksMutProducerINtNtNtCsk9TLBDxQNFU_4core3mem12maybe_uninit11MaybeUninitNtNtCskPVWNEMsUTt_11flock_field7gf2_1284F128EEB3X_EEINtNtB1O_3map11MapConsumerINtNtB1O_6reduce14ReduceConsumerNCNvNtCs5Palesvl9wF_6mikros6lookup41pack_pair_weighted_with_wide_message_intos1_0NCB7n_s0_0ENCB7n_s_0EE0NCB1H_s_0ANtB5B_13F256Unreducedj2_B9a_E0TB9a_B9a_EEB7r_>:",
+      "lines": 117,
+      "gfni_mul": 0,
+      "gfni_affine": 0,
+      "vpclmul": 0
+    },
+    {
+      "file": "diagnostics/function-4.asm",
+      "header": "0000000000656b80 <_RINvNtCsk9TLBDxQNFU_4core3ptr13drop_in_placeINtNtCsiKyBw8IgE1b_10rayon_core3job8StackJobINtNtBL_5latch8LatchRefNtB1r_9LockLatchENCNCINvMs4_NtBL_8registryNtB2d_8Registry14in_worker_coldNCINvNtBL_4join12join_contextNCINvNvNtNtCsgA7WsSuASij_5rayon4iter8plumbing24bridge_producer_consumer6helperINtNtB3y_9enumerate17EnumerateProducerINtNtB3y_3zip11ZipProducerINtNtNtB3A_5slice6chunks17ChunksMutProducerINtNtNtB4_3mem12maybe_uninit11MaybeUninitNtNtCskPVWNEMsUTt_11flock_field7gf2_1284F128EEB5H_EEINtNtB3y_3map11MapConsumerINtNtB3y_6reduce14ReduceConsumerNCNvNtCs5Palesvl9wF_6mikros6lookup36pack_pair_weighted_with_message_intos1_0NCB8R_s0_0ENCB8R_s_0EE0NCB3r_s_0ANtB75_13F256Unreducedj2_Baz_E0TBaz_Baz_EE00Bb4_EEB8V_>:",
+      "lines": 33,
+      "gfni_mul": 0,
+      "gfni_affine": 0,
+      "vpclmul": 0
+    },
+    {
+      "file": "diagnostics/function-5.asm",
+      "header": "0000000000656d90 <_RINvNtCsk9TLBDxQNFU_4core3ptr13drop_in_placeINtNtCsiKyBw8IgE1b_10rayon_core3job8StackJobNtNtBL_5latch9SpinLatchNCINvMs4_NtBL_8registryNtB1U_8Registry15in_worker_crossNCINvNtBL_4join12join_contextNCINvNvNtNtCsgA7WsSuASij_5rayon4iter8plumbing24bridge_producer_consumer6helperINtNtB3g_9enumerate17EnumerateProducerINtNtB3g_3zip11ZipProducerINtNtNtB3i_5slice6chunks17ChunksMutProducerINtNtNtB4_3mem12maybe_uninit11MaybeUninitNtNtCskPVWNEMsUTt_11flock_field7gf2_1284F128EEB5p_EEINtNtB3g_3map11MapConsumerINtNtB3g_6reduce14ReduceConsumerNCNvNtCs5Palesvl9wF_6mikros6lookup36pack_pair_weighted_with_message_intos1_0NCB8z_s0_0ENCB8z_s_0EE0NCB39_s_0ANtB6N_13F256Unreducedj2_Bah_E0TBah_Bah_EE0BaM_EEB8D_>:",
+      "lines": 33,
+      "gfni_mul": 0,
+      "gfni_affine": 0,
+      "vpclmul": 0
+    },
+    {
+      "file": "diagnostics/function-6.asm",
+      "header": "0000000000656e50 <_RINvNtCsk9TLBDxQNFU_4core3ptr13drop_in_placeINtNtCsiKyBw8IgE1b_10rayon_core3job8StackJobNtNtBL_5latch9SpinLatchNCINvNvNtBL_4join12join_context6call_bANtNtCskPVWNEMsUTt_11flock_field7gf2_12813F256Unreducedj2_NCINvNvNtNtCsgA7WsSuASij_5rayon4iter8plumbing24bridge_producer_consumer6helperINtNtB3s_9enumerate17EnumerateProducerINtNtB3s_3zip11ZipProducerINtNtNtB3u_5slice6chunks17ChunksMutProducerINtNtNtB4_3mem12maybe_uninit11MaybeUninitNtB2q_4F128EEB5B_EEINtNtB3s_3map11MapConsumerINtNtB3s_6reduce14ReduceConsumerNCNvNtCs5Palesvl9wF_6mikros6lookup36pack_pair_weighted_with_message_intos1_0NCB8e_s0_0ENCB8e_s_0EEs_0E0B2n_EEB8i_>:",
+      "lines": 42,
+      "gfni_mul": 0,
+      "gfni_affine": 0,
+      "vpclmul": 0
+    },
+    {
+      "file": "diagnostics/function-7.asm",
+      "header": "0000000000657570 <_RINvNvNtNtCsgA7WsSuASij_5rayon4iter8plumbing24bridge_producer_consumer6helperINtNtB6_3zip11ZipProducerIB1e_INtNtNtB8_5slice6chunks14ChunksProducerhEB1H_EIB1I_NtNtCskPVWNEMsUTt_11flock_field7gf2_1284F128EEINtNtB6_3map11MapConsumerINtNtB6_6reduce14ReduceConsumerNCNvNtCs5Palesvl9wF_6mikros10univariate9aggregates0_0NCB4c_s_0ENCB4c_0EEB4g_>:",
+      "lines": 2915,
+      "gfni_mul": 8,
+      "gfni_affine": 32,
+      "vpclmul": 10
+    },
+    {
+      "file": "diagnostics/function-8.asm",
+      "header": "000000000065c5d0 <_RINvNvNtNtCsgA7WsSuASij_5rayon4iter8plumbing24bridge_producer_consumer6helperINtNtB6_9enumerate17EnumerateProducerINtNtB6_3zip11ZipProducerINtNtNtB8_5slice6chunks17ChunksMutProducerINtNtNtCsk9TLBDxQNFU_4core3mem12maybe_uninit11MaybeUninitNtNtCskPVWNEMsUTt_11flock_field7gf2_1284F128EEB2d_EEINtNtB6_3map11MapConsumerINtNtB6_6reduce14ReduceConsumerNCNvNtCs5Palesvl9wF_6mikros6lookup36pack_pair_weighted_with_message_intos1_0NCB5A_s0_0ENCB5A_s_0EEB5E_>:",
+      "lines": 267,
+      "gfni_mul": 0,
+      "gfni_affine": 0,
+      "vpclmul": 0
+    },
+    {
+      "file": "diagnostics/function-9.asm",
+      "header": "000000000065ca30 <_RINvNvNtNtCsgA7WsSuASij_5rayon4iter8plumbing24bridge_producer_consumer6helperINtNtB6_9enumerate17EnumerateProducerINtNtB6_3zip11ZipProducerINtNtNtB8_5slice6chunks17ChunksMutProducerINtNtNtCsk9TLBDxQNFU_4core3mem12maybe_uninit11MaybeUninitNtNtCskPVWNEMsUTt_11flock_field7gf2_1284F128EEB2d_EEINtNtB6_3map11MapConsumerINtNtB6_6reduce14ReduceConsumerNCNvNtCs5Palesvl9wF_6mikros6lookup41pack_pair_weighted_with_wide_message_intos1_0NCB5A_s0_0ENCB5A_s_0EEB5E_>:",
+      "lines": 267,
+      "gfni_mul": 0,
+      "gfni_affine": 0,
+      "vpclmul": 0
+    },
+    {
+      "file": "diagnostics/function-10.asm",
+      "header": "000000000065d3d0 <_RNCINvMs0_NtNtCs8srXsAgjQHr_3std4sync4onceNtB8_4Once15call_once_forceNCINvMNtBa_9once_lockINtB1b_8OnceLockNtNtNtCs5Palesvl9wF_6mikros10univariate5field10SmallFieldE10initializeNCINvB1a_11get_or_initNvMB1I_B1G_3newE0zE0E0B1M_.llvm.16073103944965275176>:",
+      "lines": 2062,
+      "gfni_mul": 0,
+      "gfni_affine": 49,
+      "vpclmul": 39
+    },
+    {
+      "file": "diagnostics/function-11.asm",
+      "header": "0000000000663340 <_RNCINvNtCsiKyBw8IgE1b_10rayon_core4join12join_contextNCINvNvNtNtCsgA7WsSuASij_5rayon4iter8plumbing24bridge_producer_consumer6helperINtNtBY_9enumerate17EnumerateProducerINtNtBY_3zip11ZipProducerINtNtNtB10_5slice6chunks17ChunksMutProducerINtNtNtCsk9TLBDxQNFU_4core3mem12maybe_uninit11MaybeUninitNtNtCskPVWNEMsUTt_11flock_field7gf2_1284F128EEB35_EEINtNtBY_3map11MapConsumerINtNtBY_6reduce14ReduceConsumerNCNvNtCs5Palesvl9wF_6mikros6lookup36pack_pair_weighted_with_message_intos1_0NCB6t_s0_0ENCB6t_s_0EE0NCBR_s_0ANtB4J_13F256Unreducedj2_B8a_E0B6x_>:",
+      "lines": 272,
+      "gfni_mul": 0,
+      "gfni_affine": 0,
+      "vpclmul": 0
+    },
+    {
+      "file": "diagnostics/function-12.asm",
+      "header": "00000000006638c0 <_RNCINvNtCsiKyBw8IgE1b_10rayon_core4join12join_contextNCINvNvNtNtCsgA7WsSuASij_5rayon4iter8plumbing24bridge_producer_consumer6helperINtNtBY_9enumerate17EnumerateProducerINtNtBY_3zip11ZipProducerINtNtNtB10_5slice6chunks17ChunksMutProducerINtNtNtCsk9TLBDxQNFU_4core3mem12maybe_uninit11MaybeUninitNtNtCskPVWNEMsUTt_11flock_field7gf2_1284F128EEB35_EEINtNtBY_3map11MapConsumerINtNtBY_6reduce14ReduceConsumerNCNvNtCs5Palesvl9wF_6mikros6lookup41pack_pair_weighted_with_wide_message_intos1_0NCB6t_s0_0ENCB6t_s_0EE0NCBR_s_0ANtB4J_13F256Unreducedj2_B8f_E0B6x_>:",
+      "lines": 272,
+      "gfni_mul": 0,
+      "gfni_affine": 0,
+      "vpclmul": 0
+    },
+    {
+      "file": "diagnostics/function-13.asm",
+      "header": "0000000000664440 <_RNCNvNtCs5Palesvl9wF_6mikros6lookup36pack_pair_weighted_with_message_into0B5_>:",
+      "lines": 621,
+      "gfni_mul": 0,
+      "gfni_affine": 0,
+      "vpclmul": 27
+    },
+    {
+      "file": "diagnostics/function-14.asm",
+      "header": "00000000006650d0 <_RNCNvNtCs5Palesvl9wF_6mikros6lookup41pack_pair_weighted_with_wide_message_into0B5_>:",
+      "lines": 1300,
+      "gfni_mul": 0,
+      "gfni_affine": 0,
+      "vpclmul": 33
+    },
+    {
+      "file": "diagnostics/function-15.asm",
+      "header": "000000000066ec80 <_RNvNtCs5Palesvl9wF_6mikros6lookup36pack_pair_weighted_with_message_into>:",
+      "lines": 229,
+      "gfni_mul": 0,
+      "gfni_affine": 0,
+      "vpclmul": 0
+    },
+    {
+      "file": "diagnostics/function-16.asm",
+      "header": "000000000066f120 <_RNvNtCs5Palesvl9wF_6mikros6lookup41pack_pair_weighted_with_wide_message_into>:",
+      "lines": 229,
+      "gfni_mul": 0,
+      "gfni_affine": 0,
+      "vpclmul": 0
+    },
+    {
+      "file": "diagnostics/function-17.asm",
+      "header": "00000000006708e0 <_RNvNtNtCs5Palesvl9wF_6mikros10univariate5tiled12consume_four>:",
+      "lines": 106,
+      "gfni_mul": 8,
+      "gfni_affine": 0,
+      "vpclmul": 0
+    },
+    {
+      "file": "diagnostics/function-18.asm",
+      "header": "0000000000671080 <_RNvNtNtCs5Palesvl9wF_6mikros6lookup6x86_647project>:",
+      "lines": 625,
+      "gfni_mul": 0,
+      "gfni_affine": 0,
+      "vpclmul": 18
+    },
+    {
+      "file": "diagnostics/function-19.asm",
+      "header": "0000000000672e30 <_RNvXs2_NtCsiKyBw8IgE1b_10rayon_core3jobINtB5_8StackJobINtNtB7_5latch8LatchRefNtBT_9LockLatchENCNCINvMs4_NtB7_8registryNtB1E_8Registry14in_worker_coldNCINvNtB7_4join12join_contextNCINvNvNtNtCsgA7WsSuASij_5rayon4iter8plumbing24bridge_producer_consumer6helperINtNtB2Z_9enumerate17EnumerateProducerINtNtB2Z_3zip11ZipProducerINtNtNtB31_5slice6chunks17ChunksMutProducerINtNtNtCsk9TLBDxQNFU_4core3mem12maybe_uninit11MaybeUninitNtNtCskPVWNEMsUTt_11flock_field7gf2_1284F128EEB58_EEINtNtB2Z_3map11MapConsumerINtNtB2Z_6reduce14ReduceConsumerNCNvNtCs5Palesvl9wF_6mikros6lookup36pack_pair_weighted_with_message_intos1_0NCB8y_s0_0ENCB8y_s_0EE0NCB2S_s_0ANtB6M_13F256Unreducedj2_Bag_E0TBag_Bag_EE00BaL_ENtB5_3Job7executeB8C_>:",
+      "lines": 145,
+      "gfni_mul": 0,
+      "gfni_affine": 0,
+      "vpclmul": 0
+    },
+    {
+      "file": "diagnostics/function-20.asm",
+      "header": "0000000000673100 <_RNvXs2_NtCsiKyBw8IgE1b_10rayon_core3jobINtB5_8StackJobINtNtB7_5latch8LatchRefNtBT_9LockLatchENCNCINvMs4_NtB7_8registryNtB1E_8Registry14in_worker_coldNCINvNtB7_4join12join_contextNCINvNvNtNtCsgA7WsSuASij_5rayon4iter8plumbing24bridge_producer_consumer6helperINtNtB2Z_9enumerate17EnumerateProducerINtNtB2Z_3zip11ZipProducerINtNtNtB31_5slice6chunks17ChunksMutProducerINtNtNtCsk9TLBDxQNFU_4core3mem12maybe_uninit11MaybeUninitNtNtCskPVWNEMsUTt_11flock_field7gf2_1284F128EEB58_EEINtNtB2Z_3map11MapConsumerINtNtB2Z_6reduce14ReduceConsumerNCNvNtCs5Palesvl9wF_6mikros6lookup41pack_pair_weighted_with_wide_message_intos1_0NCB8y_s0_0ENCB8y_s_0EE0NCB2S_s_0ANtB6M_13F256Unreducedj2_Bal_E0TBal_Bal_EE00BaQ_ENtB5_3Job7executeB8C_>:",
+      "lines": 145,
+      "gfni_mul": 0,
+      "gfni_affine": 0,
+      "vpclmul": 0
+    },
+    {
+      "file": "diagnostics/function-21.asm",
+      "header": "00000000006743b0 <_RNvXs2_NtCsiKyBw8IgE1b_10rayon_core3jobINtB5_8StackJobNtNtB7_5latch9SpinLatchNCINvMs4_NtB7_8registryNtB1m_8Registry15in_worker_crossNCINvNtB7_4join12join_contextNCINvNvNtNtCsgA7WsSuASij_5rayon4iter8plumbing24bridge_producer_consumer6helperINtNtB2I_9enumerate17EnumerateProducerINtNtB2I_3zip11ZipProducerINtNtNtB2K_5slice6chunks17ChunksMutProducerINtNtNtCsk9TLBDxQNFU_4core3mem12maybe_uninit11MaybeUninitNtNtCskPVWNEMsUTt_11flock_field7gf2_1284F128EEB4R_EEINtNtB2I_3map11MapConsumerINtNtB2I_6reduce14ReduceConsumerNCNvNtCs5Palesvl9wF_6mikros6lookup36pack_pair_weighted_with_message_intos1_0NCB8h_s0_0ENCB8h_s_0EE0NCB2B_s_0ANtB6v_13F256Unreducedj2_B9Z_E0TB9Z_B9Z_EE0Bau_ENtB5_3Job7executeB8l_>:",
+      "lines": 174,
+      "gfni_mul": 0,
+      "gfni_affine": 0,
+      "vpclmul": 0
+    },
+    {
+      "file": "diagnostics/function-22.asm",
+      "header": "0000000000674710 <_RNvXs2_NtCsiKyBw8IgE1b_10rayon_core3jobINtB5_8StackJobNtNtB7_5latch9SpinLatchNCINvMs4_NtB7_8registryNtB1m_8Registry15in_worker_crossNCINvNtB7_4join12join_contextNCINvNvNtNtCsgA7WsSuASij_5rayon4iter8plumbing24bridge_producer_consumer6helperINtNtB2I_9enumerate17EnumerateProducerINtNtB2I_3zip11ZipProducerINtNtNtB2K_5slice6chunks17ChunksMutProducerINtNtNtCsk9TLBDxQNFU_4core3mem12maybe_uninit11MaybeUninitNtNtCskPVWNEMsUTt_11flock_field7gf2_1284F128EEB4R_EEINtNtB2I_3map11MapConsumerINtNtB2I_6reduce14ReduceConsumerNCNvNtCs5Palesvl9wF_6mikros6lookup41pack_pair_weighted_with_wide_message_intos1_0NCB8h_s0_0ENCB8h_s_0EE0NCB2B_s_0ANtB6v_13F256Unreducedj2_Ba4_E0TBa4_Ba4_EE0Baz_ENtB5_3Job7executeB8l_>:",
+      "lines": 174,
+      "gfni_mul": 0,
+      "gfni_affine": 0,
+      "vpclmul": 0
+    },
+    {
+      "file": "diagnostics/function-23.asm",
+      "header": "0000000000675040 <_RNvXs2_NtCsiKyBw8IgE1b_10rayon_core3jobINtB5_8StackJobNtNtB7_5latch9SpinLatchNCINvNvNtB7_4join12join_context6call_bANtNtCskPVWNEMsUTt_11flock_field7gf2_12813F256Unreducedj2_NCINvNvNtNtCsgA7WsSuASij_5rayon4iter8plumbing24bridge_producer_consumer6helperINtNtB2U_9enumerate17EnumerateProducerINtNtB2U_3zip11ZipProducerINtNtNtB2W_5slice6chunks17ChunksMutProducerINtNtNtCsk9TLBDxQNFU_4core3mem12maybe_uninit11MaybeUninitNtB1S_4F128EEB53_EEINtNtB2U_3map11MapConsumerINtNtB2U_6reduce14ReduceConsumerNCNvNtCs5Palesvl9wF_6mikros6lookup36pack_pair_weighted_with_message_intos1_0NCB7W_s0_0ENCB7W_s_0EEs_0E0B1P_ENtB5_3Job7executeB80_>:",
+      "lines": 151,
+      "gfni_mul": 0,
+      "gfni_affine": 0,
+      "vpclmul": 0
+    },
+    {
+      "file": "diagnostics/function-24.asm",
+      "header": "00000000006752c0 <_RNvXs2_NtCsiKyBw8IgE1b_10rayon_core3jobINtB5_8StackJobNtNtB7_5latch9SpinLatchNCINvNvNtB7_4join12join_context6call_bANtNtCskPVWNEMsUTt_11flock_field7gf2_12813F256Unreducedj2_NCINvNvNtNtCsgA7WsSuASij_5rayon4iter8plumbing24bridge_producer_consumer6helperINtNtB2U_9enumerate17EnumerateProducerINtNtB2U_3zip11ZipProducerINtNtNtB2W_5slice6chunks17ChunksMutProducerINtNtNtCsk9TLBDxQNFU_4core3mem12maybe_uninit11MaybeUninitNtB1S_4F128EEB53_EEINtNtB2U_3map11MapConsumerINtNtB2U_6reduce14ReduceConsumerNCNvNtCs5Palesvl9wF_6mikros6lookup41pack_pair_weighted_with_wide_message_intos1_0NCB7W_s0_0ENCB7W_s_0EEs_0E0B1P_ENtB5_3Job7executeB80_>:",
+      "lines": 151,
+      "gfni_mul": 0,
+      "gfni_affine": 0,
+      "vpclmul": 0
+    }
+  ],
+  "passed_tests": 76
+}

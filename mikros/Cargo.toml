@@ -1,0 +1,34 @@
+[package]
+name = "mikros"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Binary univariate Hadamard PIOP over GF(256) and a matched Flock comparison."
+
+[dependencies]
+flock-core = { path = "../crates/flock-core" }
+flock-field = { workspace = true }
+flock-hash = { workspace = true }
+flock-multilinear = { workspace = true }
+flock-parallel = { workspace = true }
+flock-transcript = { workspace = true }
+rayon = { workspace = true }
+serde = { workspace = true }
+
+[dev-dependencies]
+mikros-permutation = { path = "permutation" }
+flock-prover = { path = "../crates/flock-prover" }
+blake3 = { workspace = true }
+bincode = { workspace = true }
+serde_json = { workspace = true }
+
+[[bench]]
+name = "hadamard_vs_flock"
+harness = false
+
+[[bench]]
+name = "univariate_vs_flock"
+harness = false
+
+[lints]
+workspace = true

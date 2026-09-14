@@ -1,0 +1,9 @@
+   Compiling flock-merkle v0.1.0 (/home/mscong1/mikros-experiments/20260912T-native64/v14-packed-aggregate-20260914/source/crates/flock-merkle)
+   Compiling flock-transcript v0.1.0 (/home/mscong1/mikros-experiments/20260912T-native64/v14-packed-aggregate-20260914/source/crates/flock-transcript)
+   Compiling flock-core v0.1.0 (/home/mscong1/mikros-experiments/20260912T-native64/v14-packed-aggregate-20260914/source/crates/flock-core)
+    Finished `release` profile [optimized] target(s) in 29.52s
+     Running unittests src/lib.rs (target/release/deps/flock_core-3ba28222483ac645)
+     Running tests/assist_blocked.rs (target/release/deps/assist_blocked-d4421f43331340b2)
+     Running tests/jagged_fold.rs (target/release/deps/jagged_fold-7c7fde274ae0c767)
+     Running tests/sigma_route_b.rs (target/release/deps/sigma_route_b-96908b03e32106b4)
+     Running tests/union_lincheck.rs (target/release/deps/union_lincheck-63bffd39019b39be)

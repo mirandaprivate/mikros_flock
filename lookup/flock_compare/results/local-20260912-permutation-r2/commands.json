@@ -1,0 +1,203 @@
+[
+  {
+    "stage": "smoke",
+    "argv": [
+      "taskset",
+      "-c",
+      "0",
+      "/mnt/c/Users/miranda/git/mikros_flock/lookup/flock_compare/target/release/permutation-flock-compare",
+      "--logs",
+      "10",
+      "--widths",
+      "8",
+      "--runs",
+      "1",
+      "--threads",
+      "1",
+      "--out",
+      "/mnt/c/Users/miranda/git/mikros_flock/lookup/flock_compare/results/local-20260912-permutation-r2/smoke.json"
+    ],
+    "loadavg_start": [
+      1.625,
+      2.353515625,
+      3.1015625
+    ],
+    "utc_start": "2026-09-12T08:21:32Z",
+    "competing_build_observations": [],
+    "returncode": 0,
+    "wall_seconds": 2.009748699994816,
+    "loadavg_end": [
+      1.49462890625,
+      2.31396484375,
+      3.08447265625
+    ]
+  },
+  {
+    "stage": "comparison-1t",
+    "argv": [
+      "taskset",
+      "-c",
+      "0",
+      "/mnt/c/Users/miranda/git/mikros_flock/lookup/flock_compare/target/release/permutation-flock-compare",
+      "--logs",
+      "12,16,20",
+      "--widths",
+      "1,8,32",
+      "--runs",
+      "6",
+      "--threads",
+      "1",
+      "--out",
+      "/mnt/c/Users/miranda/git/mikros_flock/lookup/flock_compare/results/local-20260912-permutation-r2/comparison-1t.json"
+    ],
+    "loadavg_start": [
+      1.16259765625,
+      2.19970703125,
+      3.03466796875
+    ],
+    "utc_start": "2026-09-12T08:21:49Z",
+    "competing_build_observations": [
+      {
+        "elapsed_seconds": 54.08416009999928,
+        "processes": [
+          {
+            "pid": 6549,
+            "comm": "cargo"
+          }
+        ]
+      },
+      {
+        "elapsed_seconds": 56.08735110000271,
+        "processes": [
+          {
+            "pid": 6549,
+            "comm": "cargo"
+          },
+          {
+            "pid": 6560,
+            "comm": "rustc"
+          },
+          {
+            "pid": 6572,
+            "comm": "rustc"
+          }
+        ]
+      },
+      {
+        "elapsed_seconds": 58.09031420000247,
+        "processes": [
+          {
+            "pid": 6549,
+            "comm": "cargo"
+          },
+          {
+            "pid": 6587,
+            "comm": "rustc"
+          },
+          {
+            "pid": 6597,
+            "comm": "rustc"
+          }
+        ]
+      },
+      {
+        "elapsed_seconds": 60.09344150000106,
+        "processes": [
+          {
+            "pid": 6549,
+            "comm": "cargo"
+          },
+          {
+            "pid": 6632,
+            "comm": "rustc"
+          },
+          {
+            "pid": 6637,
+            "comm": "rustc"
+          }
+        ]
+      },
+      {
+        "elapsed_seconds": 62.096206100002746,
+        "processes": [
+          {
+            "pid": 6549,
+            "comm": "cargo"
+          },
+          {
+            "pid": 6632,
+            "comm": "rustc"
+          },
+          {
+            "pid": 6657,
+            "comm": "rustc"
+          }
+        ]
+      },
+      {
+        "elapsed_seconds": 64.09919850000006,
+        "processes": [
+          {
+            "pid": 6549,
+            "comm": "cargo"
+          },
+          {
+            "pid": 6657,
+            "comm": "rustc"
+          },
+          {
+            "pid": 6662,
+            "comm": "rustc"
+          }
+        ]
+      },
+      {
+        "elapsed_seconds": 66.10192639999877,
+        "processes": [
+          {
+            "pid": 6549,
+            "comm": "cargo"
+          },
+          {
+            "pid": 6679,
+            "comm": "rustc"
+          }
+        ]
+      },
+      {
+        "elapsed_seconds": 68.10464579999825,
+        "processes": [
+          {
+            "pid": 6549,
+            "comm": "cargo"
+          }
+        ]
+      },
+      {
+        "elapsed_seconds": 70.10788909999974,
+        "processes": [
+          {
+            "pid": 6549,
+            "comm": "cargo"
+          }
+        ]
+      },
+      {
+        "elapsed_seconds": 72.1109776000012,
+        "processes": [
+          {
+            "pid": 6549,
+            "comm": "cargo"
+          }
+        ]
+      }
+    ],
+    "returncode": 0,
+    "wall_seconds": 114.17158980000386,
+    "loadavg_end": [
+      1.42626953125,
+      1.98095703125,
+      2.859375
+    ]
+  }
+]
