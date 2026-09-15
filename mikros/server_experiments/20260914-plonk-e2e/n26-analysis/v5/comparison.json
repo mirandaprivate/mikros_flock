@@ -1,0 +1,454 @@
+{
+  "scale": "N26 per circuit; multiple=128 circuits",
+  "threads": 64,
+  "scope": "Online including conversions, release and recommit; offline excluded",
+  "statistic": "Median of separate processes; phase medians need not sum to total median",
+  "baseline_directories": [
+    "mikros/server_experiments/20260914-plonk-e2e/n26-baseline/evidence/baseline-n26-r1",
+    "mikros/server_experiments/20260914-plonk-e2e/n26-baseline/evidence/baseline-n26-r2",
+    "mikros/server_experiments/20260914-plonk-e2e/n26-baseline/evidence/baseline-n26-r3"
+  ],
+  "optimized_directories": [
+    "mikros/server_experiments/20260914-plonk-e2e/v5/evidence/optimized-n26-r1",
+    "mikros/server_experiments/20260914-plonk-e2e/v5/evidence/optimized-n26-r2",
+    "mikros/server_experiments/20260914-plonk-e2e/v5/evidence/optimized-n26-r3"
+  ],
+  "cases": [
+    {
+      "mode": "single",
+      "system": "mikros",
+      "unchanged_proof_and_commitments": true,
+      "proof_blake3": "21fe1986d6e629e7187a3b8b2b8d33957037cde236b4238b964feca6fa991050",
+      "proof_bytes": 1296879,
+      "baseline": {
+        "samples": 3,
+        "times_ms": {
+          "gates_ms": {
+            "median": 68.494733,
+            "min": 65.10004799999999,
+            "max": 84.61226099999999
+          },
+          "copy_ms": {
+            "median": 1344.2682360000001,
+            "min": 1333.205102,
+            "max": 1415.955686
+          },
+          "witness_pcs_open_ms": {
+            "median": 334.484728,
+            "min": 313.275035,
+            "max": 418.600495
+          },
+          "public_pcs_open_ms": {
+            "median": 3589.859245,
+            "min": 3561.627009,
+            "max": 3778.8650270000003
+          },
+          "commit_and_recommit_ms": {
+            "median": 644.665512,
+            "min": 567.035146,
+            "max": 800.534328
+          },
+          "release_ms": {
+            "median": 1735.87273,
+            "min": 1625.939203,
+            "max": 1771.596217
+          },
+          "serialization_ms": {
+            "median": 0.6900499999999999,
+            "min": 0.67664,
+            "max": 1.038287
+          },
+          "prover_ms": {
+            "median": 7802.875991999999,
+            "min": 7588.626863,
+            "max": 8066.114591
+          }
+        }
+      },
+      "optimized": {
+        "samples": 3,
+        "times_ms": {
+          "gates_ms": {
+            "median": 73.439034,
+            "min": 69.889746,
+            "max": 85.281588
+          },
+          "copy_ms": {
+            "median": 1338.501179,
+            "min": 1310.960555,
+            "max": 1382.080663
+          },
+          "witness_pcs_open_ms": {
+            "median": 229.98248900000002,
+            "min": 229.48565000000002,
+            "max": 234.462835
+          },
+          "public_pcs_open_ms": {
+            "median": 1193.082591,
+            "min": 1166.4869860000001,
+            "max": 1225.35861
+          },
+          "commit_and_recommit_ms": {
+            "median": 607.683273,
+            "min": 604.256087,
+            "max": 620.0125310000001
+          },
+          "release_ms": {
+            "median": 1669.456532,
+            "min": 1633.1817340000002,
+            "max": 1739.230701
+          },
+          "serialization_ms": {
+            "median": 0.7746190000000001,
+            "min": 0.586333,
+            "max": 1.4392090000000002
+          },
+          "prover_ms": {
+            "median": 5121.649528,
+            "min": 5081.831510999999,
+            "max": 5213.115973
+          }
+        }
+      }
+    },
+    {
+      "mode": "single",
+      "system": "flock",
+      "unchanged_proof_and_commitments": true,
+      "proof_blake3": "8912e840cf6f775bb82d464340c9ddab540e97c1acda8e925190ecfaae203d0c",
+      "proof_bytes": 1215735,
+      "baseline": {
+        "samples": 3,
+        "times_ms": {
+          "gates_ms": {
+            "median": 17.04476,
+            "min": 16.589173,
+            "max": 18.643749
+          },
+          "copy_ms": {
+            "median": 6662.924709,
+            "min": 6637.924548,
+            "max": 6820.414343
+          },
+          "witness_pcs_open_ms": {
+            "median": 316.52162,
+            "min": 283.01919300000003,
+            "max": 356.210201
+          },
+          "public_pcs_open_ms": {
+            "median": 2400.940453,
+            "min": 2348.299151,
+            "max": 2407.420635
+          },
+          "commit_and_recommit_ms": {
+            "median": 642.842051,
+            "min": 636.842387,
+            "max": 857.115193
+          },
+          "release_ms": {
+            "median": 917.181238,
+            "min": 900.520592,
+            "max": 993.625132
+          },
+          "serialization_ms": {
+            "median": 0.645497,
+            "min": 0.60848,
+            "max": 0.722726
+          },
+          "prover_ms": {
+            "median": 11061.408443,
+            "min": 10996.416575,
+            "max": 11179.231068
+          }
+        }
+      },
+      "optimized": {
+        "samples": 3,
+        "times_ms": {
+          "gates_ms": {
+            "median": 16.75208,
+            "min": 16.058049,
+            "max": 17.146333
+          },
+          "copy_ms": {
+            "median": 6506.992378999999,
+            "min": 6494.675520000001,
+            "max": 6875.079955
+          },
+          "witness_pcs_open_ms": {
+            "median": 241.92757,
+            "min": 213.532173,
+            "max": 281.50233099999997
+          },
+          "public_pcs_open_ms": {
+            "median": 888.365535,
+            "min": 881.666101,
+            "max": 917.1506189999999
+          },
+          "commit_and_recommit_ms": {
+            "median": 627.348032,
+            "min": 592.3485479999999,
+            "max": 790.5143089999999
+          },
+          "release_ms": {
+            "median": 979.924039,
+            "min": 918.453829,
+            "max": 980.486967
+          },
+          "serialization_ms": {
+            "median": 0.550294,
+            "min": 0.507494,
+            "max": 0.640683
+          },
+          "prover_ms": {
+            "median": 9380.788112,
+            "min": 9295.588522,
+            "max": 9566.152272
+          }
+        }
+      }
+    },
+    {
+      "mode": "multiple",
+      "system": "mikros",
+      "unchanged_proof_and_commitments": true,
+      "proof_blake3": "51be7cc80633c8446f569cd2d7942e8310b22025fdb2f3bd73ae24f6b9c0491e",
+      "proof_bytes": 1239135,
+      "baseline": {
+        "samples": 3,
+        "times_ms": {
+          "gates_ms": {
+            "median": 1393.515267,
+            "min": 1373.4789649999998,
+            "max": 1591.5357139999999
+          },
+          "copy_ms": {
+            "median": 6039.065778,
+            "min": 5952.542052,
+            "max": 6086.680829
+          },
+          "witness_pcs_open_ms": {
+            "median": 12426.120946,
+            "min": 12220.706224000001,
+            "max": 12453.449548
+          },
+          "public_pcs_open_ms": {
+            "median": 3157.14198,
+            "min": 3068.6895339999996,
+            "max": 3324.10188
+          },
+          "commit_and_recommit_ms": {
+            "median": 4269.343448,
+            "min": 4234.39687,
+            "max": 4983.762467999999
+          },
+          "release_ms": {
+            "median": 3026.592735,
+            "min": 3012.371678,
+            "max": 3071.1513720000003
+          },
+          "serialization_ms": {
+            "median": 0.9726980000000001,
+            "min": 0.942876,
+            "max": 1.0331
+          },
+          "prover_ms": {
+            "median": 30123.890992,
+            "min": 30097.214424,
+            "max": 31467.482611
+          }
+        }
+      },
+      "optimized": {
+        "samples": 3,
+        "times_ms": {
+          "gates_ms": {
+            "median": 1371.8071570000002,
+            "min": 1367.75806,
+            "max": 1398.525783
+          },
+          "copy_ms": {
+            "median": 4338.224319,
+            "min": 4305.148658,
+            "max": 4394.906921000001
+          },
+          "witness_pcs_open_ms": {
+            "median": 7104.77544,
+            "min": 7085.517706,
+            "max": 7303.330687
+          },
+          "public_pcs_open_ms": {
+            "median": 1290.939597,
+            "min": 1258.982254,
+            "max": 1351.970994
+          },
+          "commit_and_recommit_ms": {
+            "median": 4372.721918,
+            "min": 4331.588654,
+            "max": 4382.921745000001
+          },
+          "release_ms": {
+            "median": 3228.0313730000003,
+            "min": 3067.0849529999996,
+            "max": 3287.7724810000004
+          },
+          "serialization_ms": {
+            "median": 0.582664,
+            "min": 0.564538,
+            "max": 0.929658
+          },
+          "prover_ms": {
+            "median": 21610.940133,
+            "min": 21603.088821,
+            "max": 22030.87823
+          }
+        }
+      }
+    },
+    {
+      "mode": "multiple",
+      "system": "flock",
+      "unchanged_proof_and_commitments": true,
+      "proof_blake3": "6d4d6e22d877164d8cf9babb46f44c9dd5586c8b51caa6805d6581874c882f04",
+      "proof_bytes": 1172983,
+      "baseline": {
+        "samples": 3,
+        "times_ms": {
+          "gates_ms": {
+            "median": 1792.217328,
+            "min": 1736.235376,
+            "max": 1831.699799
+          },
+          "copy_ms": {
+            "median": 7747.342894,
+            "min": 7653.578874,
+            "max": 7836.91663
+          },
+          "witness_pcs_open_ms": {
+            "median": 12198.214302,
+            "min": 12099.159126,
+            "max": 12825.810929
+          },
+          "public_pcs_open_ms": {
+            "median": 2322.138835,
+            "min": 2276.3920519999997,
+            "max": 2355.193797
+          },
+          "commit_and_recommit_ms": {
+            "median": 4416.629406,
+            "min": 4312.5470239999995,
+            "max": 4666.264153
+          },
+          "release_ms": {
+            "median": 3572.3248849999995,
+            "min": 3240.514067,
+            "max": 3644.0063010000003
+          },
+          "serialization_ms": {
+            "median": 0.573522,
+            "min": 0.552574,
+            "max": 1.254747
+          },
+          "prover_ms": {
+            "median": 31921.429991,
+            "min": 31891.372753,
+            "max": 32717.789150999997
+          }
+        }
+      },
+      "optimized": {
+        "samples": 3,
+        "times_ms": {
+          "gates_ms": {
+            "median": 1761.796533,
+            "min": 1738.957936,
+            "max": 1766.9687920000001
+          },
+          "copy_ms": {
+            "median": 6725.437817,
+            "min": 6584.2943829999995,
+            "max": 6745.1316449999995
+          },
+          "witness_pcs_open_ms": {
+            "median": 6627.744279,
+            "min": 6588.802268,
+            "max": 6875.046345000001
+          },
+          "public_pcs_open_ms": {
+            "median": 1027.190329,
+            "min": 998.240346,
+            "max": 1049.592684
+          },
+          "commit_and_recommit_ms": {
+            "median": 4451.998559,
+            "min": 4277.736167,
+            "max": 4467.803416
+          },
+          "release_ms": {
+            "median": 3583.113561,
+            "min": 3471.758964,
+            "max": 3652.9191790000004
+          },
+          "serialization_ms": {
+            "median": 0.542499,
+            "min": 0.539157,
+            "max": 0.557917
+          },
+          "prover_ms": {
+            "median": 24036.555341,
+            "min": 23858.722613,
+            "max": 24501.758015
+          }
+        }
+      }
+    }
+  ],
+  "baseline_allocator": "system",
+  "optimized_allocator": "system",
+  "baseline_binary_sha256": "c01022596667761130e3746aceae9524ec7c05a27dc2adecb9890cbf05d3105a",
+  "optimized_binary_sha256": "2d33a355d384b3f1f4fc6d752a05bd5d694ee945cf9dcf80d15b833d03153048",
+  "evidence_sha256": {
+    "mikros/server_experiments/20260914-plonk-e2e/n26-baseline/evidence/baseline-n26-r1/status.json": "61d41a85bb13414b082a5099521e2561744fa44ad44bcdee976295d19848040c",
+    "mikros/server_experiments/20260914-plonk-e2e/n26-baseline/evidence/baseline-n26-r1/config.json": "070e612023fbb4df614c49741a675026de8bfcae58bbd5dc33b929d3fbbece4a",
+    "mikros/server_experiments/20260914-plonk-e2e/n26-baseline/evidence/baseline-n26-r1/build-receipt.json": "8c44be3590ea8f271d6e58939dcbc0178ac9a4708544e0b57a83e5cb5b1d1e93",
+    "mikros/server_experiments/20260914-plonk-e2e/n26-baseline/evidence/baseline-n26-r1/n26-single-mikros.stdout.jsonl": "21eb5390f4115037e9f4f3e1a532a9430aa8c6341bfa601bd8dfb86508103475",
+    "mikros/server_experiments/20260914-plonk-e2e/n26-baseline/evidence/baseline-n26-r1/n26-single-flock.stdout.jsonl": "d78debefb99625022c55a7806e98b897a3e512a8900a0dfe145ab1bfc42391db",
+    "mikros/server_experiments/20260914-plonk-e2e/n26-baseline/evidence/baseline-n26-r1/n26-multiple-mikros.stdout.jsonl": "5e8e07678a9b8cd9e259f5a6e67c3281d282bdc2387ec33e6b749d6138163df7",
+    "mikros/server_experiments/20260914-plonk-e2e/n26-baseline/evidence/baseline-n26-r1/n26-multiple-flock.stdout.jsonl": "f5a37366a4122f63edc6b14c0620fa48020d72bb20078aacf3f1e1790fec5915",
+    "mikros/server_experiments/20260914-plonk-e2e/n26-baseline/evidence/baseline-n26-r2/status.json": "483c20e9f13e9e25036eeca07c0374d7dce94e881cd363ddba08fdc178a4482c",
+    "mikros/server_experiments/20260914-plonk-e2e/n26-baseline/evidence/baseline-n26-r2/config.json": "070e612023fbb4df614c49741a675026de8bfcae58bbd5dc33b929d3fbbece4a",
+    "mikros/server_experiments/20260914-plonk-e2e/n26-baseline/evidence/baseline-n26-r2/build-receipt.json": "8c44be3590ea8f271d6e58939dcbc0178ac9a4708544e0b57a83e5cb5b1d1e93",
+    "mikros/server_experiments/20260914-plonk-e2e/n26-baseline/evidence/baseline-n26-r2/n26-single-mikros.stdout.jsonl": "1942a039175058565c109bb6f26082a2f01a05ad71c4e4dc4a4dc79765c613e5",
+    "mikros/server_experiments/20260914-plonk-e2e/n26-baseline/evidence/baseline-n26-r2/n26-single-flock.stdout.jsonl": "396eae0ca6514403e72f9ff9c4acf23b707b17846b4e037770fd652d34fdfd0d",
+    "mikros/server_experiments/20260914-plonk-e2e/n26-baseline/evidence/baseline-n26-r2/n26-multiple-mikros.stdout.jsonl": "748748af67764a34f1fab9fa9e2e36fe982bc783316a6079f99f632c052091fc",
+    "mikros/server_experiments/20260914-plonk-e2e/n26-baseline/evidence/baseline-n26-r2/n26-multiple-flock.stdout.jsonl": "6f156cb652beb0e8a9eb126af9b274af3ed466f653e3b6fb3a78470d964d10bd",
+    "mikros/server_experiments/20260914-plonk-e2e/n26-baseline/evidence/baseline-n26-r3/status.json": "cf349436f2a997b156ef85bf7fc4463be5e5b49d11a3e66e45ac4bb03c480f90",
+    "mikros/server_experiments/20260914-plonk-e2e/n26-baseline/evidence/baseline-n26-r3/config.json": "070e612023fbb4df614c49741a675026de8bfcae58bbd5dc33b929d3fbbece4a",
+    "mikros/server_experiments/20260914-plonk-e2e/n26-baseline/evidence/baseline-n26-r3/build-receipt.json": "8c44be3590ea8f271d6e58939dcbc0178ac9a4708544e0b57a83e5cb5b1d1e93",
+    "mikros/server_experiments/20260914-plonk-e2e/n26-baseline/evidence/baseline-n26-r3/n26-single-mikros.stdout.jsonl": "c77e69ad3467fcede7bd0a36b58601fb969a413a3cf04e79d5a2ce98a566a130",
+    "mikros/server_experiments/20260914-plonk-e2e/n26-baseline/evidence/baseline-n26-r3/n26-single-flock.stdout.jsonl": "fba3b99627509e5defa0791c89eae7db90f498626479d5747244e1f5d440e5f9",
+    "mikros/server_experiments/20260914-plonk-e2e/n26-baseline/evidence/baseline-n26-r3/n26-multiple-mikros.stdout.jsonl": "68b592325a3bc9637daf792fed6f2e715080041da6bdba39ac8761f11bc9fb36",
+    "mikros/server_experiments/20260914-plonk-e2e/n26-baseline/evidence/baseline-n26-r3/n26-multiple-flock.stdout.jsonl": "8a0c7219a4b67c893d05f88d75fa48a5babaab3ef248afeb52409ace04b98cb9",
+    "mikros/server_experiments/20260914-plonk-e2e/v5/evidence/optimized-n26-r1/status.json": "cfe838370df42e70b7d0b0b08f4086b1939dc8705ea4a49666db17cfb23b9759",
+    "mikros/server_experiments/20260914-plonk-e2e/v5/evidence/optimized-n26-r1/config.json": "791a8e0a4a1e230fb7ad31922136619b1eac139650b1c4c4de61afee4a9bc78a",
+    "mikros/server_experiments/20260914-plonk-e2e/v5/evidence/optimized-n26-r1/build-receipt.json": "b587a9b8cb889c43f2855f846c5f48ce555538c7e46a5bde57534468d9e4ca40",
+    "mikros/server_experiments/20260914-plonk-e2e/v5/evidence/optimized-n26-r1/n26-single-mikros.stdout.jsonl": "8e997cc1f1d2e15e34c229bdf73417533eb217df84ad15428a4a90d0f3379aa4",
+    "mikros/server_experiments/20260914-plonk-e2e/v5/evidence/optimized-n26-r1/n26-single-flock.stdout.jsonl": "86ff0257f4fbdc5e7f4bb4e1c2709d8bdaaaa982928e48fe236e8042cce9490e",
+    "mikros/server_experiments/20260914-plonk-e2e/v5/evidence/optimized-n26-r1/n26-multiple-mikros.stdout.jsonl": "98b7cfefea0d75a3eb21019559877f89c77306717510df7b3f001b5ab547e65b",
+    "mikros/server_experiments/20260914-plonk-e2e/v5/evidence/optimized-n26-r1/n26-multiple-flock.stdout.jsonl": "0e3e50870d22c36c18cd09372c918d3c09c2604a271143f48dacbfa9652f07d0",
+    "mikros/server_experiments/20260914-plonk-e2e/v5/evidence/optimized-n26-r2/status.json": "544a24702d15bcdff8b80cc8f45cc04eff6f8307671ae73c05d5fb571be59fc0",
+    "mikros/server_experiments/20260914-plonk-e2e/v5/evidence/optimized-n26-r2/config.json": "791a8e0a4a1e230fb7ad31922136619b1eac139650b1c4c4de61afee4a9bc78a",
+    "mikros/server_experiments/20260914-plonk-e2e/v5/evidence/optimized-n26-r2/build-receipt.json": "b587a9b8cb889c43f2855f846c5f48ce555538c7e46a5bde57534468d9e4ca40",
+    "mikros/server_experiments/20260914-plonk-e2e/v5/evidence/optimized-n26-r2/n26-single-mikros.stdout.jsonl": "520c32230a507f3ec3dd36af41ede66eba25d737e928c8b1c16a900e3676b308",
+    "mikros/server_experiments/20260914-plonk-e2e/v5/evidence/optimized-n26-r2/n26-single-flock.stdout.jsonl": "21ce7f705f3776e0a34de115a81a79d68472037f5ce8dd06614e3e2d46310fa3",
+    "mikros/server_experiments/20260914-plonk-e2e/v5/evidence/optimized-n26-r2/n26-multiple-mikros.stdout.jsonl": "7cf5ffd5c2d2a517f6d2b0728c328174e2edc7d3d5a2185fc66985ec529acfd8",
+    "mikros/server_experiments/20260914-plonk-e2e/v5/evidence/optimized-n26-r2/n26-multiple-flock.stdout.jsonl": "c4305bc720921dec6c64be05551aa9217074735404f53a5e434cec22fbe89ae2",
+    "mikros/server_experiments/20260914-plonk-e2e/v5/evidence/optimized-n26-r3/status.json": "f36c73289de23200fd3756af2b16639cb52dfc71df4179797a6375b1ec1d4dc7",
+    "mikros/server_experiments/20260914-plonk-e2e/v5/evidence/optimized-n26-r3/config.json": "791a8e0a4a1e230fb7ad31922136619b1eac139650b1c4c4de61afee4a9bc78a",
+    "mikros/server_experiments/20260914-plonk-e2e/v5/evidence/optimized-n26-r3/build-receipt.json": "b587a9b8cb889c43f2855f846c5f48ce555538c7e46a5bde57534468d9e4ca40",
+    "mikros/server_experiments/20260914-plonk-e2e/v5/evidence/optimized-n26-r3/n26-single-mikros.stdout.jsonl": "4afa314591b96d00cd39330957eff5830aa5b0ef64856ef5995cf16f70c94790",
+    "mikros/server_experiments/20260914-plonk-e2e/v5/evidence/optimized-n26-r3/n26-single-flock.stdout.jsonl": "0ad6ffb5ce5ababc1d618537a6e98b2cb7cbc65040daa29418c6c6b0184c169e",
+    "mikros/server_experiments/20260914-plonk-e2e/v5/evidence/optimized-n26-r3/n26-multiple-mikros.stdout.jsonl": "8bf59562c237bcf49745d4eee6e6e61abf992e113138a8608468aa67d8f6e662",
+    "mikros/server_experiments/20260914-plonk-e2e/v5/evidence/optimized-n26-r3/n26-multiple-flock.stdout.jsonl": "d7f075c5cff0ebc0334a77ca31d169c45a896b404c99fe1ecb04fcb22ec6eb42"
+  }
+}

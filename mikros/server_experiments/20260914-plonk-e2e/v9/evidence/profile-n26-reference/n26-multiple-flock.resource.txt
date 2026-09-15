@@ -1,0 +1,23 @@
+	Command being timed: "taskset -c 0-47,48-55,72-79 /home/mscong1/mikros-experiments/20260912T-native64/v14-packed-aggregate-20260914/source/target/release/examples/e2e_plonk_compare --mode multiple --system flock --log-gates 26 --threads 64 --repetitions 1 --seed 97"
+	User time (seconds): 680.46
+	System time (seconds): 156.43
+	Percent of CPU this job got: 3156%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:26.51
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 27584048
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 25678465
+	Voluntary context switches: 61808
+	Involuntary context switches: 17749
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 24
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

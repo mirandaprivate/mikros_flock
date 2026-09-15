@@ -13,13 +13,18 @@
 //! prover's point-shape adapter: the verifier checks all 128 column weights.
 //! Callers must first bind the commitment, public circuit and original PIOP.
 //! Normalization and any challenge-dependent component folds are online work.
+//! `FLOCK_PCS_PACKED_DIRECT=1` optionally routes scalar multiples of canonical
+//! packed-word columns directly through the same native merged PCS. Both
+//! parties must use the same experimental setting: the PCS challenge stream
+//! changes, while the original intake and serialized proof layout do not.
 
 use std::ops::Range;
 
 use serde::{Deserialize, Serialize};
 
 use super::{
-    Commitment, MergedOpenProof, PcsOpenError, ProverData,
+    Commitment, DirectEqInd, LOG_PACKING, MergedOpenProof, PackedDirectClaim, PackedDirectClaimRef,
+    PcsOpenError, ProverData,
     functional::TensorClaim,
     open_batch_merged,
     ring_switch::{
@@ -47,6 +52,96 @@ struct Component {
 struct Adapted {
     components: Vec<Component>,
     groups: Vec<Range<usize>>,
+}
+
+#[cfg(test)]
+std::thread_local! {
+    static PACKED_DIRECT_OVERRIDE: std::cell::Cell<Option<bool>> = const {
+        std::cell::Cell::new(None)
+    };
+}
+
+fn packed_direct_enabled() -> bool {
+    #[cfg(test)]
+    if let Some(enabled) = PACKED_DIRECT_OVERRIDE.get() {
+        return enabled;
+    }
+    std::env::var_os("FLOCK_PCS_PACKED_DIRECT").is_some_and(|value| value == "1")
+}
+
+#[cfg(test)]
+fn with_packed_direct_override<T>(enabled: bool, f: impl FnOnce() -> T) -> T {
+    struct Restore(Option<bool>);
+    impl Drop for Restore {
+        fn drop(&mut self) {
+            PACKED_DIRECT_OVERRIDE.set(self.0);
+        }
+    }
+    let _restore = Restore(PACKED_DIRECT_OVERRIDE.replace(Some(enabled)));
+    f()
+}
+
+/// In this geometry the committed word index and the virtual packed-word
+/// index coincide, including every bit in each word. Identity compaction by
+/// itself is insufficient: it can still contain partially useful words.
+fn full_identity_rectangle(union: &UnionInstance<'_>) -> bool {
+    let types = union.registry().types();
+    types.len() == 1
+        && types[0].k_log >= LOG_PACKING
+        && types[0].useful_bits == 1 << types[0].k_log
+        && union.counts() == [1usize << union.n_log()]
+        && union
+            .jagged_heights()
+            .iter()
+            .all(|&h| h == 1u64 << union.n_log())
+        && union.compaction_is_identity()
+        && union.dense_words() == union.packed_len()
+}
+
+/// Return the inverse of the nonzero scalar multiplying all canonical word
+/// basis columns. A zero claimed value is not a reason to skip an opening.
+fn packed_column_inverse(columns: &[F128]) -> Option<F128> {
+    if columns.len() != 128 || columns[0].is_zero() {
+        return None;
+    }
+    let scale = columns[0];
+    columns
+        .iter()
+        .enumerate()
+        .all(|(j, &column)| {
+            let beta = if j < 64 {
+                F128::new(1u64 << j, 0)
+            } else {
+                F128::new(0, 1u64 << (j - 64))
+            };
+            column == scale * beta
+        })
+        .then(|| scale.inv())
+}
+
+struct Routes {
+    ring_switch: Vec<usize>,
+    /// Original component index and inverse column scale, in original order.
+    direct: Vec<(usize, F128)>,
+}
+
+fn routes(adapted: &Adapted, union: &UnionInstance<'_>) -> Routes {
+    let allowed = packed_direct_enabled() && full_identity_rectangle(union);
+    let mut result = Routes {
+        ring_switch: Vec::new(),
+        direct: Vec::new(),
+    };
+    for (index, component) in adapted.components.iter().enumerate() {
+        if let Some(inverse) = allowed
+            .then(|| packed_column_inverse(&component.columns))
+            .flatten()
+        {
+            result.direct.push((index, inverse));
+        } else {
+            result.ring_switch.push(index);
+        }
+    }
+    result
 }
 
 /// Lagrange leading-coefficient weights for the fixed distinct field nodes.
@@ -78,9 +173,7 @@ fn adapt(claims: &[TensorClaim], m: usize) -> Result<Adapted, PcsOpenError> {
     let mut groups = Vec::with_capacity(claims.len());
     for query in claims {
         let start = components.len();
-        if query.columns.iter().all(|x| x.is_zero())
-            || query.rows.contains(&[F128::ZERO; 2])
-        {
+        if query.columns.iter().all(|x| x.is_zero()) || query.rows.contains(&[F128::ZERO; 2]) {
             if !query.value.is_zero() {
                 return Err(PcsOpenError::Assist);
             }
@@ -192,8 +285,44 @@ pub fn open<C: Challenger>(
     union: &UnionInstance<'_>,
     ch: &mut C,
 ) -> Result<Proof, PcsOpenError> {
+    open_impl(q, Some(padded), data, cm, claims, union, ch)
+}
+
+/// Open a full-domain rectangular union directly from its owned witness.
+///
+/// This exposes the native merged opener's identity alias: `q` is also the
+/// padded witness, so no second witness or compaction buffer is needed.
+/// Every row and every bit of its one table type must belong to the union
+/// support. Multiple word columns use the native rectangular transport.
+/// The caller must bind its circuit and commitment before the PIOP,
+/// exactly as for [`open`]. For the same union, messages and challenges
+/// match the existing borrowed-witness entry.
+pub fn open_identity<C: Challenger>(
+    q: Vec<F128>,
+    data: &ProverData,
+    cm: &Commitment,
+    claims: &[TensorClaim],
+    union: &UnionInstance<'_>,
+    ch: &mut C,
+) -> Result<Proof, PcsOpenError> {
+    if !full_identity_rectangle(union) || q.len() != union.packed_len() {
+        return Err(PcsOpenError::Assist);
+    }
+    open_impl(q, None, data, cm, claims, union, ch)
+}
+
+fn open_impl<C: Challenger>(
+    q: Vec<F128>,
+    padded: Option<&[F128]>,
+    data: &ProverData,
+    cm: &Commitment,
+    claims: &[TensorClaim],
+    union: &UnionInstance<'_>,
+    ch: &mut C,
+) -> Result<Proof, PcsOpenError> {
     check_commitment(cm, union)?;
-    if q.len() != union.committed_words() || padded.len() != union.packed_len() {
+    let padded_view = padded.unwrap_or(&q);
+    if q.len() != union.committed_words() || padded_view.len() != union.packed_len() {
         return Err(PcsOpenError::Assist);
     }
     let adapted = adapt(claims, union.m_total())?;
@@ -205,35 +334,64 @@ pub fn open<C: Challenger>(
             values[group.start] = query.value;
         } else {
             for i in group.clone() {
-                let s_hat = fold_component(padded, &adapted.components[i], &padding);
+                let s_hat = fold_component(padded_view, &adapted.components[i], &padding);
                 values[i] = claim_check(&adapted.components[i].columns, &s_hat);
                 precomputed[i] = Some(s_hat);
             }
         }
     }
     bind(claims, &adapted, &values, ch)?;
+    let routes = routes(&adapted, union);
+    if std::env::var_os("PCS_TRACE").is_some() {
+        eprintln!(
+            "PCS merged_tensor intake: claims={} components={} ring_switch={} packed_direct={}",
+            claims.len(),
+            adapted.components.len(),
+            routes.ring_switch.len(),
+            routes.direct.len(),
+        );
+    }
     let merged = if adapted.components.is_empty() {
         None
     } else {
-        let xs: Vec<_> = adapted
-            .components
+        let xs: Vec<_> = routes
+            .ring_switch
             .iter()
-            .map(|c| c.x_outer.as_slice())
+            .map(|&i| adapted.components[i].x_outer.as_slice())
             .collect();
-        let pre: Vec<_> = precomputed.iter().map(Option::as_deref).collect();
+        let pre: Vec<_> = routes
+            .ring_switch
+            .iter()
+            .map(|&i| precomputed[i].as_deref())
+            .collect();
+        let direct: Vec<_> = routes
+            .direct
+            .iter()
+            .map(|&(i, inverse)| {
+                // The dummy is only a legacy ring-switch adapter. Full
+                // identity rectangles use these remaining coordinates in
+                // exactly the same low-bit-first word order as committed q.
+                let point = adapted.components[i].x_outer[1..].to_vec();
+                PackedDirectClaim {
+                    eq_ind: DirectEqInd::EqPoint(point.clone()),
+                    point,
+                    value: values[i] * inverse,
+                }
+            })
+            .collect();
         let config = cm
             .params
             .ligerito_prover_config()
             .map_err(|_| PcsOpenError::Ligerito)?;
         Some(open_batch_merged(
             q,
-            Some(padded),
+            padded,
             data,
             cm,
             &xs,
             &pre,
             &[],
-            &[],
+            &direct,
             &padding,
             &union.jagged_heights(),
             union.n_log(),
@@ -269,15 +427,31 @@ pub fn verify<C: Challenger>(
         };
     }
     let merged = proof.merged.as_ref().ok_or(PcsOpenError::Assist)?;
-    let xs: Vec<_> = adapted
-        .components
+    // Rebuild the partition from the bound original queries and public union,
+    // never from an unbound prover-controlled routing tag.
+    let routes = routes(&adapted, union);
+    let xs: Vec<_> = routes
+        .ring_switch
         .iter()
-        .map(|c| c.x_outer.as_slice())
+        .map(|&i| adapted.components[i].x_outer.as_slice())
         .collect();
-    let columns: Vec<_> = adapted
-        .components
+    let columns: Vec<_> = routes
+        .ring_switch
         .iter()
-        .map(|c| c.columns.as_slice())
+        .map(|&i| adapted.components[i].columns.as_slice())
+        .collect();
+    let values: Vec<_> = routes
+        .ring_switch
+        .iter()
+        .map(|&i| proof.component_values[i])
+        .collect();
+    let direct: Vec<_> = routes
+        .direct
+        .iter()
+        .map(|&(i, inverse)| PackedDirectClaimRef {
+            point: &adapted.components[i].x_outer[1..],
+            value: proof.component_values[i] * inverse,
+        })
         .collect();
     let config = cm
         .params
@@ -285,10 +459,10 @@ pub fn verify<C: Challenger>(
         .map_err(|_| PcsOpenError::Ligerito)?;
     verify_batch_merged_weighted(
         cm,
-        &proof.component_values,
+        &values,
         &columns,
         &xs,
-        &[],
+        &direct,
         &union.jagged_heights(),
         union.n_log(),
         merged,
@@ -300,7 +474,10 @@ pub fn verify<C: Challenger>(
 
 #[cfg(test)]
 mod tests {
-    use super::{adapt, bind, fold_component, leading_weights, open, verify};
+    use super::{
+        adapt, bind, fold_component, full_identity_rectangle, leading_weights, open, open_identity,
+        packed_column_inverse, routes, verify, with_packed_direct_override,
+    };
     use crate::{
         challenger::{Challenger, FsChallenger},
         field::F128,
@@ -312,6 +489,389 @@ mod tests {
         test_rng::Rng,
         zerocheck::PaddingSpec,
     };
+
+    fn packed_columns(scale: F128) -> Vec<F128> {
+        (0..128)
+            .map(|j| {
+                scale
+                    * if j < 64 {
+                        F128::new(1 << j, 0)
+                    } else {
+                        F128::new(0, 1 << (j - 64))
+                    }
+            })
+            .collect()
+    }
+
+    fn set_claim_value(claim: &mut TensorClaim, packed: &[F128]) {
+        claim.value = claim_check(
+            &claim.columns,
+            &fold_1b_rows_naive(packed, &row_weights(&claim.rows)),
+        );
+    }
+
+    #[test]
+    fn packed_direct_scaled_columns_and_zero_sum_match_word_source() {
+        let mut rng = Rng::new(0xD1_2EC7);
+        for scale in [F128::ONE, F128::new(0, 1), rng.f128()] {
+            let columns = packed_columns(scale);
+            assert_eq!(packed_column_inverse(&columns), Some(scale.inv()));
+            for j in 0..128 {
+                let mut wrong = columns.clone();
+                wrong[j] += F128::ONE;
+                assert_eq!(packed_column_inverse(&wrong), None, "column {j}");
+            }
+        }
+        assert_eq!(packed_column_inverse(&[]), None);
+        assert_eq!(packed_column_inverse(&vec![F128::ZERO; 128]), None);
+        let mut zero_first = packed_columns(F128::ONE);
+        zero_first[0] = F128::ZERO;
+        assert_eq!(packed_column_inverse(&zero_first), None);
+
+        for row_log in 0..=7 {
+            let packed = rng.f128_vec(1 << row_log);
+            for bad_count in 0..=row_log {
+                let mut claim = TensorClaim {
+                    columns: packed_columns(rng.f128()),
+                    rows: (0..row_log).map(|_| [rng.f128(), rng.f128()]).collect(),
+                    value: F128::ZERO,
+                };
+                for pair in claim.rows.iter_mut().take(bad_count) {
+                    *pair = [F128::new(7, 0); 2];
+                }
+                set_claim_value(&mut claim, &packed);
+                let adapted = adapt(&[claim.clone()], row_log + 7).unwrap();
+                let values: Vec<_> = adapted
+                    .components
+                    .iter()
+                    .map(|component| {
+                        let inverse = packed_column_inverse(&component.columns).unwrap();
+                        let component_value = claim_check(
+                            &component.columns,
+                            &fold_component(&packed, component, &PaddingSpec::dense(row_log + 7)),
+                        );
+                        // Independent word-domain fold, with no bit expansion
+                        // or interpolation weights reused from the adapter.
+                        let mut words = packed.clone();
+                        for &r in &component.x_outer[1..] {
+                            words = words
+                                .chunks_exact(2)
+                                .map(|pair| pair[0] + r * (pair[0] + pair[1]))
+                                .collect();
+                        }
+                        assert_eq!(component_value * inverse, words[0]);
+                        component_value
+                    })
+                    .collect();
+                bind(
+                    &[claim],
+                    &adapted,
+                    &values,
+                    &mut FsChallenger::new(b"packed-scale"),
+                )
+                .unwrap();
+            }
+        }
+        // Zero functionals have no components; a genuine opening whose
+        // evaluation is zero retains its route and must still be proved.
+        let mut zero = TensorClaim {
+            columns: packed_columns(F128::ONE),
+            rows: vec![[F128::ZERO; 2]; 15],
+            value: F128::ZERO,
+        };
+        assert!(adapt(&[zero.clone()], 22).unwrap().components.is_empty());
+        zero.rows.fill([F128::ONE, F128::ZERO]);
+        let registry = container_registry(7, 128, 15);
+        let union = crate::union::UnionInstance::new(&registry, vec![32768]);
+        let adapted = adapt(&[zero], 22).unwrap();
+        with_packed_direct_override(true, || {
+            let route = routes(&adapted, &union);
+            assert!(route.ring_switch.is_empty());
+            assert_eq!(route.direct.len(), 1);
+        });
+        with_packed_direct_override(false, || {
+            assert_eq!(routes(&adapted, &union).ring_switch, [0]);
+        });
+    }
+
+    #[test]
+    fn packed_direct_native_mixed_rectangles_tamper_and_legacy_bytes() {
+        use pcs::ligerito::LigeritoProfile;
+        for col_log in [0, 2, 7] {
+            let registry = container_registry(7 + col_log, 128 << col_log, 15 - col_log);
+            let union = crate::union::UnionInstance::new(&registry, vec![1 << (15 - col_log)]);
+            assert!(full_identity_rectangle(&union));
+            let params = pcs::PcsParams {
+                m: 22,
+                log_inv_rate: 1,
+                log_batch_size: 6,
+                profile: LigeritoProfile::Fast,
+                num_lanes: union.commit_lanes(6),
+                merkle_hash: Default::default(),
+            };
+            let mut rng = Rng::new(0xD1_2EC8 + col_log as u64);
+            let mut q = rng.f128_vec(union.packed_len());
+            q[0] = F128::ZERO;
+            let (cm, data) = pcs::commit(&q, &params);
+            let mut claims: Vec<_> = (0..4)
+                .map(|i| TensorClaim {
+                    columns: if i == 1 {
+                        rng.f128_vec(128)
+                    } else {
+                        packed_columns(rng.f128())
+                    },
+                    rows: (0..15)
+                        .map(|_| {
+                            let r = rng.f128();
+                            // Non-normalized pair scale must also be removed
+                            // from the value of the direct packed-word claim.
+                            let scale = rng.f128();
+                            [scale * (F128::ONE + r), scale * r]
+                        })
+                        .collect(),
+                    value: F128::ZERO,
+                })
+                .collect();
+            // The native Frobenius grouping must also handle a shared point
+            // across the ring-switch and direct partitions.
+            claims[1].rows = claims[0].rows.clone();
+            // Same physical row point with different word-column weights.
+            let mut same_row = claims[0].clone();
+            same_row.columns = packed_columns(F128::ONE);
+            if col_log > 0 {
+                let r = rng.f128();
+                same_row.rows[14] = [F128::ONE + r, r];
+            }
+            claims.push(same_row);
+            claims[2].rows[0] = [F128::new(3, 0); 2];
+            claims[2].rows[1] = [F128::new(5, 0); 2];
+            // A nonzero functional with a zero value still gets authenticated.
+            claims[3].rows.fill([F128::ONE, F128::ZERO]);
+            let mut zero = claims[0].clone();
+            zero.rows[0] = [F128::ZERO; 2];
+            claims.push(zero);
+            for claim in &mut claims {
+                set_claim_value(claim, &q);
+            }
+            assert!(claims[3].value.is_zero());
+            let adapted = adapt(&claims, union.m_total()).unwrap();
+            with_packed_direct_override(true, || {
+                let route = routes(&adapted, &union);
+                assert_eq!(route.ring_switch, [1]);
+                assert_eq!(route.direct.len(), 6);
+            });
+            let domain = b"packed-direct-native-mixed";
+            let mut pch = FsChallenger::new(domain);
+            let proof = with_packed_direct_override(true, || {
+                open_identity(q.clone(), &data, &cm, &claims, &union, &mut pch).unwrap()
+            });
+            assert_eq!(proof.merged.as_ref().unwrap().ring_switches.len(), 1);
+            let after = pch.sample_f128();
+            let mut vch = FsChallenger::new(domain);
+            with_packed_direct_override(true, || verify(&cm, &claims, &proof, &union, &mut vch))
+                .unwrap();
+            assert_eq!(after, vch.sample_f128());
+            // The opposite configuration must reject cleanly, before consuming
+            // the differently shaped native ring-switch proof list.
+            assert!(
+                with_packed_direct_override(false, || {
+                    verify(&cm, &claims, &proof, &union, &mut FsChallenger::new(domain))
+                })
+                .is_err()
+            );
+
+            let reject = |claims: &[TensorClaim], proof: &super::Proof| {
+                assert!(
+                    with_packed_direct_override(true, || {
+                        verify(&cm, claims, proof, &union, &mut FsChallenger::new(domain))
+                    })
+                    .is_err()
+                );
+            };
+            let mut bad = proof.clone();
+            // Preserve a zero-sum query's sum: the native PCS must check each
+            // rescaled component rather than only the bound recombination.
+            bad.component_values[2] += F128::ONE;
+            bad.component_values[3] += F128::ONE;
+            reject(&claims, &bad);
+            let mut bad_claims = claims.clone();
+            let mut bad = proof.clone();
+            bad_claims[0].value += F128::ONE;
+            bad.component_values[0] += F128::ONE;
+            reject(&bad_claims, &bad);
+            let mut bad_claims = claims.clone();
+            bad_claims[0].columns[127] += F128::ONE;
+            reject(&bad_claims, &proof);
+            let mut bad_claims = claims.clone();
+            for column in &mut bad_claims[0].columns {
+                *column *= F128::new(7, 0);
+            }
+            reject(&bad_claims, &proof);
+            let mut bad = proof.clone();
+            bad.merged.as_mut().unwrap().q_eval += F128::ONE;
+            reject(&claims, &bad);
+            let mut bad = proof.clone();
+            bad.merged.as_mut().unwrap().ring_switches[0].s_hat_v[0] += F128::ONE;
+            reject(&claims, &bad);
+
+            if col_log == 2 {
+                let mut borrowed_ch = FsChallenger::new(domain);
+                let borrowed = with_packed_direct_override(true, || {
+                    open(q.clone(), &q, &data, &cm, &claims, &union, &mut borrowed_ch).unwrap()
+                });
+                assert_eq!(
+                    bincode::serialize(&proof).unwrap(),
+                    bincode::serialize(&borrowed).unwrap()
+                );
+                assert_eq!(after, borrowed_ch.sample_f128());
+                let mut old_ch = FsChallenger::new(domain);
+                let old = with_packed_direct_override(false, || {
+                    open_identity(q.clone(), &data, &cm, &claims, &union, &mut old_ch).unwrap()
+                });
+                assert_eq!(old.component_values, proof.component_values);
+                assert_eq!(old.merged.as_ref().unwrap().ring_switches.len(), 7);
+                assert_ne!(
+                    bincode::serialize(&old).unwrap(),
+                    bincode::serialize(&proof).unwrap()
+                );
+                assert!(
+                    with_packed_direct_override(true, || {
+                        verify(&cm, &claims, &old, &union, &mut FsChallenger::new(domain))
+                    })
+                    .is_err()
+                );
+                let mut old_vch = FsChallenger::new(domain);
+                with_packed_direct_override(false, || {
+                    verify(&cm, &claims, &old, &union, &mut old_vch)
+                })
+                .unwrap();
+                let old_after = old_ch.sample_f128();
+                assert_eq!(old_after, old_vch.sample_f128());
+                // Reconstruct the pre-routing native call explicitly. OFF
+                // retains the complete old proof bytes and next challenge.
+                let xs: Vec<_> = adapted
+                    .components
+                    .iter()
+                    .map(|c| c.x_outer.as_slice())
+                    .collect();
+                let mut legacy_ch = FsChallenger::new(domain);
+                bind(&claims, &adapted, &old.component_values, &mut legacy_ch).unwrap();
+                let legacy = pcs::open_batch_merged(
+                    q.clone(),
+                    None,
+                    &data,
+                    &cm,
+                    &xs,
+                    &[],
+                    &[],
+                    &[],
+                    &union.padding_spec(),
+                    &union.jagged_heights(),
+                    union.n_log(),
+                    &params.ligerito_prover_config().unwrap(),
+                    params.opening_grinding(),
+                    &mut legacy_ch,
+                );
+                let legacy = super::Proof {
+                    component_values: old.component_values.clone(),
+                    merged: Some(legacy),
+                };
+                assert_eq!(
+                    bincode::serialize(&old).unwrap(),
+                    bincode::serialize(&legacy).unwrap()
+                );
+                assert_eq!(old_after, legacy_ch.sample_f128());
+                // All-direct batches exercise native n_rs=0, including a
+                // genuine zero evaluation and multiple distinct row groups.
+                let direct_claims = vec![claims[0].clone(), claims[3].clone(), claims[4].clone()];
+                let mut direct_ch = FsChallenger::new(domain);
+                let direct = with_packed_direct_override(true, || {
+                    open_identity(q, &data, &cm, &direct_claims, &union, &mut direct_ch).unwrap()
+                });
+                assert!(direct.merged.as_ref().unwrap().ring_switches.is_empty());
+                let mut direct_vch = FsChallenger::new(domain);
+                with_packed_direct_override(true, || {
+                    verify(&cm, &direct_claims, &direct, &union, &mut direct_vch)
+                })
+                .unwrap();
+                assert_eq!(direct_ch.sample_f128(), direct_vch.sample_f128());
+            }
+        }
+    }
+
+    #[test]
+    fn packed_direct_partial_and_jagged_geometry_falls_back() {
+        use pcs::ligerito::{LigeritoProfile, embedded_initial_k_or_default};
+        // Both a partial-useful-bit identity compaction and a nonidentity
+        // jagged compaction must retain the old bit-domain route.
+        for (useful_bits, count) in [(1023, 4096), (1024, 4095)] {
+            let registry = container_registry(10, useful_bits, 12);
+            let union = crate::union::UnionInstance::new(&registry, vec![count]);
+            assert!(!full_identity_rectangle(&union));
+            assert_eq!(union.compaction_is_identity(), count == 4096);
+            let mut rng = Rng::new(0xD1_2EC9);
+            let mut packed = rng.f128_vec(union.packed_len());
+            for row in 0..4096 {
+                if useful_bits == 1023 {
+                    packed[7 * 4096 + row].hi &= !(1 << 63);
+                }
+                if row >= count {
+                    for col in 0..8 {
+                        packed[col * 4096 + row] = F128::ZERO;
+                    }
+                }
+            }
+            let q = union.compact_witness(&packed);
+            let k = embedded_initial_k_or_default(union.dense_m(), LigeritoProfile::Fast);
+            let params = pcs::PcsParams {
+                m: union.dense_m(),
+                log_inv_rate: 1,
+                log_batch_size: k,
+                profile: LigeritoProfile::Fast,
+                num_lanes: union.commit_lanes(k),
+                merkle_hash: Default::default(),
+            };
+            let (cm, data) = if params.num_lanes.is_some() {
+                pcs::commit_lane_major(&q, &params)
+            } else {
+                pcs::commit(&q, &params)
+            };
+            let mut claims = vec![TensorClaim {
+                columns: packed_columns(rng.f128()),
+                rows: (0..15)
+                    .map(|_| {
+                        let r = rng.f128();
+                        [F128::ONE + r, r]
+                    })
+                    .collect(),
+                value: F128::ZERO,
+            }];
+            set_claim_value(&mut claims[0], &packed);
+            with_packed_direct_override(true, || {
+                let route = routes(&adapt(&claims, union.m_total()).unwrap(), &union);
+                assert_eq!(route.ring_switch, [0]);
+                assert!(route.direct.is_empty());
+            });
+            let mut old_ch = FsChallenger::new(b"packed-direct-fallback");
+            let old = with_packed_direct_override(false, || {
+                open(q.clone(), &packed, &data, &cm, &claims, &union, &mut old_ch).unwrap()
+            });
+            let mut new_ch = FsChallenger::new(b"packed-direct-fallback");
+            let new = with_packed_direct_override(true, || {
+                open(q, &packed, &data, &cm, &claims, &union, &mut new_ch).unwrap()
+            });
+            assert_eq!(
+                bincode::serialize(&old).unwrap(),
+                bincode::serialize(&new).unwrap()
+            );
+            let after = old_ch.sample_f128();
+            assert_eq!(after, new_ch.sample_f128());
+            let mut vch = FsChallenger::new(b"packed-direct-fallback");
+            with_packed_direct_override(true, || verify(&cm, &claims, &new, &union, &mut vch))
+                .unwrap();
+            assert_eq!(after, vch.sample_f128());
+        }
+    }
 
     #[test]
     fn arbitrary_pairs_and_zero_sum_diagonal_match_source() {
@@ -417,6 +977,179 @@ mod tests {
                 s + w * (0..degree).fold(F128::ONE, |a, _| a * x)
             });
             assert_eq!(value, if degree == 7 { F128::ONE } else { F128::ZERO });
+        }
+    }
+
+    fn container_registry(
+        k_log: usize,
+        useful_bits: usize,
+        nu: usize,
+    ) -> crate::schedule::Registry {
+        use crate::{
+            r1cs::SparseBinaryMatrix,
+            schedule::{Registry, TableClass, TableType},
+        };
+        Registry::new(
+            vec![TableType {
+                k_log,
+                useful_bits,
+                a_0: SparseBinaryMatrix::new(0, 0, vec![]),
+                b_0: SparseBinaryMatrix::new(0, 0, vec![]),
+                c_0: SparseBinaryMatrix::new(0, 0, vec![]),
+                const_pin: None,
+                class: TableClass::Boolean,
+                io_schema: vec![],
+            }],
+            nu,
+        )
+    }
+
+    #[test]
+    fn identity_open_rejects_wrong_length_and_partial_rectangle_support() {
+        use pcs::ligerito::LigeritoProfile;
+        let cm = pcs::Commitment {
+            cap: vec![[0; 32]; 128],
+            params: pcs::PcsParams {
+                m: 22,
+                log_inv_rate: 1,
+                log_batch_size: 6,
+                profile: LigeritoProfile::Fast,
+                num_lanes: None,
+                merkle_hash: Default::default(),
+            },
+        };
+        let data = pcs::ProverData {
+            codeword: vec![],
+            merkle_tree: vec![],
+        };
+        let zero = TensorClaim {
+            columns: vec![F128::ZERO; 128],
+            rows: vec![[F128::ONE; 2]; 15],
+            value: F128::ZERO,
+        };
+        for (k_log, useful, nu, count, words) in [
+            (7, 128, 15, 32768, 32767),
+            (7, 128, 15, 32767, 32768),
+            (7, 127, 15, 32768, 32768),
+            (8, 255, 14, 16384, 32768),
+            (9, 512, 13, 8191, 32768),
+        ] {
+            let registry = container_registry(k_log, useful, nu);
+            let union = crate::union::UnionInstance::new(&registry, vec![count]);
+            assert!(
+                open_identity(
+                    vec![F128::ZERO; words],
+                    &data,
+                    &cm,
+                    &[zero.clone()],
+                    &union,
+                    &mut FsChallenger::new(b"identity-invalid-shape"),
+                )
+                .is_err()
+            );
+        }
+        // Full two-, four- and 128-column rectangles are the same owned
+        // identity transport. A zero functional requires no backend data.
+        for col_log in [0, 1, 2, 7] {
+            let registry = container_registry(7 + col_log, 128 << col_log, 15 - col_log);
+            let union = crate::union::UnionInstance::new(&registry, vec![1 << (15 - col_log)]);
+            assert!(
+                open_identity(
+                    vec![F128::ZERO; 32768],
+                    &data,
+                    &cm,
+                    &[zero.clone()],
+                    &union,
+                    &mut FsChallenger::new(b"identity-full-rectangle"),
+                )
+                .unwrap()
+                .merged
+                .is_none()
+            );
+        }
+    }
+
+    #[test]
+    #[ignore = "full embedded m22 identity alias and Ligerito differential"]
+    fn full_merged_identity_matches_borrowed_proof_and_transcript() {
+        use pcs::ligerito::LigeritoProfile;
+        for col_log in [0, 2, 7] {
+            let registry = container_registry(7 + col_log, 128 << col_log, 15 - col_log);
+            let union = crate::union::UnionInstance::new(&registry, vec![1 << (15 - col_log)]);
+            assert!(union.compaction_is_identity());
+            assert_eq!(
+                union.jagged_heights(),
+                vec![1 << (15 - col_log); 1 << col_log]
+            );
+            let params = pcs::PcsParams {
+                m: 22,
+                log_inv_rate: 1,
+                log_batch_size: 6,
+                profile: LigeritoProfile::Fast,
+                num_lanes: union.commit_lanes(6),
+                merkle_hash: Default::default(),
+            };
+            let mut rng = Rng::new(0x51AD_132);
+            let q = rng.f128_vec(union.packed_len());
+            let (cm, data) = pcs::commit(&q, &params);
+            let mut claims: Vec<_> = (0..2)
+                .map(|_| TensorClaim {
+                    columns: rng.f128_vec(128),
+                    rows: (0..15)
+                        .map(|_| {
+                            let r = rng.f128();
+                            [F128::ONE + r, r]
+                        })
+                        .collect(),
+                    value: F128::ZERO,
+                })
+                .collect();
+            // Both the common normalized path and pre-move zero-sum folds must
+            // give the same messages as the existing borrowed-witness entry.
+            claims[1].rows[4] = [F128::ONE; 2];
+            // Different bit weights and column point, identical row point:
+            // the optimized rectangular transport must reuse its bit-bank
+            // without combining or dropping either original claim.
+            let mut repeated_row = claims[0].clone();
+            repeated_row.columns = rng.f128_vec(128);
+            if col_log > 0 {
+                let r = rng.f128();
+                repeated_row.rows[14] = [F128::ONE + r, r];
+            }
+            claims.push(repeated_row);
+            for c in &mut claims {
+                c.value = claim_check(&c.columns, &fold_1b_rows_naive(&q, &row_weights(&c.rows)));
+            }
+            let mut old_ch = FsChallenger::new(b"merged-identity-differential");
+            let old = pcs::with_merged_split_rows_override(false, || {
+                open(q.clone(), &q, &data, &cm, &claims, &union, &mut old_ch).unwrap()
+            });
+            let mut new_ch = FsChallenger::new(b"merged-identity-differential");
+            let new = pcs::with_merged_split_rows_override(true, || {
+                open_identity(q, &data, &cm, &claims, &union, &mut new_ch).unwrap()
+            });
+            assert_eq!(new.component_values.len(), 4);
+            assert_eq!(
+                bincode::serialize(&new).unwrap(),
+                bincode::serialize(&old).unwrap()
+            );
+            let after = new_ch.sample_f128();
+            assert_eq!(after, old_ch.sample_f128());
+            let mut vch = FsChallenger::new(b"merged-identity-differential");
+            verify(&cm, &claims, &new, &union, &mut vch).unwrap();
+            assert_eq!(after, vch.sample_f128());
+            let mut bad = new;
+            bad.component_values[0] += F128::ONE;
+            assert!(
+                verify(
+                    &cm,
+                    &claims,
+                    &bad,
+                    &union,
+                    &mut FsChallenger::new(b"merged-identity-differential")
+                )
+                .is_err()
+            );
         }
     }
 

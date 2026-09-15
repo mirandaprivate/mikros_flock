@@ -1,0 +1,146 @@
+{"fresh_process_orders": [["reference", "virtual", "weights", "paired", "scratch", "all"], ["all", "scratch", "paired", "weights", "virtual", "reference"], ["weights", "paired", "reference", "all", "virtual", "scratch"]], "trace": false, "common": ["--packed-direct", "--wp-uninit"], "threads": 64, "per_arm_repetitions": 3}
+PRIMARY_BEGIN reference 1
+{"id": "rustc-version", "started_utc": "2026-09-15T09:16:23Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.0018410321790725, "finished_utc": "2026-09-15T09:16:24Z"}
+{"id": "native-cfg", "started_utc": "2026-09-15T09:16:24Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.0019030498806387, "finished_utc": "2026-09-15T09:16:25Z"}
+{"id": "n26-single-mikros", "started_utc": "2026-09-15T09:16:26Z", "state": "complete", "exit_code": 0, "wall_seconds": 10.01151939900592, "finished_utc": "2026-09-15T09:16:36Z"}
+{"id": "n26-single-flock", "started_utc": "2026-09-15T09:16:37Z", "state": "complete", "exit_code": 0, "wall_seconds": 11.013420208822936, "finished_utc": "2026-09-15T09:16:48Z"}
+{"id": "n26-multiple-flock", "started_utc": "2026-09-15T09:16:50Z", "state": "complete", "exit_code": 0, "wall_seconds": 25.027381270891055, "finished_utc": "2026-09-15T09:17:15Z"}
+{"id": "n26-multiple-mikros", "started_utc": "2026-09-15T09:17:16Z", "state": "complete", "exit_code": 0, "wall_seconds": 20.02343282592483, "finished_utc": "2026-09-15T09:17:36Z"}
+PRIMARY_COMPLETE reference 1
+PRIMARY_BEGIN virtual 1
+{"id": "rustc-version", "started_utc": "2026-09-15T09:17:37Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.0020394849125296, "finished_utc": "2026-09-15T09:17:38Z"}
+{"id": "native-cfg", "started_utc": "2026-09-15T09:17:38Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.0022485810332, "finished_utc": "2026-09-15T09:17:39Z"}
+{"id": "n26-single-mikros", "started_utc": "2026-09-15T09:17:40Z", "state": "complete", "exit_code": 0, "wall_seconds": 10.011180686065927, "finished_utc": "2026-09-15T09:17:50Z"}
+{"id": "n26-single-flock", "started_utc": "2026-09-15T09:17:51Z", "state": "complete", "exit_code": 0, "wall_seconds": 11.013345944928005, "finished_utc": "2026-09-15T09:18:02Z"}
+{"id": "n26-multiple-flock", "started_utc": "2026-09-15T09:18:03Z", "state": "complete", "exit_code": 0, "wall_seconds": 26.030027829110622, "finished_utc": "2026-09-15T09:18:29Z"}
+{"id": "n26-multiple-mikros", "started_utc": "2026-09-15T09:18:31Z", "state": "complete", "exit_code": 0, "wall_seconds": 21.0249263481237, "finished_utc": "2026-09-15T09:18:52Z"}
+PRIMARY_COMPLETE virtual 1
+PRIMARY_BEGIN weights 1
+{"id": "rustc-version", "started_utc": "2026-09-15T09:18:53Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.0020112299825996, "finished_utc": "2026-09-15T09:18:54Z"}
+{"id": "native-cfg", "started_utc": "2026-09-15T09:18:54Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.002166107064113, "finished_utc": "2026-09-15T09:18:55Z"}
+{"id": "n26-single-mikros", "started_utc": "2026-09-15T09:18:56Z", "state": "complete", "exit_code": 0, "wall_seconds": 10.011974193854257, "finished_utc": "2026-09-15T09:19:06Z"}
+{"id": "n26-single-flock", "started_utc": "2026-09-15T09:19:07Z", "state": "complete", "exit_code": 0, "wall_seconds": 11.01375315990299, "finished_utc": "2026-09-15T09:19:18Z"}
+{"id": "n26-multiple-flock", "started_utc": "2026-09-15T09:19:19Z", "state": "complete", "exit_code": 0, "wall_seconds": 26.029003840172663, "finished_utc": "2026-09-15T09:19:45Z"}
+{"id": "n26-multiple-mikros", "started_utc": "2026-09-15T09:19:47Z", "state": "complete", "exit_code": 0, "wall_seconds": 20.023938067024574, "finished_utc": "2026-09-15T09:20:07Z"}
+PRIMARY_COMPLETE weights 1
+PRIMARY_BEGIN paired 1
+{"id": "rustc-version", "started_utc": "2026-09-15T09:20:08Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.0019832190591842, "finished_utc": "2026-09-15T09:20:09Z"}
+{"id": "native-cfg", "started_utc": "2026-09-15T09:20:09Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.0020150139462203, "finished_utc": "2026-09-15T09:20:10Z"}
+{"id": "n26-single-mikros", "started_utc": "2026-09-15T09:20:11Z", "state": "complete", "exit_code": 0, "wall_seconds": 10.011735214153305, "finished_utc": "2026-09-15T09:20:21Z"}
+{"id": "n26-single-flock", "started_utc": "2026-09-15T09:20:22Z", "state": "complete", "exit_code": 0, "wall_seconds": 11.013051247922704, "finished_utc": "2026-09-15T09:20:33Z"}
+{"id": "n26-multiple-flock", "started_utc": "2026-09-15T09:20:34Z", "state": "complete", "exit_code": 0, "wall_seconds": 25.027492349036038, "finished_utc": "2026-09-15T09:20:59Z"}
+{"id": "n26-multiple-mikros", "started_utc": "2026-09-15T09:21:00Z", "state": "complete", "exit_code": 0, "wall_seconds": 21.02153437794186, "finished_utc": "2026-09-15T09:21:21Z"}
+PRIMARY_COMPLETE paired 1
+PRIMARY_BEGIN scratch 1
+{"id": "rustc-version", "started_utc": "2026-09-15T09:21:23Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.001937730005011, "finished_utc": "2026-09-15T09:21:24Z"}
+{"id": "native-cfg", "started_utc": "2026-09-15T09:21:24Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.0020790440030396, "finished_utc": "2026-09-15T09:21:25Z"}
+{"id": "n26-single-mikros", "started_utc": "2026-09-15T09:21:26Z", "state": "complete", "exit_code": 0, "wall_seconds": 11.01262502418831, "finished_utc": "2026-09-15T09:21:37Z"}
+{"id": "n26-single-flock", "started_utc": "2026-09-15T09:21:38Z", "state": "complete", "exit_code": 0, "wall_seconds": 11.012633988866583, "finished_utc": "2026-09-15T09:21:49Z"}
+{"id": "n26-multiple-flock", "started_utc": "2026-09-15T09:21:50Z", "state": "complete", "exit_code": 0, "wall_seconds": 26.02991329296492, "finished_utc": "2026-09-15T09:22:16Z"}
+{"id": "n26-multiple-mikros", "started_utc": "2026-09-15T09:22:17Z", "state": "complete", "exit_code": 0, "wall_seconds": 21.022932888939977, "finished_utc": "2026-09-15T09:22:38Z"}
+PRIMARY_COMPLETE scratch 1
+PRIMARY_BEGIN all 1
+{"id": "rustc-version", "started_utc": "2026-09-15T09:22:40Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.0020120721310377, "finished_utc": "2026-09-15T09:22:41Z"}
+{"id": "native-cfg", "started_utc": "2026-09-15T09:22:41Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.0020356099121273, "finished_utc": "2026-09-15T09:22:42Z"}
+{"id": "n26-single-mikros", "started_utc": "2026-09-15T09:22:43Z", "state": "complete", "exit_code": 0, "wall_seconds": 10.011785767041147, "finished_utc": "2026-09-15T09:22:53Z"}
+{"id": "n26-single-flock", "started_utc": "2026-09-15T09:22:54Z", "state": "complete", "exit_code": 0, "wall_seconds": 12.01394435716793, "finished_utc": "2026-09-15T09:23:06Z"}
+{"id": "n26-multiple-flock", "started_utc": "2026-09-15T09:23:07Z", "state": "complete", "exit_code": 0, "wall_seconds": 26.03033190802671, "finished_utc": "2026-09-15T09:23:33Z"}
+{"id": "n26-multiple-mikros", "started_utc": "2026-09-15T09:23:34Z", "state": "complete", "exit_code": 0, "wall_seconds": 21.024982895934954, "finished_utc": "2026-09-15T09:23:55Z"}
+PRIMARY_COMPLETE all 1
+PRIMARY_BEGIN all 2
+{"id": "rustc-version", "started_utc": "2026-09-15T09:23:57Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.0018780170939863, "finished_utc": "2026-09-15T09:23:58Z"}
+{"id": "native-cfg", "started_utc": "2026-09-15T09:23:58Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.0020313940476626, "finished_utc": "2026-09-15T09:23:59Z"}
+{"id": "n26-single-mikros", "started_utc": "2026-09-15T09:24:00Z", "state": "complete", "exit_code": 0, "wall_seconds": 10.011740735033527, "finished_utc": "2026-09-15T09:24:10Z"}
+{"id": "n26-single-flock", "started_utc": "2026-09-15T09:24:11Z", "state": "complete", "exit_code": 0, "wall_seconds": 11.012085660826415, "finished_utc": "2026-09-15T09:24:22Z"}
+{"id": "n26-multiple-flock", "started_utc": "2026-09-15T09:24:23Z", "state": "complete", "exit_code": 0, "wall_seconds": 26.028221774846315, "finished_utc": "2026-09-15T09:24:49Z"}
+{"id": "n26-multiple-mikros", "started_utc": "2026-09-15T09:24:50Z", "state": "complete", "exit_code": 0, "wall_seconds": 20.02313209301792, "finished_utc": "2026-09-15T09:25:10Z"}
+PRIMARY_COMPLETE all 2
+PRIMARY_BEGIN scratch 2
+{"id": "rustc-version", "started_utc": "2026-09-15T09:25:11Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.001957081956789, "finished_utc": "2026-09-15T09:25:12Z"}
+{"id": "native-cfg", "started_utc": "2026-09-15T09:25:12Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.0021837898530066, "finished_utc": "2026-09-15T09:25:13Z"}
+{"id": "n26-single-mikros", "started_utc": "2026-09-15T09:25:15Z", "state": "complete", "exit_code": 0, "wall_seconds": 10.01176142389886, "finished_utc": "2026-09-15T09:25:25Z"}
+{"id": "n26-single-flock", "started_utc": "2026-09-15T09:25:26Z", "state": "complete", "exit_code": 0, "wall_seconds": 11.013481433968991, "finished_utc": "2026-09-15T09:25:37Z"}
+{"id": "n26-multiple-flock", "started_utc": "2026-09-15T09:25:38Z", "state": "complete", "exit_code": 0, "wall_seconds": 26.029993125004694, "finished_utc": "2026-09-15T09:26:04Z"}
+{"id": "n26-multiple-mikros", "started_utc": "2026-09-15T09:26:05Z", "state": "complete", "exit_code": 0, "wall_seconds": 20.023649092996493, "finished_utc": "2026-09-15T09:26:25Z"}
+PRIMARY_COMPLETE scratch 2
+PRIMARY_BEGIN paired 2
+{"id": "rustc-version", "started_utc": "2026-09-15T09:26:26Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.0018902670126408, "finished_utc": "2026-09-15T09:26:27Z"}
+{"id": "native-cfg", "started_utc": "2026-09-15T09:26:27Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.001827297033742, "finished_utc": "2026-09-15T09:26:28Z"}
+{"id": "n26-single-mikros", "started_utc": "2026-09-15T09:26:30Z", "state": "complete", "exit_code": 0, "wall_seconds": 10.011854536132887, "finished_utc": "2026-09-15T09:26:40Z"}
+{"id": "n26-single-flock", "started_utc": "2026-09-15T09:26:41Z", "state": "complete", "exit_code": 0, "wall_seconds": 11.012409552931786, "finished_utc": "2026-09-15T09:26:52Z"}
+{"id": "n26-multiple-flock", "started_utc": "2026-09-15T09:26:53Z", "state": "complete", "exit_code": 0, "wall_seconds": 26.02904159296304, "finished_utc": "2026-09-15T09:27:19Z"}
+{"id": "n26-multiple-mikros", "started_utc": "2026-09-15T09:27:20Z", "state": "complete", "exit_code": 0, "wall_seconds": 21.025150603149086, "finished_utc": "2026-09-15T09:27:41Z"}
+PRIMARY_COMPLETE paired 2
+PRIMARY_BEGIN weights 2
+{"id": "rustc-version", "started_utc": "2026-09-15T09:27:42Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.0019504600204527, "finished_utc": "2026-09-15T09:27:43Z"}
+{"id": "native-cfg", "started_utc": "2026-09-15T09:27:43Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.0020063158590347, "finished_utc": "2026-09-15T09:27:44Z"}
+{"id": "n26-single-mikros", "started_utc": "2026-09-15T09:27:45Z", "state": "complete", "exit_code": 0, "wall_seconds": 10.010610871948302, "finished_utc": "2026-09-15T09:27:55Z"}
+{"id": "n26-single-flock", "started_utc": "2026-09-15T09:27:57Z", "state": "complete", "exit_code": 0, "wall_seconds": 11.012569175101817, "finished_utc": "2026-09-15T09:28:08Z"}
+{"id": "n26-multiple-flock", "started_utc": "2026-09-15T09:28:09Z", "state": "complete", "exit_code": 0, "wall_seconds": 26.02678319811821, "finished_utc": "2026-09-15T09:28:35Z"}
+{"id": "n26-multiple-mikros", "started_utc": "2026-09-15T09:28:36Z", "state": "complete", "exit_code": 0, "wall_seconds": 21.024935527006164, "finished_utc": "2026-09-15T09:28:57Z"}
+PRIMARY_COMPLETE weights 2
+PRIMARY_BEGIN virtual 2
+{"id": "rustc-version", "started_utc": "2026-09-15T09:28:58Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.001932127866894, "finished_utc": "2026-09-15T09:28:59Z"}
+{"id": "native-cfg", "started_utc": "2026-09-15T09:28:59Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.002010758034885, "finished_utc": "2026-09-15T09:29:00Z"}
+{"id": "n26-single-mikros", "started_utc": "2026-09-15T09:29:01Z", "state": "complete", "exit_code": 0, "wall_seconds": 10.011762180132791, "finished_utc": "2026-09-15T09:29:11Z"}
+{"id": "n26-single-flock", "started_utc": "2026-09-15T09:29:12Z", "state": "complete", "exit_code": 0, "wall_seconds": 11.012180370045826, "finished_utc": "2026-09-15T09:29:23Z"}
+{"id": "n26-multiple-flock", "started_utc": "2026-09-15T09:29:25Z", "state": "complete", "exit_code": 0, "wall_seconds": 26.028402355965227, "finished_utc": "2026-09-15T09:29:51Z"}
+{"id": "n26-multiple-mikros", "started_utc": "2026-09-15T09:29:52Z", "state": "complete", "exit_code": 0, "wall_seconds": 20.022342649055645, "finished_utc": "2026-09-15T09:30:12Z"}
+PRIMARY_COMPLETE virtual 2
+PRIMARY_BEGIN reference 2
+{"id": "rustc-version", "started_utc": "2026-09-15T09:30:13Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.001974863000214, "finished_utc": "2026-09-15T09:30:14Z"}
+{"id": "native-cfg", "started_utc": "2026-09-15T09:30:14Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.0020815238822252, "finished_utc": "2026-09-15T09:30:15Z"}
+{"id": "n26-single-mikros", "started_utc": "2026-09-15T09:30:16Z", "state": "complete", "exit_code": 0, "wall_seconds": 10.010679956991225, "finished_utc": "2026-09-15T09:30:26Z"}
+{"id": "n26-single-flock", "started_utc": "2026-09-15T09:30:27Z", "state": "complete", "exit_code": 0, "wall_seconds": 11.01363053615205, "finished_utc": "2026-09-15T09:30:38Z"}
+{"id": "n26-multiple-flock", "started_utc": "2026-09-15T09:30:39Z", "state": "complete", "exit_code": 0, "wall_seconds": 25.026287749875337, "finished_utc": "2026-09-15T09:31:05Z"}
+{"id": "n26-multiple-mikros", "started_utc": "2026-09-15T09:31:06Z", "state": "complete", "exit_code": 0, "wall_seconds": 22.026427116943523, "finished_utc": "2026-09-15T09:31:28Z"}
+PRIMARY_COMPLETE reference 2
+PRIMARY_BEGIN weights 3
+{"id": "rustc-version", "started_utc": "2026-09-15T09:31:29Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.0019626410212368, "finished_utc": "2026-09-15T09:31:30Z"}
+{"id": "native-cfg", "started_utc": "2026-09-15T09:31:30Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.0021859260741621, "finished_utc": "2026-09-15T09:31:31Z"}
+{"id": "n26-single-mikros", "started_utc": "2026-09-15T09:31:32Z", "state": "complete", "exit_code": 0, "wall_seconds": 10.012383832130581, "finished_utc": "2026-09-15T09:31:42Z"}
+{"id": "n26-single-flock", "started_utc": "2026-09-15T09:31:43Z", "state": "complete", "exit_code": 0, "wall_seconds": 11.01328168087639, "finished_utc": "2026-09-15T09:31:54Z"}
+{"id": "n26-multiple-flock", "started_utc": "2026-09-15T09:31:55Z", "state": "complete", "exit_code": 0, "wall_seconds": 27.0299501568079, "finished_utc": "2026-09-15T09:32:22Z"}
+{"id": "n26-multiple-mikros", "started_utc": "2026-09-15T09:32:24Z", "state": "complete", "exit_code": 0, "wall_seconds": 21.02553643891588, "finished_utc": "2026-09-15T09:32:45Z"}
+PRIMARY_COMPLETE weights 3
+PRIMARY_BEGIN paired 3
+{"id": "rustc-version", "started_utc": "2026-09-15T09:32:46Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.0018636770546436, "finished_utc": "2026-09-15T09:32:47Z"}
+{"id": "native-cfg", "started_utc": "2026-09-15T09:32:47Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.0019846288487315, "finished_utc": "2026-09-15T09:32:48Z"}
+{"id": "n26-single-mikros", "started_utc": "2026-09-15T09:32:49Z", "state": "complete", "exit_code": 0, "wall_seconds": 10.011110326042399, "finished_utc": "2026-09-15T09:32:59Z"}
+{"id": "n26-single-flock", "started_utc": "2026-09-15T09:33:00Z", "state": "complete", "exit_code": 0, "wall_seconds": 11.013058084994555, "finished_utc": "2026-09-15T09:33:11Z"}
+{"id": "n26-multiple-flock", "started_utc": "2026-09-15T09:33:12Z", "state": "complete", "exit_code": 0, "wall_seconds": 26.029517353978008, "finished_utc": "2026-09-15T09:33:38Z"}
+{"id": "n26-multiple-mikros", "started_utc": "2026-09-15T09:33:39Z", "state": "complete", "exit_code": 0, "wall_seconds": 20.022036743117496, "finished_utc": "2026-09-15T09:34:00Z"}
+PRIMARY_COMPLETE paired 3
+PRIMARY_BEGIN reference 3
+{"id": "rustc-version", "started_utc": "2026-09-15T09:34:01Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.0018459528218955, "finished_utc": "2026-09-15T09:34:02Z"}
+{"id": "native-cfg", "started_utc": "2026-09-15T09:34:02Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.0021832739003003, "finished_utc": "2026-09-15T09:34:03Z"}
+{"id": "n26-single-mikros", "started_utc": "2026-09-15T09:34:04Z", "state": "complete", "exit_code": 0, "wall_seconds": 10.012267712969333, "finished_utc": "2026-09-15T09:34:14Z"}
+{"id": "n26-single-flock", "started_utc": "2026-09-15T09:34:15Z", "state": "complete", "exit_code": 0, "wall_seconds": 11.013699864037335, "finished_utc": "2026-09-15T09:34:26Z"}
+{"id": "n26-multiple-flock", "started_utc": "2026-09-15T09:34:27Z", "state": "complete", "exit_code": 0, "wall_seconds": 26.028213934972882, "finished_utc": "2026-09-15T09:34:53Z"}
+{"id": "n26-multiple-mikros", "started_utc": "2026-09-15T09:34:54Z", "state": "complete", "exit_code": 0, "wall_seconds": 21.024306545965374, "finished_utc": "2026-09-15T09:35:15Z"}
+PRIMARY_COMPLETE reference 3
+PRIMARY_BEGIN all 3
+{"id": "rustc-version", "started_utc": "2026-09-15T09:35:17Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.00215112301521, "finished_utc": "2026-09-15T09:35:18Z"}
+{"id": "native-cfg", "started_utc": "2026-09-15T09:35:18Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.002183398930356, "finished_utc": "2026-09-15T09:35:19Z"}
+{"id": "n26-single-mikros", "started_utc": "2026-09-15T09:35:20Z", "state": "complete", "exit_code": 0, "wall_seconds": 10.012017576023936, "finished_utc": "2026-09-15T09:35:30Z"}
+{"id": "n26-single-flock", "started_utc": "2026-09-15T09:35:31Z", "state": "complete", "exit_code": 0, "wall_seconds": 11.010484613943845, "finished_utc": "2026-09-15T09:35:42Z"}
+{"id": "n26-multiple-flock", "started_utc": "2026-09-15T09:35:43Z", "state": "complete", "exit_code": 0, "wall_seconds": 25.028501613996923, "finished_utc": "2026-09-15T09:36:08Z"}
+{"id": "n26-multiple-mikros", "started_utc": "2026-09-15T09:36:09Z", "state": "complete", "exit_code": 0, "wall_seconds": 20.023570622084662, "finished_utc": "2026-09-15T09:36:29Z"}
+PRIMARY_COMPLETE all 3
+PRIMARY_BEGIN virtual 3
+{"id": "rustc-version", "started_utc": "2026-09-15T09:36:31Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.00206102989614, "finished_utc": "2026-09-15T09:36:32Z"}
+{"id": "native-cfg", "started_utc": "2026-09-15T09:36:32Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.0020504409912974, "finished_utc": "2026-09-15T09:36:33Z"}
+{"id": "n26-single-mikros", "started_utc": "2026-09-15T09:36:34Z", "state": "complete", "exit_code": 0, "wall_seconds": 10.012061909073964, "finished_utc": "2026-09-15T09:36:44Z"}
+{"id": "n26-single-flock", "started_utc": "2026-09-15T09:36:45Z", "state": "complete", "exit_code": 0, "wall_seconds": 11.012964617926627, "finished_utc": "2026-09-15T09:36:56Z"}
+{"id": "n26-multiple-flock", "started_utc": "2026-09-15T09:36:57Z", "state": "complete", "exit_code": 0, "wall_seconds": 25.028796590166166, "finished_utc": "2026-09-15T09:37:22Z"}
+{"id": "n26-multiple-mikros", "started_utc": "2026-09-15T09:37:23Z", "state": "complete", "exit_code": 0, "wall_seconds": 21.02533772913739, "finished_utc": "2026-09-15T09:37:44Z"}
+PRIMARY_COMPLETE virtual 3
+PRIMARY_BEGIN scratch 3
+{"id": "rustc-version", "started_utc": "2026-09-15T09:37:46Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.001976729137823, "finished_utc": "2026-09-15T09:37:47Z"}
+{"id": "native-cfg", "started_utc": "2026-09-15T09:37:47Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.0020143541041762, "finished_utc": "2026-09-15T09:37:48Z"}
+{"id": "n26-single-mikros", "started_utc": "2026-09-15T09:37:49Z", "state": "complete", "exit_code": 0, "wall_seconds": 10.012423752108589, "finished_utc": "2026-09-15T09:37:59Z"}
+{"id": "n26-single-flock", "started_utc": "2026-09-15T09:38:00Z", "state": "complete", "exit_code": 0, "wall_seconds": 11.012853909982368, "finished_utc": "2026-09-15T09:38:11Z"}
+{"id": "n26-multiple-flock", "started_utc": "2026-09-15T09:38:12Z", "state": "complete", "exit_code": 0, "wall_seconds": 26.029929222073406, "finished_utc": "2026-09-15T09:38:38Z"}
+{"id": "n26-multiple-mikros", "started_utc": "2026-09-15T09:38:39Z", "state": "complete", "exit_code": 0, "wall_seconds": 20.023482428165153, "finished_utc": "2026-09-15T09:38:59Z"}
+PRIMARY_COMPLETE scratch 3
+ALL_PRIMARY_COMPLETE

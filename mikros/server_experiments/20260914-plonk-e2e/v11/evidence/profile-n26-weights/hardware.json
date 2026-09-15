@@ -1,0 +1,570 @@
+{
+  "hostname": "swiftlab",
+  "selected_cpus": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50,
+    51,
+    52,
+    53,
+    54,
+    55,
+    72,
+    73,
+    74,
+    75,
+    76,
+    77,
+    78,
+    79
+  ],
+  "resource_snapshot": {
+    "utc": "2026-09-15T09:10:20Z",
+    "memory_kib": {
+      "MemTotal": 395848532,
+      "MemAvailable": 382094460,
+      "SwapTotal": 2097148,
+      "SwapFree": 1125496
+    },
+    "disk_free_bytes": 8087404544,
+    "disk_path": "/home/mscong1/mikros-experiments/20260912T-native64/v25-n26-tiling-20260915/source",
+    "loadavg": [
+      28.5537109375,
+      14.8173828125,
+      6.0771484375
+    ],
+    "affinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63,
+      64,
+      65,
+      66,
+      67,
+      68,
+      69,
+      70,
+      71,
+      72,
+      73,
+      74,
+      75,
+      76,
+      77,
+      78,
+      79,
+      80,
+      81,
+      82,
+      83,
+      84,
+      85,
+      86,
+      87,
+      88,
+      89,
+      90,
+      91,
+      92,
+      93,
+      94,
+      95
+    ]
+  },
+  "cpu_model": "Intel(R) Xeon(R) Gold 6342 CPU @ 2.80GHz",
+  "selected_cpu_flags": {
+    "0": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "1": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "2": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "3": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "4": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "5": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "6": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "7": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "8": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "9": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "10": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "11": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "12": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "13": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "14": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "15": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "16": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "17": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "18": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "19": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "20": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "21": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "22": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "23": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "24": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "25": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "26": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "27": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "28": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "29": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "30": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "31": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "32": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "33": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "34": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "35": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "36": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "37": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "38": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "39": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "40": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "41": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "42": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "43": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "44": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "45": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "46": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "47": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "48": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "49": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "50": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "51": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "52": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "53": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "54": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "55": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "72": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "73": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "74": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "75": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "76": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "77": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "78": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ],
+    "79": [
+      "avx512bw",
+      "avx512f",
+      "gfni",
+      "vpclmulqdq"
+    ]
+  }
+}

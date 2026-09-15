@@ -1256,7 +1256,28 @@ pub fn prove_batched_with_grinding<C: Challenger>(
     grinding: BatchedGrinding,
     ch: &mut C,
 ) -> (ProductGkrBatchedProof, ProductGkrBatchedClaim) {
-    prove_batched_impl(f, g, sigma, live, false, grinding, None, ch)
+    prove_batched_impl(f, g, sigma, live, false, grinding, None, false, ch)
+}
+
+/// The native masked prover with consumed product layers released promptly.
+///
+/// A layer is dropped after its first fold (or boundary read for the root
+/// layer), and working vectors are dropped instead of returned to the scratch
+/// pool. Messages, grinding and the grouped arithmetic kernels are identical
+/// to [`prove_batched_with_grinding`]. Building the initial tree still retains
+/// all layers; callers must budget that peak and clear any idle scratch before
+/// entering if they need a bounded resident set.
+pub fn prove_batched_bounded_with_grinding<C: Challenger>(
+    f: &[F128],
+    g: &[F128],
+    sigma: &[usize],
+    live: &LiveMask,
+    grinding: BatchedGrinding,
+    ch: &mut C,
+) -> (ProductGkrBatchedProof, ProductGkrBatchedClaim) {
+    assert_eq!(live.counts.len() << live.nu, f.len(), "mask spans the leaf space");
+    assert!(live.counts.iter().all(|&n| n <= 1usize << live.nu));
+    prove_batched_impl(f, g, sigma, Some(live), false, grinding, None, true, ch)
 }
 
 /// Dense permutation prover with a challenge-independent sigma encoding
@@ -1268,7 +1289,7 @@ pub fn prove_batched_prepared_sigma_with_grinding<C: Challenger>(
     grinding: BatchedGrinding, ch: &mut C,
 ) -> (ProductGkrBatchedProof, ProductGkrBatchedClaim) {
     assert_eq!(sigma_tags.len(), sigma.len());
-    prove_batched_impl(f, g, sigma, None, false, grinding, Some(sigma_tags), ch)
+    prove_batched_impl(f, g, sigma, None, false, grinding, Some(sigma_tags), false, ch)
 }
 
 /// The DENSE pipeline forced under a mask — the grouped pipeline's
@@ -1281,7 +1302,7 @@ pub(crate) fn prove_batched_dense_masked_for_tests<C: Challenger>(
     live: Option<&LiveMask>,
     ch: &mut C,
 ) -> (ProductGkrBatchedProof, ProductGkrBatchedClaim) {
-    prove_batched_impl(f, g, sigma, live, true, BatchedGrinding::disabled(), None, ch)
+    prove_batched_impl(f, g, sigma, live, true, BatchedGrinding::disabled(), None, false, ch)
 }
 
 /// The sparse masked σ evaluation: `Σ_live eq_lo(row)·eq_hi(slot)·tag(σ(x))`
@@ -1318,6 +1339,7 @@ fn prove_batched_grouped<C: Challenger>(
     beta: F128,
     grinding: BatchedGrinding,
     grinding_nonces: &mut Vec<u64>,
+    release_layers: bool,
     ch: &mut C,
 ) -> (ProductGkrBatchedProof, ProductGkrBatchedClaim) {
     let n = f.len();
@@ -1367,18 +1389,22 @@ fn prove_batched_grouped<C: Challenger>(
     tp(&mut t, "  leaves(grouped)");
 
     // Layer stack, built downward: stack[d] is layer `mu − d`.
-    let mut l_layers: Vec<GVec> = Vec::with_capacity(mu + 1);
-    let mut r_layers: Vec<GVec> = Vec::with_capacity(mu + 1);
-    l_layers.push(lhs);
-    r_layers.push(rhs);
+    let mut l_layers: Vec<Option<GVec>> = Vec::with_capacity(mu + 1);
+    let mut r_layers: Vec<Option<GVec>> = Vec::with_capacity(mu + 1);
+    l_layers.push(Some(lhs));
+    r_layers.push(Some(rhs));
     for d in 0..mu {
-        l_layers.push(gv_build_prev(&l_layers[d]));
-        r_layers.push(gv_build_prev(&r_layers[d]));
+        l_layers.push(Some(gv_build_prev(l_layers[d].as_ref().unwrap())));
+        r_layers.push(Some(gv_build_prev(r_layers[d].as_ref().unwrap())));
     }
-    let top_lhs = l_layers[mu].val(0);
-    let top_rhs = r_layers[mu].val(0);
+    let top_lhs = l_layers[mu].as_ref().unwrap().val(0);
+    let top_rhs = r_layers[mu].as_ref().unwrap().val(0);
     ch.observe_f128(top_lhs);
     ch.observe_f128(top_rhs);
+    if release_layers {
+        drop(l_layers[mu].take());
+        drop(r_layers[mu].take());
+    }
     tp(&mut t, "  build-layers(grouped)");
 
     let mut r_pt: Vec<F128> = Vec::new();
@@ -1407,8 +1433,11 @@ fn prove_batched_grouped<C: Challenger>(
         let lambda = grind_sample(ch, grinding_nonces, grinding.lambda_bits);
         let mut rounds = Vec::with_capacity(k);
         let mut r_prime = Vec::with_capacity(k + 1);
-        let (l0v, l1v) = l_layers[mu - (k + 1)].split();
-        let (r0v, r1v) = r_layers[mu - (k + 1)].split();
+        let layer_index = mu - (k + 1);
+        let mut source = Some([
+            l_layers[layer_index].take().unwrap(),
+            r_layers[layer_index].take().unwrap(),
+        ]);
         let mut cur: Option<[GVec; 4]> = None;
         for i in 0..k {
             let t_ph = Instant::now();
@@ -1429,16 +1458,16 @@ fn prove_batched_grouped<C: Challenger>(
                 d_eq += t_ph.elapsed();
                 Instant::now()
             };
-            let msg = match &cur {
-                None => gv_message([&l0v, &l1v, &r0v, &r1v], lambda, &eq, &plo, &phi),
-                Some([a, b, c, d]) => gv_message(
-                    [&a.view(), &b.view(), &c.view(), &d.view()],
-                    lambda,
-                    &eq,
-                    &plo,
-                    &phi,
-                ),
+            let views = match &cur {
+                None => {
+                    let [left, right] = source.as_ref().unwrap();
+                    let (l0, l1) = left.split();
+                    let (r0, r1) = right.split();
+                    [l0, l1, r0, r1]
+                }
+                Some([a, b, c, d]) => [a.view(), b.view(), c.view(), d.view()],
             };
+            let msg = gv_message(views.each_ref(), lambda, &eq, &plo, &phi);
             let t_ph = {
                 d_msg += t_ph.elapsed();
                 Instant::now()
@@ -1448,49 +1477,50 @@ fn prove_batched_grouped<C: Challenger>(
             let rho = grind_sample(ch, grinding_nonces, grinding.round_bits);
             rounds.push(msg);
             r_prime.push(rho);
-            let cur_rows = match &cur {
-                None => l0v.rows,
-                Some([a, ..]) => a.rows,
-            };
-            let next = if cur_rows >= 2 {
-                match &cur {
-                    None => gv_fold4([&l0v, &l1v, &r0v, &r1v], rho),
-                    Some([a, b, c, d]) => {
-                        gv_fold4([&a.view(), &b.view(), &c.view(), &d.view()], rho)
-                    }
-                }
+            let next = if views[0].rows >= 2 {
+                gv_fold4(views.each_ref(), rho)
             } else {
-                match &cur {
-                    None => [
-                        gv_fold(&l0v, rho),
-                        gv_fold(&l1v, rho),
-                        gv_fold(&r0v, rho),
-                        gv_fold(&r1v, rho),
-                    ],
-                    Some([a, b, c, d]) => [
-                        gv_fold(&a.view(), rho),
-                        gv_fold(&b.view(), rho),
-                        gv_fold(&c.view(), rho),
-                        gv_fold(&d.view(), rho),
-                    ],
-                }
+                views.each_ref().map(|v| gv_fold(v, rho))
             };
+            drop(views);
+            if release_layers && i == 0 {
+                // The folded vectors now contain every value this layer's
+                // remaining rounds need, including for the largest leaf layer.
+                drop(source.take());
+            }
             if let Some(old) = cur.take() {
-                for v in old {
-                    give_f128(v.buf);
+                if !release_layers {
+                    for v in old {
+                        give_f128(v.buf);
+                    }
                 }
             }
             cur = Some(next);
             d_fold += t_ph.elapsed();
         }
         let (vl0, vl1, vr0, vr1) = match &cur {
-            None => (l0v.val(0), l1v.val(0), r0v.val(0), r1v.val(0)),
+            None => {
+                let [left, right] = source.as_ref().unwrap();
+                let (l0, l1) = left.split();
+                let (r0, r1) = right.split();
+                (l0.val(0), l1.val(0), r0.val(0), r1.val(0))
+            }
             Some([a, b, c, d]) => (a.val(0), b.val(0), c.val(0), d.val(0)),
         };
         if let Some(old) = cur.take() {
-            for v in old {
-                give_f128(v.buf);
+            if !release_layers {
+                for v in old {
+                    give_f128(v.buf);
+                }
             }
+        }
+        if release_layers {
+            drop(source.take());
+        } else {
+            // Preserve the ordinary prover's retention and pooling policy.
+            let [left, right] = source.take().unwrap();
+            l_layers[layer_index] = Some(left);
+            r_layers[layer_index] = Some(right);
         }
         for v in [vl0, vl1, vr0, vr1] {
             ch.observe_f128(v);
@@ -1509,8 +1539,10 @@ fn prove_batched_grouped<C: Challenger>(
         r_prime.push(c_k);
         r_pt = r_prime;
     }
-    for v in l_layers.into_iter().chain(r_layers) {
-        give_f128(v.buf);
+    for v in l_layers.into_iter().chain(r_layers).flatten() {
+        if !release_layers {
+            give_f128(v.buf);
+        }
     }
     if trace_on() {
         let tot = t_sc_total.elapsed();
@@ -1561,6 +1593,7 @@ fn prove_batched_impl<C: Challenger>(
     force_dense: bool,
     grinding: BatchedGrinding,
     prepared_sigma: Option<&[F128]>,
+    release_layers: bool,
     ch: &mut C,
 ) -> (ProductGkrBatchedProof, ProductGkrBatchedClaim) {
     let n = f.len();
@@ -1599,6 +1632,7 @@ fn prove_batched_impl<C: Challenger>(
             beta,
             grinding,
             &mut grinding_nonces,
+            release_layers,
             ch,
         );
     }
@@ -2064,8 +2098,10 @@ mod tests {
         product_gkr::{
             BatchedGrinding, Challenger, DOMAIN_BATCHED, F128, LiveMask, ProductGkrBatchedProof,
             ProductGkrError, build_s_id_vec, mle_eval, prove_batched,
+            prove_batched_bounded_with_grinding,
             prove_batched_dense_masked_for_tests, prove_batched_with_grinding, s_id_basis,
             s_id_value, verify_batched, verify_batched_with_grinding, verify_batched_with_sigma,
+            verify_batched_with_sigma_and_grinding,
         },
         test_rng::Rng,
     };
@@ -2123,6 +2159,62 @@ mod tests {
                 prove_batched_dense_masked_for_tests(&f, &g, &sigma, Some(&mask), &mut ch2);
             assert_eq!(p1, p2, "grouped == dense masked (proof), nu {nu} c {c}");
             assert_eq!(c1, c2, "grouped == dense masked (claim), nu {nu} c {c}");
+        }
+    }
+
+    /// Releasing owned levels and fold scratch must not alter any native
+    /// proof byte, grinding nonce, endpoint or subsequent challenge. Include
+    /// empty/uneven masks, a row-only tree and the large-run three-column mask.
+    #[test]
+    fn grouped_bounded_matches_pooled_proof_transcript_and_verifier() {
+        let mut rng = Rng::new(0xB0_0D_ED_64);
+        for (nu, counts) in [
+            (0, vec![0, 1]),
+            (0, vec![1, 1]),
+            (1, vec![0, 0]),
+            (3, vec![8]),
+            (4, vec![16, 16, 16, 1]),
+            (4, vec![5, 16, 0, 9, 1, 13, 7, 3]),
+            (16, vec![65536, 65536, 65536, 1]),
+        ] {
+            let mask = LiveMask { nu, counts };
+            let n = mask.counts.len() << nu;
+            let mu = n.trailing_zeros() as usize;
+            let live: Vec<_> = (0..n).filter(|&i| mask.is_live(i)).collect();
+            let perm = rng.permutation(live.len());
+            let mut sigma: Vec<_> = (0..n).collect();
+            for (i, &p) in perm.iter().enumerate() {
+                sigma[live[i]] = live[p];
+            }
+            let w = cycle_constant_witness(&sigma, 0xB0_0D_ED_65);
+            let policies: &[BatchedGrinding] = if nu <= 4 {
+                &[BatchedGrinding::disabled(), BatchedGrinding::per_challenge_128()]
+            } else {
+                &[BatchedGrinding::disabled()]
+            };
+            for &policy in policies {
+                let mut pooled_ch = FsChallenger::new(b"gkr-bounded-differential");
+                bind(&mut pooled_ch, &w, &w, &sigma);
+                let (pooled, pooled_claim) = prove_batched_with_grinding(
+                    &w, &w, &sigma, Some(&mask), policy, &mut pooled_ch,
+                );
+                let mut bounded_ch = FsChallenger::new(b"gkr-bounded-differential");
+                bind(&mut bounded_ch, &w, &w, &sigma);
+                let (bounded, bounded_claim) = prove_batched_bounded_with_grinding(
+                    &w, &w, &sigma, &mask, policy, &mut bounded_ch,
+                );
+                assert_eq!(bincode::serialize(&bounded).unwrap(), bincode::serialize(&pooled).unwrap());
+                assert_eq!(bounded_claim, pooled_claim);
+                let checkpoint = bounded_ch.sample_f128();
+                assert_eq!(checkpoint, pooled_ch.sample_f128());
+                let mut vch = FsChallenger::new(b"gkr-bounded-differential");
+                bind(&mut vch, &w, &w, &sigma);
+                let verified = verify_batched_with_sigma_and_grinding(
+                    mu, &bounded, &sigma, Some(&mask), policy, &mut vch,
+                ).expect("bounded native proof verifies");
+                assert_eq!(bounded_claim, verified);
+                assert_eq!(checkpoint, vch.sample_f128());
+            }
         }
     }
 

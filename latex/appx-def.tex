@@ -6,25 +6,22 @@
 \begin{definition}[Proof/Argument/Argument of Knowledge]
 \label{def:proofArgumentAoK}
 A protocol consists of algorithms $(\Setup,\Prover,\Verifier)$.
-We distinguish proofs, arguments, and arguments of knowledge by
-requiring soundness, computational soundness, and knowledge
-soundness, respectively. Throughout, we require perfect completeness.
+Proofs, arguments, and arguments of knowledge require soundness,
+computational soundness, and knowledge soundness, respectively.
+Throughout, we require perfect completeness.
 \begin{itemize}
-	\item $\Setup$:
-	On input $1^\lambda$, output public parameters $\pp$.
-	\item Prover $\Prover$:
-	On input $\pp$ and a statement $u$, produce a transcript $\pi$
+    \item $\Setup$: on input $1^\lambda$, output public parameters $\pp$.
+    \item $\Prover$: on input $\pp$ and a statement $u$, produce a transcript $\pi$
     for membership in $\Language$. For a relation $\Relation$,
     the prover additionally receives a witness $w$.
-	\item Verifier $\Verifier$:
-	On input $\pp$, a statement $u$, and a transcript $\pi$,
+    \item $\Verifier$: on input $\pp$, a statement $u$, and a transcript $\pi$,
     output {\sf true} or {\sf false}.
 \end{itemize}
 Let $\PVinteract$ denote the interaction between $\Prover$ and $\Verifier$.
 \end{definition}
 
 \begin{definition}[Perfect Completeness]
-	\label{def:perfect-completeness}
+\label{def:perfect-completeness}
 The protocol $(\Setup,\Prover,\Verifier)$ for a relation \(\Relation\)
 has perfect completeness if, for every \((u,w)\in\Relation\):
 \[
@@ -38,156 +35,128 @@ has perfect completeness if, for every \((u,w)\in\Relation\):
 \]
 where the probability is over the randomness of
 \(\Setup\), \(\Prover\), and \(\Verifier\).
-\end{definition} 
+\end{definition}
 
 \begin{definition}[Soundness~\cite{iacr/CanettiCHLRR18}]
-	\label{def:soundness}
-	A protocol $(\Setup,\Prover,\Verifier)$ for a language
-    $\Language$ or relation $\mathcal R$ has soundness error
-    $\kappa^\mathsf{s}(u)\colon\mathbb N\mapsto[0,1]$ if every
-    computationally unbounded interactive prover $\Prover^*$ satisfies:
-	\begin{equation*}
-	% \label{eq:soundnessExpectedTime}
-	\Pr
-		\left(
-			\left.
-			\begin{aligned}
-				& \Verifier(\pp, u, \pi) = \TRUE \\
-			\end{aligned}
-			\right.
-			\left|
-			\begin{aligned}
-				& u \notin \Language~/~ \Relation;~ \pi \leftarrow (\Prover^* \interact \Verifier) (\pp, u) \\
-			\end{aligned}
-			\right.
-		\right)
-	\le \kappa^\mathsf{s}(u).
-	\end{equation*}
-    The protocol is sound if $\kappa^\mathsf{s}(u)$ is negligible.
+\label{def:soundness}
+A protocol $(\Setup,\Prover,\Verifier)$ for a language
+$\Language$ or relation $\mathcal R$ has soundness error
+$\kappa^\mathsf{s}(u)\colon\mathbb N\mapsto[0,1]$ if every
+computationally unbounded interactive prover $\Prover^*$ satisfies:
+\[
+    \Pr\left[
+        \Verifier(\pp,u,\pi)=\TRUE
+        \;\middle|\;
+        \begin{gathered}
+            u\notin\Language~/~\Relation;\;
+            \pi\leftarrow(\Prover^*\interact\Verifier)(\pp,u)
+        \end{gathered}
+    \right]
+    \leq\kappa^\mathsf{s}(u).
+\]
+The protocol is sound if $\kappa^\mathsf{s}(u)$ is negligible.
 \end{definition}
 
 Restricting the adversarial prover to probabilistic polynomial time
 gives computational soundness.
 \begin{definition}[Computational Soundness]
-	\label{def:ComputationalSoundness}
-	A protocol $(\Setup,\Prover,\Verifier)$ for a language
-    $\Language$ or relation $\mathcal R$ has computational soundness
-    error $\kappa^\mathsf{cs}(u)\colon\mathbb N\mapsto[0,1]$ if
-    every PPT prover $\Prover^*$ satisfies:
-	\begin{equation*}
-	% \label{eq:soundnessExpectedTime}
-	\Pr
-		\left(
-			\left.
-			\begin{aligned}
-				& \Verifier(\pp, u, \pi) = \TRUE \\
-			\end{aligned}
-			\right.
-			\left|
-			\begin{aligned}
-				& u \notin \Language~/~\Relation;~ \pi \leftarrow (\Prover^* \interact \Verifier)(\pp, u) \\
-			\end{aligned}
-			\right.
-		\right)
-	\le \kappa^\mathsf{cs}(u).
-	\end{equation*}
-    The protocol is computationally sound if
-    $\kappa^\mathsf{cs}(u)$ is negligible.
+\label{def:ComputationalSoundness}
+A protocol $(\Setup,\Prover,\Verifier)$ for a language
+$\Language$ or relation $\mathcal R$ has computational soundness
+error $\kappa^\mathsf{cs}(u)\colon\mathbb N\mapsto[0,1]$ if
+every PPT prover $\Prover^*$ satisfies:
+\[
+    \Pr\left[
+        \Verifier(\pp,u,\pi)=\TRUE
+        \;\middle|\;
+        \begin{gathered}
+            u\notin\Language~/~\Relation;\;
+            \pi\leftarrow(\Prover^*\interact\Verifier)(\pp,u)
+        \end{gathered}
+    \right]
+    \leq\kappa^\mathsf{cs}(u).
+\]
+The protocol is computationally sound if
+$\kappa^\mathsf{cs}(u)$ is negligible.
 \end{definition}
 By definition, $\kappa^\mathsf{cs}(u)\leq\kappa^\mathsf{s}(u)$.
 
 An argument of knowledge additionally requires extraction of a
 witness~\cite{crypto/AttemaCK21}.
 \begin{definition}[Knowledge Soundness]
-	\label{def:knowledgeSoundness}
-	A protocol $(\Setup,\Prover,\Verifier)$ for a relation $\Relation$
-    has knowledge-soundness error
-    $\kappa^\mathsf{ks}(u)\colon\mathbb N\mapsto[0,1]$ if there
-    exists a knowledge extractor $\Extractor$ with the following
-    guarantee. Given $u$ and black-box access to a prover $\Prover^*$,
-    the extractor runs in expected time polynomial in $|u|$, counting
-    each oracle query as one step, and satisfies:
-	\begin{equation*}
-	% \label{eq:soundnessExpectedTime}
-	\Pr((u, \Extractor(\Prover^*, u) ) \in \Relation )
-	\ge
-	\epsilon(\Prover^*, u) - \kappa^\mathsf{ks}(u),
-	\end{equation*}
-	where $\epsilon(\Prover^*,u)$ is the acceptance probability of
-    $\Prover^*$. The protocol is knowledge sound if
-    $\kappa^\mathsf{ks}(u)$ is negligible.
+\label{def:knowledgeSoundness}
+A protocol $(\Setup,\Prover,\Verifier)$ for a relation $\Relation$
+has knowledge-soundness error
+$\kappa^\mathsf{ks}(u)\colon\mathbb N\mapsto[0,1]$ if there
+exists a knowledge extractor $\Extractor$ satisfying the following
+guarantee. Given $u$ and black-box access to a prover $\Prover^*$,
+the extractor runs in expected time polynomial in $|u|$, counting
+each oracle query as one step, and satisfies:
+\[
+    \Pr\bigl[(u,\Extractor(\Prover^*,u))\in\Relation\bigr]
+    \geq\epsilon(\Prover^*,u)-\kappa^\mathsf{ks}(u),
+\]
+where $\epsilon(\Prover^*,u)$ is the acceptance probability of
+$\Prover^*$. The protocol is knowledge sound if
+$\kappa^\mathsf{ks}(u)$ is negligible.
 \end{definition}
 
-If a protocol is knowledge-sound with knowledge-soundness error
-$\kappa^\mathsf{ks}(u)$, then it is also computationally sound with
-error $\kappa^\mathsf{cs}(u) \le \kappa^\mathsf{ks}(u)$.
-Otherwise, some false statement $u$ and PPT prover $\Prover^*$
-would satisfy:
-\[
-	\Pr
-	\left(
-		\left.
-		\begin{aligned}
-			& \Verifier(\pp, u, \pi) = \TRUE \\
-		\end{aligned}
-		\right.
-		\left|
-		\begin{aligned}
-			& u \notin \mathcal{R};~ \pi \leftarrow (\Prover^* \interact \Verifier)(\pp, u) \\
-		\end{aligned}
-		\right.
-	\right)
-	> \kappa^\mathsf{ks}(u).
-\]
-The extraction guarantee would then yield a witness $w$ with
-$(u,w)\in\Relation$ with positive probability, contradicting the
-falsity of $u$.
+Knowledge soundness implies computational soundness with error
+$\kappa^\mathsf{cs}(u)\leq\kappa^\mathsf{ks}(u)$.
+Otherwise, some false statement $u$ and PPT prover $\Prover^*$ would
+satisfy $\epsilon(\Prover^*,u)>\kappa^\mathsf{ks}(u)$.
+The extraction guarantee would then yield a valid witness with
+positive probability, contradicting the falsity of $u$.
 
 
 \subsection{Round-by-Round Soundness}
 \label{appx:rbyDef}
 
 \begin{definition}[Round-by-Round Soundness~\cite{iacr/CanettiCHLRR18}]
-	\label{def:roundByRoundSoundness}
-	Let $\Pi=(\Setup,\Prover,\Verifier)$ be a $(2\nu+1)$-message
-    public-coin interactive proof for a relation $\Relation$.
-    For a statement $u\in\{0,1\}^*$, write
-    $\pi_j=(\alpha_0,x_1,\alpha_1,\ldots,\alpha_{j-1},x_j,\alpha_j)$
-    for a transcript prefix containing the first $2j+1$ messages,
-    where $j\in[0,\nu]$. Let $\mathsf H(u,\pi_j)$ denote the
-    distribution of the verifier's next message.
-    The protocol has round-by-round soundness error
-    $\{\kappa_j^\mathsf{rbr}\}_{j\in[0,\nu]}$ if there exist
-    deterministic, not necessarily efficient, functions
-    $\{\mathsf{State}_j\}_{j\in[0,\nu]}$ mapping a statement and
-    transcript prefix to $\mathsf{accept}$ or $\mathsf{reject}$,
-    with the following properties:
-		\begin{itemize}
-			\item If $u \notin \Language$, then $\mathsf{State}_0(u, \emptyset) = \mathsf{reject}$, where $\emptyset$ denotes the empty transcript.
-			\item If $\mathsf{State}_{j-1}(u,\pi_{j-1})=\mathsf{reject}$,
-            then the next verifier challenge and prover response satisfy:
-			\[
-				\Pr\!\!
-				\left(
-					\mathsf{State}_j(u, \pi_j) = \mathsf{accept~}\!\!
-					\left|~\!
-						\begin{aligned}
-							&\!\mathsf{State}_{j - 1}(u, \pi_{j - 1}) = \mathsf{reject}; \\
-							& x_j \leftarrow \mathsf{H}(u, \pi_{j - 1}); \pi_j \leftarrow (\pi_{j - 1} \| x_j \| \alpha_j)\!
-						\!\end{aligned}
-					\right.
-				\right)\!
-				\!\le\!\kappa_j^\mathsf{rbr}.
-			\]
-			\item For any full transcript $\pi$ for which the verifier halts, if $\mathsf{State}_\nu(u, \pi) = \mathsf{reject}$ then $\Verifier(u, \pi) = \FALSE$.
-		\end{itemize}
+\label{def:roundByRoundSoundness}
+Let $\Pi=(\Setup,\Prover,\Verifier)$ be a $(2\nu+1)$-message
+public-coin interactive proof for a relation $\Relation$.
+For a statement $u\in\{0,1\}^*$, let
+$\pi_j=(\alpha_0,x_1,\alpha_1,\ldots,\alpha_{j-1},x_j,\alpha_j)$
+be the prefix containing the first $2j+1$ messages, where
+$j\in[0,\nu]$. Write $\mathsf H(u,\pi_j)$ for the
+distribution of the verifier's next message.
+The protocol has round-by-round soundness error
+$\{\kappa_j^\mathsf{rbr}\}_{j\in[0,\nu]}$ if there exist
+deterministic, not necessarily efficient, functions
+$\{\mathsf{State}_j\}_{j\in[0,\nu]}$ mapping a statement and
+transcript prefix to $\mathsf{accept}$ or $\mathsf{reject}$,
+with the following properties:
+\begin{itemize}
+    \item If $u\notin\Language$, then
+    $\mathsf{State}_0(u,\emptyset)=\mathsf{reject}$, where
+    $\emptyset$ is the empty transcript.
+    \item If $\mathsf{State}_{j-1}(u,\pi_{j-1})=\mathsf{reject}$,
+    then the next verifier challenge and prover response satisfy:
+    \[
+        \Pr\left[
+            \mathsf{State}_j(u,\pi_j)=\mathsf{accept}
+            \;\middle|\;
+            \begin{gathered}
+                \mathsf{State}_{j-1}(u,\pi_{j-1})=\mathsf{reject};\\
+                x_j\leftarrow\mathsf H(u,\pi_{j-1});\;
+                \pi_j\leftarrow(\pi_{j-1}\|x_j\|\alpha_j)
+            \end{gathered}
+        \right]
+        \leq\kappa_j^\mathsf{rbr}.
+    \]
+    \item For any full transcript $\pi$ on which the verifier halts,
+    $\mathsf{State}_\nu(u,\pi)=\mathsf{reject}$ implies
+    $\Verifier(u,\pi)=\FALSE$.
+\end{itemize}
 \end{definition}
 
-The following lemma bounds the overall error by the sum of the
+The overall soundness error is bounded by the sum of the
 round-by-round errors.
-\begin{lemma}[Round-by-Round Soundness Implies Soundness~\hspace{-1.58pt}\textup{\cite[Proposition~5.4]{iacr/CanettiCHLRR18}}]
+\begin{lemma}[Round-by-Round Soundness Implies Soundness~\textup{\cite[Proposition~5.4]{iacr/CanettiCHLRR18}}]
 \label{lemma:rbr}
-	Let $\Pi$ be a $(2 \nu + 1)$-move interactive proof with round-by-round soundness error $\kappa_j^\mathsf{rbr}, j \in [\nu]$.
-	Then $\Pi$ has soundness error at most
-    $\sum_{j=1}^\nu\kappa_j^\mathsf{rbr}$.
+Let $\Pi$ be a $(2\nu+1)$-message interactive proof with
+round-by-round soundness errors $\kappa_j^\mathsf{rbr}$ for $j\in[\nu]$.
+Then $\Pi$ has soundness error at most
+$\sum_{j=1}^\nu\kappa_j^\mathsf{rbr}$.
 \end{lemma}

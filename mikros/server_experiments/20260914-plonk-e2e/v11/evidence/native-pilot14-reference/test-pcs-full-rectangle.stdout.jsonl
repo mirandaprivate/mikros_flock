@@ -1,0 +1,6 @@
+
+running 1 test
+test pcs::tests::full_rectangle_bank_reuse_requires_complete_support ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 494 filtered out; finished in 0.00s
+

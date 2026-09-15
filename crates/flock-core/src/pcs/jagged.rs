@@ -1584,21 +1584,45 @@ pub(crate) fn build_merged_weight_and_prime(
         });
         out
     };
-    let tabs: Vec<(Vec<F128>, ColSide<'_>)> = claims
-        .iter()
-        .map(|c| match c {
+    // The column factor is already inside each F2-linear map. Equal row
+    // points can therefore add their byte tables once, before any row
+    // lookup: sum_i Phi_i(E(row)) = (sum_i Phi_i)(E(row)). Keep the
+    // original ring-switch/multipoint claims unchanged; only this local
+    // representation of their combined weight is grouped.
+    let group_rows = super::merged_row_grouping_enabled();
+    let mut row_maps: Vec<(&[F128], ColSide<'_>)> = Vec::new();
+    for c in claims {
+        let (point, side) = match c {
             MergedWeightClaim::Folded {
                 z_row,
                 z_col,
                 table,
-            } => (
-                build_eq_table(z_row),
-                ColSide::Baked(bake(&build_eq_table(z_col), table)),
-            ),
-            MergedWeightClaim::Scalar { z_row, cols } => {
-                (build_eq_table(z_row), ColSide::Combined(cols))
+            } => (*z_row, ColSide::Baked(bake(&build_eq_table(z_col), table))),
+            MergedWeightClaim::Scalar { z_row, cols } => (*z_row, ColSide::Combined(cols)),
+        };
+        if group_rows && let ColSide::Baked(table) = &side {
+            if let Some((_, ColSide::Baked(sum))) = row_maps
+                .iter_mut()
+                .find(|(row, kind)| *row == point && matches!(kind, ColSide::Baked(_)))
+            {
+                for (dst, &value) in sum.iter_mut().zip(table) {
+                    *dst += value;
+                }
+                continue;
             }
-        })
+        }
+        row_maps.push((point, side));
+    }
+    if var("PCS_TRACE").is_ok() {
+        eprintln!(
+            "  [open_merged] jagged row maps: {} claims/groups -> {} row maps (grouping={group_rows})",
+            claims.len(),
+            row_maps.len()
+        );
+    }
+    let tabs: Vec<(Vec<F128>, ColSide<'_>)> = row_maps
+        .into_iter()
+        .map(|(point, side)| (build_eq_table(point), side))
         .collect();
     assert_eq!(q.len(), n_total);
     let mut w = take_f128(n_total);
@@ -4856,6 +4880,57 @@ mod tests {
 
     fn sample_vec(ch: &mut RandomChallenger, n: usize) -> Vec<F128> {
         (0..n).map(|_| ch.sample_f128()).collect()
+    }
+
+    #[test]
+    fn merged_row_grouping_jagged_weight_and_prime_match() {
+        use super::{MergedWeightClaim, build_merged_weight_and_prime};
+        let mut rng = Rng::new(0x60A0_7A66);
+        for (n, m, heights) in [(6, 8, vec![31, 0, 61, 15]), (6, 8, vec![64; 4])] {
+            let params = JaggedParams::from_heights(&heights, n, m);
+            let mut q = rng.f128_vec(1 << m);
+            q[params.area() as usize..].fill(F128::ZERO);
+            let rows = [rng.f128_vec(n), rng.f128_vec(n)];
+            let cols = [
+                rng.f128_vec(2),
+                vec![F128::ZERO, F128::ONE],
+                rng.f128_vec(2),
+            ];
+            let tables: Vec<_> = (0..3)
+                .map(|_| ring_switch::build_fold_byte_table(&rng.f128_vec(128)))
+                .collect();
+            let scalar = rng.f128_vec(4);
+            let claims = [
+                MergedWeightClaim::Folded {
+                    z_row: &rows[0],
+                    z_col: &cols[0],
+                    table: &tables[0],
+                },
+                MergedWeightClaim::Folded {
+                    z_row: &rows[0],
+                    z_col: &cols[1],
+                    table: &tables[1],
+                },
+                MergedWeightClaim::Folded {
+                    z_row: &rows[1],
+                    z_col: &cols[2],
+                    table: &tables[2],
+                },
+                MergedWeightClaim::Scalar {
+                    z_row: &rows[0],
+                    cols: &scalar,
+                },
+            ];
+            let run = |grouping| {
+                crate::pcs::with_merged_row_grouping_override(grouping, || {
+                    build_merged_weight_and_prime(&params, &claims, &q)
+                })
+            };
+            let (old, old_prime) = run(false);
+            let (new, new_prime) = run(true);
+            assert_eq!(old[..params.area() as usize], new[..params.area() as usize]);
+            assert_eq!(old_prime, new_prime);
+        }
     }
 
     /// Direct MLE of `f_t` in the index variable: brute-force reference for

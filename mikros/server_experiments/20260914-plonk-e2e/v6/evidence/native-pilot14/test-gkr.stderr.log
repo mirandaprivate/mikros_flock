@@ -1,0 +1,5 @@
+   Compiling flock-transcript v0.1.0 (/home/mscong1/mikros-experiments/20260912T-native64/v20-n26-tree-pool-20260915/source/crates/flock-transcript)
+   Compiling flock-merkle v0.1.0 (/home/mscong1/mikros-experiments/20260912T-native64/v20-n26-tree-pool-20260915/source/crates/flock-merkle)
+   Compiling flock-core v0.1.0 (/home/mscong1/mikros-experiments/20260912T-native64/v20-n26-tree-pool-20260915/source/crates/flock-core)
+    Finished `release` profile [optimized] target(s) in 26.08s
+     Running unittests src/lib.rs (/home/mscong1/mikros-experiments/20260912T-native64/v14-packed-aggregate-20260914/source/target/release/deps/flock_core-3ba28222483ac645)

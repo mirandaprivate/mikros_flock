@@ -1,0 +1,24 @@
+
+running 19 tests
+test copy::tests::arbitrary_packed_columns_regroup_without_normalization ... ok
+test copy::tests::both_copy_systems_keep_proof_claims_and_transcript_under_all_evaluation_modes ... ok
+test copy::tests::io_guard_restores_on_unwind ... ok
+test copy::tests::multiple_copy_and_native_flock_preserve_public_io_and_witness_padding ... ok
+test copy::tests::nonzero_filter_applies_only_to_the_first_packed_challenge ... ok
+test copy::tests::scaled_copy_cache_matches_scalar_at_simd_and_chunk_boundaries ... ok
+test copy::tests::shared_public_fold_and_ordinary_dot_preserve_zero_prefixes ... ok
+test copy::tests::single_copy_and_native_flock_authenticate_nonzero_io_and_all_sources ... ok
+test evidence_tests::piop_evidence_survives_serialization_and_detects_proof_or_nonce_changes ... ok
+test evidence_tests::terminal_evidence_binds_functional_and_source_group_order ... ok
+test fixture::tests::exact_gates_wiring_and_public_tables ... ok
+test gates::tests::both_single_gate_paths_authenticate_all_terminals ... ok
+test gates::tests::multiple_both_gate_paths_authenticate_sources_and_replay_transcript ... ok
+test gates::tests::multiple_virtual_product_must_be_bound_even_on_xor_gates ... ok
+test grinding::tests::packed_column_event_replays_and_rejects_wrong_label_and_nonce_count ... ok
+test grinding::tests::replay_and_tamper ... ok
+test queries::tests::lifting_keeps_block_and_scale ... ok
+test queries::tests::native_dot_matches_scalar_with_offsets_tails_and_each_source_bit ... ok
+test queries::tests::ordinary_dot_matches_original_bits_and_independent_mle ... ok
+
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.08s
+

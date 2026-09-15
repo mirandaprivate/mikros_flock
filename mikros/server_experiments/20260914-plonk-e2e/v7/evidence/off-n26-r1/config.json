@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "levels": [
+    26
+  ],
+  "repetitions": 1,
+  "seed": 97,
+  "threads": 64,
+  "cpu_affinity": "0-47,48-55,72-79",
+  "toolchain": "+nightly-2026-03-21",
+  "rustflags": "-C target-cpu=native",
+  "target_dir": "/home/mscong1/mikros-experiments/20260912T-native64/v14-packed-aggregate-20260914/source/target",
+  "source_dir": "/home/mscong1/mikros-experiments/20260912T-native64/v21-n26-packed-direct-20260915/source",
+  "rust_min_stack_bytes": 16777216,
+  "cleared_environment_keys": [],
+  "build_skipped": true,
+  "tests_skipped": true,
+  "case_timeout_seconds": 14400,
+  "minimum_large_memory_gib": 350,
+  "disabled_optimizations": [],
+  "diagnostic_trace": false,
+  "allocator_policy": "system",
+  "packed_direct": false,
+  "piop_fingerprints": true,
+  "measured_environment": {},
+  "pilot_scope": "selected levels only; root manages evidence from earlier invocations when selecting a subset",
+  "source_manifest_sha256": "06705e1d4e3c0b8aed73e8ff9fabc2373f75910be9cd16269859afe00fb45652",
+  "base_revision": "d399b71ea33ce2d2e3208a6ab414134c9f879d00"
+}

@@ -1,0 +1,10 @@
+{
+  "changed_files": [
+    "mikros/src/extension_product.rs"
+  ],
+  "change_is_in_final_test_module_only": true,
+  "all_other_383_sources_byte_identical": true,
+  "production_prefix_sha256": "4af9998f651ca7c402eca0ad17bc321fc5ad5daaecf2607336aa67c3d8b6d9a8",
+  "v13_source_manifest_sha256": "bd0c048c541d9492afd4a38ee2d7a2100142e11ac5974c07898fd75548353660",
+  "v14_source_manifest_sha256": "135ca3d44ba7358192ff73a60cdcbec7a41b10dd716a53e42a9219570cac183c"
+}

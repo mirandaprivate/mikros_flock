@@ -3,310 +3,74 @@
 \caption{Packed Hadamard-product proof}
 \label{alg:hadamard}
 \KwIn{
-\(N=m\kappa\), where \(m,\kappa\in2^{\mathbb N}\);
-\(\ext{c}\in\ExtensionField\);
-\(\bm a,\bm b\in\Field^N\);
-\(\ext{\bm\xi}
-=\ext{\bm r}\kronecker\ext{\bm l}\),
-where
-\(\ext{\bm r}\in\ExtensionField^\kappa\) and
-\(\ext{\bm l}
-=\bigotimes_{j=1}^{\log_2m}(\ext l_{j,0},\ext l_{j,1})^\top
-\in\ExtensionField^m\)
+\(N=m\kappa\), \(m\in2^{\mathbb N}\), \(\kappa\geq2\);
+a fixed claim \(\ext c\in\ExtensionField\) and matrices
+\(\bm A,\bm B\in\Field^{m\times\kappa}\) fixed by the input commitments;
+column weights \(\ext{\bm r}\in\ExtensionField^\kappa\);
+row weights
+\(\ext{\bm l}=\bigotimes_{j=1}^{\log_2m}
+(\ext l_{j,0},\ext l_{j,1})^\top\);
+nodes \(\mathcal H=\{\gamma_1,\ldots,\gamma_\kappa\}\subseteq\mathbb K\),
+with \(\Field\subseteq\mathbb K\subseteq\ExtensionField\) and
+\(|\mathbb K|\geq2\kappa-1\)
 }
 \KwOut{
-Terminal values \(\ext{v}_1,\ext{v}_2\) and tensor queries
-\(\ext{\bm\xi}_a,\ext{\bm\xi}_b\in\ExtensionField^N\),
-represented by their two-entry factors;
+Terminal values \(\ext v_1,\ext v_2\);
+column weights \(\ext{\bm\rho}\in\ExtensionField^\kappa\);
+tensor row weights \(\ext{\bm\xi}_1,\ext{\bm\xi}_2\in\ExtensionField^m\);
 acceptance bit \(\mathsf{ok}\)
 }
 
-Arrange \(\bm a,\bm b\) columnwise as
-\(\bm A\leftarrow\concat{\bm a^{(1)},\ldots,\bm a^{(\kappa)}}\)
-and \(\bm B\leftarrow\concat{\bm b^{(1)},\ldots,\bm b^{(\kappa)}}
-\in\Field^{m\times\kappa}\)\;
-
-\tcp{Encode the column claims in a quotient identity}
-\(\Prover\) sets
-\(
-    \ext{\bm c}^{\top}
-    \leftarrow
-    \ext{\bm l}^{\top}
-    (\bm A\circ\bm B)
-    \in\ExtensionField^\kappa.
-\)
-
-Using Definition~\ref{def:lagrange}, \(\Prover\) sets:\\
-\Indp
-\(    \bm g_A(X)
-    \leftarrow
-    \sum_{j=1}^{\kappa}
-    \bm a^{(j)}\psi_j(X)
-\);~
-\(
-    \bm g_B(X)
-    \leftarrow
-    \sum_{j=1}^{\kappa}
-    \bm b^{(j)}\psi_j(X)
-\)\;
-\(
-    g_C(X)
-    \leftarrow
-    \sum_{j=1}^{\kappa}
-    \ext{c}_j\psi_j(X)
-\)\;
-
-Set the residual
-\(
-    f(X)
-    \leftarrow
-    \left\langle
-        \ext{\bm l},
-        \bm g_A(X)\circ\bm g_B(X)
-    \right\rangle
-    -
-    g_C(X)
-\)
-and its quotient
-\(
-    h(X)
-    \leftarrow
-    \frac{f(X)}{\Psi(X)}
-    \in\ExtensionField[X].
-\)
-\Indm
-
-\(\PtoV\):
-\(\ext{\bm c}\) and the \(\kappa-1\) coefficients of \(h(X)\)\;
-
-\(\Verifier\) computes
-\(
-    \mathsf{ok}_0
-    \leftarrow
-    \left(
-        \ext{c}
-        \EqOrNot
-        \left\langle
-            \ext{\bm c},\ext{\bm r}
-        \right\rangle
-    \right).
-\)
-
-\(\VtoP\):
-\(
-    \ext{x}
-    \ChooseRandom
-    \ExtensionField\setminus\mathcal H.
-\)
-
-\tcp{Evaluate to obtain the shorter inner-product claim}
-\(\Prover\) and \(\Verifier\) set
-\(
-    \ext{\bm\rho}
-    \leftarrow
-    \bigl(
-        \psi_1(\ext{x}),
-        \ldots,
-        \psi_\kappa(\ext{x})
-    \bigr)^\top
-    \in\ExtensionField^\kappa.
-\)
-
-\(\Prover\) sets
-\(
-    \ext{\bm a}
-    \leftarrow
-    \bm g_A(\ext{x})
-    =
-    \bm A\ext{\bm\rho}
-    \in\ExtensionField^m
-\);~
-\(
-    \ext{\bm b}
-    \leftarrow
-    \bm g_B(\ext{x})
-    =
-    \bm B\ext{\bm\rho}
-    \in\ExtensionField^m
-\)\;
-
+\tcp{Encode the weighted column claims}
+\(\Prover\) computes
+\(\ext{\bm c}^{\top}\leftarrow
+\ext{\bm l}^{\top}(\bm A\circ\bm B)\)\;
+In the Lagrange basis on \(\mathcal H\), define
+\(\bm g_A(X)\leftarrow\sum_j\bm a^{(j)}\psi_j(X)\),
+\(\bm g_B(X)\leftarrow\sum_j\bm b^{(j)}\psi_j(X)\), and
+\(g_C(X)\leftarrow\sum_j\ext c_j\psi_j(X)\)\;
+\(\Prover\) computes the residual
+\(f(X)\leftarrow
+\langle\ext{\bm l},\bm g_A(X)\circ\bm g_B(X)\rangle-g_C(X)\)
+at \(\kappa-1\) fixed nodes in \(\mathbb K\setminus\mathcal H\),
+interpolates with the zeros on \(\mathcal H\), and sets
+\(h(X)\leftarrow f(X)/\Psi(X)\)\;
+\(\PtoV\): \(\ext{\bm c}\) and the \(\kappa-1\) coefficients of \(h\)\;
 \(\Verifier\) sets
-\(
-    \ext{c}_x
-    \leftarrow
-    g_C(\ext{x})
-    =
-    \left\langle
-        \ext{\bm c},\ext{\bm\rho}
-    \right\rangle
-\);~
-\(
-    \ext{d}
-    \leftarrow
-    \ext{c}_x
-    +
-    \Psi(\ext{x})h(\ext{x})
-\)\;
+\(\mathsf{ok}_0\leftarrow
+(\ext c\EqOrNot\langle\ext{\bm c},\ext{\bm r}\rangle)\)\;
+\(\VtoP\): \(\ext x\ChooseRandom\ExtensionField\setminus\mathcal H\)\;
 
+\tcp{Reduce to a length-\(m\) extension-field inner product}
+\(\Prover\) and \(\Verifier\) compute
+\(\ext{\bm\rho}\leftarrow
+(\psi_1(\ext x),\ldots,\psi_\kappa(\ext x))^\top\)\;
+\(\Prover\) computes
+\(\ext{\bm a}\leftarrow\bm A\ext{\bm\rho}\) and
+\(\ext{\bm b}\leftarrow\bm B\ext{\bm\rho}\)\;
+\(\Verifier\) computes
+\(\ext c_x\leftarrow
+\langle\ext{\bm c},\ext{\bm\rho}\rangle=g_C(\ext x)\)\;
 \(\Prover\) and \(\Verifier\) apply Fact~\ref{fact:ip} to
-\(
-    \ext{d}
-    \EqOrNot
-    \left\langle
-        \ext{\bm a},
-        \ext{\bm b}\circ\ext{\bm l}
-    \right\rangle,
-\)
-and obtain terminal values
-\(\ext{u}_1,\ext{u}_2\), the challenge point
-\(
-    \ext{\bm y}'
-    \in\ExtensionField^{\log_2m},
-\)
-and the acceptance bit \(\mathsf{ok}_{\mathsf{IP}}\)\;
+\(\langle\ext{\bm a},\ext{\bm b}\circ\ext{\bm l}\rangle
+\EqOrNot\ext c_x+\Psi(\ext x)h(\ext x)\),
+obtaining \(\mathsf{ok}_{\mathsf{IP}}\),
+\(\ext v_1,\ext v_2\), and
+\(\ext{\bm y}\in\ExtensionField^{\log_2m}\)\;
 
-\tcp{Check the packing weights and aggregate the column claims}
-For each \(j\in[\kappa]\), \(\Prover\) sets
-\(
-    \ext{v}_{a,j}
-    \leftarrow
-    \left\langle
-        \bm a^{(j)},
-        \tensorspan{\ext{\bm y}'}
-    \right\rangle
-\);
-\(
-    \ext{v}_{b,j}
-    \leftarrow
-    \left\langle
-        \bm b^{(j)},
-        \ext{\bm l}
-        \circ
-        \tensorspan{(\ext{\bm y}')}
-    \right\rangle
-\)\;
-
+\tcp{Output the column weights and tensor row factors}
 Set
-\(
-    \ext{\bm v}_a
-    \leftarrow
-    \bigl(
-        \ext{v}_{a,1},\ldots,\ext{v}_{a,\kappa}
-    \bigr)^\top
-\);~
-\(
-    \ext{\bm v}_b
-    \leftarrow
-    \bigl(
-        \ext{v}_{b,1},\ldots,\ext{v}_{b,\kappa}
-    \bigr)^\top.
-\)
-
-\(\PtoV\):
-\(\ext{\bm v}_a,\ext{\bm v}_b\)\;
-
-\(\Verifier\) checks:
-\(
-    \mathsf{ok}_{\mathsf{Lag}}
-    \leftarrow
-    \left(
-        \ext{u}_1
-        \EqOrNot
-        \left\langle
-            \ext{\bm v}_a,\ext{\bm\rho}
-        \right\rangle
-    \right)
-    \wedge
-    \left(
-        \ext{u}_2
-        \EqOrNot
-        \left\langle
-            \ext{\bm v}_b,\ext{\bm\rho}
-        \right\rangle
-    \right).
-\)
-
-\(\VtoP\):
-\(
-    \ext{\bm{y}}''
-    \ChooseRandom
-    \ExtensionField^{\log_2 \kappa}.
-\)
-
-\(\Prover\) and \(\Verifier\) compute:
-\(
-    \ext{v}_1
-    \leftarrow
-    \left\langle
-        \ext{\bm v}_a,
-        \tensorspan{\ext{\bm y}''}
-    \right\rangle
-\);~
-\(
-    \ext{v}_2
-    \leftarrow
-    \left\langle
-        \ext{\bm v}_b,
-        \tensorspan{\ext{\bm y}''}
-    \right\rangle
-\)\;
-
-\(\Prover\) and \(\Verifier\) form the terminal tensor factors:\\
-\Indp
-\(
-    \ext{\bm\xi}_a
-    \leftarrow
-    \tensorspan{\ext{\bm y}''}
-    \kronecker
-    \tensorspan{\ext{\bm y}'}
-\);~
-\(
-    \ext{\bm\xi}_b
-    \leftarrow
-    \tensorspan{\ext{\bm y}''}
-    \kronecker
-    \bigl(\ext{\bm l}\circ\tensorspan{\ext{\bm y}'}\bigr)
-\)\;
-\Indm
-Represent each row factor of \(\ext{\bm\xi}_b\) as
-\((\ext l_{j,0}(1-\ext y'_j),\ext l_{j,1}\ext y'_j)^\top\)\;
-
-Output the terminal claims
-\(
-    \ext{v}_1
-    \EqOrNot
-    \left\langle
-        \bm a,
-        \ext{\bm\xi}_a
-    \right\rangle
-    \wedge
-    \ext{v}_2
-    \EqOrNot
-    \left\langle
-        \bm b,
-        \ext{\bm\xi}_b
-    \right\rangle.
-\)\;
-
+\(\ext{\bm\xi}_1\leftarrow\tensorspan{\ext{\bm y}}\) and
+\(\ext{\bm\xi}_2\leftarrow
+\ext{\bm l}\circ\tensorspan{\ext{\bm y}}\)\;
+Represent the \(j\)-th factor of \(\ext{\bm\xi}_2\) by
+\((\ext l_{j,0}(1-\ext y_j),\ext l_{j,1}\ext y_j)^\top\)\;
+Output
+\(\ext v_1\EqOrNot\ext{\bm\xi}_1^\top\bm A\ext{\bm\rho}\)
+and
+\(\ext v_2\EqOrNot\ext{\bm\xi}_2^\top\bm B\ext{\bm\rho}\)\;
 Set
-\(
-    \mathsf{ok}
-    \leftarrow
-    \mathsf{ok}_0
-    \wedge
-    \mathsf{ok}_{\mathsf{IP}}
-    \wedge
-    \mathsf{ok}_{\mathsf{Lag}}.
-\)
-
-\Return
-\(
-    (
-        \mathsf{ok},
-        \ext{v}_1,
-        \ext{v}_2,
-        \ext{\bm\xi}_a,
-        \ext{\bm\xi}_b
-    )
-\)\;
+\(\mathsf{ok}\leftarrow\mathsf{ok}_0\wedge\mathsf{ok}_{\mathsf{IP}}\)\;
+\Return{\((\mathsf{ok},\ext v_1,\ext v_2,\ext{\bm\rho},
+\ext{\bm\xi}_1,\ext{\bm\xi}_2)\)}\;
 \end{algorithm}

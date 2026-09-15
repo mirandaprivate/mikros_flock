@@ -1,0 +1,25 @@
+{
+  "command": [
+    "/usr/bin/time",
+    "-v",
+    "-o",
+    "/home/mscong1/mikros-experiments/20260912T-native64/v21-n26-packed-direct-20260915/source/native-pilot14-on/rustc-version.resource.txt",
+    "taskset",
+    "-c",
+    "0-47,48-55,72-79",
+    "rustc",
+    "+nightly-2026-03-21",
+    "-Vv"
+  ],
+  "cwd": "/home/mscong1/mikros-experiments/20260912T-native64/v21-n26-packed-direct-20260915/source",
+  "env": {
+    "RUSTFLAGS": "-C target-cpu=native",
+    "RAYON_NUM_THREADS": "64",
+    "RUST_MIN_STACK": "16777216",
+    "CARGO_TARGET_DIR": "/home/mscong1/mikros-experiments/20260912T-native64/v14-packed-aggregate-20260914/source/target",
+    "PCS_TRACE": "1",
+    "LIG_PROVE_TRACE": "1",
+    "E2E_PIOP_TRACE": "1",
+    "FLOCK_PCS_PACKED_DIRECT": "1"
+  }
+}

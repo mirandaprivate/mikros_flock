@@ -3,163 +3,60 @@
 \caption{Packed inner-product proof}
 \label{alg:ip}
 \KwIn{
-\(N=m\kappa\), where \(m, \kappa \in 2^\mathbb{N}\);
-\(c\in\Field\);
-\(\bm a,\bm b\in\Field^N\)
+\(N=m\kappa\), \(m\in2^{\mathbb N}\), \(\kappa\geq2\);
+a fixed claim \(c\in\Field\) and committed
+\(\bm A,\bm B\in\Field^{m\times\kappa}\)
 }
 \KwOut{
-Terminal values \(\ext{v}_1,\ext{v}_2\) and MLE points
-\(\ext{\bm y}_a, \ext{\bm y}_b \in\ExtensionField^{\log_2 N}\);
+Terminal values \(\ext v_1,\ext v_2\);
+column weights \(\ext{\bm\rho}_A,\ext{\bm\rho}_B\in\ExtensionField^\kappa\);
+row MLE point \(\ext{\bm y}\in\ExtensionField^{\log_2m}\);
 acceptance bit \(\mathsf{ok}\)
 }
 
-Arrange \(\bm a,\bm b\) columnwise as
-\(\bm A\leftarrow\concat{\bm a^{(1)},\ldots,\bm a^{(\kappa)}}\)
-and \(\bm B\leftarrow\concat{\bm b^{(1)},\ldots,\bm b^{(\kappa)}}
-\in\Field^{m\times\kappa}\)\;
+\tcp{Fix the corrections before the packing challenge}
+\(\Prover\) defines
+\(\bm g_A(X)\leftarrow\sum_{j=1}^{\kappa}\bm a^{(j)}X^{j-1}\)
+and
+\(\bm g_B(X)\leftarrow\sum_{j=1}^{\kappa}\bm b^{(j)}X^{-(j-1)}\)\;
 
-\tcp{Compute the auxiliary coefficients over the base field}
-$\Prover$ sets:\\
-\Indp
-\(
-    \bm g_A(X)
-    \leftarrow
-    \sum_{j=1}^{\kappa}
-    \bm a^{(j)}X^{j-1}
-\);~
-\(
-    \bm g_B(X)
-    \leftarrow
-    \sum_{j=1}^{\kappa}
-    \bm b^{(j)}X^{j-1}
-\)\;
-
-\ForEach{
-\(\tau\in
-\{-(\kappa-1),\ldots,-1,1,\ldots,\kappa-1\}\)
-}{
-    Set \(
-        f_\tau
-        \leftarrow
-        \sum_{\substack{j,j'\in[\kappa]\\j-j'=\tau}}
-        \left\langle
-            \bm a^{(j)},\bm b^{(j')}
-        \right\rangle
-    \)\;
+\ForEach{\(\tau\in\{-(\kappa-1),\ldots,-1,1,\ldots,\kappa-1\}\)}{
+    \(\Prover\) computes
+    \(f_\tau\leftarrow
+      \sum_{\substack{j,j'\in[\kappa]\\j-j'=\tau}}
+      \langle\bm a^{(j)},\bm b^{(j')}\rangle\)\;
 }
-
-Set
-\(
-    h_+(X)
-    \leftarrow
-    \sum_{\tau=1}^{\kappa-1}
-    f_\tau X^{\tau-1}
-\);~
-\(
-    h_-(X)
-    \leftarrow
-    \sum_{\tau=1}^{\kappa-1}
-    f_{-\tau}X^{\tau-1}
-\)\;
-\Indm
-
-\(\PtoV\):
-the coefficients of \(h_+(X)\) and \(h_-(X)\)\;
-
-\(\VtoP\):
-\(\ext{x}\ChooseRandom\ExtensionField^\times\)\;
+\(\Prover\) sets
+\(h_+(X)\leftarrow\sum_{\tau=1}^{\kappa-1}f_\tau X^{\tau-1}\)
+and
+\(h_-(X)\leftarrow\sum_{\tau=1}^{\kappa-1}f_{-\tau}X^{\tau-1}\)\;
+\(\PtoV\): the \(\kappa-1\) coefficients of each of \(h_+\) and \(h_-\)\;
+\(\VtoP\): \(\ext x\ChooseRandom\ExtensionField^\times\)\;
 
 \tcp{Reduce to a length-\(m\) extension-field inner product}
-$\Prover$ sets
-\(
-    \ext{\bm a}
-    \leftarrow
-    \bm g_A(\ext{x})
-    \in\ExtensionField^m
-\),
-\(
-    \ext{\bm b}
-    \leftarrow
-    \bm g_B(\ext{x}^{-1})
-    \in\ExtensionField^m
-\)\;
+\(\Prover\) and \(\Verifier\) compute
+\(\ext{\bm\rho}_A\leftarrow(1,\ext x,\ldots,\ext x^{\kappa-1})^\top\)
+and
+\(\ext{\bm\rho}_B\leftarrow(1,\ext x^{-1},\ldots,\ext x^{-(\kappa-1)})^\top\)\;
+\(\Prover\) computes
+\(\ext{\bm a}\leftarrow\bm A\ext{\bm\rho}_A=\bm g_A(\ext x)\)
+and
+\(\ext{\bm b}\leftarrow\bm B\ext{\bm\rho}_B=\bm g_B(\ext x)\)\;
+\(\Verifier\) computes
+\(\ext c\leftarrow
+c+\ext x h_+(\ext x)+\ext x^{-1}h_-(\ext x^{-1})\)\;
+\(\Prover\) and \(\Verifier\) apply Fact~\ref{fact:ip} to
+\(\ext c\EqOrNot\langle\ext{\bm a},\ext{\bm b}\rangle\),
+obtaining \(\mathsf{ok}\), \(\ext v_1,\ext v_2\), and
+\(\ext{\bm y}\in\ExtensionField^{\log_2m}\)\;
 
-$\Verifier$ sets
-\(
-    \ext{c}
-    \leftarrow
-    c
-    +\ext{x}h_+(\ext{x})
-    +\ext{x}^{-1}h_-(\ext{x}^{-1})
-\)\;
-
-$\Prover$ and $\Verifier$ apply Fact~\ref{fact:ip} to
-\(
-    \ext{c}
-    \EqOrNot
-    \left\langle
-        \ext{\bm a},\ext{\bm b}
-    \right\rangle,
-\)
-and obtain terminal values
-\(
-    \ext{v}_1,\ext{v}_2
-\),
-the challenge point
-\(
-    \ext{\bm y}'\in
-    \ExtensionField^{\log_2m}
-\),
-and the acceptance bit \(\mathsf{ok}\)\;
-
-\(\Prover\) and \(\Verifier\) set:\\
-\Indp
-\(
-    \ext{\bm y}_a
-    \leftarrow
-    \bigl(
-        \ext{x}^{2^{\log_2\kappa-1}},
-        \ext{x}^{2^{\log_2\kappa-2}},
-        \ldots,
-        \ext{x}
-    \bigr)
-    \mathbin{\|}
-    \ext{\bm y}' \in \ExtensionField^{\log_2 N}
-\)\;
-\(
-    \ext{\bm y}_b
-    \leftarrow
-    \bigl(
-        \ext{x}^{-2^{\log_2\kappa-1}},
-        \ext{x}^{-2^{\log_2\kappa-2}},
-        \ldots,
-        \ext{x}^{-1}
-    \bigr)
-    \mathbin{\|}
-    \ext{\bm y}' \in \ExtensionField^{\log_2 N}
-\)\;
-\Indm
-
-Output the terminal claims
-\(
-    \ext{v}_1
-    \EqOrNot
-    \left\langle
-        \bm a,
-        \tensorspan{\ext{\bm y}_a}
-    \right\rangle
-\) and
-\(
-    \ext{v}_2
-    \EqOrNot
-    \left\langle
-        \bm b,
-        \tensorspan{\ext{\bm y}_b}
-    \right\rangle
-\)\;
-
-\Return
-\(
-    (\mathsf{ok},\ext{v}_1,\ext{v}_2,\ext{\bm y}_a, \ext{\bm y}_b)
-\)\;
+\tcp{Output the two claims for packed opening}
+Output
+\(\ext v_1\EqOrNot
+\tensorspan{\ext{\bm y}}^\top\bm A\ext{\bm\rho}_A\)
+and
+\(\ext v_2\EqOrNot
+\tensorspan{\ext{\bm y}}^\top\bm B\ext{\bm\rho}_B\)\;
+\Return{\((\mathsf{ok},\ext v_1,\ext v_2,
+\ext{\bm\rho}_A,\ext{\bm\rho}_B,\ext{\bm y})\)}\;
 \end{algorithm}

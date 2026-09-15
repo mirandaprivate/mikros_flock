@@ -40,6 +40,43 @@ use crate::{
     scratch::{give_f256, take_f256},
 };
 
+#[cfg(test)]
+std::thread_local! {
+    // Read once at entry, before any parallel work; never changes a worker's
+    // arithmetic or a process-wide setting in another concurrently running test.
+    static BOUNDED_L0_SCRATCH_OVERRIDE: std::cell::Cell<Option<bool>> = const {
+        std::cell::Cell::new(None)
+    };
+    static L0_SCRATCH_RELEASES: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
+    static JIT_FUSED_OVERRIDE: std::cell::Cell<Option<bool>> = const {
+        std::cell::Cell::new(None)
+    };
+}
+
+fn bounded_l0_scratch(log_n: usize) -> bool {
+    #[cfg(test)]
+    if let Some(value) = BOUNDED_L0_SCRATCH_OVERRIDE.get() {
+        return value;
+    }
+    // The native m>=36 domains have at least eight GiB of packed input.
+    // Keep the historical warm-buffer policy for ordinary, smaller openings.
+    log_n >= 29
+}
+
+fn release_l0_scratch() {
+    crate::scratch::clear();
+    #[cfg(test)]
+    L0_SCRATCH_RELEASES.set(L0_SCRATCH_RELEASES.get() + 1);
+}
+
+fn jit_fused_enabled() -> bool {
+    #[cfg(test)]
+    if let Some(value) = JIT_FUSED_OVERRIDE.get() {
+        return value;
+    }
+    var_os("FLOCK_NO_JIT_FUSED").is_none()
+}
+
 /// Split extension values into the base-field table `g(b, x)`, with adjacent
 /// `(b=0, b=1)` values for every `x`.
 pub(super) fn split_coordinates(values: &[F256]) -> Vec<F128> {
@@ -300,6 +337,58 @@ fn fold_base_fill(
             },
         );
     (nf, nb)
+}
+
+const JIT_FUSED_CHUNK: usize = 1 << 12;
+
+/// Adjacent-pair JIT entry: fill one contiguous input window, fold its
+/// pairs, and compute the next message before the outputs leave cache.
+/// The caller keeps blocked and tiny shapes on `fold_base_fill`.
+fn fused_first_fold_jit(
+    f: &[F128],
+    fill: BasisWindowFn<'_>,
+    r: F256,
+) -> (Vec<F256>, Vec<F256>, SumcheckMessage256) {
+    assert!(f.len() >= 4 && f.len().is_multiple_of(4));
+    let half = f.len() / 2;
+    let mut nf = take_f256(half);
+    let mut nb = take_f256(half);
+    let (u_0, u_2) = nf
+        .par_chunks_mut(JIT_FUSED_CHUNK)
+        .zip(nb.par_chunks_mut(JIT_FUSED_CHUNK))
+        .enumerate()
+        .map_init(
+            || vec![F128::ZERO; 2 * JIT_FUSED_CHUNK],
+            |basis, (ci, (fo, bo))| {
+                let input_offset = 2 * ci * JIT_FUSED_CHUNK;
+                let input_len = 2 * fo.len();
+                fill(&mut basis[..input_len], input_offset);
+                let input = &f[input_offset..input_offset + input_len];
+                let mut u0 = F256::ZERO;
+                let mut u2 = F256::ZERO;
+                // The chunk and final tail contain whole output pairs. Every
+                // uninitialized output is written exactly once before use.
+                for j in 0..fo.len() / 2 {
+                    let i = 4 * j;
+                    let flo = F256::from(input[i]) + r * (input[i] + input[i + 1]);
+                    let fhi = F256::from(input[i + 2]) + r * (input[i + 2] + input[i + 3]);
+                    let blo = F256::from(basis[i]) + r * (basis[i] + basis[i + 1]);
+                    let bhi = F256::from(basis[i + 2]) + r * (basis[i + 2] + basis[i + 3]);
+                    fo[2 * j] = flo;
+                    fo[2 * j + 1] = fhi;
+                    bo[2 * j] = blo;
+                    bo[2 * j + 1] = bhi;
+                    u0 += flo * blo;
+                    u2 += (flo + fhi) * (blo + bhi);
+                }
+                (u0, u2)
+            },
+        )
+        .reduce(
+            || (F256::ZERO, F256::ZERO),
+            |(a0, a2), (b0, b2)| (a0 + b0, a2 + b2),
+        );
+    (nf, nb, SumcheckMessage256 { u_0, u_2 })
 }
 
 /// FUSED fold + next-round message for the materialized sumcheck path: one
@@ -1336,8 +1425,15 @@ impl SumcheckProver256 {
         fill: BasisWindowFn<'_>,
     ) -> SumcheckMessage256 {
         let f = self.initial_f.take().expect("first fold already consumed");
-        (self.f, self.combined_basis) = fold_base_fill(&f, fill, r, d);
-        let msg = next_round_msg(&self.f, &self.combined_basis, d);
+        let msg = if d == 1 && f.len() >= 8 && f.len().is_multiple_of(4) && jit_fused_enabled() {
+            let (nf, nb, msg) = fused_first_fold_jit(&f, fill, r);
+            self.f = nf;
+            self.combined_basis = nb;
+            msg
+        } else {
+            (self.f, self.combined_basis) = fold_base_fill(&f, fill, r, d);
+            next_round_msg(&self.f, &self.combined_basis, d)
+        };
         self.transcript.push(msg);
         msg
     }
@@ -2078,6 +2174,7 @@ pub(super) fn recursive_prover_with_basis_impl<Ch: Challenger>(
     challenger: &mut Ch,
 ) -> LigeritoProof {
     let log_n = packed_witness.len().trailing_zeros() as usize;
+    let bounded_scratch = bounded_l0_scratch(log_n);
     let r = config.recursive_steps;
     let initial_k = config.initial_k;
     assert!(r >= 1);
@@ -2276,6 +2373,12 @@ pub(super) fn recursive_prover_with_basis_impl<Ch: Challenger>(
             let challenge = challenger.sample_f256();
             lane_challenges.push(challenge);
             let last = j + 1 == initial_k;
+            if last && bounded_scratch {
+                // Only idle buffers are released. Otherwise the last L0 fold
+                // borrows an old, much larger capacity, and that capacity stays
+                // resident alongside the fresh coordinate-split arrays below.
+                release_l0_scratch();
+            }
             // La production pays only when the NEXT round exists to consume it
             // as a skip — the last round drains into the switch, so producing
             // there is pure waste (+4 F256 muls per output quad).
@@ -2424,6 +2527,13 @@ pub(super) fn recursive_prover_with_basis_impl<Ch: Challenger>(
         (sumcheck, lane_challenges)
     };
 
+    if bounded_scratch {
+        // The L0 folds have returned their consumed arrays to the shared pool.
+        // At m39 those capacities can total 192 GiB although the live split
+        // state is only eight GiB. Release them before recursive commitments
+        // and OOD tables are allocated, with L0's codeword/tree still live.
+        release_l0_scratch();
+    }
     let n1 = log_n - initial_k;
     let mut current_split_dim = n1 + 1;
     let commit_split = |values: &[F256], level: usize, split_dim: usize| {
@@ -3379,6 +3489,192 @@ mod tests {
 
     fn random_f256(challenger: &mut RandomChallenger) -> F256 {
         F256::new(challenger.sample_f128(), challenger.sample_f128())
+    }
+
+    // Exercise either independent prover-only optimization on a genuine
+    // Fast-profile opening, including materialized/JIT bases and OOD glue.
+    fn assert_native_l0_equivalence(test_jit_fusion: bool) {
+        use super::{
+            BOUNDED_L0_SCRATCH_OVERRIDE, JIT_FUSED_OVERRIDE, L0_SCRATCH_RELEASES,
+            bounded_l0_scratch, evaluate_dense_at_residual, recursive_prover_with_basis_impl,
+            recursive_verifier_with_basis_succinct, round_msg_and_eval_eq_point_blocked,
+        };
+        use crate::{
+            challenger::FsChallenger,
+            pcs::ligerito::{
+                AdditiveNttF128, LigeritoProfile, ligero_commit, prover_config_for,
+                verifier_config_for,
+            },
+        };
+        struct RestoreOverride(Option<bool>, Option<bool>);
+        impl Drop for RestoreOverride {
+            fn drop(&mut self) {
+                BOUNDED_L0_SCRATCH_OVERRIDE.set(self.0);
+                JIT_FUSED_OVERRIDE.set(self.1);
+            }
+        }
+        assert!(!bounded_l0_scratch(28));
+        assert!(bounded_l0_scratch(29));
+        assert!(bounded_l0_scratch(32));
+        let log_n = 15;
+        let initial_k = 6;
+        let cfg = prover_config_for(log_n, initial_k, LigeritoProfile::Fast).unwrap();
+        let vcfg = verifier_config_for(log_n, initial_k, LigeritoProfile::Fast).unwrap();
+        let mut rng = RandomChallenger::new(0xB0_0DED_10);
+        let poly: Vec<F128> = (0..1usize << log_n).map(|_| rng.sample_f128()).collect();
+        let point: Vec<F128> = (0..log_n).map(|_| rng.sample_f128()).collect();
+        let basis = build_eq_table(&point);
+        let target = poly
+            .iter()
+            .zip(&basis)
+            .fold(F128::ZERO, |v, (&a, &b)| v + a * b);
+        let witness = ligero_commit(
+            &poly,
+            log_n - initial_k,
+            initial_k,
+            cfg.log_inv_rates[0],
+            &AdditiveNttF128::standard(log_n - initial_k + cfg.log_inv_rates[0]),
+            cfg.merkle_hash,
+        );
+        let cap = witness.cap(vcfg.level_zero_cap_depth()).to_vec();
+        let prime = round_msg_and_eval_eq_point_blocked(&poly, &point, 1).0;
+        let fill = |out: &mut [F128], offset: usize| {
+            out.copy_from_slice(&basis[offset..offset + out.len()]);
+        };
+        for jit in [false, true] {
+            let prove = |enabled| {
+                let bounded = enabled && !test_jit_fusion;
+                let _restore = RestoreOverride(
+                    BOUNDED_L0_SCRATCH_OVERRIDE.replace(Some(bounded)),
+                    JIT_FUSED_OVERRIDE.replace(Some(enabled && test_jit_fusion)),
+                );
+                L0_SCRATCH_RELEASES.set(0);
+                let mut ch = FsChallenger::new(b"bounded-l0-scratch-equivalence");
+                let proof = recursive_prover_with_basis_impl(
+                    &cfg,
+                    poly.clone(),
+                    if jit { vec![] } else { basis.clone() },
+                    target,
+                    &witness.mat,
+                    &witness.tree,
+                    1usize << initial_k,
+                    false,
+                    if jit { Some(&fill) } else { None },
+                    None,
+                    Some(prime),
+                    None,
+                    None,
+                    &mut ch,
+                );
+                assert_eq!(L0_SCRATCH_RELEASES.get(), if bounded { 2 } else { 0 });
+                (proof, ch.sample_f128())
+            };
+            let (legacy, next_legacy) = prove(false);
+            let (bounded, next_bounded) = prove(true);
+            assert_eq!(
+                bincode::serialize(&legacy).unwrap(),
+                bincode::serialize(&bounded).unwrap()
+            );
+            assert_eq!(next_legacy, next_bounded);
+            let mut ch = FsChallenger::new(b"bounded-l0-scratch-equivalence");
+            assert!(recursive_verifier_with_basis_succinct(
+                &vcfg,
+                &bounded,
+                log_n,
+                target,
+                &cap,
+                1usize << initial_k,
+                |point, residual_log| evaluate_dense_at_residual(&basis, point, residual_log),
+                &mut ch,
+            ));
+            assert_eq!(next_bounded, ch.sample_f128());
+        }
+    }
+
+    #[test]
+    fn bounded_l0_scratch_preserves_proof_and_transcript() {
+        assert_native_l0_equivalence(false);
+    }
+
+    #[test]
+    fn fused_jit_preserves_native_proof_and_transcript() {
+        assert_native_l0_equivalence(true);
+    }
+
+    #[test]
+    fn fused_jit_matches_unfused_windows_boundaries_and_zero_challenges() {
+        use super::{JIT_FUSED_CHUNK, SumcheckMessage256, fold_base_fill, fused_first_fold_jit};
+        use std::sync::atomic::{AtomicUsize, Ordering};
+        let mut rng = RandomChallenger::new(0xF05ED_117);
+        for n in [4usize, 8, 4092, 4096, 8192, 8196, 16384] {
+            let f: Vec<F128> = (0..n).map(|_| rng.sample_f128()).collect();
+            let b: Vec<F128> = (0..n).map(|_| rng.sample_f128()).collect();
+            for r in [F256::ZERO, F256::ONE, random_f256(&mut rng)] {
+                let plain_fill = |out: &mut [F128], offset: usize| {
+                    out.copy_from_slice(&b[offset..offset + out.len()]);
+                };
+                let (ef, eb) = fold_base_fill(&f, &plain_fill, r, 1);
+                // Deliberately include non-power-of-two chunk tails. The
+                // protocol's round_msg asserts a Boolean-cube length, so use
+                // its scalar pair definition as the oracle for these tails.
+                let (u_0, u_2) = ef
+                    .chunks_exact(2)
+                    .zip(eb.chunks_exact(2))
+                    .fold((F256::ZERO, F256::ZERO), |(u0, u2), (a, b)| {
+                        (u0 + a[0] * b[0], u2 + (a[0] + a[1]) * (b[0] + b[1]))
+                    });
+                let em = SumcheckMessage256 { u_0, u_2 };
+                let calls = AtomicUsize::new(0);
+                let window_fill = |out: &mut [F128], offset: usize| {
+                    assert!(out.len() >= 4);
+                    assert!(out.len().is_multiple_of(4));
+                    calls.fetch_add(1, Ordering::Relaxed);
+                    plain_fill(out, offset);
+                };
+                let (af, ab, am) = fused_first_fold_jit(&f, &window_fill, r);
+                assert_eq!(af, ef, "f at input length {n}");
+                assert_eq!(ab, eb, "basis at input length {n}");
+                assert_eq!(am, em, "message at input length {n}");
+                assert_eq!(
+                    calls.load(Ordering::Relaxed),
+                    (n / 2).div_ceil(JIT_FUSED_CHUNK)
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn fused_jit_keeps_blocked_and_tiny_fallbacks() {
+        use super::{JIT_FUSED_OVERRIDE, SumcheckMessage, SumcheckProver256};
+        struct Restore(Option<bool>);
+        impl Drop for Restore {
+            fn drop(&mut self) {
+                JIT_FUSED_OVERRIDE.set(self.0);
+            }
+        }
+        let mut rng = RandomChallenger::new(0xF05ED_118);
+        for (n, d) in [(4usize, 1usize), (8, 2), (16, 4), (1 << 16, 1 << 13)] {
+            let f: Vec<F128> = (0..n).map(|_| rng.sample_f128()).collect();
+            let b: Vec<F128> = (0..n).map(|_| rng.sample_f128()).collect();
+            let r = random_f256(&mut rng);
+            let fill = |out: &mut [F128], offset: usize| {
+                out.copy_from_slice(&b[offset..offset + out.len()]);
+            };
+            let run = |enabled| {
+                let _restore = Restore(JIT_FUSED_OVERRIDE.replace(Some(enabled)));
+                let mut prover = SumcheckProver256::new(
+                    f.clone(),
+                    None,
+                    SumcheckMessage {
+                        u_0: F128::ZERO,
+                        u_2: F128::ZERO,
+                    },
+                );
+                let msg = prover.first_fold_jit(r, d, &fill);
+                (prover.f, prover.combined_basis, msg)
+            };
+            assert_eq!(run(false), run(true), "n={n}, d={d}");
+        }
     }
 
     /// The fused fold+message sweep is value-identical to the three-pass

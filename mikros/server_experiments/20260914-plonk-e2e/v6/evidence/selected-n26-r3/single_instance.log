@@ -1,0 +1,326 @@
+{
+  "mode": "single",
+  "run_state": "complete",
+  "scope": "Single is one circuit of N genuine binary gates; multiple is 128 identical circuit shapes each with N gates, 128*N total. One fresh process per system/case. Prover time must include commit, recommit, online conversion, gate/copy PIOPs and original native FLOCK PCS opening. Offline fixture/static preprocessing and initial public commitment are excluded. Public recommit is included online. Flock A/B conversion is inside gates_ms; challenge-dependent copy conversion/evaluation/query conversion is inside copy_ms, not a separately measured timer. Raw stage records are retained. One repetition is a descriptive observation, not a statistical speedup estimate.",
+  "run_metadata": {
+    "schema_version": 1,
+    "levels": [
+      26
+    ],
+    "repetitions": 1,
+    "seed": 97,
+    "threads": 64,
+    "cpu_affinity": "0-47,48-55,72-79",
+    "toolchain": "+nightly-2026-03-21",
+    "rustflags": "-C target-cpu=native",
+    "target_dir": "/home/mscong1/mikros-experiments/20260912T-native64/v14-packed-aggregate-20260914/source/target",
+    "source_dir": "/home/mscong1/mikros-experiments/20260912T-native64/v20-n26-tree-pool-20260915/source",
+    "rust_min_stack_bytes": 16777216,
+    "cleared_environment_keys": [],
+    "build_skipped": true,
+    "tests_skipped": true,
+    "case_timeout_seconds": 14400,
+    "minimum_large_memory_gib": 350,
+    "disabled_optimizations": [
+      "sparse-bitbanks",
+      "jit-fused"
+    ],
+    "diagnostic_trace": false,
+    "allocator_policy": "system",
+    "measured_environment": {
+      "FLOCK_NO_SPARSE_BITBANKS": "1",
+      "FLOCK_NO_JIT_FUSED": "1"
+    },
+    "pilot_scope": "selected levels only; root manages evidence from earlier invocations when selecting a subset",
+    "source_manifest_sha256": "a10d5e1d44ec59d24ba1d337ca9f08df9683ae4d0a7d84629c09a3f228334aeb",
+    "base_revision": "d399b71ea33ce2d2e3208a6ab414134c9f879d00"
+  },
+  "cases": [
+    {
+      "id": "n26-single-mikros",
+      "mode": "single",
+      "system": "mikros",
+      "log_gates": 26,
+      "gates_per_instance": 67108864,
+      "instances": 1,
+      "total_gates": 67108864,
+      "state": "complete",
+      "metadata": {
+        "all_core_threads": 64,
+        "instances": 1,
+        "log_gates": 26,
+        "mode": "single",
+        "repetitions": 1,
+        "seed": 97,
+        "system": "mikros",
+        "target_features": {
+          "avx512bw": true,
+          "avx512f": true,
+          "gfni": true,
+          "vpclmulqdq": true
+        },
+        "threads": 64,
+        "type": "metadata"
+      },
+      "repetitions": 1,
+      "timings_median_ms": {
+        "prover_ms": 6423.920340000001,
+        "commit_ms": 16.647531,
+        "recommit_ms": 21.894824,
+        "public_recommit_ms": 556.9295979999999,
+        "gates_ms": 105.697165,
+        "copy_ms": 1434.507427,
+        "release_ms": 1593.545356,
+        "witness_pcs_open_ms": 305.77090000000004,
+        "public_pcs_open_ms": 2387.844985,
+        "serialization_ms": 0.678211
+      },
+      "prover_range_ms": [
+        6423.920340000001,
+        6423.920340000001
+      ],
+      "verify_median_ms": 44.870691,
+      "witness_commitment_blake3": "860616428c88b1ade9bc8142204291cf42adf6802df3743de34a056f78f32374",
+      "public_commitment_blake3": "1b7a3a0f7774aea4be94fdb2e3b92b39398a3d946a19ef4ab26a644a127dd240",
+      "witness_pcs_params": {
+        "log_batch_size": 4,
+        "log_inv_rate": 1,
+        "m": 28,
+        "merkle_hash": "blake3",
+        "num_lanes": null,
+        "profile": "fast"
+      },
+      "public_pcs_params": {
+        "log_batch_size": 6,
+        "log_inv_rate": 1,
+        "m": 33,
+        "merkle_hash": "blake3",
+        "num_lanes": null,
+        "profile": "fast"
+      },
+      "resources": {
+        "raw_path": "n26-single-mikros.resource.txt",
+        "max_rss_kib": 18368276,
+        "major_page_faults": 0,
+        "minor_page_faults": 7896427,
+        "swaps": 0,
+        "filesystem_inputs": 0,
+        "filesystem_outputs": 16,
+        "time_exit_status": 0,
+        "available": true,
+        "max_rss_gib": 17.517353057861328
+      },
+      "raw_stdout": "n26-single-mikros.stdout.jsonl",
+      "raw_stderr": "n26-single-mikros.stderr.log",
+      "samples": [
+        {
+          "circuit": "connected alternating AND/XOR; one public final output; same wiring, 128 independent inputs in multiple",
+          "gates_per_instance": 67108864,
+          "instances": 1,
+          "log_gates": 26,
+          "memory_policy": "discard-and-recommit; all recomputation and online conversions included",
+          "mode": "single",
+          "native_pcs_identity_transport": true,
+          "offline_ms": 4940.425392,
+          "pcs_config_match": true,
+          "pcs_path": "FLOCK native commit + merged_tensor/open_batch_merged + Ligerito Fast",
+          "piop_grinding": "gate:8 bits/event; copy:degree-dependent initial fingerprint and native/per-event tails; no aggregate 128-bit theorem asserted",
+          "proof_blake3": "21fe1986d6e629e7187a3b8b2b8d33957037cde236b4238b964feca6fa991050",
+          "proof_bytes": 1296879,
+          "public_commitment_blake3": "1b7a3a0f7774aea4be94fdb2e3b92b39398a3d946a19ef4ab26a644a127dd240",
+          "public_pcs_params": {
+            "log_batch_size": 6,
+            "log_inv_rate": 1,
+            "m": 33,
+            "merkle_hash": "blake3",
+            "num_lanes": null,
+            "profile": "fast"
+          },
+          "repetition": 0,
+          "seed": 97,
+          "system": "mikros",
+          "threads": 64,
+          "times": {
+            "commit_ms": 16.647531,
+            "copy_ms": 1434.507427,
+            "gates_ms": 105.697165,
+            "prover_ms": 6423.920340000001,
+            "public_claims": 89,
+            "public_pcs_open_ms": 2387.844985,
+            "public_recommit_ms": 556.9295979999999,
+            "public_ring_claims": 89,
+            "recommit_ms": 21.894824,
+            "release_ms": 1593.545356,
+            "serialization_ms": 0.678211,
+            "witness_claims": 11,
+            "witness_pcs_open_ms": 305.77090000000004,
+            "witness_ring_claims": 11
+          },
+          "total_gates": 67108864,
+          "transcript_match": true,
+          "type": "sample",
+          "verified": true,
+          "verify_ms": 44.870691,
+          "witness_commitment_blake3": "860616428c88b1ade9bc8142204291cf42adf6802df3743de34a056f78f32374",
+          "witness_pcs_params": {
+            "log_batch_size": 4,
+            "log_inv_rate": 1,
+            "m": 28,
+            "merkle_hash": "blake3",
+            "num_lanes": null,
+            "profile": "fast"
+          }
+        }
+      ]
+    },
+    {
+      "id": "n26-single-flock",
+      "mode": "single",
+      "system": "flock",
+      "log_gates": 26,
+      "gates_per_instance": 67108864,
+      "instances": 1,
+      "total_gates": 67108864,
+      "state": "complete",
+      "metadata": {
+        "all_core_threads": 64,
+        "instances": 1,
+        "log_gates": 26,
+        "mode": "single",
+        "repetitions": 1,
+        "seed": 97,
+        "system": "flock",
+        "target_features": {
+          "avx512bw": true,
+          "avx512f": true,
+          "gfni": true,
+          "vpclmulqdq": true
+        },
+        "threads": 64,
+        "type": "metadata"
+      },
+      "repetitions": 1,
+      "timings_median_ms": {
+        "prover_ms": 10374.433894,
+        "commit_ms": 14.911166,
+        "recommit_ms": 27.844494,
+        "public_recommit_ms": 604.662594,
+        "gates_ms": 16.773713,
+        "copy_ms": 6763.742126,
+        "release_ms": 920.385049,
+        "witness_pcs_open_ms": 299.695791,
+        "public_pcs_open_ms": 1725.4317839999999,
+        "serialization_ms": 0.708506
+      },
+      "prover_range_ms": [
+        10374.433894,
+        10374.433894
+      ],
+      "verify_median_ms": 39.398724,
+      "witness_commitment_blake3": "860616428c88b1ade9bc8142204291cf42adf6802df3743de34a056f78f32374",
+      "public_commitment_blake3": "1b7a3a0f7774aea4be94fdb2e3b92b39398a3d946a19ef4ab26a644a127dd240",
+      "witness_pcs_params": {
+        "log_batch_size": 4,
+        "log_inv_rate": 1,
+        "m": 28,
+        "merkle_hash": "blake3",
+        "num_lanes": null,
+        "profile": "fast"
+      },
+      "public_pcs_params": {
+        "log_batch_size": 6,
+        "log_inv_rate": 1,
+        "m": 33,
+        "merkle_hash": "blake3",
+        "num_lanes": null,
+        "profile": "fast"
+      },
+      "resources": {
+        "raw_path": "n26-single-flock.resource.txt",
+        "max_rss_kib": 22052536,
+        "major_page_faults": 0,
+        "minor_page_faults": 13096000,
+        "swaps": 0,
+        "filesystem_inputs": 0,
+        "filesystem_outputs": 16,
+        "time_exit_status": 0,
+        "available": true,
+        "max_rss_gib": 21.03093719482422
+      },
+      "raw_stdout": "n26-single-flock.stdout.jsonl",
+      "raw_stderr": "n26-single-flock.stderr.log",
+      "samples": [
+        {
+          "circuit": "connected alternating AND/XOR; one public final output; same wiring, 128 independent inputs in multiple",
+          "gates_per_instance": 67108864,
+          "instances": 1,
+          "log_gates": 26,
+          "memory_policy": "discard-and-recommit; all recomputation and online conversions included",
+          "mode": "single",
+          "native_pcs_identity_transport": true,
+          "offline_ms": 1537.149728,
+          "pcs_config_match": true,
+          "pcs_path": "FLOCK native commit + merged_tensor/open_batch_merged + Ligerito Fast",
+          "piop_grinding": "gate:8 bits/event; copy:degree-dependent initial fingerprint and native/per-event tails; no aggregate 128-bit theorem asserted",
+          "proof_blake3": "8912e840cf6f775bb82d464340c9ddab540e97c1acda8e925190ecfaae203d0c",
+          "proof_bytes": 1215735,
+          "public_commitment_blake3": "1b7a3a0f7774aea4be94fdb2e3b92b39398a3d946a19ef4ab26a644a127dd240",
+          "public_pcs_params": {
+            "log_batch_size": 6,
+            "log_inv_rate": 1,
+            "m": 33,
+            "merkle_hash": "blake3",
+            "num_lanes": null,
+            "profile": "fast"
+          },
+          "repetition": 0,
+          "seed": 97,
+          "system": "flock",
+          "threads": 64,
+          "times": {
+            "commit_ms": 14.911166,
+            "copy_ms": 6763.742126,
+            "gates_ms": 16.773713,
+            "prover_ms": 10374.433894,
+            "public_claims": 84,
+            "public_pcs_open_ms": 1725.4317839999999,
+            "public_recommit_ms": 604.662594,
+            "public_ring_claims": 84,
+            "recommit_ms": 27.844494,
+            "release_ms": 920.385049,
+            "serialization_ms": 0.708506,
+            "witness_claims": 7,
+            "witness_pcs_open_ms": 299.695791,
+            "witness_ring_claims": 7
+          },
+          "total_gates": 67108864,
+          "transcript_match": true,
+          "type": "sample",
+          "verified": true,
+          "verify_ms": 39.398724,
+          "witness_commitment_blake3": "860616428c88b1ade9bc8142204291cf42adf6802df3743de34a056f78f32374",
+          "witness_pcs_params": {
+            "log_batch_size": 4,
+            "log_inv_rate": 1,
+            "m": 28,
+            "merkle_hash": "blake3",
+            "num_lanes": null,
+            "profile": "fast"
+          }
+        }
+      ]
+    }
+  ],
+  "comparisons": [
+    {
+      "mode": "single",
+      "log_gates": 26,
+      "state": "complete",
+      "same_pcs_params": true,
+      "same_commitment": true,
+      "mikros_over_flock": 0.6192068314894023,
+      "flock_over_mikros": 1.6149692625235759,
+      "mikros_minus_flock_ms": -3950.513553999999
+    }
+  ]
+}

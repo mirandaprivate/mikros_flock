@@ -1,21 +1,19 @@
 % !TEX root = main.tex
-We restate the ring-switching construction of Diamond and
-Posen~\cite{eurocrypt/DiamondP26} in the vector and matrix notation
-of this paper. This formulation supports the weighted tensor
-queries arising from the reductions of Section~\ref{sec:blocks}.
+We express the ring-switching construction of Diamond and
+Posen~\cite{eurocrypt/DiamondP26} in our vector and matrix notation
+to support the weighted tensor queries of Section~\ref{sec:blocks}.
 
 Let \(N=m\kappa\) and \([\ExtensionField:\Field]=\kappa\).
 We commit to the fixed-basis packing \(\bm A\ext{\bm\beta}\)
-of a matrix \(\bm A\in\Field^{m\times\kappa}\), and reduce
-each query to one MLE opening of this commitment.
-The verifier evaluates the induced public query by a recursion
-on small base-field matrices.
+of \(\bm A\in\Field^{m\times\kappa}\) and reduce each query
+to one MLE opening. The verifier evaluates the resulting public
+query by a recursion on small base-field matrices.
 We then instantiate the underlying PCS from a base-field linear
-code using Blaze's code-switching construction.
+code via Blaze's code-switching construction.
 
 \subsubsection{Given a PCS over the Extension Field}
 
-\medskip\noindent{\bf Commitment and Opening Relation}
+\medskip\noindent\textbf{Commitment and opening relation.}
 
 Let \(m,\kappa\) be powers of two, with \(\kappa\geq2\), and write
 \(\ell=\log_2m\).
@@ -31,19 +29,17 @@ The schoolbook cost bounds below use a polynomial basis.
 Run \(\pc.\Setup(1^\lambda,m)\) to obtain
 \(\mathsf{pp}_{\pc}\), and include the fields, basis, and dimensions
 \(N,m,\kappa\) in the public parameters.
-Pack each row of the witness matrix into one extension-field element:
-\[
-    \bm A=\concat{\bm a^{(1)},\ldots,\bm a^{(\kappa)}}
-        \in\Field^{m\times\kappa},
-    \qquad
-    \ext{\bm a}=\bm A\ext{\bm\beta}\in\ExtensionField^m.
-\]
-The commitment is
+For the witness matrix
+\(\bm A=\concat{\bm a^{(1)},\ldots,\bm a^{(\kappa)}}
+\in\Field^{m\times\kappa}\), pack each row into one
+extension-field element, obtaining
+\(\ext{\bm a}=\bm A\ext{\bm\beta}\in\ExtensionField^m\).
+Compute the commitment
 \(\mathsf{cm}=\pc.\Com(\mathsf{pp}_{\pc},\ext{\bm a};
-\rho_{\pc})\), where \(\rho_{\pc}\) is the underlying commitment
-randomness. The prover retains \(\bm A\) and \(\rho_{\pc}\).
-Since the basis is fixed, binding to \(\ext{\bm a}\) binds the
-prover to a unique matrix \(\bm A\in\Field^{m\times\kappa}\).
+\rho_{\pc})\), where \(\rho_{\pc}\) is the commitment
+randomness, and retain \(\bm A\) and \(\rho_{\pc}\).
+The fixed basis makes binding to \(\ext{\bm a}\) equivalent
+to binding to \(\bm A\).
 
 \paragraph{Opening relation.}
 A query specifies column weights
@@ -56,33 +52,24 @@ A query specifies column weights
     =\ext{\bm\xi}^{\top}\bm A\ext{\bm\rho}.
 \label{eq:pcs-opening-relation}
 \end{equation}
-The query is supplied by its two-entry tensor factors:
-\[
-    \ext{\bm\xi}
-    =\bigotimes_{j=1}^{\ell}\ext{\bm\xi}^{(j)},
-    \qquad
-    \ext{\bm\xi}^{(j)}
-    =
-    \begin{pmatrix}
-        \ext\xi^{(j)}_0\\
-        \ext\xi^{(j)}_1
-    \end{pmatrix}
-    \in\ExtensionField^2.
-\]
+The row query is supplied as
+\(\ext{\bm\xi}=\bigotimes_{j=1}^{\ell}\ext{\bm\xi}^{(j)}\),
+where each factor is
+\(\ext{\bm\xi}^{(j)}=(\ext\xi^{(j)}_0,
+\ext\xi^{(j)}_1)^\top\in\ExtensionField^2\).
 Ordinary MLE queries use the tensor spans of the corresponding
 parts of the evaluation point for both \(\ext{\bm\rho}\) and
 \(\ext{\bm\xi}\). Allowing arbitrary two-entry factors also
 supports the coordinatewise products of tensor queries arising
 in the weighted Hadamard reduction.
 
-\medskip\noindent{\bf Packed Opening Protocol}
+\medskip\noindent\textbf{Packed opening protocol.}
 
 The commitment uses the fixed weights \(\ext{\bm\beta}\), whereas
-the query uses \(\ext{\bm\rho}\). We first claim the column
-evaluations, then use coordinate decomposition and a random
-projection to reduce their correctness to an inner product with
-the committed vector. The verifier evaluates the resulting public
-query locally from its tensor factors.
+the query uses \(\ext{\bm\rho}\). The prover first sends the
+column evaluations. Coordinate decomposition and a random
+projection then reduce their correctness to an inner-product
+claim about the committed vector.
 
 \paragraph{Reduce the column claims.}
 Write the public query and the claimed column values in base-field
@@ -102,15 +89,10 @@ The verifier extracts \(\bm U\) from this message and checks
 \(\ext v=\ext{\bm u}^{\top}\ext{\bm\rho}\).
 The matrix \(\bm\Xi\) is defined implicitly by the public query.
 
-Since \(\bm A\) has base-field entries, the remaining claim is
-equivalent to a base-field matrix identity:
-\[
-    \ext{\bm u}^{\top}=\ext{\bm\xi}^{\top}\bm A
-    \quad\Longleftrightarrow\quad
-    \bm U=\bm\Xi^\top\bm A.
-\]
-Packing its rows with the fixed basis introduces the committed
-vector \(\ext{\bm a}\):
+Since \(\bm A\) has base-field entries, the remaining claim
+\(\ext{\bm u}^{\top}=\ext{\bm\xi}^{\top}\bm A\) is equivalent
+to \(\bm U=\bm\Xi^\top\bm A\). Packing the rows of this
+identity introduces the committed vector \(\ext{\bm a}\):
 \begin{equation}
     \bm U=\bm\Xi^\top\bm A
     \quad\Longleftrightarrow\quad
@@ -128,9 +110,8 @@ Eq.~\eqref{eq:pcs-encoded-matrix} to one inner-product claim:
     =\langle\ext{\bm a},\bm\Xi\ext{\bm r}\rangle.
 \label{eq:pcs-random-opening}
 \end{equation}
-The verifier computes \(\ext c\) by interpreting the rows of
-\(\bm U\) as extension-field elements and taking their inner
-product with \(\ext{\bm r}\).
+The verifier computes \(\ext c\) by packing the rows of
+\(\bm U\) and taking their inner product with \(\ext{\bm r}\).
 
 Apply Fact~\ref{fact:ip} over \(\ExtensionField\) to
 Eq.~\eqref{eq:pcs-random-opening}.
@@ -157,8 +138,8 @@ It suffices to compute the small matrix:
     \ext w=\ext{\bm\beta}^{\top}\bm W\ext{\bm r}.
 \label{eq:pcs-query-matrix}
 \end{equation}
-Both \(\bm Y\) and \(\bm\Xi\) are determined by public tensor
-factors. Their product can be evaluated without forming either
+The public tensor factors determine \(\bm Y\) and \(\bm\Xi\),
+so the verifier can compute their product without forming either
 length-\(m\) coordinate table.
 
 For \(\ext z\in\ExtensionField\), let
@@ -174,8 +155,8 @@ coordinate column by \(\ext z\) in \(\ExtensionField\), and right
 multiplication by \(\bm M_{\ext z}^\top\) scales each coordinate row.
 In particular, \(\bm M_{1-\ext z}=\bm I-\bm M_{\ext z}\).
 
-To expose the recursion, let \(\bm Y_j,\bm\Xi_j\) denote the
-coordinate matrices for the suffix factors \(j,\ldots,\ell\):
+Let \(\bm Y_j,\bm\Xi_j\) be the coordinate matrices for the
+suffix factors \(j,\ldots,\ell\):
 \[
     \bm Y_j\ext{\bm\beta}
     =\bigotimes_{i=j}^{\ell}
@@ -225,8 +206,8 @@ Consequently, the verifier computes
 \end{aligned}
 \label{eq:pcs-query-recurrence}
 \end{equation}
-The output is \(\bm W=\bm W_1\).
-The verifier never forms the suffix coordinate matrices.
+This recursion yields \(\bm W=\bm W_1\) without forming
+the suffix coordinate matrices.
 Each step of the second line uses at most \(3\kappa\)
 extension-field multiplications, implemented by row and column
 scaling without materializing \(\bm M_{\ext z}\).
@@ -242,20 +223,16 @@ This computation is exact and requires no additional prover message.
 
 \paragraph{Terminal opening.}
 Finally, the parties authenticate \(\ext w_{\mathsf{com}}\)
-at \(\ext{\bm y}\) through the underlying PCS:
-\[
-    \pc.\Open\!\left(
-        \mathsf{pp}_{\pc},\mathsf{cm},
-        \ext w_{\mathsf{com}},\ext{\bm y}
-        :\ext{\bm a},\rho_{\pc}
-    \right).
-\]
+at \(\ext{\bm y}\) by invoking
+\(\pc.\Open(\mathsf{pp}_{\pc},\mathsf{cm},
+\ext w_{\mathsf{com}},\ext{\bm y}
+:\ext{\bm a},\rho_{\pc})\).
 The verifier accepts if the scalar checks, the inner-product
 reduction, and the underlying opening accept.
 Algorithm~\ref{alg:packed-pcs} in Appendix~\ref{appx:pseudocode}
 summarizes the protocol.
 
-\medskip\noindent{\bf Security and Complexity}
+\medskip\noindent\textbf{Security and complexity.}
 
 \begin{proposition}[Packed polynomial commitment scheme]
 \label{proposition:packed-pcs}
@@ -306,20 +283,18 @@ The proof is deferred to Appendix~\ref{appx:proof-pcs}.
 
 \subsubsection{Given a Linear Code over the Base Field}
 
-A linear code over \(\Field\) also encodes packed messages over
-\(\ExtensionField\): applying its generator matrix commutes with
-basis packing. We use this observation to instantiate the preceding
-construction via Blaze's code-switching
+A base-field generator matrix commutes with basis packing and
+therefore also encodes packed messages over \(\ExtensionField\).
+We instantiate the preceding construction via Blaze's code-switching
 protocol~\cite{eurocrypt/BrehmCFRRZ25}, with a BaseFold
-code~\cite{crypto/ZeilbergerCF24} as the target. We use Blaze under
-its source-encoding and proximity assumptions.
+code~\cite{crypto/ZeilbergerCF24} as the target, under Blaze's
+source-encoding and proximity assumptions.
 
 Let \(\Code:\Field^m\to\Field^n\) be a linear code with
 generator matrix \(\bm G\in\Field^{n\times m}\).
 Its \(\kappa\)-way interleaving encodes the columns of
 \(\bm A\in\Field^{m\times\kappa}\) independently.
-Using the same fixed basis,
-the resulting codeword has the equivalent packed representation:
+Packing the resulting codeword in the fixed basis gives:
 \begin{equation}
 \begin{aligned}
     \bm C&=\bm G\bm A\in\Field^{n\times\kappa},\\

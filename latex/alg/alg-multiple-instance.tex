@@ -7,91 +7,77 @@
 \KwPubIn{
 Parameters of Theorem~\ref{theorem:multiple-instance-packing};
 the \(\kappa\) public-I/O vectors;
-underlying PCS commitments to the five selectors and
-\(\ext{\bm\tau}_\sigma\)
+the preprocessed commitment to \(\bm Q\ext{\bm\beta}\in\ExtensionField^N\)
 }
 \KwPriIn{
-\(\Prover\): \(\bm W_L,\bm W_R,\bm W_O\in\Field^{m\times\kappa}\);
+\(\Prover\): \(\bm W_L,\bm W_R,\bm W_O\in\Field^{N\times\kappa}\);
 circuit tables and their opening data
 }
 \KwOut{Acceptance bit \(\mathsf{ok}\)}
 
 \(\Verifier\) returns \(0\) on a malformed message or a failed
 check, reduction, or opening\;
-\tcp{Commit in the fixed basis}
-\(\Prover\) sets
-\(\ext{\bm w}_\ell\leftarrow\bm W_\ell\ext{\bm\beta}\)
-for \(\ell\in\{L,R,O\}\), and
-\(\ext{\bm w}_M\leftarrow
-(\bm W_L\circ\bm W_R)\ext{\bm\beta}\)\;
-\(\PtoV\): three underlying PCS commitments to
-\(\ext{\bm w}_L,\ext{\bm w}_R,\ext{\bm w}_O\);
-retain \(\ext{\bm w}_M\) as a virtual vector\;
+\tcp{Commit before sampling challenges}
+Set \(\ext{\bm w}_\ell\leftarrow\bm W_\ell\ext{\bm\beta}\)
+for \(\ell\in\{L,R,O\}\), and the virtual vector
+\(\ext{\bm w}_M\leftarrow(\bm W_L\circ\bm W_R)\ext{\bm\beta}\)\;
+\(\PtoV\): one commitment to the concatenation of
+\(\ext{\bm w}_L,\ext{\bm w}_R,\ext{\bm w}_O\),
+of logical length \(3N\)\;
 
-\tcp{Check all gate equations by one sum-check}
-\(\VtoP\): \(\ext{\bm x}\ChooseRandom
-\ExtensionField^{\log_2m}\)\;
-Run degree-three sum-check with initial claim \(0\) for the
-\(\tensorspan{\ext{\bm x}}\)-weighted residual in
+\tcp{Reduce the gate claims; defer all terminal openings}
+\(\VtoP\): \(\ext{\bm x}\ChooseRandom\ExtensionField^{\log_2N}\)\;
+Run sumcheck with initial claim \(0\) and individual degree at most
+three for the \(\tensorspan{\ext{\bm x}}\)-weighted residual in
 Eq.~\eqref{eq:together-multiple-gates};
-obtain terminal point \(\ext{\bm t}\) and claim \(\ext c\)\;
-\(\PtoV\): claimed selector evaluations \(\ext v_\ell\)
-for \(\ell\in\{L,R,M,O,C\}\), and wire evaluations
-\(\ext u_\ell\) for \(\ell\in\{L,R,M,O\}\), at \(\ext{\bm t}\)\;
+obtain \(\ext{\bm y},\ext c\)\;
+\(\PtoV\): selector values \(\ext v_\ell\) for
+\(\ell\in\{L,R,M,O,C\}\) and wire values \(\ext u_\ell\) for
+\(\ell\in\{L,R,M,O\}\), at \(\ext{\bm y}\)\;
 \(\Verifier\) checks
 \(\ext c\EqOrNot
-\langle\tensorspan{\ext{\bm x}},\tensorspan{\ext{\bm t}}\rangle
+\langle\tensorspan{\ext{\bm x}},\tensorspan{\ext{\bm y}}\rangle
 [\sum_{\ell\in\{L,R,M,O\}}\ext v_\ell\ext u_\ell+
 (\sum_{j=1}^{\kappa}\ext\beta_j)\ext v_C]\)\;
-Verify the five selector and three committed-wire evaluations
-by direct underlying PCS openings\;
-\tcp{Authenticate the virtual product by a packed Hadamard reduction}
-Apply Section~\ref{sec:hadamard}
-to
+Retain the five selector queries and three ordinary wire queries\;
+Apply Algorithm~\ref{alg:hadamard} to
 \(\ext u_M\EqOrNot
-\tensorspan{\ext{\bm t}}^\top
+\tensorspan{\ext{\bm y}}^\top
 (\bm W_L\circ\bm W_R)\ext{\bm\beta}\);
-verify its two weighted terminal claims using
-Algorithm~\ref{alg:packed-pcs}\;
+retain its two weighted terminal queries\;
 
-\tcp{Check copy constraints by two extension-field product trees}
-\(\Prover\) forms the padded packed assignment
-\(\ext{\bm w}\in\ExtensionField^L\), including the public I/O\;
+\tcp{Reduce the copy claims by two product trees}
+Form \(\ext{\bm w}\in\ExtensionField^L\), including the packed public I/O\;
 \(\VtoP\): fresh independent
 \(\ext y,\ext z\ChooseRandom\ExtensionField\)\;
-\(\Prover\) constructs binary product trees on
-\(\ext z\bm1_L+\ext{\bm w}+\ext y\ext{\bm\tau}\)
-and
-\(\ext z\bm1_L+\ext{\bm w}+\ext y\ext{\bm\tau}_\sigma\)\;
-\(\PtoV\): the two roots; \(\Verifier\) checks their equality\;
-\ForEach{tree}{
-    Set the current claim to its root and the current point
-    \(\ext{\bm x}\leftarrow()\), with \(\tensorspan{()}=(1)\)\;
-    \For{\(\ell=0,\ldots,\log_2L-1\)}{
-        Run degree-three sum-check for the current weighted
-        parent-product claim, as in
-        Appendix~\ref{appx:proof-multiple-instance};
-        obtain \(\ext c,\ext{\bm t}\)\;
-        \(\PtoV\): child evaluations
-        \(\ext v_L,\ext v_R\) at \(\ext{\bm t}\)\;
-        \(\Verifier\) checks
-        \(\ext c\EqOrNot
-        \langle\tensorspan{\ext{\bm x}},
-        \tensorspan{\ext{\bm t}}\rangle\ext v_L\ext v_R\)\;
-        \(\VtoP\): fresh \(\ext\eta\ChooseRandom\ExtensionField\)\;
-        Set the current claim to
-        \((1-\ext\eta)\ext v_L+\ext\eta\ext v_R\)
-        and \(\ext{\bm x}\leftarrow\ext\eta\mathbin{\|}
-        \ext{\bm t}\)\;
-    }
-    Retain the terminal input claim and its evaluation point\;
-}
-Expand each terminal claim into its shift, wire, public-I/O,
-and label contributions\;
-Verify the six wire claims and the one
-\(\ext{\bm\tau}_\sigma\) claim by direct underlying PCS openings\;
-\(\Verifier\) evaluates the public I/O and identity labels
-directly and checks both recombinations, including
-the shift \(\ext z\) and label coefficient \(\ext y\)\;
+Construct product trees on
+\(\ext z\bm1_L+\bm\iota+\ext y\ext{\bm w}\) and
+\(\ext z\bm1_L+\bm\varsigma+\ext y\ext{\bm w}\),
+padding each input with ones to length \(4N\)\;
+\(\PtoV\): a common root \(\ext\Theta\)\;
+For each tree, run the degree-three layer sumchecks of
+Appendix~\ref{appx:proof-multiple-instance}, starting at \(\ext\Theta\).
+After checking each pair of child values, sample a fresh merge
+challenge and continue to the next layer; retain the terminal input claim\;
+Expand both terminals, retaining the prefix weights of the three
+wire segments. \(\PtoV\): six wire values and three permuted-label values\;
+\(\Verifier\) evaluates the identity-label, public-I/O, and padding
+contributions directly and checks both recombinations\;
+
+\tcp{Batch the witness and public openings}
+Express the five selector and three permuted-label queries as weighted
+queries to \(\bm Q\), as in Appendix~\ref{appx:proof-multiple-instance}\;
+Execute the column-message and scalar-check steps of Section~\ref{sec:pcs}
+for these eight queries and the two Hadamard terminals\;
+Fix all column messages and the nine ordinary wire values.
+Sample independent projection vectors for the packed queries and
+independent scalar weights for the ordinary queries\;
+Project the column identities and combine all inner-product claims
+within the witness and public groups, extending queries by zeros
+outside their committed blocks\;
+For each group, apply Fact~\ref{fact:ip} and verify the combined query-side
+evaluation, retaining all witness block-prefix weights\;
+Authenticate the two terminal values by underlying PCS openings
+at logical lengths \(3N\) and \(N\)\;
 \Return \(1\)\;
 \end{algorithm}

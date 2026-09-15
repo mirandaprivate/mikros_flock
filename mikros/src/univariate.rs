@@ -12,7 +12,7 @@ use rayon::prelude::{IndexedParallelIterator, ParallelIterator, ParallelSlice};
 
 #[cfg(test)]
 mod tests {
-    use super::{Kernel, aggregate, has_gfni};
+    use super::{Kernel, aggregate, aggregate_tiled_weights, has_gfni};
     use flock_field::test_rng::Rng;
 
     #[test]
@@ -44,6 +44,13 @@ mod tests {
                     aggregate(&a, &b, &weights, kernel),
                     expected,
                     "rows={rows}, kernel={kernel:?}"
+                );
+                assert_eq!(
+                    aggregate_tiled_weights(&a, &b, kernel, |start, out| {
+                        out.copy_from_slice(&weights[start..start + out.len()]);
+                    }),
+                    expected,
+                    "tiled weights: rows={rows}, kernel={kernel:?}"
                 );
             }
         }
@@ -148,78 +155,97 @@ pub(crate) fn aggregate(a: &[u8], b: &[u8], weights: &[F128], kernel: Kernel) ->
     a.par_chunks(block_rows * 16)
         .zip(b.par_chunks(block_rows * 16))
         .zip(weights.par_chunks(block_rows))
-        .map(|((a, b), l)| {
-            if kernel == Kernel::Reference {
-                reference_block(a, b, l)
-            } else {
-                #[cfg(target_arch = "x86_64")]
-                if matches!(
-                    kernel,
-                    Kernel::Native
-                        | Kernel::Tiled
-                        | Kernel::TiledBasis
-                        | Kernel::RegisterBasis
-                        | Kernel::RegisterPacked
-                        | Kernel::SplitAggregate
-                        | Kernel::HalfAggregate
-                        | Kernel::PairAggregate
-                        | Kernel::AffineAggregate
-                        | Kernel::JointAggregate
-                ) && has_gfni()
-                {
-                    // SAFETY: all required ISA features checked above. Blocks
-                    // contain complete rows and corresponding weights.
-                    return unsafe {
-                        match kernel {
-                            Kernel::Native => native_block(a, b, l),
-                            Kernel::Tiled => {
-                                tiled::aggregate_block(a, b, l, tiled::BasisConversion::Lookup)
-                            }
-                            Kernel::TiledBasis => {
-                                tiled::aggregate_block(a, b, l, tiled::BasisConversion::Batch)
-                            }
-                            Kernel::RegisterBasis | Kernel::RegisterPacked => {
-                                tiled::aggregate_block(a, b, l, tiled::BasisConversion::Register)
-                            }
-                            Kernel::SplitAggregate => tiled::aggregate_block_split8(
-                                a,
-                                b,
-                                l,
-                                tiled::BasisConversion::Batch,
-                            ),
-                            Kernel::HalfAggregate => {
-                                tiled::aggregate_block_half8(a, b, l, tiled::BasisConversion::Batch)
-                            }
-                            Kernel::PairAggregate => {
-                                tiled::aggregate_block_pair(a, b, l, tiled::BasisConversion::Batch)
-                            }
-                            Kernel::AffineAggregate => tiled::aggregate_block_affine(
-                                a,
-                                b,
-                                l,
-                                tiled::BasisConversion::Batch,
-                            ),
-                            Kernel::JointAggregate => {
-                                tiled::aggregate_block_joint(a, b, l, tiled::BasisConversion::Batch)
-                            }
-                            _ => unreachable!(),
-                        }
-                    };
-                }
-                lookup_block(a, b, l, kernel != Kernel::Lookup)
-            }
+        .map(|((a, b), l)| aggregate_block(a, b, l, kernel))
+        .reduce(|| vec![[0; 16]; SAMPLES], add_evaluations)
+}
+
+/// Generate weights at the unchanged 2048-row worker boundary. Public GF(256)
+/// interpolation tables are built once; each worker calls the same full block
+/// kernel as `aggregate`, including its 64-row register tiles and GFNI path.
+pub(crate) fn aggregate_tiled_weights(
+    a: &[u8],
+    b: &[u8],
+    kernel: Kernel,
+    fill_weights: impl Fn(usize, &mut [F128]) + Sync,
+) -> Vec<[u8; 16]> {
+    assert!(!kernel.is_coefficient());
+    assert_eq!(a.len(), b.len());
+    assert_eq!(a.len() % 16, 0);
+    let _ = domain::domain();
+    let _ = field::field();
+    const BLOCK_ROWS: usize = 2048;
+    a.par_chunks(BLOCK_ROWS * 16)
+        .zip(b.par_chunks(BLOCK_ROWS * 16))
+        .enumerate()
+        .map(|(block, (a, b))| {
+            let mut weights = [F128::ZERO; BLOCK_ROWS];
+            let weights = &mut weights[..a.len() / 16];
+            fill_weights(block * BLOCK_ROWS, weights);
+            aggregate_block(a, b, weights, kernel)
         })
-        .reduce(
-            || vec![[0; 16]; SAMPLES],
-            |mut left, right| {
-                for (left, right) in left.iter_mut().zip(right) {
-                    for (x, y) in left.iter_mut().zip(right) {
-                        *x ^= y;
-                    }
+        .reduce(|| vec![[0; 16]; SAMPLES], add_evaluations)
+}
+
+fn add_evaluations(mut left: Vec<[u8; 16]>, right: Vec<[u8; 16]>) -> Vec<[u8; 16]> {
+    for (left, right) in left.iter_mut().zip(right) {
+        for (x, y) in left.iter_mut().zip(right) {
+            *x ^= y;
+        }
+    }
+    left
+}
+
+fn aggregate_block(a: &[u8], b: &[u8], l: &[F128], kernel: Kernel) -> Vec<[u8; 16]> {
+    if kernel == Kernel::Reference {
+        return reference_block(a, b, l);
+    }
+    #[cfg(target_arch = "x86_64")]
+    if matches!(
+        kernel,
+        Kernel::Native
+            | Kernel::Tiled
+            | Kernel::TiledBasis
+            | Kernel::RegisterBasis
+            | Kernel::RegisterPacked
+            | Kernel::SplitAggregate
+            | Kernel::HalfAggregate
+            | Kernel::PairAggregate
+            | Kernel::AffineAggregate
+            | Kernel::JointAggregate
+    ) && has_gfni()
+    {
+        // SAFETY: all required ISA features checked above. Blocks contain
+        // complete rows and corresponding weights.
+        return unsafe {
+            match kernel {
+                Kernel::Native => native_block(a, b, l),
+                Kernel::Tiled => tiled::aggregate_block(a, b, l, tiled::BasisConversion::Lookup),
+                Kernel::TiledBasis => {
+                    tiled::aggregate_block(a, b, l, tiled::BasisConversion::Batch)
                 }
-                left
-            },
-        )
+                Kernel::RegisterBasis | Kernel::RegisterPacked => {
+                    tiled::aggregate_block(a, b, l, tiled::BasisConversion::Register)
+                }
+                Kernel::SplitAggregate => {
+                    tiled::aggregate_block_split8(a, b, l, tiled::BasisConversion::Batch)
+                }
+                Kernel::HalfAggregate => {
+                    tiled::aggregate_block_half8(a, b, l, tiled::BasisConversion::Batch)
+                }
+                Kernel::PairAggregate => {
+                    tiled::aggregate_block_pair(a, b, l, tiled::BasisConversion::Batch)
+                }
+                Kernel::AffineAggregate => {
+                    tiled::aggregate_block_affine(a, b, l, tiled::BasisConversion::Batch)
+                }
+                Kernel::JointAggregate => {
+                    tiled::aggregate_block_joint(a, b, l, tiled::BasisConversion::Batch)
+                }
+                _ => unreachable!(),
+            }
+        };
+    }
+    lookup_block(a, b, l, kernel != Kernel::Lookup)
 }
 
 #[cfg(target_arch = "x86_64")]

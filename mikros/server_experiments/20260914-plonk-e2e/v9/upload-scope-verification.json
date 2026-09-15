@@ -1,0 +1,13 @@
+{
+  "authorized_path_set_matches_v1": true,
+  "source_count": 384,
+  "archive_sha256": "d1c2b3663ff0f2e15942711dfbbe4ecdd713cbdc8c0c1b42a3cf33dce7692487",
+  "changed_since_v8": [
+    "crates/flock-core/src/pcs.rs",
+    "mikros/server_experiments/20260914-plonk-e2e/README.md",
+    "mikros/server_experiments/20260914-plonk-e2e/run_server.py",
+    "mikros/server_experiments/20260914-plonk-e2e/test_harness.py",
+    "mikros/src/multiple_gate.rs"
+  ],
+  "destination": "/home/mscong1/mikros-experiments/20260912T-native64/v23-n26-wp-gate-20260915/source"
+}

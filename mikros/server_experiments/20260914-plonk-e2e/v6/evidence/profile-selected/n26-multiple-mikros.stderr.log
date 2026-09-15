@@ -1,0 +1,99 @@
+stage=offline_witness_public_tables
+stage=offline_public_commitment
+stage=offline_copy_preparation
+stage=online_witness_commitment
+stage=online_gate_piop
+stage=online_copy_piop
+e2e_piop_trace copy=mikros-multiple stage=fingerprint ms=2.629686
+e2e_piop_trace copy=mikros-multiple stage=leaf_cache_build ms=141.287069
+e2e_piop_trace copy=mikros-multiple stage=tree ms=2201.287480
+e2e_piop_trace copy=mikros-multiple tree_profile={"construction_ms":445.96139400000004,"root_ms":0.002323,"reduction_ms":1755.3151560000001,"release_ms":375.04390700000005,"peak_field_buffer_bytes":6442450912}
+e2e_piop_trace copy=mikros-multiple stage=leaf_cache_release ms=222.104928
+e2e_piop_trace copy=mikros-multiple stage=wire_terminals ms=187.130782
+e2e_piop_trace copy=mikros-multiple stage=label_terminals ms=207.729960
+e2e_piop_trace copy=mikros-multiple stage=claim_construction ms=0.039772
+stage=online_witness_recommit
+stage=online_witness_pcs_open
+  [open_merged] constant source columns: 1/4 (116.16 ms online scan)
+  [open_merged] column bit-bank support: 20/20 row-point columns (sparse=false)
+  [open_merged] column bit-banks: 5 row points for 11 claims, 2 paired folds (online native fold)
+    [rs::prove_batched] build_eq dense×11 (split) + sparse×0 (0 built):  14.71 ms
+    [rs::prove_batched] fold_1b_rows dense(k=11)+sparse(k=0):   0.01 ms
+    [rs::prove_batched] per-opening tail ×11:   3.82 ms
+  [open_merged] ring_switch: 2693.57 ms
+  [open_merged] block statistics (2816 terms × 2):   2.05 ms
+  [open_merged] rectangular row maps: 11 claims -> 5 row points (grouping=true)
+  [open_merged] block rounds (1) + q'/W' (2^27): 2045.84 ms
+  [open_merged] merged sumcheck (28 rounds): 2524.75 ms
+    [frobenius] linearized_coefficients (x11):   0.00 ms
+  [open_batch] ring_switch::prove_batched ×0:   0.00 ms
+  [open_batch] combine (seeded EqPoint, L=268435456): 108.95 ms
+    [multipoint] 1408 + 0 values (compute): 109.61 ms
+    [multipoint] rs path: ALIGNED closed-form weight (n=26 k=2 area=268435456 of 2^28); columns 4 used, 4 full(2^26), 4 pow2; heights 67108864x4
+    [multipoint] weight passes (2^28, 1 products, round-0 fused): 114.67 ms  (rs 114.60 | group 0.06)
+    [multipoint] two-product sumcheck (28 rounds):   1.58 ms  (folds: rs 1.54)
+    [frobenius] statements + suffix rows (x5, 104 low + 11 shared blocks vs 120 dense):   0.29 ms
+    [frobenius] v + rounds:   0.22 ms
+    [multipoint] anchor assist (x11 + x0):   0.63 ms
+    init fold 0 (jit, d 1): 4159.44 ms
+    init fold 1 (materialized, d 1): 378.20 ms
+    init fold 2 (materialized, d 1): 133.80 ms
+    init fold 3 (materialized, d 1): 66.51 ms
+    init fold 4 (materialized, d 1): 31.96 ms
+    init fold 5 (fold+switch, d 1): 58.51 ms
+[lig-prove-f256] total = 5903.62 ms
+  L0 OOD (eq build + full-witness eval + fold-in): 113.48 ms
+  first message + prover build:                    0.00 ms
+  initial_k folds + code switch:                   4828.70 ms
+  recursive commits (NTT + merkle):                454.05 ms
+  level OODs (eq build + introduce + glue):        109.38 ms
+  grinding (query PoW + claim/consistency PoW):    1.64 ms
+  opens (rows + merkle paths):                     2.92 ms
+  induce (basis + enforced sum + introduce):       313.57 ms
+  recursive folds + code switches:                 50.57 ms
+  [open_batch] ligerito::recursive_prover_with_basis: 5904.16 ms
+  [open_batch] TOTAL: 6013.21 ms
+  [open_merged] coeffs + (multipoint assist ∥ inner open): 6013.33 ms (join wall 6013.32 ms = max of the two branches)
+  [open_merged] TOTAL: 11253.07 ms
+stage=online_public_recommit
+stage=online_public_pcs_open
+  [open_merged] column bit-bank support: 2/2 row-point columns (sparse=false)
+  [open_merged] column bit-banks: 2 row points for 8 claims, 1 paired folds (online native fold)
+    [rs::prove_batched] build_eq dense×8 (split) + sparse×0 (0 built):   5.58 ms
+    [rs::prove_batched] fold_1b_rows dense(k=8)+sparse(k=0):   0.01 ms
+    [rs::prove_batched] per-opening tail ×8:   1.59 ms
+  [open_merged] ring_switch: 328.42 ms
+  [open_merged] jagged row maps: 8 claims/groups -> 2 row maps (grouping=true)
+  [open_merged] W build + round-0 prime (2^26 words): 347.68 ms
+  [open_merged] merged sumcheck (26 rounds): 487.21 ms
+    [frobenius] linearized_coefficients (x8):   0.00 ms
+  [open_batch] ring_switch::prove_batched ×0:   0.00 ms
+  [open_batch] combine (seeded EqPoint, L=67108864):  31.54 ms
+    [multipoint] 1024 + 0 values (compute):  31.66 ms
+    [multipoint] rs path: ALIGNED closed-form weight (n=26 k=0 area=67108864 of 2^26); columns 1 used, 1 full(2^26), 1 pow2; heights 67108864x1
+    [multipoint] weight passes (2^26, 1 products, round-0 fused):  32.65 ms  (rs 32.58 | group 0.07)
+    [multipoint] two-product sumcheck (26 rounds):   1.14 ms  (folds: rs 1.08)
+    [frobenius] statements + suffix rows (x2, 26 low + 2 shared blocks vs 28 dense):   0.18 ms
+    [frobenius] v + rounds:   0.11 ms
+    [multipoint] anchor assist (x8 + x0):   0.39 ms
+    init fold 0 (jit, d 1): 1054.24 ms
+    init fold 1 (materialized, d 1): 100.44 ms
+    init fold 2 (materialized, d 1): 30.80 ms
+    init fold 3 (materialized, d 1): 16.56 ms
+    init fold 4 (materialized, d 1): 7.90 ms
+    init fold 5 (fold+switch, d 1): 14.70 ms
+[lig-prove-f256] total = 1484.33 ms
+  L0 OOD (eq build + full-witness eval + fold-in): 32.71 ms
+  first message + prover build:                    0.00 ms
+  initial_k folds + code switch:                   1224.99 ms
+  recursive commits (NTT + merkle):                96.59 ms
+  level OODs (eq build + introduce + glue):        33.66 ms
+  grinding (query PoW + claim/consistency PoW):    1.39 ms
+  opens (rows + merkle paths):                     0.75 ms
+  induce (basis + enforced sum + introduce):       69.73 ms
+  recursive folds + code switches:                 17.63 ms
+  [open_batch] ligerito::recursive_prover_with_basis: 1484.49 ms
+  [open_batch] TOTAL: 1516.14 ms
+  [open_merged] coeffs + (multipoint assist ∥ inner open): 1516.52 ms (join wall 1516.51 ms = max of the two branches)
+  [open_merged] TOTAL: 2333.14 ms
+stage=verify_full_proof

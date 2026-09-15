@@ -1,0 +1,107 @@
+{
+  "state": "complete",
+  "started_utc": "2026-09-15T09:11:36Z",
+  "commands": [
+    {
+      "id": "rustc-version",
+      "started_utc": "2026-09-15T09:11:37Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 1.0016036131419241,
+      "finished_utc": "2026-09-15T09:11:38Z"
+    },
+    {
+      "id": "native-cfg",
+      "started_utc": "2026-09-15T09:11:38Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 1.0018577720038593,
+      "finished_utc": "2026-09-15T09:11:39Z"
+    },
+    {
+      "id": "n26-single-mikros",
+      "started_utc": "2026-09-15T09:11:40Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 10.01177017390728,
+      "finished_utc": "2026-09-15T09:11:50Z"
+    },
+    {
+      "id": "n26-single-flock",
+      "started_utc": "2026-09-15T09:11:51Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 11.01369802094996,
+      "finished_utc": "2026-09-15T09:12:02Z"
+    },
+    {
+      "id": "n26-multiple-flock",
+      "started_utc": "2026-09-15T09:12:03Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 27.031390296062455,
+      "finished_utc": "2026-09-15T09:12:30Z"
+    },
+    {
+      "id": "n26-multiple-mikros",
+      "started_utc": "2026-09-15T09:12:31Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 21.025319130159914,
+      "finished_utc": "2026-09-15T09:12:52Z"
+    }
+  ],
+  "cases": [
+    {
+      "id": "n26-single-mikros",
+      "mode": "single",
+      "system": "mikros",
+      "log_gates": 26,
+      "gates_per_instance": 67108864,
+      "instances": 1,
+      "total_gates": 67108864,
+      "state": "complete",
+      "wall_seconds": 10.01177017390728,
+      "exit_code": 0
+    },
+    {
+      "id": "n26-single-flock",
+      "mode": "single",
+      "system": "flock",
+      "log_gates": 26,
+      "gates_per_instance": 67108864,
+      "instances": 1,
+      "total_gates": 67108864,
+      "state": "complete",
+      "wall_seconds": 11.01369802094996,
+      "exit_code": 0
+    },
+    {
+      "id": "n26-multiple-flock",
+      "mode": "multiple",
+      "system": "flock",
+      "log_gates": 26,
+      "gates_per_instance": 67108864,
+      "instances": 128,
+      "total_gates": 8589934592,
+      "state": "complete",
+      "wall_seconds": 27.031390296062455,
+      "exit_code": 0
+    },
+    {
+      "id": "n26-multiple-mikros",
+      "mode": "multiple",
+      "system": "mikros",
+      "log_gates": 26,
+      "gates_per_instance": 67108864,
+      "instances": 128,
+      "total_gates": 8589934592,
+      "state": "complete",
+      "wall_seconds": 21.025319130159914,
+      "exit_code": 0
+    }
+  ],
+  "source_hashes_verified_before_and_after": true,
+  "binary_hashes_verified_before_and_after": true,
+  "finished_utc": "2026-09-15T09:12:52Z"
+}

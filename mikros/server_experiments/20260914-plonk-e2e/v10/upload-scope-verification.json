@@ -1,0 +1,14 @@
+{
+  "authorized_path_set_matches_v1": true,
+  "source_count": 384,
+  "archive_sha256": "2a99ccbf1be1e795e541bf3a84e6e25926cc1da24983d4cd02d00b7f2390cd15",
+  "changed_since_v9": [
+    "crates/flock-core/src/pcs.rs",
+    "mikros/examples/e2e_plonk/gates.rs",
+    "mikros/server_experiments/20260914-plonk-e2e/README.md",
+    "mikros/server_experiments/20260914-plonk-e2e/run_server.py",
+    "mikros/server_experiments/20260914-plonk-e2e/test_harness.py",
+    "mikros/src/multiple_gate.rs"
+  ],
+  "destination": "/home/mscong1/mikros-experiments/20260912T-native64/v24-n26-memory-20260915/source"
+}

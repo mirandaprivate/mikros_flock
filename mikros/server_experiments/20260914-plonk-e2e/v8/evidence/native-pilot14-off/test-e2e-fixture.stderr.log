@@ -1,0 +1,5 @@
+mikros/src/multiple_gate.rs:200:22: warning: value assigned to `cursor` is never read
+warning: `mikros` (lib) generated 1 warning
+   Compiling mikros v0.1.0 (/home/mscong1/mikros-experiments/20260912T-native64/v22-n26-direct-block-20260915/source/mikros)
+    Finished `release` profile [optimized] target(s) in 2.61s
+     Running unittests examples/e2e_plonk_compare.rs (/home/mscong1/mikros-experiments/20260912T-native64/v14-packed-aggregate-20260914/source/target/release/examples/e2e_plonk_compare-c5d2fd66098eed21)

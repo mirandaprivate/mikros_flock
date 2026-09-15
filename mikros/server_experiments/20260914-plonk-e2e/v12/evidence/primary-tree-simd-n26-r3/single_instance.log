@@ -1,0 +1,57 @@
+{
+  "mode": "single",
+  "run_state": "complete",
+  "scope": "Single is one circuit of N genuine binary gates; multiple is 128 identical circuit shapes each with N gates, 128*N total. One fresh process per system/case. Prover time must include commit, recommit, online conversion, gate/copy PIOPs and original native FLOCK PCS opening. Offline fixture/static preprocessing and initial public commitment are excluded. Public recommit is included online. Flock A/B conversion is inside gates_ms; challenge-dependent copy conversion/evaluation/query conversion is inside copy_ms, not a separately measured timer. Raw stage records are retained. One repetition is a descriptive observation, not a statistical speedup estimate.",
+  "run_metadata": {
+    "schema_version": 1,
+    "levels": [
+      26
+    ],
+    "modes": [
+      "multiple"
+    ],
+    "repetitions": 1,
+    "seed": 97,
+    "threads": 64,
+    "cpu_affinity": "0-47,48-55,72-79",
+    "toolchain": "+nightly-2026-03-21",
+    "rustflags": "-C target-cpu=native",
+    "target_dir": "/home/mscong1/mikros-experiments/20260912T-native64/v14-packed-aggregate-20260914/source/target",
+    "source_dir": "/home/mscong1/mikros-experiments/20260912T-native64/v26-multiple-tree-20260915/source",
+    "rust_min_stack_bytes": 16777216,
+    "cleared_environment_keys": [],
+    "build_skipped": true,
+    "tests_skipped": true,
+    "case_timeout_seconds": 14400,
+    "minimum_large_memory_gib": 350,
+    "disabled_optimizations": [],
+    "diagnostic_trace": false,
+    "allocator_policy": "system",
+    "packed_direct": true,
+    "piop_fingerprints": true,
+    "direct_wp_simd": false,
+    "gate_selector_simd": false,
+    "gate_fusion": false,
+    "wp_uninit": true,
+    "gate_virtual_product": true,
+    "wh_tiled_weights": true,
+    "copy_paired_terminals": true,
+    "gate_wh_scratch": true,
+    "tree_dense_simd": true,
+    "tree_large_pool": false,
+    "measured_environment": {
+      "FLOCK_PCS_PACKED_DIRECT": "1",
+      "FLOCK_WP_UNINIT": "1",
+      "MIKROS_GATE_VIRTUAL_PRODUCT": "1",
+      "MIKROS_WH_TILED_WEIGHTS": "1",
+      "E2E_COPY_PAIRED_TERMINALS": "1",
+      "MIKROS_GATE_WH_SCRATCH": "1",
+      "MIKROS_TREE_DENSE_SIMD": "1"
+    },
+    "pilot_scope": "selected levels only; root manages evidence from earlier invocations when selecting a subset",
+    "source_manifest_sha256": "04b252c7d6570503abfc1bd6f585670229f20d687cff4f762dea893d0f881c4f",
+    "base_revision": "d399b71ea33ce2d2e3208a6ab414134c9f879d00"
+  },
+  "cases": [],
+  "comparisons": []
+}

@@ -1,0 +1,17 @@
+{
+  "native_tests": {
+    "passed": 234,
+    "failed": 0,
+    "ignored": 1
+  },
+  "native_test_commands": 20,
+  "large_pool_enabled_during_native_tests": true,
+  "v14_pilot_full_proofs_equal_v13": true,
+  "current_384_sources_match_v14": true,
+  "historical_root_logs_unchanged": {
+    "e2e_single_compare_flock.log": "50863ef419bd50027af244489d2f2bec126d7373a39cdef9e3480e3a86b772ff",
+    "e2e_multiple_compare_flock.log": "cfe3116c090a655227d708c87836846d1d11915418780ffd8d3112a35dacc942"
+  },
+  "v14_source_manifest_sha256": "135ca3d44ba7358192ff73a60cdcbec7a41b10dd716a53e42a9219570cac183c",
+  "v14_native_binary_sha256": "ce2f49f6f6b125a2cf32f03dc00441b8032abf950ffc46cd963a39a6ffecfc4d"
+}

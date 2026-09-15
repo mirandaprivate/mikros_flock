@@ -5,9 +5,8 @@
 \label{alg:single-instance-packing}
 \KwPubIn{
 Parameters of Theorem~\ref{theorem:single-instance-packing};
-\(\bm{\mathsf{io}}\);
-packed commitments to the five selectors and
-\(\{\bm\tau_{\sigma,j}\}_{j=1}^{\gamma}\)
+\(\bm{\mathsf{io}}\); the preprocessed public commitment of
+logical length \(m_{\mathsf{pub}}\)
 }
 \KwPriIn{
 \(\Prover\): \(\bm w_L,\bm w_R,\bm w_O\in\Field^N\);
@@ -17,64 +16,66 @@ circuit tables and their opening data
 
 \(\Verifier\) returns \(0\) on a malformed message or a failed
 check, reduction, or opening\;
-\tcp{Bind the witness before sampling challenges}
-\ForEach{\(\ell\in\{L,R,O\}\)}{
-    \(\Prover\) arranges \(\bm w_\ell\) as
-    \(\bm W_\ell\in\Field^{m\times\kappa}\)\;
-    \(\PtoV\): a commitment to
-    \(\bm W_\ell\ext{\bm\beta}\) as in Section~\ref{sec:pcs}\;
-}
-\(\Prover\) sets the virtual vector
-\(\bm w_M\leftarrow\bm w_L\circ\bm w_R\)\;
+\tcp{Commit before sampling challenges}
+Arrange \(\bm w_\ell\) as \(\bm W_\ell\in\Field^{m\times\kappa}\)
+for \(\ell\in\{L,R,O\}\)\;
+\(\PtoV\): one commitment to the concatenation of
+\(\bm W_L\ext{\bm\beta},\bm W_R\ext{\bm\beta},
+\bm W_O\ext{\bm\beta}\), of logical length \(3m\)\;
+Set the virtual vector \(\bm w_M\leftarrow\bm w_L\circ\bm w_R\)\;
 
-\tcp{Check the projected gate equation}
-\(\VtoP\): \(\ext{\bm x}\ChooseRandom
-\ExtensionField^{\log_2N}\);
+\tcp{Reduce the gate claims; defer all terminal openings}
+\(\VtoP\): \(\ext{\bm x}\ChooseRandom\ExtensionField^{\log_2N}\);
 set \(\ext{\bm\xi}\leftarrow\tensorspan{\ext{\bm x}}\)\;
-\(\PtoV\): the five scalars
-\(\ext c_L,\ext c_R,\ext c_M,\ext c_O,\ext c_C\)
-from Eq.~\eqref{eq:plonkWeightedHadamard1} and
+\(\PtoV\): \(\ext c_L,\ext c_R,\ext c_M,\ext c_O,\ext c_C\)
+as in Eq.~\eqref{eq:plonkWeightedHadamard1} and
 Eq.~\eqref{eq:plonkWeightedHadamard2}\;
 \(\Verifier\) checks
 \(\ext c_L+\ext c_R+\ext c_M+\ext c_O+\ext c_C\EqOrNot0\)\;
 \ForEach{\(\ell\in\{L,R,O\}\)}{
-    Apply the packed Hadamard reduction of
-    Section~\ref{sec:hadamard} to
+    Apply Algorithm~\ref{alg:hadamard} to
     \(\ext c_\ell\EqOrNot
-      \langle\ext{\bm\xi},\bm q_\ell\circ\bm w_\ell\rangle\);
-    verify both terminal claims using Algorithm~\ref{alg:packed-pcs}\;
+    \langle\ext{\bm\xi},\bm q_\ell\circ\bm w_\ell\rangle\);
+    retain both terminal queries\;
 }
-Apply the same reduction to
+Apply Algorithm~\ref{alg:hadamard} to
 \(\ext c_M\EqOrNot
-  \langle\ext{\bm\xi},\bm q_M\circ\bm w_M\rangle\);
-open its \(\bm q_M\) claim using Algorithm~\ref{alg:packed-pcs}\;
-Write the \(\bm w_M\) terminal claim as
-\(\ext u\EqOrNot
-  \langle\ext{\bm\rho}\kronecker\ext{\bm\chi},\bm w_M\rangle\),
-retaining the weights of Eq.~\eqref{eq:hadamard-terminal}\;
-Check this claim by a packed Hadamard reduction with
-operands \(\bm w_L,\bm w_R\), column weights \(\ext{\bm\rho}\),
-and tensor row weights \(\ext{\bm\chi}\);
-verify its two terminal claims using Algorithm~\ref{alg:packed-pcs}\;
-Use Algorithm~\ref{alg:packed-pcs} to verify
-\(\ext c_C\EqOrNot\langle\ext{\bm\xi},\bm q_C\rangle\)\;
+\langle\ext{\bm\xi},\bm q_M\circ\bm w_M\rangle\);
+retain its selector query\;
+Express its product-vector query as
+\(\ext v\EqOrNot
+\ext{\bm l}^{\top}(\bm W_L\circ\bm W_R)\ext{\bm r}\).
+Apply Algorithm~\ref{alg:hadamard} again and retain both terminals\;
+Retain \(\ext c_C\EqOrNot\langle\ext{\bm\xi},\bm q_C\rangle\)\;
 
-\tcp{Check copy constraints over the intermediate field}
-\(\Prover\) forms the padded assignment \(\bm w\in\Field^L\)
-and the virtual operands
-\(\ext{\bm a}\leftarrow\ext\theta_d\bm w+\ext{\bm\tau}\),
-\(\ext{\bm b}\leftarrow\ext\theta_d\bm w+\ext{\bm\tau}_\sigma\)\;
-Apply Algorithm~\ref{alg:permutation} to these operands with
-base field \(\mathbb K\), extension \(\ExtensionField\),
-length \(L\), and packing width \(\kappa_{\mathbb K}\);
-its challenge \(\ext z\) is fresh\;
-Expand its two terminal claims using
-Eq.~\eqref{eq:together-copy-operands}\;
-Verify the six wire claims and \(\gamma\) permuted-digit claims
-using Algorithm~\ref{alg:packed-pcs}\;
-\(\Verifier\) evaluates the public-I/O contributions and
-identity labels directly, using
-Proposition~\ref{proposition:position-encoding-evaluation},
-and checks the two affine recombinations\;
+\tcp{Reduce the copy claims over \(\mathbb K\)}
+Form \(\bm w\in\Field^L\), including the public I/O, and
+\(\bm a\leftarrow\bm\varsigma+\theta_d\bm w\),
+\(\bm b\leftarrow\bm\iota+\theta_d\bm w\)\;
+Pad both operands with zeros to length \(4N\).
+Apply Algorithm~\ref{alg:permutation} with base field \(\mathbb K\),
+extension \(\ExtensionField\), and packing width \(\kappa_{\mathbb K}\),
+sampling its fresh challenge
+\(\ext z\ChooseRandom\ExtensionField\setminus\{0\}\)\;
+Expand its two weighted terminals as in
+Appendix~\ref{appx:proof-single-instance}.
+Restrict to the wire segments and regroup the tensor factors
+to packing width \(\kappa\)\;
+\(\PtoV\): six wire values and
+\(3\lceil\log_{\underline q}L\rceil\) permuted-digit values;
+retain their weighted queries\;
+\(\Verifier\) evaluates the identity-label, public-I/O, and padding
+contributions directly and checks both recombinations\;
+
+\tcp{Batch the witness and public openings}
+For every retained query, execute the column-message and scalar-check
+steps of Section~\ref{sec:pcs}.
+Fix all column messages before sampling independent projection vectors\;
+Project each column identity, extend its query by zeros outside
+the committed block, and sum the inner-product claims in each group\;
+For each group, apply Fact~\ref{fact:ip} and check its public
+query-side evaluation as in Appendix~\ref{appx:proof-single-instance}\;
+Authenticate the two terminal values by underlying PCS openings
+at logical lengths \(3m\) and \(m_{\mathsf{pub}}\)\;
 \Return \(1\)\;
 \end{algorithm}

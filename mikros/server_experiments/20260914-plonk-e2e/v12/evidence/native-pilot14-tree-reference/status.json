@@ -1,0 +1,235 @@
+{
+  "state": "complete",
+  "started_utc": "2026-09-15T15:22:39Z",
+  "commands": [
+    {
+      "id": "rustc-version",
+      "started_utc": "2026-09-15T15:22:40Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 1.002440826036036,
+      "finished_utc": "2026-09-15T15:22:41Z"
+    },
+    {
+      "id": "native-cfg",
+      "started_utc": "2026-09-15T15:22:41Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 1.002239909954369,
+      "finished_utc": "2026-09-15T15:22:42Z"
+    },
+    {
+      "id": "build",
+      "started_utc": "2026-09-15T15:22:42Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 30.03280835901387,
+      "finished_utc": "2026-09-15T15:23:12Z"
+    },
+    {
+      "id": "test-mikros",
+      "started_utc": "2026-09-15T15:23:12Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 12.014003304066136,
+      "finished_utc": "2026-09-15T15:23:24Z"
+    },
+    {
+      "id": "test-e2e-fixture",
+      "started_utc": "2026-09-15T15:23:24Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 5.006171518005431,
+      "finished_utc": "2026-09-15T15:23:29Z"
+    },
+    {
+      "id": "test-permutation",
+      "started_utc": "2026-09-15T15:23:29Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 7.008075911086053,
+      "finished_utc": "2026-09-15T15:23:36Z"
+    },
+    {
+      "id": "test-gkr",
+      "started_utc": "2026-09-15T15:23:36Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 27.02937717293389,
+      "finished_utc": "2026-09-15T15:24:03Z"
+    },
+    {
+      "id": "test-pcs-tensor",
+      "started_utc": "2026-09-15T15:24:03Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 1.0020714511629194,
+      "finished_utc": "2026-09-15T15:24:04Z"
+    },
+    {
+      "id": "test-pcs-split-rows",
+      "started_utc": "2026-09-15T15:24:04Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 1.002231972059235,
+      "finished_utc": "2026-09-15T15:24:05Z"
+    },
+    {
+      "id": "test-pcs-column-bitbank",
+      "started_utc": "2026-09-15T15:24:05Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 1.00205800216645,
+      "finished_utc": "2026-09-15T15:24:06Z"
+    },
+    {
+      "id": "test-pcs-column-s-hat",
+      "started_utc": "2026-09-15T15:24:06Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 1.0018972519319504,
+      "finished_utc": "2026-09-15T15:24:07Z"
+    },
+    {
+      "id": "test-pcs-full-rectangle",
+      "started_utc": "2026-09-15T15:24:07Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 1.0015218339394778,
+      "finished_utc": "2026-09-15T15:24:08Z"
+    },
+    {
+      "id": "test-pcs-bounded-l0",
+      "started_utc": "2026-09-15T15:24:08Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 1.001563270110637,
+      "finished_utc": "2026-09-15T15:24:09Z"
+    },
+    {
+      "id": "test-pcs-row-grouping",
+      "started_utc": "2026-09-15T15:24:09Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 1.0011105989106,
+      "finished_utc": "2026-09-15T15:24:10Z"
+    },
+    {
+      "id": "test-pcs-direct-block-parallel",
+      "started_utc": "2026-09-15T15:24:10Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 1.0019517492037266,
+      "finished_utc": "2026-09-15T15:24:11Z"
+    },
+    {
+      "id": "test-pcs-direct-wp-simd",
+      "started_utc": "2026-09-15T15:24:11Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 1.0022131998557597,
+      "finished_utc": "2026-09-15T15:24:12Z"
+    },
+    {
+      "id": "test-pcs-wp-uninit",
+      "started_utc": "2026-09-15T15:24:12Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 3.004470119951293,
+      "finished_utc": "2026-09-15T15:24:15Z"
+    },
+    {
+      "id": "test-pcs-paired-bitbanks",
+      "started_utc": "2026-09-15T15:24:15Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 1.002454929985106,
+      "finished_utc": "2026-09-15T15:24:16Z"
+    },
+    {
+      "id": "test-pcs-sparse-bitbanks",
+      "started_utc": "2026-09-15T15:24:16Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 1.0019981327932328,
+      "finished_utc": "2026-09-15T15:24:17Z"
+    },
+    {
+      "id": "test-pcs-constant-bitbanks",
+      "started_utc": "2026-09-15T15:24:17Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 1.0018425488378853,
+      "finished_utc": "2026-09-15T15:24:18Z"
+    },
+    {
+      "id": "test-pcs-jit-fused",
+      "started_utc": "2026-09-15T15:24:18Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 1.0016858619637787,
+      "finished_utc": "2026-09-15T15:24:19Z"
+    },
+    {
+      "id": "test-pcs-configs",
+      "started_utc": "2026-09-15T15:24:19Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 1.0021995981223881,
+      "finished_utc": "2026-09-15T15:24:20Z"
+    },
+    {
+      "id": "test-pcs-large-caps",
+      "started_utc": "2026-09-15T15:24:20Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 1.0022378619760275,
+      "finished_utc": "2026-09-15T15:24:21Z"
+    },
+    {
+      "id": "n14-multiple-flock",
+      "started_utc": "2026-09-15T15:24:22Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 1.001813670154661,
+      "finished_utc": "2026-09-15T15:24:23Z"
+    },
+    {
+      "id": "n14-multiple-mikros",
+      "started_utc": "2026-09-15T15:24:25Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 1.001742455177009,
+      "finished_utc": "2026-09-15T15:24:26Z"
+    }
+  ],
+  "cases": [
+    {
+      "id": "n14-multiple-flock",
+      "mode": "multiple",
+      "system": "flock",
+      "log_gates": 14,
+      "gates_per_instance": 16384,
+      "instances": 128,
+      "total_gates": 2097152,
+      "state": "complete",
+      "wall_seconds": 1.001813670154661,
+      "exit_code": 0
+    },
+    {
+      "id": "n14-multiple-mikros",
+      "mode": "multiple",
+      "system": "mikros",
+      "log_gates": 14,
+      "gates_per_instance": 16384,
+      "instances": 128,
+      "total_gates": 2097152,
+      "state": "complete",
+      "wall_seconds": 1.001742455177009,
+      "exit_code": 0
+    }
+  ],
+  "source_hashes_verified_before_and_after": true,
+  "binary_hashes_verified_before_and_after": true,
+  "finished_utc": "2026-09-15T15:24:26Z"
+}

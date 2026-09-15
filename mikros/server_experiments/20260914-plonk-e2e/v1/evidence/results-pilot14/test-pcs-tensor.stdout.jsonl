@@ -1,0 +1,10 @@
+
+running 5 tests
+test pcs::merged_tensor::tests::arbitrary_pairs_and_zero_sum_diagonal_match_source ... ok
+test pcs::merged_tensor::tests::full_merged_identity_matches_borrowed_proof_and_transcript ... ok
+test pcs::merged_tensor::tests::full_merged_normalized_zero_sum_and_tamper ... ok
+test pcs::merged_tensor::tests::identity_open_rejects_wrong_length_partial_support_and_multiple_columns ... ok
+test pcs::merged_tensor::tests::zero_functional_and_component_shapes_are_explicit ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 461 filtered out; finished in 0.18s
+

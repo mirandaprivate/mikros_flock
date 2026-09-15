@@ -31,6 +31,19 @@ pub(crate) struct ProverScratch {
     b_next: Vec<F128>,
 }
 
+impl ProverScratch {
+    /// Take ownership of earlier fold allocations. Only capacity is reused:
+    /// prepare_output clears and initializes every destination before reading.
+    pub(crate) fn with_fold_buffers([a_next, b_next]: [Vec<F128>; 2]) -> Self {
+        Self {
+            a: Vec::new(),
+            b: Vec::new(),
+            a_next,
+            b_next,
+        }
+    }
+}
+
 /// Expose allocation capacity for the next output without touching its pages.
 /// F128 is Copy, so clearing cannot run destructors. Until the caller has
 /// written every requested value and commits the length, a panic leaves a

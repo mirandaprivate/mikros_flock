@@ -1,0 +1,125 @@
+{
+  "state": "complete",
+  "started_utc": "2026-09-14T16:31:41Z",
+  "commands": [
+    {
+      "id": "rustc-version",
+      "started_utc": "2026-09-14T16:31:42Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 1.0019316349644214,
+      "finished_utc": "2026-09-14T16:31:43Z"
+    },
+    {
+      "id": "native-cfg",
+      "started_utc": "2026-09-14T16:31:43Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 1.002065879991278,
+      "finished_utc": "2026-09-14T16:31:44Z"
+    },
+    {
+      "id": "n26-single-mikros",
+      "started_utc": "2026-09-14T16:31:45Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 13.014821677003056,
+      "finished_utc": "2026-09-14T16:31:58Z"
+    },
+    {
+      "id": "n26-single-flock",
+      "started_utc": "2026-09-14T16:31:59Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 13.013741340022534,
+      "finished_utc": "2026-09-14T16:32:12Z"
+    },
+    {
+      "id": "n26-multiple-flock",
+      "started_utc": "2026-09-14T16:32:13Z",
+      "state": "complete",
+      "progress": {
+        "pids": [
+          4003675,
+          4003676
+        ],
+        "current_process_tree_rss_kib": 26781088,
+        "last_stage": "online_witness_pcs_open",
+        "utc": "2026-09-14T16:32:43Z"
+      },
+      "wall_seconds": 36.04334322991781,
+      "exit_code": 0,
+      "finished_utc": "2026-09-14T16:32:49Z"
+    },
+    {
+      "id": "n26-multiple-mikros",
+      "started_utc": "2026-09-14T16:32:50Z",
+      "state": "complete",
+      "progress": {
+        "pids": [
+          4003833,
+          4003834
+        ],
+        "current_process_tree_rss_kib": 7977560,
+        "last_stage": "online_public_pcs_open",
+        "utc": "2026-09-14T16:33:20Z"
+      },
+      "wall_seconds": 34.04273334797472,
+      "exit_code": 0,
+      "finished_utc": "2026-09-14T16:33:24Z"
+    }
+  ],
+  "cases": [
+    {
+      "id": "n26-single-mikros",
+      "mode": "single",
+      "system": "mikros",
+      "log_gates": 26,
+      "gates_per_instance": 67108864,
+      "instances": 1,
+      "total_gates": 67108864,
+      "state": "complete",
+      "wall_seconds": 13.014821677003056,
+      "exit_code": 0
+    },
+    {
+      "id": "n26-single-flock",
+      "mode": "single",
+      "system": "flock",
+      "log_gates": 26,
+      "gates_per_instance": 67108864,
+      "instances": 1,
+      "total_gates": 67108864,
+      "state": "complete",
+      "wall_seconds": 13.013741340022534,
+      "exit_code": 0
+    },
+    {
+      "id": "n26-multiple-flock",
+      "mode": "multiple",
+      "system": "flock",
+      "log_gates": 26,
+      "gates_per_instance": 67108864,
+      "instances": 128,
+      "total_gates": 8589934592,
+      "state": "complete",
+      "wall_seconds": 36.04334322991781,
+      "exit_code": 0
+    },
+    {
+      "id": "n26-multiple-mikros",
+      "mode": "multiple",
+      "system": "mikros",
+      "log_gates": 26,
+      "gates_per_instance": 67108864,
+      "instances": 128,
+      "total_gates": 8589934592,
+      "state": "complete",
+      "wall_seconds": 34.04273334797472,
+      "exit_code": 0
+    }
+  ],
+  "source_hashes_verified_before_and_after": true,
+  "binary_hashes_verified_before_and_after": true,
+  "finished_utc": "2026-09-14T16:33:24Z"
+}

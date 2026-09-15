@@ -523,7 +523,7 @@ fn derive_ladder_shape_tuned(
 /// on `log_n = m − LOG_PACKING`). Regenerate with
 /// `cargo run --release --example gen_ligerito_configs`.
 macro_rules! profile_configs {
-    ($($m:literal),+ $(,)?) => {
+    ($($m:literal),+; fast $($fast_m:literal),+ $(,)?) => {
         &[
             $(
                 (($m, LigeritoProfile::Fast),
@@ -537,11 +537,17 @@ macro_rules! profile_configs {
                 (($m, LigeritoProfile::Secure),
                  include_str!(concat!("../../configs/ligerito/m", $m, "_secure.toml"))),
             )+
+            $(
+                (($fast_m, LigeritoProfile::Fast),
+                 include_str!(concat!("../../configs/ligerito/m", $fast_m, "_fast.toml"))),
+            )+
         ]
     };
 }
 const EMBEDDED_CONFIGS: &[((usize, LigeritoProfile), &str)] =
-    profile_configs!(22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35);
+    // Larger committed domains currently register only the Fast profile;
+    // every other unregistered profile remains a strict lookup error.
+    profile_configs!(22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35; fast 36, 37, 38, 39);
 
 /// Look up the embedded security config TOML for `(m, profile)`.
 /// Returns `None` if no config has been derived for this combination yet.
@@ -5789,6 +5795,47 @@ mod tests {
         }
     }
 
+    /// Large Fast shapes use the same native configs and commitment cap
+    /// policy, without falling back to the ad-hoc UDR schedule.
+    #[test]
+    fn ligerito_extended_fast_configs_native_caps_and_roundtrip() {
+        for m in 36..=39 {
+            let toml = super::embedded_security_config(m, LigeritoProfile::Fast)
+                .expect("registered extended Fast shape");
+            let back = LigeritoSecurityConfig::from_toml_str(toml).expect("roundtrip validate");
+            assert_eq!(back.to_toml_string().unwrap(), toml);
+            let params = crate::pcs::PcsParams {
+                m,
+                log_inv_rate: 1,
+                log_batch_size: embedded_initial_k(m, LigeritoProfile::Fast).unwrap(),
+                profile: LigeritoProfile::Fast,
+                num_lanes: None,
+                merkle_hash: HashKind::Sha256,
+            };
+            let pv = params.ligerito_prover_config().expect("native prover config");
+            let vc = params.ligerito_verifier_config().expect("native verifier config");
+            assert_eq!(params.log_batch_size, 6);
+            assert_eq!(pv.level_zero_cap_depth(), vc.level_zero_cap_depth());
+            assert_eq!(params.level_zero_cap_depth(), pv.level_zero_cap_depth());
+            assert_eq!(params.level_zero_cap_depth(), 7);
+            assert_eq!(pv.queries[0], 244);
+            assert!(pv.fold_grinding_bits.iter().all(|&bits| bits == 0));
+            assert_eq!(pv.merkle_hash, params.merkle_hash);
+            assert_eq!(vc.merkle_hash, params.merkle_hash);
+            pv.validate_stratified().expect("valid prover cap schedule");
+            vc.validate_stratified().expect("valid verifier cap schedule");
+            assert!(prover_config_for(m - LOG_PACKING, 5, LigeritoProfile::Fast).is_err());
+            for unsupported in [
+                LigeritoProfile::Slim,
+                LigeritoProfile::Secure,
+                LigeritoProfile::Fast100,
+                LigeritoProfile::Slim100,
+            ] {
+                assert!(prover_config_for(m - LOG_PACKING, 6, unsupported).is_err());
+            }
+        }
+    }
+
     /// Checked-in TOMLs are exactly the canonical output of the profile
     /// derivation. Validation alone would allow a hand-edited but internally
     /// consistent file to drift away from the generator.
@@ -5861,9 +5908,9 @@ mod tests {
         assert!(pv.queries[0] > 280);
         assert_eq!(pv.ood_samples.iter().sum::<usize>(), 0);
 
-        // m=36 (unknown — above the registered 22..=35 range): errors,
+        // m=40 (unknown — above the registered Fast range): errors,
         // no silent fallback.
-        let err = prover_config_for(29, 6, LigeritoProfile::Fast).unwrap_err();
+        let err = prover_config_for(33, 6, LigeritoProfile::Fast).unwrap_err();
         assert!(
             err.contains("no security config registered"),
             "unexpected error: {err}"

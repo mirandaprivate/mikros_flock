@@ -1,0 +1,6 @@
+
+running 1 test
+test pcs::ligerito::tests::ligerito_extended_fast_configs_native_caps_and_roundtrip ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 488 filtered out; finished in 0.01s
+

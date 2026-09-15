@@ -1,0 +1,11 @@
+{
+  "destination": "/home/mscong1/mikros-experiments/20260912T-native64/v26-multiple-tree-20260915/",
+  "source_files": 384,
+  "same_allowlist_as_v11": true,
+  "archive_sha256": "31f5e62f519c1c1738a5acccae560d91548ea6ef5fd84b0da8c17fc741031420",
+  "archive_bytes": 1882024,
+  "source_manifest_sha256": "04b252c7d6570503abfc1bd6f585670229f20d687cff4f762dea893d0f881c4f",
+  "authorization": "Existing user approval for this source scope and subsequent iterations within the same server experiment root",
+  "portable_tree_tests_passed": 13,
+  "harness_tests_passed": 11
+}

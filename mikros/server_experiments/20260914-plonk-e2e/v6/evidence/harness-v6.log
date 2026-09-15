@@ -1,0 +1,69 @@
+{"id": "rustc-version", "started_utc": "2026-09-15T01:01:05Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.0019940838683397, "finished_utc": "2026-09-15T01:01:06Z"}
+{"id": "native-cfg", "started_utc": "2026-09-15T01:01:06Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.0020561679266393, "finished_utc": "2026-09-15T01:01:07Z"}
+{"id": "build", "started_utc": "2026-09-15T01:01:07Z", "state": "complete", "exit_code": 0, "wall_seconds": 29.029694088967517, "finished_utc": "2026-09-15T01:01:36Z"}
+{"id": "test-mikros", "started_utc": "2026-09-15T01:01:36Z", "state": "complete", "exit_code": 0, "wall_seconds": 10.011397692142054, "finished_utc": "2026-09-15T01:01:46Z"}
+{"id": "test-e2e-fixture", "started_utc": "2026-09-15T01:01:46Z", "state": "complete", "exit_code": 0, "wall_seconds": 4.004681013990194, "finished_utc": "2026-09-15T01:01:50Z"}
+{"id": "test-permutation", "started_utc": "2026-09-15T01:01:50Z", "state": "complete", "exit_code": 0, "wall_seconds": 7.008665705099702, "finished_utc": "2026-09-15T01:01:57Z"}
+{"id": "test-gkr", "started_utc": "2026-09-15T01:01:57Z", "state": "complete", "exit_code": 0, "wall_seconds": 27.02926378394477, "finished_utc": "2026-09-15T01:02:25Z"}
+{"id": "test-pcs-tensor", "started_utc": "2026-09-15T01:02:25Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.002291333861649, "finished_utc": "2026-09-15T01:02:26Z"}
+{"id": "test-pcs-split-rows", "started_utc": "2026-09-15T01:02:26Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.0020287029910833, "finished_utc": "2026-09-15T01:02:27Z"}
+{"id": "test-pcs-column-bitbank", "started_utc": "2026-09-15T01:02:27Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.0021762638352811, "finished_utc": "2026-09-15T01:02:28Z"}
+{"id": "test-pcs-column-s-hat", "started_utc": "2026-09-15T01:02:28Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.0019366119522601, "finished_utc": "2026-09-15T01:02:29Z"}
+{"id": "test-pcs-full-rectangle", "started_utc": "2026-09-15T01:02:29Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.001929537160322, "finished_utc": "2026-09-15T01:02:30Z"}
+{"id": "test-pcs-bounded-l0", "started_utc": "2026-09-15T01:02:30Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.0022438219748437, "finished_utc": "2026-09-15T01:02:31Z"}
+{"id": "test-pcs-row-grouping", "started_utc": "2026-09-15T01:02:31Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.002191751031205, "finished_utc": "2026-09-15T01:02:32Z"}
+{"id": "test-pcs-paired-bitbanks", "started_utc": "2026-09-15T01:02:32Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.0023018571082503, "finished_utc": "2026-09-15T01:02:33Z"}
+{"id": "test-pcs-sparse-bitbanks", "started_utc": "2026-09-15T01:02:33Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.0019228220917284, "finished_utc": "2026-09-15T01:02:34Z"}
+{"id": "test-pcs-constant-bitbanks", "started_utc": "2026-09-15T01:02:34Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.001898530870676, "finished_utc": "2026-09-15T01:02:35Z"}
+{"id": "test-pcs-jit-fused", "started_utc": "2026-09-15T01:02:35Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.0018505519255996, "finished_utc": "2026-09-15T01:02:36Z"}
+{"id": "test-pcs-configs", "started_utc": "2026-09-15T01:02:36Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.0016739338170737, "finished_utc": "2026-09-15T01:02:37Z"}
+{"id": "test-pcs-large-caps", "started_utc": "2026-09-15T01:02:37Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.001970482058823, "finished_utc": "2026-09-15T01:02:38Z"}
+{"id": "n14-single-mikros", "started_utc": "2026-09-15T01:02:39Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.0016507108230144, "finished_utc": "2026-09-15T01:02:40Z"}
+{"id": "n14-single-flock", "started_utc": "2026-09-15T01:02:41Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.001960056135431, "finished_utc": "2026-09-15T01:02:42Z"}
+{"id": "n14-multiple-flock", "started_utc": "2026-09-15T01:02:43Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.0019511599093676, "finished_utc": "2026-09-15T01:02:44Z"}
+{"id": "n14-multiple-mikros", "started_utc": "2026-09-15T01:02:45Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.0018943778704852, "finished_utc": "2026-09-15T01:02:46Z"}
+{"id": "rustc-version", "started_utc": "2026-09-15T01:02:47Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.0016356529667974, "finished_utc": "2026-09-15T01:02:48Z"}
+{"id": "native-cfg", "started_utc": "2026-09-15T01:02:48Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.001730530988425, "finished_utc": "2026-09-15T01:02:49Z"}
+{"id": "n26-single-mikros", "started_utc": "2026-09-15T01:02:51Z", "state": "complete", "exit_code": 0, "wall_seconds": 11.013694724068046, "finished_utc": "2026-09-15T01:03:02Z"}
+{"id": "n26-single-flock", "started_utc": "2026-09-15T01:03:03Z", "state": "complete", "exit_code": 0, "wall_seconds": 11.01291351299733, "finished_utc": "2026-09-15T01:03:14Z"}
+{"id": "n26-multiple-flock", "started_utc": "2026-09-15T01:03:15Z", "state": "complete", "exit_code": 0, "wall_seconds": 28.0308962140698, "finished_utc": "2026-09-15T01:03:43Z"}
+{"id": "n26-multiple-mikros", "started_utc": "2026-09-15T01:03:44Z", "state": "complete", "exit_code": 0, "wall_seconds": 24.027521515032277, "finished_utc": "2026-09-15T01:04:08Z"}
+{"id": "rustc-version", "started_utc": "2026-09-15T01:04:09Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.0018327778670937, "finished_utc": "2026-09-15T01:04:10Z"}
+{"id": "native-cfg", "started_utc": "2026-09-15T01:04:10Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.0016658590175211, "finished_utc": "2026-09-15T01:04:11Z"}
+{"id": "n26-single-mikros", "started_utc": "2026-09-15T01:04:12Z", "state": "complete", "exit_code": 0, "wall_seconds": 11.013237725943327, "finished_utc": "2026-09-15T01:04:23Z"}
+{"id": "n26-single-flock", "started_utc": "2026-09-15T01:04:25Z", "state": "complete", "exit_code": 0, "wall_seconds": 12.01384680904448, "finished_utc": "2026-09-15T01:04:37Z"}
+{"id": "n26-multiple-flock", "started_utc": "2026-09-15T01:04:38Z", "state": "complete", "exit_code": 0, "wall_seconds": 28.0317587449681, "finished_utc": "2026-09-15T01:05:06Z"}
+{"id": "n26-multiple-mikros", "started_utc": "2026-09-15T01:05:07Z", "state": "complete", "exit_code": 0, "wall_seconds": 25.02890916308388, "finished_utc": "2026-09-15T01:05:32Z"}
+{"id": "rustc-version", "started_utc": "2026-09-15T01:05:33Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.0017941079568118, "finished_utc": "2026-09-15T01:05:34Z"}
+{"id": "native-cfg", "started_utc": "2026-09-15T01:05:34Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.0021395068615675, "finished_utc": "2026-09-15T01:05:35Z"}
+{"id": "n26-single-mikros", "started_utc": "2026-09-15T01:05:36Z", "state": "complete", "exit_code": 0, "wall_seconds": 12.012639312073588, "finished_utc": "2026-09-15T01:05:48Z"}
+{"id": "n26-single-flock", "started_utc": "2026-09-15T01:05:49Z", "state": "complete", "exit_code": 0, "wall_seconds": 13.01501418906264, "finished_utc": "2026-09-15T01:06:02Z"}
+{"event": "progress", "id": "n26-multiple-flock", "started_utc": "2026-09-15T01:06:04Z", "state": "running", "progress": {"pids": [4047989, 4047990], "current_process_tree_rss_kib": 5253108, "last_stage": "online_public_pcs_open", "utc": "2026-09-15T01:06:34Z"}, "wall_seconds": 30.032701345160604}
+{"id": "n26-multiple-flock", "started_utc": "2026-09-15T01:06:04Z", "state": "complete", "progress": {"pids": [4047989, 4047990], "current_process_tree_rss_kib": 5253108, "last_stage": "online_public_pcs_open", "utc": "2026-09-15T01:06:34Z"}, "wall_seconds": 33.038084789179265, "exit_code": 0, "finished_utc": "2026-09-15T01:06:37Z"}
+{"id": "n26-multiple-mikros", "started_utc": "2026-09-15T01:06:38Z", "state": "complete", "exit_code": 0, "wall_seconds": 29.03346370300278, "finished_utc": "2026-09-15T01:07:07Z"}
+{"id": "rustc-version", "started_utc": "2026-09-15T01:07:08Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.0019747437909245, "finished_utc": "2026-09-15T01:07:09Z"}
+{"id": "native-cfg", "started_utc": "2026-09-15T01:07:09Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.0017295500729233, "finished_utc": "2026-09-15T01:07:10Z"}
+{"id": "n26-single-mikros", "started_utc": "2026-09-15T01:07:11Z", "state": "complete", "exit_code": 0, "wall_seconds": 11.011632880894467, "finished_utc": "2026-09-15T01:07:22Z"}
+{"id": "n26-single-flock", "started_utc": "2026-09-15T01:07:23Z", "state": "complete", "exit_code": 0, "wall_seconds": 12.013201033929363, "finished_utc": "2026-09-15T01:07:35Z"}
+{"id": "n26-multiple-flock", "started_utc": "2026-09-15T01:07:37Z", "state": "complete", "exit_code": 0, "wall_seconds": 28.030603935942054, "finished_utc": "2026-09-15T01:08:05Z"}
+{"id": "n26-multiple-mikros", "started_utc": "2026-09-15T01:08:06Z", "state": "complete", "exit_code": 0, "wall_seconds": 23.025826857890934, "finished_utc": "2026-09-15T01:08:29Z"}
+{"id": "rustc-version", "started_utc": "2026-09-15T01:08:30Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.00197808095254, "finished_utc": "2026-09-15T01:08:31Z"}
+{"id": "native-cfg", "started_utc": "2026-09-15T01:08:31Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.0017113680951297, "finished_utc": "2026-09-15T01:08:32Z"}
+{"id": "n26-single-mikros", "started_utc": "2026-09-15T01:08:33Z", "state": "complete", "exit_code": 0, "wall_seconds": 12.012685464229435, "finished_utc": "2026-09-15T01:08:45Z"}
+{"id": "n26-single-flock", "started_utc": "2026-09-15T01:08:46Z", "state": "complete", "exit_code": 0, "wall_seconds": 13.014701280044392, "finished_utc": "2026-09-15T01:08:59Z"}
+{"event": "progress", "id": "n26-multiple-flock", "started_utc": "2026-09-15T01:09:00Z", "state": "running", "progress": {"pids": [4049231, 4049232], "current_process_tree_rss_kib": 8589816, "last_stage": "online_public_pcs_open", "utc": "2026-09-15T01:09:30Z"}, "wall_seconds": 30.03102235496044}
+{"id": "n26-multiple-flock", "started_utc": "2026-09-15T01:09:00Z", "state": "complete", "progress": {"pids": [4049231, 4049232], "current_process_tree_rss_kib": 8589816, "last_stage": "online_public_pcs_open", "utc": "2026-09-15T01:09:30Z"}, "wall_seconds": 32.03458225191571, "exit_code": 0, "finished_utc": "2026-09-15T01:09:32Z"}
+{"id": "n26-multiple-mikros", "started_utc": "2026-09-15T01:09:34Z", "state": "complete", "exit_code": 0, "wall_seconds": 28.030975105939433, "finished_utc": "2026-09-15T01:10:02Z"}
+{"id": "rustc-version", "started_utc": "2026-09-15T01:10:03Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.0017855919431895, "finished_utc": "2026-09-15T01:10:04Z"}
+{"id": "native-cfg", "started_utc": "2026-09-15T01:10:04Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.0014704479835927, "finished_utc": "2026-09-15T01:10:05Z"}
+{"id": "n26-single-mikros", "started_utc": "2026-09-15T01:10:06Z", "state": "complete", "exit_code": 0, "wall_seconds": 11.01157219009474, "finished_utc": "2026-09-15T01:10:17Z"}
+{"id": "n26-single-flock", "started_utc": "2026-09-15T01:10:18Z", "state": "complete", "exit_code": 0, "wall_seconds": 12.012964547844604, "finished_utc": "2026-09-15T01:10:30Z"}
+{"id": "n26-multiple-flock", "started_utc": "2026-09-15T01:10:31Z", "state": "complete", "exit_code": 0, "wall_seconds": 28.031436139019206, "finished_utc": "2026-09-15T01:10:59Z"}
+{"id": "n26-multiple-mikros", "started_utc": "2026-09-15T01:11:00Z", "state": "complete", "exit_code": 0, "wall_seconds": 23.025868475902826, "finished_utc": "2026-09-15T01:11:23Z"}
+{"id": "rustc-version", "started_utc": "2026-09-15T01:11:25Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.001919096102938, "finished_utc": "2026-09-15T01:11:26Z"}
+{"id": "native-cfg", "started_utc": "2026-09-15T01:11:26Z", "state": "complete", "exit_code": 0, "wall_seconds": 1.0018410249613225, "finished_utc": "2026-09-15T01:11:27Z"}
+{"id": "n26-single-mikros", "started_utc": "2026-09-15T01:11:28Z", "state": "complete", "exit_code": 0, "wall_seconds": 12.01342129893601, "finished_utc": "2026-09-15T01:11:40Z"}
+{"id": "n26-single-flock", "started_utc": "2026-09-15T01:11:41Z", "state": "complete", "exit_code": 0, "wall_seconds": 13.01492152013816, "finished_utc": "2026-09-15T01:11:54Z"}
+{"event": "progress", "id": "n26-multiple-flock", "started_utc": "2026-09-15T01:11:55Z", "state": "running", "progress": {"pids": [4050481, 4050482], "current_process_tree_rss_kib": 4232452, "last_stage": "online_public_pcs_open", "utc": "2026-09-15T01:12:25Z"}, "wall_seconds": 30.033885553944856}
+{"id": "n26-multiple-flock", "started_utc": "2026-09-15T01:11:55Z", "state": "complete", "progress": {"pids": [4050481, 4050482], "current_process_tree_rss_kib": 4232452, "last_stage": "online_public_pcs_open", "utc": "2026-09-15T01:12:25Z"}, "wall_seconds": 33.03892825986259, "exit_code": 0, "finished_utc": "2026-09-15T01:12:28Z"}
+{"id": "n26-multiple-mikros", "started_utc": "2026-09-15T01:12:29Z", "state": "complete", "exit_code": 0, "wall_seconds": 29.033958306070417, "finished_utc": "2026-09-15T01:12:58Z"}

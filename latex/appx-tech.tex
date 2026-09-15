@@ -5,19 +5,21 @@
 \subsection{Pseudocode}
 \label{appx:pseudocode}
 
-We give the protocols in order of composition:
+The protocols follow their order of composition.
 Algorithms~\ref{alg:ip}, \ref{alg:hadamard}, and
 \ref{alg:permutation} implement the packed reductions of
-Section~\ref{sec:blocks}; Algorithm~\ref{alg:packed-pcs}
-authenticates their terminal evaluations as in Section~\ref{sec:pcs};
-and Algorithms~\ref{alg:single-instance-packing} and
+Section~\ref{sec:blocks}. Algorithm~\ref{alg:packed-pcs}
+authenticates their terminal packed claims as in Section~\ref{sec:pcs}.
+Algorithms~\ref{alg:single-instance-packing} and
 \ref{alg:multiple-instance-packing} compose these components
 for the two settings of Section~\ref{sec:together}.
-For the intermediate-field variant of Section~\ref{sec:hadamard},
-Algorithm~\ref{alg:hadamard} uses the Lagrange basis over
-\(\mathbb K\) and computes its quotient via
-Eq.~\eqref{eq:hadamard-small-field-aggregation}.
-Tabulation changes this computation, not the messages or checks.
+The intermediate-field variants of Algorithms~\ref{alg:hadamard}
+and~\ref{alg:permutation} use the Lagrange basis and the addition
+and multiplication tables over \(\mathbb K\) described in
+Section~\ref{sec:hadamard}. In the permutation proof, the prover
+aggregates the coefficients of \(\bm\eta_{\tau,j}(Z)\) before
+evaluating at \(\ext z\). The protocol messages and checks
+are unchanged by tabulation.
 
 \input{alg/alg-ip}
 \input{alg/alg-hadamard}
@@ -32,6 +34,176 @@ Tabulation changes this computation, not the messages or checks.
 \label{appx:pcs}
 
 \input{5-pcs}
+
+\subsection{Evaluating the MLE of the Identity Labels}
+\label{appx:mleiota}
+
+The MLE value of $\bm{\iota} \in \mathbb{K}^L$ in Section~\ref{sec:plonk-copy} can be
+evaluated without constructing its length-\(L\) table.
+Let \(\underline q=2^s\) and \(\mu=\lceil\log_2L\rceil\).
+The coefficients \(\delta_1,\ldots,\delta_s\) used in
+Section~\ref{sec:plonk-copy} can be chosen over any finite field.
+Write \(q=p^e\), where \(p=\operatorname{char}(\Field)\), and
+fix an \(\mathbb F_p\)-basis
+\((\varepsilon_1,\ldots,\varepsilon_e)\) of \(\Field\),
+with \(\varepsilon_1=1\). Choose:
+\[
+    s=e\lfloor\log_2p\rfloor,
+    \qquad
+    \delta_{(j-1)\lfloor\log_2p\rfloor+t}
+       =2^{t-1}\varepsilon_j,
+    \quad
+    j\in[e],\quad t\in[\lfloor\log_2p\rfloor].
+\]
+In each basis coordinate, the binary subset sums lie between
+\(0\) and \(2^{\lfloor\log_2p\rfloor}-1<p\), so all
+\(2^s\) digit values are distinct. Moreover,
+\(\tfrac12\log_2q\leq s\leq\log_2q\), and hence
+\(\underline q\leq q\) and \(s=\Theta(\log q)\).
+For a prime field, this gives \(\delta_t=2^{t-1}\) and
+\(s=\lfloor\log_2q\rfloor\).
+
+\begin{proposition}[Evaluating position labels]
+\label{proposition:position-encoding-evaluation}
+The MLE of \(\bm\iota\mathbin{\|}\bm0_{2^\mu-L}\)
+can be evaluated in \(O(\log L)\) extension-field operations.
+More generally, arrange this vector in column-major order
+with \(\kappa_{\mathbb K}\) columns, where
+\(\kappa_{\mathbb K}\mid2^\mu\).
+Its contraction with arbitrary column weights and tensor row
+weights takes \(O(\kappa_{\mathbb K}+\log L)\)
+extension-field operations.
+\end{proposition}
+We establish the MLE bound below; the packed-query bound is
+proved in Appendix~\ref{appx:proof-position-encoding}.
+For \(L=1\), the sole label is zero; henceforth assume \(L\geq2\).
+
+\smallskip\noindent\textbf{Recursive evaluation.}
+For \(\ext{\bm{z}}\in\ExtensionField^s\), let
+\(\ext{v}_s(\ext{\bm{z}})\) be the MLE of the table whose
+entry at \(1+\sum_{t=1}^s2^{t-1}x_t\) is
+\(\sum_{t=1}^s\delta_tx_t\), for \(x_t\in\{0,1\}\).
+The right half of this table is the left half plus \(\delta_s\).
+Since the tensor weights sum to one, splitting the first
+tensor factor gives:
+\begin{equation}
+\begin{aligned}
+    \ext{v}_s(\ext{\bm{z}})
+       &=(1-\ext z_1)
+          \ext{v}_{s-1}(\ext z_2,\ldots,\ext z_s)
+          +\ext z_1\left(
+          \ext{v}_{s-1}(\ext z_2,\ldots,\ext z_s)
+          +\delta_s\right)\\
+       &=\ext{v}_{s-1}(\ext z_2,\ldots,\ext z_s)
+          +\delta_s\ext z_1\\
+       &=\sum_{t=1}^s\delta_{s-t+1}\ext z_t.
+\end{aligned}
+\label{eq:iota-digit-recursion}
+\end{equation}
+The base case is \(\ext{v}_1(\ext z_1)=\delta_1\ext z_1\).
+Each step needs only one recursive evaluation and
+\(O(1)\) further operations, so evaluating
+\(\ext{v}_s(\ext{\bm{z}})\) takes \(O(s)\)
+$\ExtensionField$-operations.
+
+\smallskip\noindent\textbf{Power-of-two length.}
+Suppose \(L=2^\mu\), with positions listed in lexicographic
+binary order, most significant bit first.
+The \(j\)-th radix-\(\underline q\) digit depends only on
+its block of at most \(s\) bits.
+The remaining bits repeat its values, and their tensor
+factors contribute \(\prod_t((1-\ext z_t)+\ext z_t)=1\).
+Applying Eq.~\eqref{eq:iota-digit-recursion} to each block yields:
+\begin{equation}
+    \left\langle\bm i_{(j)},\tensorspan{\ext{\bm z}}\right\rangle
+       =
+       \sum_{t=\max\{1,\mu-js+1\}}^{\mu-(j-1)s}
+          \delta_{\mu-(j-1)s-t+1}\ext z_t,
+    \qquad
+    j\in[\lceil\log_{\underline q}L\rceil].
+\label{eq:iota-bit-coefficients}
+\end{equation}
+The lower limit accounts for an incomplete most significant
+digit. By linearity, the identity-label evaluation is:
+\begin{align*}
+    \left\langle\bm\iota,\tensorspan{\ext{\bm z}}\right\rangle
+       &=
+       \sum_{j=1}^{\lceil\log_{\underline q}L\rceil}
+          \theta_j
+          \left\langle\bm i_{(j)},\tensorspan{\ext{\bm z}}\right\rangle,
+       \\
+       &=\sum_{t=1}^{\mu}
+          \theta_{1+\lfloor(\mu-t)/s\rfloor}
+          \delta_{1+(\mu-t)\bmod s}\ext z_t.
+\end{align*}
+Each of the \(\mu\) bits occurs in exactly one digit sum.
+Computing these sums and combining them therefore takes
+\(O(\mu)=O(\log L)\) extension-field operations.
+
+\smallskip\noindent\textbf{General length.}
+For \(L<2^\mu\), write its binary expansion as
+\(L=\sum_{j=1}^h2^{\mu_j}\), where
+\(\mu_1>\cdots>\mu_h\geq0\) and
+\(h\leq\mu=\lceil\log_2L\rceil\).
+Let \(L_j=\sum_{u<j}2^{\mu_u}\).
+The intervals \([L_j,L_j+2^{\mu_j})\) partition \([0,L)\);
+each fixes the first \(\mu-\mu_j\) bits and leaves the
+last \(\mu_j\) bits free.
+
+By Eq.~\eqref{eq:iota-bit-coefficients}, the bit of weight
+\(2^{\mu-t}\) belongs to coordinate
+\(1+\lfloor(\mu-t)/s\rfloor\) of the basis \(\bm\theta\),
+with coefficient \(\delta_{1+(\mu-t)\bmod s}\). Hence:
+\[
+    \iota_1=0,
+    \qquad
+    \iota_{1+2^{\mu-t}}
+       =\delta_{1+(\mu-t)\bmod s}
+          \theta_{1+\lfloor(\mu-t)/s\rfloor},
+    \quad t\in[\mu].
+\]
+Multiplying the corresponding coefficients and basis elements
+computes these \(\mu\) single-bit labels in \(O(\mu)\) operations.
+The label of the left endpoint of the \(j\)-th interval is
+\(\iota_{L_j+1}\).
+Since adding \(2^{\mu_j}\) to \(L_j\) sets a previously zero
+bit, these labels are computed from \(\iota_{L_1+1}=0\)
+by the recurrence
+\(\iota_{L_{j+1}+1}=\iota_{L_j+1}+\iota_{1+2^{\mu_j}}\),
+for \(j<h\).
+The same additivity accounts for the free bits within
+each interval.
+
+Let
+\(\ext{\xi}_j=
+(\tensorspan{(\ext z_1,\ldots,\ext z_{\mu-\mu_j})})_{1+L_j/2^{\mu_j}}\)
+be the tensor weight of the fixed interval prefix.
+Applying the power-of-two calculation to each interval gives:
+\[
+\begin{aligned}
+    &\left\langle
+       \bm\iota\mathbin{\|}\bm0_{2^\mu-L},
+       \tensorspan{\ext{\bm z}}
+     \right\rangle
+     =
+       \sum_{j=1}^h\ext{\xi}_j
+       \left(
+          \iota_{L_j+1}
+          +\sum_{t=\mu-\mu_j+1}^{\mu}
+             \iota_{1+2^{\mu-t}}\ext z_t
+       \right).
+\end{aligned}
+\]
+Only the \(\mu\) single-bit labels and the \(h\)
+interval-start labels are needed.
+Compute the suffix sums of
+\(\iota_{1+2^{\mu-t}}\ext z_t\) once and obtain all
+\(\ext{\xi}_j\) in one scan of the bits of \(L\), reusing
+their common prefixes.
+Together with the endpoint recurrence, each interval then
+requires \(O(1)\) additional operations.
+The total cost remains \(O(\log L)\) extension-field
+operations and \(O(\log L)\) working field elements.
 
 \clearpage
 

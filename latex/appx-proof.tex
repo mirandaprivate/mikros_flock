@@ -11,116 +11,72 @@ Appendix~\ref{appx:pcs}, using the notation of each statement.
 
 \begin{proof}
 \noindent\textbf{Completeness.}
-Expand Eq.~\eqref{eq:ip-laurent-polynomial}:
+Expand the Laurent polynomial in Eq.~\eqref{eq:ip-laurent-polynomial}:
 \[
-    f(X)
-    =
-    \sum_{\tau=-(\kappa-1)}^{\kappa-1}
-    f_\tau X^\tau,
-\]
-where:
-\[
-    f_\tau
-    =
-    \sum_{\substack{j,j'\in[\kappa]\\j-j'=\tau}}
-    \left\langle
-        \bm a^{(j)},\bm b^{(j')}
-    \right\rangle.
-\]
-The constant coefficient is the claimed inner product:
-\[
-    f_0
-    =
-    \sum_{j=1}^{\kappa}
-    \left\langle
-        \bm a^{(j)},\bm b^{(j)}
-    \right\rangle
-    =
-    \langle\bm a,\bm b\rangle.
-\]
-Define the two auxiliary polynomials by:
-\[
-    h_+(X)
-    \coloneqq
-    \sum_{\tau=1}^{\kappa-1}
-    f_\tau X^{\tau-1},
+    f(X)=
+    \sum_{\tau=-(\kappa-1)}^{\kappa-1}f_\tau X^\tau,
     \qquad
-    h_-(X)
-    \coloneqq
-    \sum_{\tau=1}^{\kappa-1}
-    f_{-\tau}X^{\tau-1}.
+    f_\tau=
+    \sum_{\substack{j,j'\in[\kappa]\\j-j'=\tau}}
+       \langle\bm a^{(j)},\bm b^{(j')}\rangle.
 \]
-They satisfy:
+Its constant coefficient is \(f_0=\langle\bm a,\bm b\rangle\).
+Thus the auxiliary polynomials in Algorithm~\ref{alg:ip}
+satisfy Eq.~\eqref{eq:ip-correction-identity} for a correct
+inner-product claim. Evaluation at \(\ext x\neq0\) gives the
+length-\(m\) claim in
+Eq.~\eqref{eq:packed-inner-product-check}.
+
+The terminal values of Fact~\ref{fact:ip} have the matrix form:
 \[
-    f(X)
-    =
-    f_0
-    +Xh_+(X)
-    +X^{-1}h_-(X^{-1}),
+\begin{aligned}
+    \ext v_1
+      &=\tensorspan{\ext{\bm y}}^\top\bm A\ext{\bm\rho}_A,
+    &\ext{\bm\rho}_A
+      &=(1,\ext x,\ldots,\ext x^{\kappa-1})^\top,\\
+    \ext v_2
+      &=\tensorspan{\ext{\bm y}}^\top\bm B\ext{\bm\rho}_B,
+    &\ext{\bm\rho}_B
+      &=(1,\ext x^{-1},\ldots,\ext x^{-(\kappa-1)})^\top.
+\end{aligned}
 \]
-which proves completeness.
+Both have tensor-structured row weights and fit the
+packed-opening relation in Eq.~\eqref{eq:pcs-opening-relation}.
 
 \smallskip\noindent\textbf{Soundness.}
-Suppose \(c\neq\langle\bm a,\bm b\rangle\). Fix the prover's
-polynomials \(h_+\) and \(h_-\) before sampling \(\ext{x}\).
-The residual is:
-\[
-    f(X)-c-Xh_+(X)-X^{-1}h_-(X^{-1}).
-\]
-Its constant coefficient is \(f_0-c\neq0\). Multiplication by
-\(X^{\kappa-1}\) therefore gives a nonzero polynomial of degree
-at most \(2\kappa-2\). The evaluation check in
-Eq.~\eqref{eq:packed-inner-product-check} accepts with probability
-at most:
-\[
-    \frac{2\kappa-2}{|\ExtensionField|-1}.
-\]
-By Fact~\ref{fact:ip}, the subsequent length-\(m\)
-inner-product reduction has soundness error at most
-\(2\log_2m/|\ExtensionField|\). The claimed bound follows from
-the union bound.
+Suppose \(c\neq\langle\bm a,\bm b\rangle\), and fix the
+degree-\((\kappa-2)\) polynomials \(h_+,h_-\) before sampling
+\(\ext x\). The Laurent residual
+\(f(X)-c-Xh_+(X)-X^{-1}h_-(X^{-1})\) has a nonzero
+constant coefficient. Multiplying by
+\(X^{\kappa-1}\) gives a nonzero polynomial of degree at most
+\(2\kappa-2\), so the evaluation check accepts with probability
+at most \((2\kappa-2)/(|\ExtensionField|-1)\).
+Conditioned on a false evaluated claim, Fact~\ref{fact:ip}
+contributes at most \(2\log_2m/|\ExtensionField|\).
+A union bound gives the stated error, excluding the terminal
+packed openings.
 
 \smallskip\noindent\textbf{Efficiency.}
-Computing \(h_+\) and \(h_-\) requires one length-\(m\)
-base-field inner product for each ordered pair \(j\neq j'\).
-The number of multiplications of type \(\bb\) is:
+Each ordered pair of distinct columns contributes a
+length-\(m\) base-field inner product to the correction
+coefficients, for \(m\kappa(\kappa-1)=N(\kappa-1)\) base-field
+multiplications. Given the powers of \(\ext x\) and
+\(\ext x^{-1}\), packing both matrices uses \(2N\,\be\).
+Generating these powers and evaluating the corrections costs
+\(O(\kappa)\,\ee\); Fact~\ref{fact:ip} adds
+\((4m+O(\log m))\,\ee\).
+Thus the total arithmetic cost is:
 \[
-    m\kappa(\kappa-1)
-    =
-    N(\kappa-1).
+    O(N\kappa)\,\bb+O(N)\,\be+O(m+\kappa)\,\ee
+       =O(N\kappa+\kappa^3)\,\bb.
 \]
-
-Each packed vector requires \(m\kappa=N\) mixed-field
-multiplications, for a total of \(2N\,\be\).
-
-By Fact~\ref{fact:ip}, the number of multiplications of type
-\(\ee\) in the length-\(m\) inner-product reduction is:
-\[
-    4m+O(\log m).
-\]
-Computing the positive and negative powers of \(\ext{x}\)
-contributes \(O(\kappa)\)
-additional \(\ee\) operations. Substituting \(m=N/\kappa\) gives:
-\[
-    N(\kappa-1)\,\bb
-    +
-    2N\,\be
-    +
-    \left(
-        \frac{4N}{\kappa}
-        +
-        O\left(
-            \kappa+\log\frac{N}{\kappa}
-        \right)
-    \right)\ee.
-\]
-
-The matrices and packed vectors occupy \(O(N)\) base-field
-coordinates. Streaming the cross-block inner products retains
-only the \(2\kappa-2\) auxiliary coefficients; the challenge
-powers occupy \(O(\kappa^2)\) coordinates. An in-place
-inner-product reduction therefore uses \(O(N+\kappa^2)\) peak
-memory, or \(O(N)\) when \(m\geq\kappa\).
+Streaming the cross-column inner products retains only
+\(O(\kappa)\) base-field correction coefficients.
+The witness matrices and packed vectors use \(O(N)\)
+base-field coordinates, and the challenge powers use
+\(O(\kappa^2)\). An in-place inner-product reduction therefore
+has peak memory \(O(N+\kappa^2)\Field\).
 \end{proof}
 
 \subsection{Proof of Proposition~\ref{proposition:hadamard-complexity}}
@@ -128,351 +84,136 @@ memory, or \(O(N)\) when \(m\geq\kappa\).
 
 \begin{proof}
 \noindent\textbf{Completeness.}
-Define the correct column claims by:
+The honest column message is
+\(\ext{\bm c}^{\top}
+=\ext{\bm l}^{\top}(\bm A\circ\bm B)\), so the scalar check
+\(\ext c=\langle\ext{\bm c},\ext{\bm r}\rangle\) accepts.
+At every interpolation node, the residual satisfies:
 \[
-    \ext{d}_j
-    \coloneqq
-    \left\langle
-        \ext{\bm l},
-        \bm a^{(j)}\circ\bm b^{(j)}
-    \right\rangle
-    \qquad
-    \text{for }j\in[\kappa].
+    f(\gamma_j)
+      =\langle\ext{\bm l},
+          \bm a^{(j)}\circ\bm b^{(j)}\rangle-\ext c_j
+      =0,
+    \qquad j\in[\kappa].
 \]
-An honest prover sends \(\ext{\bm c}=\ext{\bm d}\), so:
+Hence \(f=\Psi h\) for a polynomial \(h\) of degree at most
+\(\kappa-2\). Evaluating this identity at \(\ext x\) gives:
 \[
-    \ext{c}
-    =
-    \left\langle
-        \ext{\bm c},\ext{\bm r}
-    \right\rangle
-    =
-    \ext{\bm l}^{\top}
-    (\bm A\circ\bm B)
-    \ext{\bm r}.
+    \langle\ext{\bm a},\ext{\bm b}\circ\ext{\bm l}\rangle
+      =\ext c_x+\Psi(\ext x)h(\ext x).
 \]
-The residual then vanishes at every interpolation node:
-\[
-    f(\alpha_j)
-    =
-    \ext{d}_j-\ext{c}_j
-    =
-    0
-    \qquad
-    \text{for every }j\in[\kappa].
-\]
-Thus \(\Psi(X)\) divides \(f(X)\). The degree bounds are:
-\[
-    \deg f\leq2\kappa-2
-    \qquad\text{and}\qquad
-    \deg\Psi=\kappa.
-\]
-Consequently, the quotient has degree at most \(\kappa-2\):
-\[
-    h(X)=\frac{f(X)}{\Psi(X)}.
-\]
-
-Evaluation at \(\ext{x}\) gives the inner-product claim:
+The terminal values of Fact~\ref{fact:ip} satisfy:
 \[
 \begin{aligned}
-    \ext{d}
-    &=
-    g_C(\ext{x})
-    +
-    \Psi(\ext{x})h(\ext{x})\\
-    &=
-    \left\langle
-        \ext{\bm a},
-        \ext{\bm b}\circ\ext{\bm l}
-    \right\rangle.
+    \ext v_1
+      &=\tensorspan{\ext{\bm y}}^\top
+          \bm A\ext{\bm\rho}(\ext x),\\
+    \ext v_2
+      &=\bigl(\ext{\bm l}\circ\tensorspan{\ext{\bm y}}\bigr)^\top
+          \bm B\ext{\bm\rho}(\ext x).
 \end{aligned}
 \]
-To verify the terminal claims, write:
+Writing the supplied row weight as
+\(\ext{\bm l}=\bigotimes_{j=1}^{\log_2m}
+(\ext l_{j,0},\ext l_{j,1})^\top\), its product with the MLE
+weight factors as:
 \[
-    \ext{\bm\chi}_+
-    \coloneqq
-    \tensorspan{\ext{\bm y}'},
-    \qquad
-    \ext{\bm\chi}_-
-    \coloneqq
-    \tensorspan{\ext{\bm y}'}.
+    \ext{\bm l}\circ\tensorspan{\ext{\bm y}}
+      =\bigotimes_{j=1}^{\log_2m}
+        \begin{pmatrix}
+            \ext l_{j,0}(1-\ext y_j)\\
+            \ext l_{j,1}\ext y_j
+        \end{pmatrix}.
 \]
-The terminal scalars from Fact~\ref{fact:ip} satisfy:
-\[
-\begin{aligned}
-    \ext{u}_1
-    &=
-    \left\langle
-        \ext{\bm a},\ext{\bm\chi}_+
-    \right\rangle=
-    \sum_{j=1}^{\kappa}
-    \psi_j(\ext{x})
-    \left\langle
-        \bm a^{(j)},\ext{\bm\chi}_+
-    \right\rangle
-    =
-    \left\langle
-        \ext{\bm v}_a,\ext{\bm\rho}
-    \right\rangle,
-\end{aligned}
-\]
-and:
-\[
-\begin{aligned}
-    \ext{u}_2
-    &=
-    \left\langle
-        \ext{\bm b}\circ\ext{\bm l},
-        \ext{\bm\chi}_-
-    \right\rangle
-    =
-    \sum_{j=1}^{\kappa}
-    \psi_j(\ext{x})
-    \left\langle
-        \bm b^{(j)},
-        \ext{\bm l}\circ\ext{\bm\chi}_-
-    \right\rangle
-    =
-    \left\langle
-        \ext{\bm v}_b,\ext{\bm\rho}
-    \right\rangle.
-\end{aligned}
-\]
-These are the two Lagrange consistency checks.
-
-For the column aggregation, write:
-\[
-    \ext{\bm\chi}''
-    \coloneqq
-    \tensorspan{\ext{\bm y}''}.
-\]
-The first aggregated claim is:
-\[
-\begin{aligned}
-    \ext{v}_1
-    &=
-    \left\langle
-        \ext{\bm v}_a,\ext{\bm\chi}''
-    \right\rangle
-    =
-    \left\langle
-        \bm a,
-        \ext{\bm\chi}''
-        \kronecker
-        \ext{\bm\chi}_+
-    \right\rangle
-    =
-    \left\langle
-        \bm a,
-        \ext{\bm\xi}_a
-    \right\rangle.
-\end{aligned}
-\]
-For the second claim, multiply the two-entry row factors:
-\[
-    \ext{\bm l}\circ\ext{\bm\chi}_-
-    =
-    \bigotimes_{j=1}^{\log_2m}
-    \begin{pmatrix}
-        \ext l_{j,0}(1-\ext y'_j)\\
-        \ext l_{j,1}\ext y'_j
-    \end{pmatrix}.
-\]
-Hence:
-\[
-\begin{aligned}
-    \ext{v}_2
-    &=
-    \left\langle
-        \ext{\bm v}_b,\ext{\bm\chi}''
-    \right\rangle
-    =
-    \left\langle
-        \bm b,
-        \ext{\bm\chi}''
-        \kronecker
-        \left(
-            \ext{\bm l}\circ\ext{\bm\chi}_-
-        \right)
-    \right\rangle
-    =
-    \left\langle
-        \bm b,
-        \ext{\bm\xi}_b
-    \right\rangle,
-\end{aligned}
-\]
-which proves completeness of the terminal tensor-weighted claims.
-These are valid packed queries under
-Eq.~\eqref{eq:pcs-opening-relation}, including when a factor
-cannot be normalized to an MLE weight.
+Both terminal claims fit Eq.~\eqref{eq:pcs-opening-relation},
+with Lagrange column weights and tensor-structured row weights.
 
 \smallskip\noindent\textbf{Soundness.}
-Suppose the weighted Hadamard claim is false and the scalar check
-accepts:
+Suppose the weighted Hadamard claim is false but the scalar
+check accepts. Then the column message differs from
+\(\ext{\bm l}^{\top}(\bm A\circ\bm B)\) in at least one
+coordinate, and \(f(\gamma_j)\neq0\) for some \(j\).
+For every degree-\((\kappa-2)\) polynomial \(h\) fixed before
+\(\ext x\), the residual \(f-\Psi h\) is therefore nonzero
+and has degree at most \(2\kappa-2\).
+A random \(\ext x\in\ExtensionField\setminus\mathcal H\)
+makes this residual vanish with probability at most
+\((2\kappa-2)/(|\ExtensionField|-\kappa)\).
+Fact~\ref{fact:ip} contributes at most
+\(2\log_2m/|\ExtensionField|\), giving:
 \[
-    \ext{c}
-    =
-    \left\langle
-        \ext{\bm c},\ext{\bm r}
-    \right\rangle.
+    \epsilon_{\mathsf{Had}}
+      \leq
+      \frac{2\kappa-2}{|\ExtensionField|-\kappa}
+      +\frac{2\log_2m}{|\ExtensionField|}
+      \leq
+      \frac{2\kappa-2}{|\ExtensionField|-\kappa}
+      +\frac{2\log_2N}{|\ExtensionField|}.
 \]
-Then \(\ext{\bm c}\neq\ext{\bm d}\), so \(f(\alpha_j)\neq0\)
-for some \(j\in[\kappa]\). For any \(h\) fixed before
-\(\ext{x}\), consider the residual:
+The first inequality bounds Algorithm~\ref{alg:hadamard};
+the second gives the stated bound. Terminal packed openings
+are accounted for separately.
+The argument applies unchanged when the interpolation nodes
+lie in \(\mathbb K\subseteq\ExtensionField\).
+
+\smallskip\noindent\textbf{Efficiency over the base field.}
+First suppose \(\mathbb K=\Field\).
+Computing \(\ext{\bm c}\) uses \(O(N)\,\bb+O(N)\,\be\).
+At each of the \(\kappa-1\) additional interpolation nodes,
+evaluating both witness encodings takes \(O(N)\,\bb\).
+Pointwise multiplication and contraction with \(\ext{\bm l}\)
+then take \(O(m)\,\bb+O(m)\,\be\).
+Over all nodes, these operations cost
+\(O(N\kappa)\,\bb+O(N)\,\be\).
+Evaluating \(g_C\), interpolating the residual, and dividing by
+\(\Psi\) contribute \(O(\kappa^2)\,\be\).
+
+After \(\ext x\) is sampled, packing both matrices costs
+\(O(N)\,\be\).
+Expanding the row factors, forming
+\(\ext{\bm b}\circ\ext{\bm l}\), and running Fact~\ref{fact:ip}
+cost \(O(m)\,\ee\).
+The terminal row factors require only componentwise
+multiplication of their two-entry representations.
+With precomputed Lagrange coefficients, the public query
+and polynomial evaluations cost
+\(O(\kappa^2)\,\be+O(\kappa)\,\ee\).
+The total is therefore:
 \[
-    f(X)-\Psi(X)h(X).
-\]
-It is nonzero and has degree at most \(2\kappa-2\).
-Consequently, a uniformly random
-\(\ext{x}\in\ExtensionField\setminus\mathcal H\) satisfies the
-quotient identity with probability at most:
-\[
-    \frac{2\kappa-2}
-         {|\ExtensionField|-\kappa}.
+    O(N\kappa)\,\bb
+      +O(N+\kappa^2)\,\be
+      +O(m+\kappa)\,\ee
+      =O(N\kappa+\kappa^3)\,\bb.
 \]
 
-By Fact~\ref{fact:ip}, the subsequent length-\(m\)
-inner-product reduction contributes soundness error at most:
-\[
-    \frac{2\log_2m}
-         {|\ExtensionField|}.
-\]
+\smallskip\noindent\textbf{Intermediate-field tables.}
+Let \([\mathbb K:\Field]=t>1\), with \(t\mid\kappa\) and
+\(|\mathbb K|\geq2\kappa-1\).
+Use the addition and multiplication tables specified in
+Section~\ref{sec:hadamard}, charging each lookup as \(O(1)\).
+Evaluating the witness encodings at all additional nodes
+requires \(O(N\kappa)\) table operations.
+In \(\mathbb K\)-coordinates, each extension-field element
+has length \(\kappa/t\), so weighting and accumulating the
+\(O(N)\) local products uses \(O(N\kappa/t)\) lookups.
+The \(O(\kappa^2)\) mixed operations for \(g_C\), interpolation,
+and division cost \(O(\kappa^3/t)\).
+The remaining packing and inner-product steps retain their
+\(O(N\kappa+\kappa^3)\,\bb\) bound. Thus the same online
+time bound holds, excluding construction of the fixed tables.
 
-The last step authenticates the column values sent after the
-inner-product reduction. Their correct values are:
-\[
-\begin{aligned}
-    \widehat v_{a,j}
-    &\coloneqq
-    \left\langle
-        \bm a^{(j)},\ext{\bm\chi}_+
-    \right\rangle,
-    \qquad
-    \widehat v_{b,j}
-    \coloneqq
-    \left\langle
-        \bm b^{(j)},
-        \ext{\bm l}\circ\ext{\bm\chi}_-
-    \right\rangle.
-\end{aligned}
-\]
-If either
-\(\ext{\bm v}_a\neq\widehat{\bm v}_a\) or
-\(\ext{\bm v}_b\neq\widehat{\bm v}_b\), the corresponding
-difference vector defines a nonzero multilinear polynomial in
-\(\log_2\kappa\) variables. Since these vectors are fixed before
-\(\ext{\bm y}''\) is sampled, each incorrect terminal claim
-passes the randomized MLE aggregation with probability at most:
-\[
-    \frac{\log_2\kappa}{|\ExtensionField|}.
-\]
-A union bound over the two claims gives the additional error:
-\[
-    \frac{2\log_2\kappa}{|\ExtensionField|}.
-\]
-Combining the three error terms proves the stated soundness bound.
-The same argument holds for \(\mathcal H\subseteq\mathbb K
-\subseteq\ExtensionField\): distinct nodes, polynomial degrees,
-and challenge order are unchanged. Lookup tables compute the
-same quotient and introduce no additional soundness error.
-
-\smallskip\noindent\textbf{Efficiency.}
-The counts below concern \(\mathcal H\subseteq\Field\).
-Appendix~\ref{appx:hadamard-comparison} gives the untabulated
-and tabulated intermediate-field costs.
-Computing
-\(\ext{\bm c}\) requires \(N\) multiplications of type \(\bb\)
-to form \(\bm A\circ\bm B\), followed by \(N\) multiplications
-of type \(\be\) to contract the result with
-\(\ext{\bm l}\).
-
-For each row, interpolating
-\(g_{A,i}(X)\) and \(g_{B,i}(X)\) requires
-\(2\kappa^2\) multiplications of type \(\bb\), while multiplying
-the resulting degree-\((\kappa-1)\) polynomials requires another
-\(\kappa^2\) multiplications of type \(\bb\). The total number
-of base-field multiplications is:
-\[
-    N+3m\kappa^2
-    =
-    (3\kappa+1)N.
-\]
-
-Each product
-\(g_{A,i}(X)g_{B,i}(X)\) contains \(2\kappa-1\)
-coefficients. Contracting them with \(\ext{l}_i\) over all rows
-uses the following number of mixed-field multiplications:
-\[
-    m(2\kappa-1)
-    =
-    2N-m.
-\]
-Interpolating \(g_C(X)\) and dividing the residual by \(\Psi(X)\)
-require
-\(O(\kappa^2)\) additional \(\be\) operations.
-
-After \(\ext{x}\) is sampled, forming
-\(\ext{\bm a}=\bm A\ext{\bm\rho}\) and
-\(\ext{\bm b}=\bm B\ext{\bm\rho}\) requires \(2N\,\be\).
-After the inner-product reduction, computing the two vectors of
-column values \(\ext{\bm v}_a\) and \(\ext{\bm v}_b\) requires
-another \(2N\,\be\). Including the \(N\,\be\) operations used to
-construct \(\ext{\bm c}\), the leading mixed-field multiplication
-count is:
-\[
-\begin{aligned}
-    &N+(2N-m)+2N+2N\\
-    &\qquad=
-    7N-m
-    =
-    7N-\frac{N}{\kappa}.
-\end{aligned}
-\]
-The remaining mixed-field operations contribute \(O(\kappa^2)\).
-
-Forming
-\(\ext{\bm b}\circ\ext{\bm l}\) before the inner-product
-reduction requires \(m\,\ee\). Fact~\ref{fact:ip} gives the
-following extension-field multiplication count for the reduction:
-\[
-    4m+O(\log m).
-\]
-The second column query uses:
-\[
-    \ext{\bm l}
-    \circ
-    \tensorspan{\ext{\bm y}'}.
-\]
-Forming this vector requires another \(m\,\ee\).
-Expanding the supplied two-entry factors of \(\ext{\bm l}\)
-uses at most \(2(m-1)\,\ee\); generating
-\(\tensorspan{\ext{\bm y}'}\) uses at most \((m-1)\,\ee\).
-Evaluating the Lagrange basis and the degree-\(O(\kappa)\)
-polynomials, and forming the random column aggregations, requires
-\(O(\kappa)\) further \(\ee\) operations. The total number
-of extension-field multiplications is therefore at most:
-\[
-    9m+O(\kappa+\log m)
-    =
-    \frac{9N}{\kappa}
-    +
-    O\left(
-        \kappa+\log\frac{N}{\kappa}
-    \right).
-\]
-
-The matrices \(\bm A\) and \(\bm B\) occupy \(2N\) base-field
-coordinates. Processing the rows sequentially retains
-\(O(\kappa)\) extension-field coefficients for the residual and
-quotient. The column claims and tensor factors occupy another
-\(O(\kappa)\) extension-field elements; the packed vectors and
-inner-product reduction use a constant number of length-\(m\)
-buffers. The peak memory, in base-field coordinates, is:
-\[
-    O(N+\kappa^2).
-\]
-This is \(O(N)\) when \(m\geq\kappa\).
+\smallskip\noindent\textbf{Memory.}
+Processing rows and sample points sequentially retains
+\(O(\kappa)\) extension-field residual values, followed by
+\(O(\kappa)\) extension-field coefficients after interpolation.
+The packed vectors and inner-product reduction use \(O(m)\)
+extension-field elements. Including the witness matrices,
+this is \(O(N+\kappa^2)\) base-field coordinates.
+The fixed interpolation data use \(O(\kappa^2t)\)
+coordinates, and the tables use \(O(tq^{2t})\) when \(t>1\);
+no field tables are needed when \(t=1\).
+The peak memory is therefore
+\(O\bigl(N+\kappa^2t+(t-1)q^{2t}\bigr)\Field\).
 \end{proof}
 
 \subsection{Proof of Proposition~\ref{proposition:permutation-complexity}}
@@ -480,306 +221,204 @@ This is \(O(N)\) when \(m\geq\kappa\).
 
 \begin{proof}
 \noindent\textbf{Completeness.}
-If \(\bm a\) is a permutation of \(\bm b\), then:
-\[
-    \prod_{i=1}^{N}(\ext z+a_i)
-    =
-    \prod_{i=1}^{N}(\ext z+b_i),
-\]
-for every \(\ext z\in\ExtensionField\). It remains to verify
-one grand-product reduction.
+The coefficient tree in
+Eq.~\eqref{eq:packed-permutation-product-tree} computes the
+products of \(2^\tau\) shifted witness entries in each column.
+Evaluating its last layer at \(\ext z\) gives \(m\)
+extension-field entries, whose product is
+\(\mathsf{GrandProd}(\ext z\bm1+\bm a)\).
+The two grand products agree whenever \(\bm a\) and \(\bm b\)
+contain the same multiset of entries.
 
-The column-product tree satisfies:
+For a transition from level \(\tau+1\) to level \(\tau\),
+Lagrange interpolation gives:
 \[
-    \bm C_{t+1}(\ext z)
-    =
-    \bm C_{t,L}(\ext z)
-    \circ
-    \bm C_{t,R}(\ext z),
+    \bm g_{\tau,U}(Z,\gamma_j)
+      \circ\bm g_{\tau,D}(Z,\gamma_j)
+       =\bm C_{\tau+1}(Z)_{*,j},
+    \qquad j\in[\kappa].
 \]
-for every
-\(t=0,\ldots,\log_2\kappa-1\). The recursive row-product tree
-similarly satisfies:
+For the honest column claims
+\(\ext{\bm u}_{\tau+1}^\top
+=\ext{\bm l}_{\tau+1}^\top\bm C_{\tau+1}(\ext z)\),
+the residual \(f(X)\) therefore vanishes on \(\mathcal H\).
+Since its degree is at most \(2\kappa-2\), it satisfies
+\(f(X)=\Psi(X)h(X)\) with \(\deg h\leq\kappa-2\).
+At an additional node, coefficient aggregation commutes with
+evaluation at \(\ext z\):
 \[
-    \ext{\bm c}_{i+1}
-    =
-    \ext{\bm c}_{i,L}
-    \circ
-    \ext{\bm c}_{i,R},
-    \qquad
-    i=0,\ldots,\log_2m-1,
-\]
-and hence:
-\[
-    \ext c_{\log_2m}
-    =
-    \mathsf{GrandProd}
-    \bigl(
-        \bm C_{\log_2\kappa}(\ext z)
-    \bigr).
-\]
-
-Each tree relation reduces to an inner product. Take vectors:
-\[
-    \ext{\bm u},
-    \ext{\bm v},
-    \ext{\bm\xi}
-    \in\ExtensionField^n.
-\]
-Write the weighted Hadamard claim as:
-\begin{equation}
 \begin{aligned}
-    \ext c
-    &\EqOrNot
-    \left\langle
-        \ext{\bm\xi},
-        \ext{\bm u}\circ\ext{\bm v}
-    \right\rangle\\
-    &=
-    \left\langle
-        \ext{\bm u},
-        \ext{\bm v}\circ\ext{\bm\xi}
-    \right\rangle.
+    F_{\tau+1,j}(\ext z)
+      &=\sum_{\nu=0}^{2^{\tau+1}}
+        \langle\ext{\bm l}_{\tau+1},
+                 \bm p_{\tau+1,j,\nu}\rangle\ext z^\nu\\
+      &=\left\langle\ext{\bm l}_{\tau+1},
+             \bm g_{\tau,U}(\ext z,\gamma'_j)
+               \circ\bm g_{\tau,D}(\ext z,\gamma'_j)
+        \right\rangle.
 \end{aligned}
+\]
+Algorithm~\ref{alg:permutation} therefore recovers \(h\) from
+\(\kappa-1\) samples. Reencoding \(\bm C_\tau(Z)\) at each
+level keeps the \(X\)-degree of \(\bm g_\tau(Z,X)\) at most
+\(\kappa-1\).
+
+Each evaluated relation is proved by weighted sumcheck.
+For length-\(n\) child vectors and a tensor weight
+\(\ext{\bm l}\), the sumcheck polynomial is:
+\begin{equation}
+    \widetilde{\ext{\bm l}}(\bm Y)\,
+    \widetilde{\ext{\bm u}}(\bm Y)\,
+    \widetilde{\ext{\bm v}}(\bm Y).
 \label{eq:permutation-hadamard-as-ip}
 \end{equation}
-The prover forms
-\(
-    \ext{\bm v}\circ\ext{\bm\xi}
-\)
-and applies Fact~\ref{fact:ip} to
-Eq.~\eqref{eq:permutation-hadamard-as-ip}.
-
-Recursing through the row tree and then the column tree leaves:
+It has individual degree at most three.
+The two child claims are evaluated at the same point
+\(\ext{\bm y}\). Their affine combination with a fresh
+\(\ext y_0\) is the MLE claim on the concatenated parent
+vector at \(\ext y_0\mathbin\|\ext{\bm y}\).
+This preserves the recursive matrix claim
+\(\ext v_\tau=\ext{\bm l}_\tau^\top
+\bm C_\tau(\ext z)\ext{\bm r}_\tau\).
+At level zero, the row MLE weights and the column Lagrange
+weights both sum to one. Removing the shift leaves:
 \[
-    \left\langle
-        \ext{\bm\xi}_0,\bm d
-    \right\rangle
-    \EqOrNot
-    \ext c_0
-    -
-    \ext z
-    \left\langle
-        \ext{\bm\xi}_0,\bm 1_N
-    \right\rangle,
+    \ext v_0-\ext z
+       =\ext{\bm l}_0^\top\bm A\ext{\bm r}_0.
 \]
-which is an MLE opening of the original committed vector
-\(\bm d\). This proves completeness.
+This is the packed-opening interface of
+Eq.~\eqref{eq:pcs-opening-relation}. The same argument applies
+to \(\bm B\).
 
 \smallskip\noindent\textbf{Soundness.}
-If \(\bm a\) is not a permutation of \(\bm b\), the fingerprint
-difference is nonzero:
-\[
-    Q(Z)
-    \coloneqq
-    \prod_{i=1}^{N}(Z+a_i)
-    -
-    \prod_{i=1}^{N}(Z+b_i).
-\]
-The leading terms cancel, so \(\deg Q\leq N-1\). A uniform
-\(\ext z\in\ExtensionField\) is a root with probability at most:
-\[
-    \min\left\{
-        1,
-        \frac{N-1}{|\ExtensionField|}
-    \right\}.
-\]
-
-For one grand-product proof, the row-level-\(i\) relation in
-Eq.~\eqref{eq:permutation-hadamard-as-ip} has length:
-\[
-    \frac{m}{2^{i+1}}.
-\]
-Fact~\ref{fact:ip} bounds its error by:
-\[
-    \frac{
-        2\log_2(m/2^{i+1})
-    }{
-        |\ExtensionField|
-    }.
-\]
-Summing over the row tree gives:
-\[
-\begin{aligned}
-    \sum_{i=0}^{\log_2m-1}
-    \frac{
-        2\log_2(m/2^{i+1})
-    }{
-        |\ExtensionField|
-    }
-    &=
-    \frac{
-        \log_2m(\log_2m-1)
-    }{
-        |\ExtensionField|
-    }.
-\end{aligned}
-\]
-
-At column level \(t\), the interpolation-domain size is:
-\[
-    2^{\log_2\kappa-t}.
-\]
-The corresponding residual degree is at most:
-\[
-    2^{\log_2\kappa-t+1}-2.
-\]
-The quotient is fixed before the evaluation challenge. Thus a
-false quotient identity passes the polynomial check with probability
-at most:
-\[
-    \frac{
-        2^{\log_2\kappa-t+1}-2
-    }{
-        |\ExtensionField|
-        -
-        2^{\log_2\kappa-t}
-    }.
-\]
-
-The evaluated Hadamard claim has length:
-\[
-    \frac{m}{2^{\log_2\kappa-t}}.
-\]
-The inner-product reduction of Fact~\ref{fact:ip} therefore
-contributes:
-\[
-    \frac{
-        2\log_2
-        \left(
-            m/2^{\log_2\kappa-t}
-        \right)
-    }{
-        |\ExtensionField|
-    }.
-\]
-The random combination of the resulting column claims
-contributes at most:
-\[
-    \frac{
-        2\log_2
-        \left(
-            2^{\log_2\kappa-t}
-        \right)
-    }{
-        |\ExtensionField|
-    }.
-\]
-These two terms sum to:
-\[
-    \frac{2\log_2m}{|\ExtensionField|}.
-\]
-Summing over \(t=0,\ldots,\log_2\kappa-1\) gives
-\(\epsilon_{\mathsf{GP}}\). A union bound over the fingerprint,
-the two grand-product proofs, and their terminal openings proves
-the permutation bound.
-
-\smallskip\noindent\textbf{Efficiency.}
-At column level \(t\), constructing the coefficient representation
-and quotient requires:
-\[
-    O\left(
-        \frac{
-            \kappa^2m
-        }{
-            2^{\log_2\kappa-t}
-        }
-    \right)\bb.
-\]
-Summing gives the following base-field multiplication count:
-\[
-\begin{aligned}
-    \sum_{t=0}^{\log_2\kappa-1}
-    O\left(
-        \frac{
-            \kappa^2m
-        }{
-            2^{\log_2\kappa-t}
-        }
-    \right)
-    &=
-    O\bigl(m\kappa(\kappa-1)\bigr)\\
-    &=
-    O(N\kappa).
-\end{aligned}
-\]
-Evaluating the coefficient polynomials and constructing the
-packed vectors require
-\(O(N)\) multiplications of type \(\be\).
-
-For a length-\(n\) weighted Hadamard claim, forming
-\(
-    \ext{\bm v}\circ\ext{\bm\xi}
-\)
-requires \(n\) multiplications of type \(\ee\). Fact~\ref{fact:ip}
-gives the following count for the inner-product reduction:
-\[
-    4n+O(\log n).
-\]
-The full length-\(n\) Hadamard proof therefore uses the following
-number of extension-field multiplications:
-\[
-    5n+O(\log n).
-\]
-
-The row-tree inner-product lengths sum to:
+For a weighted sumcheck on length-\(n\) vectors,
+Eq.~\eqref{eq:permutation-hadamard-as-ip} contributes at most
+\(3\log_2n/|\ExtensionField|\).
+If at least one of the two terminal child claims is false,
+their errors form a nonzero affine polynomial in the fresh
+merge challenge \(\ext y_0\). The merged claim is then correct
+with probability at most \(1/|\ExtensionField|\).
+A transition thus preserves a false claim except with
+probability at most \((3\log_2n+1)/|\ExtensionField|\).
+The extension-field tree has child lengths
+\(1,2,\ldots,m/2\). Summing its errors gives:
 \[
     \sum_{i=0}^{\log_2m-1}
-    \frac{m}{2^{i+1}}
-    =
-    m-1.
-\]
-The row-tree extension-field multiplication count is therefore:
-\[
-    5(m-1)
-    +
-    O\bigl((\log_2m)^2\bigr).
+       \frac{3i+1}{|\ExtensionField|}
+       =\frac{\frac32\log_2m(\log_2m-1)+\log_2m}
+                    {|\ExtensionField|}.
 \]
 
-The column-tree inner-product lengths sum to:
+At coefficient level \(\tau+1\), a false incoming matrix
+claim either fails the scalar check against
+\(\ext{\bm u}_{\tau+1}\), or makes at least one column claim
+false. In the latter case \(f(X)\) does not vanish on all of
+\(\mathcal H\), and \(f(X)-\Psi(X)h(X)\) is nonzero for every
+claimed \(h\) of degree at most \(\kappa-2\).
+Since the message is fixed before \(\ext x\) is sampled,
+this polynomial vanishes at \(\ext x\) with probability at
+most \((2\kappa-2)/(|\ExtensionField|-\kappa)\).
+The subsequent weighted sumcheck and merge have child length
+\(m/2^{\tau+1}\) and error at most
+\((3\log_2(m/2^{\tau+1})+1)/|\ExtensionField|\).
+Summing over \(\tau=0,\ldots,\log_2\kappa-1\) and adding the
+extension-field-tree error gives the stated
+\(\epsilon_{\mathsf{GP}}\). This bound is conditional on
+authentication of the terminal packed claim.
+
+If the committed vectors are not permutations of one another,
+their fingerprint difference is the nonzero polynomial:
 \[
-\begin{aligned}
-    \sum_{t=0}^{\log_2\kappa-1}
-    \frac{m}{2^{\log_2\kappa-t}}
-    &=
-    m\frac{\kappa-1}{\kappa}.
-\end{aligned}
+    \prod_{i=1}^N(Z+a_i)-\prod_{i=1}^N(Z+b_i).
 \]
-Their leading extension-field multiplication count is:
+Its degree is at most \(N-1\), so the true fingerprints
+coincide with probability at most
+\(\min\{1,(N-1)/|\ExtensionField|\}\).
+Otherwise, at least one claimed grand product is false.
+A union bound over the two reductions and their terminal
+authentication gives:
 \[
-    5m\frac{\kappa-1}{\kappa}.
+    \epsilon_{\mathsf{Perm}}
+       \leq\min\left\{1,\frac{N-1}{|\ExtensionField|}\right\}
+          +2\epsilon_{\mathsf{GP}}+\epsilon_{\mathsf{PCS}}.
 \]
-Including challenge generation and polynomial evaluation gives
-the total extension-field multiplication count:
+
+\smallskip\noindent\textbf{Efficiency over \(\Field\).}
+At level \(\tau\in[\log_2\kappa]\), the coefficient matrix
+of \(\bm C_{\tau-1}(Z)\) has \(O(m)\) row-degree pairs.
+Evaluating its \(\kappa\)-column encodings at \(\kappa-1\)
+additional nodes costs \(O(N\kappa)\,\bb\).
+Multiplying the resulting degree-\(2^{\tau-1}\) polynomials
+costs \(O(m\kappa2^\tau)\,\bb\).
+These products, including construction of the coefficient
+tree, sum to \(O(N\kappa)\,\bb\).
+
+The off-domain products and column claims contain \(O(N)\)
+coefficients per level, whose aggregation costs \(O(N)\,\be\).
+There are \(O(\kappa)\) aggregated polynomials of degree
+at most \(2^\tau\), so their subsequent evaluation costs:
 \[
-\begin{aligned}
-    &5(m-1)
-    +
-    5m\frac{\kappa-1}{\kappa}
-    +
-    O\left(
-        \kappa
-        +
-        (\log_2m)^2
-        +
-        \log_2m\log_2\kappa
-    \right)\\
-    &\qquad=
-    \frac{10N}{\kappa}
-    +
-    O\left(
-        \kappa
-        +
-        (\log_2m)^2
-        +
-        \log_2m\log_2\kappa
-    \right).
-\end{aligned}
+    \sum_{\tau=1}^{\log_2\kappa}
+        O(\kappa2^\tau)\,\ee
+       =O(\kappa^2)\,\ee.
 \]
-Processing the coefficient layers sequentially retains the
-\(O(N)\) witness coordinates and \(O(\kappa^2)\) coordinates
-for quotient coefficients and challenge powers. Peak memory is
-\(O(N+\kappa^2)\), or \(O(N)\) when \(m\geq\kappa\).
+The shared powers of \(\ext z\) require
+\(O(\kappa)\,\ee\) once.
+Forming the vectors for the short weighted sumchecks costs
+\(O(N)\,\be+O(m)\,\ee\) per coefficient level.
+Their total sumcheck length, together with the
+extension-field tree, is \(O(m)\).
+Interpolation and public queries contribute
+\(O(\kappa^3)\,\bb\) per level.
+Using \(m\geq\kappa\), the total is:
+\[
+    O(N\kappa\log_2\kappa+\kappa^4)\,\bb.
+\]
+The \(\kappa^4\) term accounts for evaluation of the
+aggregated extension-field polynomials.
+
+\smallskip\noindent\textbf{Intermediate-field implementation.}
+For \(q<2\kappa-1\), use the addition and multiplication tables
+of Section~\ref{sec:hadamard} over \(\mathbb K\), with the same
+unit-cost lookup convention.
+Precomputed Lagrange evaluations allow the
+\(O(N\kappa)\) encoding operations at each level to be
+performed over \(\mathbb K\).
+The row-polynomial products likewise use
+\(O(N\kappa)\) table operations in total.
+The coefficients of \(\bm C_\tau(Z)\) remain in \(\Field\);
+only the off-domain encodings and products use \(\mathbb K\).
+
+In a compatible tower basis, a mixed
+\(\mathbb K\times\ExtensionField\) product and its
+accumulation cost \(O(\kappa)\) in base-field coordinates.
+Schoolbook multiplication over \(\mathbb K\), using the
+tables for coordinate products, costs
+\(O(\kappa^2/t)\) per extension-field multiplication.
+The preceding count becomes
+\(O\bigl(N\kappa\log_2\kappa+\kappa^4/t\bigr)\,\bb\),
+which implies the coarser bound in the proposition.
+
+\smallskip\noindent\textbf{Space.}
+One coefficient-tree level contains \(O(N)\) base-field
+coefficients. The levels can be reconstructed from
+\(\bm C_0(Z)\) during the reverse traversal:
+reconstructing level \(\tau\) costs \(O(N2^\tau)\,\bb\),
+and these costs sum to \(O(N\kappa)\,\bb\).
+Thus the prover need not retain all coefficient levels.
+Processing one additional node at a time uses
+\(O(mt)\subseteq O(N)\) coordinates for its row polynomials.
+The aggregated polynomials use \(O(\kappa^2)\)
+extension-field coefficients, or \(O(\kappa^3)\)
+base-field coordinates. The extension-field tree and
+sumcheck tables use \(O(m\kappa)=O(N)\) coordinates.
+Including interpolation data and the intermediate-field
+tables, peak memory is \(O(N+\kappa^3+tq^{2t})\)
+base-field coordinates.
+When \(q\geq2\kappa-1\), no field tables are needed, giving
+\(O(N+\kappa^3)\) base-field coordinates.
+The time bounds exclude preprocessing, commitments, and
+terminal openings.
 \end{proof}
 
 \subsection{Proof of Proposition~\ref{proposition:packed-pcs}}
@@ -787,17 +426,15 @@ for quotient coefficients and challenge powers. Peak memory is
 
 \begin{proof}
 \noindent\textbf{Binding and completeness.}
-Basis packing is injective: each entry of
-\(\bm A\ext{\bm\beta}\) uniquely determines its row of
-\(\bm A\). Binding therefore follows from the underlying PCS.
-Applying a hiding commitment to this fixed encoding also preserves
+Each entry of \(\bm A\ext{\bm\beta}\) uniquely determines
+the corresponding row of \(\bm A\). This injective encoding
+preserves binding and, when provided by the underlying PCS,
 commitment hiding.
 
-For an honest prover,
-\(\bm U=\bm\Xi^\top\bm A\), so the identity in
+For an honest prover, \(\bm U=\bm\Xi^\top\bm A\), so
 Eq.~\eqref{eq:pcs-encoded-matrix} and its random projection hold.
-It remains to show that the verifier computes the public terminal
-value exactly.
+We show that the verifier also computes the public terminal value
+exactly.
 
 By Eq.~\eqref{eq:pcs-multiplication-matrix}, multiplication by
 \(\ext z\) acts on a column of base-field coordinates through
@@ -805,13 +442,10 @@ By Eq.~\eqref{eq:pcs-multiplication-matrix}, multiplication by
 and \(\bm M_{1}=\bm I_\kappa\).
 We prove by backward induction that
 \(\bm W_j=\bm Y_j^\top\bm\Xi_j\).
-The empty suffix has coordinate row \(\bm e_1^\top\), since
-\(\ext\beta_1=1\). Hence the initialization is correct:
-\[
-    \bm Y_{\ell+1}^\top\bm\Xi_{\ell+1}
-    =\bm e_1\bm e_1^\top
-    =\bm W_{\ell+1}.
-\]
+Since \(\ext\beta_1=1\), the empty suffix has coordinate row
+\(\bm e_1^\top\), giving
+\(\bm Y_{\ell+1}^\top\bm\Xi_{\ell+1}
+=\bm e_1\bm e_1^\top=\bm W_{\ell+1}\).
 For the induction step, apply the block identities in
 Eq.~\eqref{eq:pcs-query-blocks} and the induction hypothesis:
 \[
@@ -827,21 +461,20 @@ Eq.~\eqref{eq:pcs-query-blocks} and the induction hypothesis:
     &=\bm W_j.
 \end{aligned}
 \]
-The second equality uses the linearity of \(\bm M\), and the
-last is Eq.~\eqref{eq:pcs-query-recurrence}.
-At \(j=1\), we obtain
-\(\bm W=\bm W_1=\bm Y^\top\bm\Xi\). Consequently:
+The second equality uses linearity of \(\bm M\); the last
+is Eq.~\eqref{eq:pcs-query-recurrence}.
+Taking \(j=1\) gives \(\bm W=\bm W_1=\bm Y^\top\bm\Xi\)
+and hence:
 \[
     \ext{\bm\beta}^\top\bm W\ext{\bm r}
     =(\bm Y\ext{\bm\beta})^\top\bm\Xi\ext{\bm r}
     =\tensorspan{\ext{\bm y}}^\top\bm\Xi\ext{\bm r}.
 \]
-The scalar check in Eq.~\eqref{eq:pcs-query-matrix} therefore
-verifies the query-side terminal claim exactly. Completeness
-follows from Fact~\ref{fact:ip} and the underlying PCS opening.
-When \(m=1\), the suffix is empty and the initialization alone
-gives the required matrix; no recurrence or sum-check round is
-needed.
+Thus Eq.~\eqref{eq:pcs-query-matrix} checks the query-side
+terminal value exactly. Completeness follows from
+Fact~\ref{fact:ip} and the underlying PCS opening.
+For \(m=1\), the initialization suffices, with no recurrence
+or sumcheck rounds.
 
 \smallskip\noindent\textbf{Soundness.}
 Fix the matrix \(\bm A\) bound by the commitment and suppose that
@@ -849,14 +482,12 @@ Eq.~\eqref{eq:pcs-opening-relation} is false.
 If the first scalar check accepts, then
 \(\ext{\bm u}^{\top}\neq\ext{\bm\xi}^{\top}\bm A\), hence
 \(\bm U\neq\bm\Xi^\top\bm A\).
-By injectivity of basis packing, the following column is nonzero:
-\[
-    (\bm U-\bm\Xi^\top\bm A)\ext{\bm\beta}
-    \in\ExtensionField^\kappa\setminus\{\bm0_\kappa\}.
-\]
-This column is fixed before \(\ext{\bm r}\) is sampled. Multiplying
-it on the left by a uniform row \(\ext{\bm r}^{\top}\) gives zero with probability
-\(1/|\ExtensionField|\); otherwise,
+Injectivity of basis packing makes
+\((\bm U-\bm\Xi^\top\bm A)\ext{\bm\beta}\) a nonzero
+column of \(\ExtensionField^\kappa\), fixed before
+\(\ext{\bm r}\) is sampled. Its inner product with the uniform
+\(\ext{\bm r}\) vanishes with probability
+\(1/|\ExtensionField|\). Outside this event,
 Eq.~\eqref{eq:pcs-random-opening} is false.
 
 Except with probability \(2\ell/|\ExtensionField|\),
@@ -871,21 +502,18 @@ false MLE claim with probability at most
 A union bound gives Eq.~\eqref{eq:pcs-soundness}.
 
 \smallskip\noindent\textbf{Prover complexity.}
-The prover expands \(\ext{\bm\xi}\) and reads its basis
-coordinates to obtain \(\bm\Xi\).
-This costs \(O(m)\) extension-field operations.
+Expanding \(\ext{\bm\xi}\) and reading its basis coordinates
+gives \(\bm\Xi\) in \(O(m)\) extension-field operations.
 The matrix product \(\bm U=\bm\Xi^\top\bm A\) takes
-\(\kappa N\) base-field multiplications. Its columns are already
-the coordinates of the message
-\(\ext{\bm u}^{\top}=\ext{\bm\beta}^{\top}\bm U\); packing them requires
-only a change of representation.
+\(\kappa N\) base-field multiplications. Its columns give the
+coordinates of \(\ext{\bm u}^{\top}=\ext{\bm\beta}^{\top}\bm U\),
+so packing requires only a change of representation.
 
 Computing \(\bm\Xi\ext{\bm r}\) takes \(N\) mixed-field
 multiplications; the extension-field inner-product reduction takes
 \(4m+O(\ell)\) extension-field multiplications.
-The target \(\ext c\) can be computed by interpreting each row
-of \(\bm U\) as an extension-field element and taking the inner
-product of the resulting column with \(\ext{\bm r}\), using
+Packing the rows of \(\bm U\) and taking their inner product
+with \(\ext{\bm r}\) computes \(\ext c\) using
 \(\kappa\) extension-field multiplications.
 The prover need not construct \(\bm Y\) or \(\bm W\).
 These costs give Eq.~\eqref{eq:pcs-prover-cost}.
@@ -938,42 +566,76 @@ prover-to-verifier communication is therefore
 \(\kappa+2\ell+2\) extension-field elements.
 \end{proof}
 
+\subsection{Proof of Lemma~\ref{eq:permutation}}
+\label{appx:proof-copy-constraint}
+
+\begin{proof}
+The radix-\(\underline q\) representations of \(0,\ldots,L-1\)
+use at most \(\lceil\log_{\underline q}L\rceil\) digits.
+The digit injection preserves their distinctness.
+Since \(\theta_1,\ldots,\theta_d\) are linearly independent
+over \(\Field\), and the last coordinate is reserved for the
+witness value:
+\[
+    a_i=b_j
+    \quad\Longleftrightarrow\quad
+    \bigl(\sigma(i)=j\ \text{and}\ w_i=w_j\bigr).
+\]
+Every label occurs exactly once in each operand.
+Thus equality of the multisets forces
+\(a_i=b_{\sigma(i)}\), and hence \(w_i=w_{\sigma(i)}\),
+for all \(i\in[L]\).
+Conversely, these copy equalities give
+\(a_i=b_{\sigma(i)}\), proving the permutation relation.
+The encoding is deterministic and injective, so it adds no
+soundness error. Appending the same zeros to both operands
+preserves the equivalence by multiset cancellation.
+\end{proof}
+
 \subsection{Proof of Proposition~\ref{proposition:position-encoding-evaluation}}
 \label{appx:proof-position-encoding}
 
 \begin{proof}
-Let \(\bm d\in\Field^{2^s}\) list the encoded digits
-\(\sum_{t=1}^s\delta_tb_t\) in lexicographic order over
-\((b_1,\ldots,b_s)\in\{0,1\}^s\).
-Its MLE is:
-\begin{equation}
-    \left\langle\bm d,\tensorspan{\ext{\bm y}}\right\rangle
-       =\sum_{t=1}^{s}\delta_t\ext y_t,
-       \qquad \ext{\bm y}\in\ExtensionField^s.
-\label{eq:digit-vector-mle}
-\end{equation}
-The right-hand side is multilinear and agrees with the digit
-encoding on the Boolean hypercube, proving the identity over
-every characteristic.
-Each base-\(\underline q\) digit occupies one consecutive
-\(s\)-bit block. Prepending \(\gamma s-\mu\) zero bits restricts
-the full digit domain to positions \(0,\ldots,L-1\).
-Applying Eq.~\eqref{eq:digit-vector-mle} to each block and taking
-the basis-weighted sum proves
-Eq.~\eqref{eq:position-encoding-evaluation}.
-Only the \(\mu\) original coordinates need to be processed.
+For the chosen digit injection, each label is the sum of the
+contributions of its nonzero position bits.
+The recursion and interval decomposition in
+Appendix~\ref{appx:mleiota} therefore give the ordinary MLE
+evaluation in \(O(\log L)\) operations.
 
-For arbitrary tensor factors
-\(\ext{\bm\chi}^{(t)}=(\ext\chi^{(t)}_0,\ext\chi^{(t)}_1)^\top\),
-the contraction with the \(t\)-th bit function is:
+For a packed query, split the position bits into column bits
+and row bits in column-major order.
+The unpadded label is the sum of a column contribution
+\(\bm\iota_{\mathsf{col}}\) and a row contribution
+\(\bm\iota_{\mathsf{row}}\).
+For arbitrary column weights \(\ext{\bm r}\) and tensor row
+weights \(\ext{\bm l}\), the full-table contraction is:
 \[
-    \ext\chi^{(t)}_1
-       \prod_{\substack{u=1\\u\ne t}}^\mu
-          (\ext\chi^{(u)}_0+\ext\chi^{(u)}_1).
+    \left\langle\bm\iota_{\mathsf{col}},\ext{\bm r}\right\rangle
+       \left(\bm1^\top\ext{\bm l}\right)
+    +
+    \left(\bm1^\top\ext{\bm r}\right)
+       \left\langle\bm\iota_{\mathsf{row}},\ext{\bm l}\right\rangle.
 \]
-Prefix and suffix products compute all these terms in
-\(O(\mu)\) operations without division. Taking the basis-weighted
-sum evaluates the position labels in \(O(\log L)\) operations.
+Recursive doubling generates all \(\kappa_{\mathbb K}\)
+column contributions in \(O(\kappa_{\mathbb K})\) additions.
+For each row-bit suffix, compute both its total tensor weight
+and its label-weighted sum.
+Splitting off one two-entry tensor factor updates both
+quantities in constant time, including when its entries do
+not sum to one.
+
+Zero padding keeps the first \(L\) positions.
+In column-major order, these consist of complete columns
+and at most one partially filled column.
+All complete columns use the same two full-row contractions.
+For the partial column, the binary interval decomposition
+computes the two corresponding prefix contractions using the
+precomputed suffix quantities.
+One scan of the prefix length costs \(O(\log L)\) operations.
+Combining the column contributions then costs
+\(O(\kappa_{\mathbb K})\) operations.
+The total is \(O(\kappa_{\mathbb K}+\log L)\), with the same
+bound on working field elements and no division.
 \end{proof}
 
 \subsection{Proof of Theorem~\ref{theorem:single-instance-packing}}
@@ -981,113 +643,219 @@ sum evaluates the position labels in \(O(\log L)\) operations.
 
 \begin{proof}
 \noindent\textbf{Completeness.}
-For a satisfying assignment, the five claims in
+For a satisfying assignment, the five scalar claims in
 Eq.~\eqref{eq:plonkWeightedHadamard1} and
 Eq.~\eqref{eq:plonkWeightedHadamard2} sum to zero.
-The virtual vector \(\bm w_M=\bm w_L\circ\bm w_R\) has its
-terminal evaluation checked by a weighted Hadamard claim on the
-wire vectors. Completeness of the five Hadamard reductions and
-their openings therefore gives completeness of the gate argument.
+Four packed Hadamard proofs reduce the selector--wire product
+claims to evaluations of the selectors and
+\(\bm w_L,\bm w_R,\bm w_M,\bm w_O\).
+The fifth authenticates the remaining evaluation of
+\(\bm w_M=\bm w_L\circ\bm w_R\).
+All terminal queries have arbitrary column weights and tensor
+row weights, as required by Section~\ref{sec:pcs}.
 
-Linear independence of
-\(\ext\theta_1,\ldots,\ext\theta_\gamma,\ext\theta_d\) over
-\(\Field\) makes the joint encoding injective in the wire value
-and position digits.
-In particular, the entry of \(\ext{\bm a}\) with label
-\(\ext\tau_i\) can match only the entry of \(\ext{\bm b}\)
-at position \(\sigma^{-1}(i)\).
-Equality of the two multisets is thus equivalent to
-\(w_i=w_{\sigma^{-1}(i)}\) for every \(i\), proving
-Eq.~\eqref{eq:together-copy-equivalence}.
-Padding adds fixed points and does not change the relation.
-Completeness of the permutation and opening protocols completes
-the argument.
+Lemma~\ref{eq:permutation} proves the copy equivalence.
+The two operands have length \(L=3N+n_{\mathsf{io}}\leq4N\);
+append zeros to reach length \(4N\).
+Their grand products then share the padding factor
+\(\ext z^{4N-L}\), which is nonzero because
+\(\ext z\sample\ExtensionField\setminus\{0\}\).
+The two grand-product reductions therefore prove exactly the
+original permutation relation.
+Their packing width \(\kappa_{\mathbb K}=\kappa/d\) and
+row count \(4N/\kappa_{\mathbb K}=4md\) are powers of two,
+with \(4md\geq\kappa_{\mathbb K}\geq2\).
+Thus the parameters satisfy the interface of
+Section~\ref{sec:permutation}, and every honest check accepts.
+
+\smallskip\noindent\textbf{Terminal copy queries.}
+Each copy terminal is a weighted evaluation of a padded operand,
+with \(\kappa_{\mathbb K}\) arbitrary column weights and
+\(4N/\kappa_{\mathbb K}\) tensor row weights.
+By linearity, the two terminals involve
+\(\bm\varsigma,\bm\iota\), and \(\bm w\).
+Restricting to one length-\(N\) wire segment fixes the first
+two position bits.
+The last \(\log_2m\) bits remain tensor row factors.
+Absorb all other free factors into the column weights to obtain
+a length-\(\kappa\) column query on the original
+\(m\times\kappa\) wire or digit matrix.
+This changes the query representation, not the committed data.
+
+Proposition~\ref{proposition:position-encoding-evaluation}
+computes the identity-label contribution in
+\(O(\kappa_{\mathbb K}+\log L)\) extension-field operations.
+The verifier evaluates the public-I/O values and their permuted
+labels directly. Traversing their contiguous interval and
+reusing tensor prefixes costs
+\(O(\kappa_{\mathbb K}+n_{\mathsf{io}}+\log L)\) operations.
+No commitment to either contribution is needed.
+
+\smallskip\noindent\textbf{Batched terminal openings.}
+Write \(h=\lceil\log_{\underline q}L\rceil\).
+The three fixed-basis wire packings form one witness vector
+of logical length \(3m\), committed before any challenge.
+The public vector concatenates the five selector packings
+and the three wire-segment restrictions of each of the \(h\)
+permuted-position digit tables.
+Its logical length is \(m_{\mathsf{pub}}=(5+3h)m\).
+The public commitment, circuit tables, and packing polynomials
+are preprocessed.
+
+The gate argument leaves five selector and five wire queries.
+The two copy terminals add six wire queries and \(3h\)
+permuted-digit queries, giving \(16+3h\) packed queries.
+Apply the column-projection step of Section~\ref{sec:pcs}
+to each query and check its claimed scalar value.
+Fix all column messages before sampling independent projection
+vectors for the different queries.
+Within each group, zero-extend the projected queries to their
+committed blocks and sum the resulting inner-product claims.
+One invocation of Fact~\ref{fact:ip} per group reduces their
+sum to one MLE opening of the concatenated vector.
+The verifier evaluates the combined public query exactly,
+using the recurrence of Section~\ref{sec:pcs} on each block
+and retaining its block-prefix weight.
+Thus there are two underlying PCS openings.
+
+If a column message is false, its coordinate error satisfies
+\((\bm U-\bm\Xi^\top\bm A)\ext{\bm\beta}\neq\bm0\).
+Consequently, a group containing a false claim has a nonzero
+linear error polynomial in its independent projection vectors.
+It vanishes with probability at most
+\(1/|\ExtensionField|\) per group.
+The two inner-product reductions add
+\(O(\log N)/|\ExtensionField|\) error.
+Here the padded group lengths have logarithm \(O(\log N)\),
+since \(h<d\leq\kappa/2\).
 
 \smallskip\noindent\textbf{Soundness.}
-Condition on binding of the three witness commitments.
-Since fixed-basis packing is injective, these commitments determine
-three base-field wire vectors and hence the virtual \(\bm w_M\)
-before any challenge is sampled.
-The selectors and permutation digits are fixed by circuit setup.
+Condition on binding of the witness commitment.
+Its fixed-basis packing determines all three wire vectors
+and the virtual product before any challenge.
+The selectors and position tables are fixed at setup.
 
-If the gate residual is nonzero, its random MLE evaluation
-vanishes with probability at most \(\log_2N/|\ExtensionField|\).
-Outside this event, an accepting scalar sum contains a false
-claim. Its reduction either incurs one of the five Hadamard
-errors or leaves a false opening. The same reasoning applies to
-the nested \(\bm w_M\) claim: the claimed value is fixed before
-its challenges, and the committed wires determine its true value.
+A nonzero gate residual vanishes at the random MLE point with
+probability at most \(\log_2N/|\ExtensionField|\).
+Otherwise an accepting scalar sum contains a false claim.
+Acceptance then requires an error in one of the five Hadamard
+reductions or in terminal authentication.
+For the nested product claim, its value is fixed before the
+fresh challenges of the fifth reduction.
 
-If a copy constraint is false, the two encoded multisets differ.
-The fingerprint check in Section~\ref{sec:permutation} then has
-error at most \(\min\{1,(L-1)/|\ExtensionField|\}\).
-Conditioned on a nonzero fingerprint, acceptance requires failure
-of one of the two grand-product reductions or a false opening.
-Injectivity makes the joint encoding exact.
-
-The gate argument uses five selector and five wire openings.
-The two copy terminals add three wire openings each, and the
-\(\ext{\bm\tau}_\sigma\) operand adds one digit-table opening
-for each of its \(\gamma\) coordinates.
-The public-I/O and identity-label evaluations are exact.
-Thus there are sixteen length-\(N\) packed openings and
-\(\gamma\) length-\(L\) packed openings.
-Their adaptive evaluation errors are bounded by
-Eq.~\eqref{eq:together-opening-error}.
-A union bound over these events and witness-binding failure
-gives Eq.~\eqref{eq:together-soundness}.
-
-\smallskip\noindent\textbf{Efficiency.}
-The five Hadamard reductions and the sixteen length-\(N\)
-packed openings cost \(O(\kappa N)\bb\).
-The \(\gamma\) digit-table openings cost
-\(O(\gamma\kappa L)\bb\).
-Both estimates follow from
-Propositions~\ref{proposition:hadamard-complexity} and
-\ref{proposition:packed-pcs}, since \(m\geq\kappa\) and
-\(L/\kappa\geq m\).
-
-For the copy proofs, a multiplication in \(\mathbb K\) costs
-\(O(d^2)\bb\), a \(\mathbb K\)-by-\(\ExtensionField\)
-multiplication costs \(O(\kappa d)\bb\), and a multiplication
-in \(\ExtensionField\) costs \(O(\kappa^2)\bb\).
-Substituting \(L\) and \(\kappa_{\mathbb K}=\kappa/d\)
-in Proposition~\ref{proposition:permutation-complexity}
-therefore gives:
+If a copy constraint fails, the unpadded fingerprint difference
+is nonzero and has degree at most \(L-1\).
+At the nonzero challenge \(\ext z\), its padded version vanishes
+if and only if the unpadded difference does.
+The fingerprint error is therefore at most
+\((L-1)/(|\ExtensionField|-1)\).
+Let \(\epsilon_{\mathsf{GP}}\) be the bound of
+Proposition~\ref{proposition:permutation-complexity},
+instantiated with length \(4N\), packing width
+\(\kappa_{\mathbb K}\), and base field \(\mathbb K\).
+A union bound gives:
 \[
-    O\bigl(\kappa dL+\kappa^2(\log_2L)^2\bigr)\bb.
+\begin{aligned}
+    \epsilon_{\mathsf{single}}\leq{}&
+    \epsilon_{\mathsf{PCS}}
+    +\frac{L-1}{|\ExtensionField|-1}
+    +2\epsilon_{\mathsf{GP}}\\
+    &+5\left(
+        \frac{2\kappa-2}{|\ExtensionField|-\kappa}
+        +\frac{2\log_2N}{|\ExtensionField|}
+      \right)
+    +O\left(\frac{\log N}{|\ExtensionField|}\right).
+\end{aligned}
 \]
-The length-dependent term absorbs the additive packing costs,
-using \(L\geq N\geq\kappa^2\).
-Adding the gate, opening, and copy costs proves the prover bound.
+The last term includes the initial gate projection and the
+two batched opening reductions.
+The grand-product contribution is
+\(O((\kappa_{\mathbb K}\log_2\kappa_{\mathbb K}
++(\log_2N)^2)/|\ExtensionField|)\).
+Since \(N=m\kappa\geq\kappa^2\), \(L\leq4N\), and
+\((\log_2N)^2=O(N)\), this proves
+Eq.~\eqref{eq:together-soundness}.
+The term \(\epsilon_{\mathsf{PCS}}\) includes joint binding
+and the two adaptive underlying openings.
 
-For each interpolation check, precomputed polynomial coefficients
-allow evaluation of a complete Lagrange basis in
-\(O(\kappa^3)\bb\); the tower-field analog is no larger.
-The packed openings contribute
-\(O((\gamma+1)\kappa^3(1+\log_2L))\bb\)
-to verifier time.
-The recursive grand-product checks contribute
-\(O(\kappa^2(\log_2L)^2)\bb\).
-The aligned wire segments require only tensor restrictions,
-and the public-I/O contribution can be evaluated in
-\(O(n_{\mathsf{io}}+\log L)\) extension-field operations.
-Proposition~\ref{proposition:position-encoding-evaluation}
-handles the identity labels. These costs give the verifier bound.
+\smallskip\noindent\textbf{Prover time.}
+The five Hadamard reductions cost \(O(N\kappa)\bb\).
+For \(q\geq2\kappa-1\), interpolation uses base-field nodes.
+If \(\kappa<q<2\kappa-1\), the intermediate-field variant
+uses degree-two interpolation-field tables; its online cost
+is unchanged and its table storage is \(O(q^4)=O(\kappa^4)\).
+The power-of-two \(\kappa\) permits this degree-two subfield.
+The \(16+3h\) column projections and the two grouped
+inner-product reductions cost \(O(N\kappa h)\bb\).
 
-The Hadamard and grand-product reductions communicate
-\(O(\kappa+(\log_2L)^2)\) extension-field elements.
-Adding the packed-opening messages from
-Proposition~\ref{proposition:packed-pcs} gives the communication
-bound in \(\Field\)-coordinates; the opening term
-\(O((\gamma+1)\kappa\log_2L)\) is absorbed by
-\(O(\kappa(\log_2L)^2)\), since \(\gamma\leq\log_2L\).
-Sequential execution retains \(O(N+Ld+\kappa^2)=O(N+Ld)\)
-coordinates, including the digit tables and the
-\(\mathbb K\)-valued copy operands.
-There are three online witness commitments, and each packed
-opening makes one underlying opening call at the stated length.
-The theorem adds the underlying PCS costs and workspace separately.
+Choose polynomial bases along \(\Field\subset\mathbb K
+\subset\ExtensionField\) for the copy computation.
+A \(\mathbb K\)-multiplication costs \(O(d^2)\bb\).
+The two grand-product reductions therefore cost:
+\[
+    O\left(
+       N\kappa_{\mathbb K}\log_2\kappa_{\mathbb K}
+       +\kappa_{\mathbb K}^4
+    \right)d^2\bb
+    =
+    O\left(
+       N\kappa d\log_2\kappa_{\mathbb K}
+       +\frac{\kappa^4}{d^2}
+    \right)\bb.
+\]
+The \(\log_2\kappa_{\mathbb K}\) factor counts the packed
+coefficient levels; evaluating their aggregated polynomials
+accounts for the additive term.
+The least-power-of-two choice gives
+\(h+1\leq d<2(h+1)\).
+Since \(\log\underline q=\Theta(\log q)\) and \(L=\Theta(N)\),
+both \(h\) and \(d\) are \(\Theta(\log_qN)\).
+Combining these contributions gives the stated
+\(O(N\kappa\log_qN\log_2\kappa)\bb+O(\kappa^4)\) bound.
+The copy computation stays in its tower basis; only interface
+queries and messages are converted to the fixed commitment basis.
+These conversions cost \(O(\kappa^2)\bb\) per extension-field
+element and are covered by the same bounds.
+
+\smallskip\noindent\textbf{Verifier time and communication.}
+The \(O(h)\) packed column checks and combined query evaluations
+cost \(O(\kappa h\log_2N)\ee\).
+The two grand-product reductions add
+\(O(\kappa_{\mathbb K}\log_2\kappa_{\mathbb K}
++(\log_2N)^2)\ee\).
+Direct identity-label and public-I/O evaluations contribute
+\(O(\kappa_{\mathbb K}+n_{\mathsf{io}}+\log N)\ee\).
+These costs give the verifier bound.
+
+The packed column messages contain \(O(\kappa h)\)
+extension-field elements.
+The two grand-product transcripts contain
+\(O(\kappa_{\mathbb K}\log_2\kappa_{\mathbb K}
++(\log_2N)^2)\) such elements.
+The remaining Hadamard and batched inner-product transcripts
+are absorbed by these terms.
+Using \(h=O(\log_qN)\) and
+\(\kappa_{\mathbb K}\leq\kappa\) gives the stated proof size.
+
+\smallskip\noindent\textbf{Prover memory and PCS costs.}
+The grand-product workspace uses
+\(O(dN+d\kappa_{\mathbb K}^3)
+=O(dN+\kappa^3/d^2)\) base-field coordinates.
+The witnesses, circuit tables, and grouped opening buffers
+occupy \(O(Nh)\) coordinates.
+Sequential execution reuses the gate and copy workspaces.
+Including the optional interpolation tables and public I/O
+gives \(O(N\log_qN)\Field+O(\kappa^4+n_{\mathsf{io}})\).
+
+The four PCS functions bound aggregate resources for one online
+witness commitment and one opening of each of the two vectors,
+of logical lengths \(3m\) and \(m_{\mathsf{pub}}\).
+They include domain padding and both retained commitment states;
+public commitment generation is preprocessed.
+Their total argument is therefore \(3m+m_{\mathsf{pub}}\).
+This proves Eq.~\eqref{eq:together-single-efficiency}.
+Unlabeled time and memory remainders count base-field operations
+and base-field elements, respectively.
 \end{proof}
 
 \subsection{Proof of Theorem~\ref{theorem:multiple-instance-packing}}
@@ -1095,17 +863,14 @@ The theorem adds the underlying PCS costs and workspace separately.
 
 \begin{proof}
 \noindent\textbf{Completeness.}
-Let \(\bm R\in\Field^{m\times\kappa}\) contain the gate
+Let \(\bm R\in\Field^{N\times\kappa}\) contain the gate
 residuals of the \(\kappa\) instances as columns.
 The left-hand side of Eq.~\eqref{eq:together-multiple-gates}
-is exactly \(\bm R\ext{\bm\beta}\), including the term
+is \(\bm R\ext{\bm\beta}\), including the term
 \(\bm q_C\bm1_\kappa^\top\ext{\bm\beta}\).
-Linear independence of the basis implies:
-\[
-    \bm R\ext{\bm\beta}=\bm0_m
-       \quad\Longleftrightarrow\quad
-    \bm R=\bm0_{m\times\kappa}.
-\]
+Linear independence of the basis gives
+\(\bm R\ext{\bm\beta}=\bm0_N\) if and only if
+\(\bm R=\bm0_{N\times\kappa}\).
 Similarly, packing commutes with the common row permutation,
 so \(\sigma(\ext{\bm w})=\ext{\bm w}\) is equivalent to
 the copy constraints in every instance.
@@ -1113,67 +878,94 @@ This equivalence includes the packed public I/O.
 Eq.~\eqref{eq:together-multiple-product-opening} authenticates
 the virtual product vector from
 Eq.~\eqref{eq:together-multiple-wires}.
-All scalar checks and tree relations therefore accept for an
-honest prover.
+Thus all scalar checks and tree relations accept for an honest prover.
+
+\smallskip\noindent\textbf{Public packing.}
+Let \(h=\lceil\log_{\underline q}L\rceil\).
+Form \(\bm Q\in\Field^{N\times\kappa}\) with first five columns
+\(\bm q_L,\bm q_R,\bm q_M,\bm q_O,\bm q_C\).
+The next three blocks of \(h\) columns contain the position digits
+\(\bm\sigma_{(1)},\ldots,\bm\sigma_{(h)}\), restricted to the
+three length-\(N\) wire segments, respectively.
+Fill the remaining columns with zeros.
+The capacity condition \(5+3h\leq\kappa\) therefore gives:
+\[
+    \bm Q\ext{\bm\beta}\in\ExtensionField^N.
+\]
+A selector query uses its coordinate unit vector as the column
+weight in Eq.~\eqref{eq:pcs-opening-relation}.
+For the permuted-label query on segment \(\ell\in[3]\), use
+\(\ext\rho_{5+(\ell-1)h+j}=\ext\beta_j\) for \(j\in[h]\),
+and zero elsewhere.
+Thus five selector queries and three permuted-label queries
+are weighted evaluations of the same public matrix.
+The row weights are tensor vectors, so Section~\ref{sec:pcs}
+applies to all eight queries.
+The public commitment is preprocessed.
+The identity-label MLE is evaluated directly by
+Proposition~\ref{proposition:position-encoding-evaluation};
+it is not committed.
 
 \smallskip\noindent\textbf{Gate soundness.}
-Condition on binding of the witness commitments.
-Every committed vector in \(\ExtensionField^m\) has a unique
-matrix of \(\Field\)-coordinates in the fixed basis.
-Thus both the gate residual and \(\ext{\bm w}_M\) are fixed
-functions of the committed witnesses.
+Condition on binding of the witness commitment.
+Its three length-\(N\) blocks have unique matrices of
+\(\Field\)-coordinates in the fixed basis.
+Thus the gate residual and \(\ext{\bm w}_M\) are determined
+by the committed witnesses.
 If some gate is invalid, the packed residual is nonzero.
-Its random length-\(m\) tensor projection vanishes with
-probability at most \(\log_2m/|\ExtensionField|\).
+Its random length-\(N\) tensor projection vanishes with
+probability at most \(\log_2N/|\ExtensionField|\).
 
 For a fixed projection point \(\ext{\bm x}\), the gate
-sum-check polynomial is the product of the multilinear equality
+sumcheck polynomial is the product of the multilinear equality
 weight with the residual expression formed from selector and wire
-MLEs. Each selector-times-wire term has individual degree two,
+MLEs. Each selector--wire product has individual degree two,
 and multiplication by the equality weight raises this to three.
-The constant-selector term has lower degree, so sum-check has
-error at most
-\(3\log_2m/|\ExtensionField|\).
-Its five selector and three committed-wire evaluations are
-checked by direct PCS openings.
+The constant-selector term has lower degree, giving sumcheck
+error at most \(3\log_2N/|\ExtensionField|\).
 The remaining virtual-product evaluation is checked by one
-packed Hadamard proof and its two packed openings.
-These checks give the first two algebraic terms in
-Eq.~\eqref{eq:together-multiple-soundness}. The bound applies
-jointly to all \(\kappa\) instances because packing is injective.
+packed Hadamard proof on matrices of size \(N\times\kappa\).
+Since the total number of entries is \(N\kappa\), its
+reduction error is bounded by:
+\[
+    \frac{2\kappa-2}{|\ExtensionField|-\kappa}
+       +\frac{2\log_2(N\kappa)}{|\ExtensionField|}.
+\]
+All terminal queries are authenticated by the batched openings below.
+The bound applies jointly to all \(\kappa\) instances because
+packing is injective.
 
 \smallskip\noindent\textbf{Copy fingerprint.}
 Suppose that the packed assignment violates a copy constraint.
 Consider the bivariate difference polynomial:
 \[
     P(Y,Z)=
-       \prod_{i=1}^{L}(Z+\ext w_i+Y\ext\tau_i)
-       -\prod_{i=1}^{L}(Z+\ext w_i+Y\ext\tau_{\sigma,i}).
+       \prod_{i=1}^{L}(Z+\iota_i+Y\ext w_i)
+       -\prod_{i=1}^{L}(Z+\varsigma_i+Y\ext w_i).
 \]
-The labels \(\ext\tau_i\) are distinct because the bit-to-field
-digit map is injective and \(\gamma\leq\kappa\) digit slots use
-independent basis coordinates.
 If \(P\) were zero, unique factorization in
 \(\ExtensionField[Y,Z]\) would equate the two multisets of
 linear factors, each monic in \(Z\).
-Matching their \(Y\)-coefficients would then force
-\(\ext w_i=\ext w_{\sigma^{-1}(i)}\) for every \(i\),
-contradicting the copy violation. Hence \(P\ne0\).
+Since the labels are distinct and
+\(\varsigma_i=\iota_{\sigma(i)}\), matching the constant
+coefficients pairs position \(i\) with \(\sigma^{-1}(i)\).
+Matching the \(Y\)-coefficients then forces
+\(\ext w_i=\ext w_{\sigma^{-1}(i)}\), contradicting the copy
+violation. Hence \(P\ne0\).
 
-The homogeneous degree-\(L\) parts are equal:
-\[
-    \prod_{i=1}^{L}(Z+Y\ext\tau_i)
-       =\prod_{i=1}^{L}(Z+Y\ext\tau_{\sigma,i}).
-\]
-It follows that \(P\) has total degree at most \(L-1\).
-The independent uniform challenges \(\ext y,\ext z\) therefore
-satisfy \(P(\ext y,\ext z)=0\) with probability at most
-\(\min\{1,(L-1)/|\ExtensionField|\}\).
-This bound includes the randomness used to combine values and labels.
+Both products have homogeneous degree-\(L\) part
+\(\prod_{i=1}^{L}(Z+Y\ext w_i)\), so \(P\) has total degree
+at most \(L-1\).
+The independent uniform challenges \(\ext y,\ext z\)
+therefore satisfy \(P(\ext y,\ext z)=0\) with probability at
+most \(\min\{1,(L-1)/|\ExtensionField|\}\).
+Padding each product-tree input with ones does not change
+this fingerprint.
 
 \smallskip\noindent\textbf{Product-tree soundness.}
+Set \(\mu=\lceil\log_2L\rceil=\log_2(4N)\).
 For one grand product, unfold the binary tree from its root
-to the length-\(L\) input vector.
+to the padded length-\(4N\) input vector.
 At a level with \(2^\ell\) parent entries, where
 \(\ell\in\{0,\ldots,\mu-1\}\), let
 \(\ext{\bm x}\in\ExtensionField^\ell\) be the current
@@ -1183,93 +975,157 @@ The weighted product identity uses the polynomial:
     \left\langle
        \tensorspan{\ext{\bm x}},\tensorspan{\bm X}
     \right\rangle
-    \left\langle\ext{\bm u},\tensorspan{\bm X}\right\rangle
-    \left\langle\ext{\bm v},\tensorspan{\bm X}\right\rangle,
+    \left\langle\ext{\bm c}_U,\tensorspan{\bm X}\right\rangle
+    \left\langle\ext{\bm c}_D,\tensorspan{\bm X}\right\rangle,
 \]
-where \(\ext{\bm u},\ext{\bm v}\) are the two child subvectors
+where \(\ext{\bm c}_U,\ext{\bm c}_D\) are the two child subvectors
 and \(\bm X\) denotes \(\ell\) formal variables.
 Its degree in each variable is at most three.
-Sum-check reduces its Boolean sum to child evaluations
-\(\ext v_L,\ext v_R\) at one point \(\ext{\bm t}\), with
+Sumcheck reduces its Boolean sum to child evaluations
+\(\ext v_U,\ext v_D\) at one point \(\ext{\bm y}\), with
 error at most \(3\ell/|\ExtensionField|\).
-
 After both values are fixed, sample a fresh
-\(\ext\eta\sample\ExtensionField\) and form the next claim:
+\(\ext y_0\sample\ExtensionField\) and form the next claim:
 \[
-    (1-\ext\eta)\ext v_L+\ext\eta\ext v_R
+    (1-\ext y_0)\ext v_U+\ext y_0\ext v_D
        =
     \left\langle
-       \ext{\bm u}\mathbin{\|}\ext{\bm v},
-       \tensorspan{(\ext\eta,\ext{\bm t})}
+       \ext{\bm c}_U\mathbin{\|}\ext{\bm c}_D,
+       \tensorspan{(\ext y_0,\ext{\bm y})}
     \right\rangle.
 \]
-If either child claim is false, this merge accepts it
-with probability at most \(1/|\ExtensionField|\).
-Thus one tree has reduction error at most:
+If either child claim is false, this merge accepts it with
+probability at most \(1/|\ExtensionField|\).
+Thus the two trees have total reduction error at most:
 \[
-    \sum_{\ell=0}^{\mu-1}
-       \frac{3\ell+1}{|\ExtensionField|}
-       =
-    \frac{3\mu(\mu-1)/2+\mu}{|\ExtensionField|}.
+    2\sum_{\ell=0}^{\mu-1}\frac{3\ell+1}{|\ExtensionField|}
+       =\frac{3\mu(\mu-1)+2\mu}{|\ExtensionField|}.
 \]
-The \(\ell=0\) level has no sum-check rounds but still uses
+The \(\ell=0\) level has no sumcheck rounds but still uses
 a fresh merge challenge.
-Each tree ends in a single MLE claim on its original input.
-Subtracting the known shift \(\ext z\) and expanding the
-value-label combination produces three wire claims per tree
-and one permuted-label claim across the two trees.
 
-\smallskip\noindent\textbf{Openings and composition.}
-The gate argument uses eight direct openings and two packed
-openings. The copy argument uses seven direct openings.
-Fourteen direct openings concern length-\(m\) vectors and
-one concerns \(\ext{\bm\tau}_\sigma\) of length \(L\).
-Each packed opening terminates in one underlying opening at
-length \(m\). Consequently the total opening error is at most
-\(15\epsilon_{\mathsf{PCS}}+2\epsilon_{\mathsf{open}}(N)\).
-The PCS assumption covers these adaptive queries.
-A union bound with the gate, fingerprint, two tree, and binding
-errors proves Eq.~\eqref{eq:together-multiple-soundness}.
+Each tree ends in a single MLE claim on its padded input.
+At its terminal point, the known shift and padding contribute:
+\[
+    \ext z\sum_{i=1}^{L}
+       \bigl(\tensorspan{\ext{\bm x}}\bigr)_i
+    +\sum_{i=L+1}^{4N}
+       \bigl(\tensorspan{\ext{\bm x}}\bigr)_i
+    =
+    1+(\ext z-1)\sum_{i=1}^{L}
+       \bigl(\tensorspan{\ext{\bm x}}\bigr)_i.
+\]
+The prefix sum takes \(O(\log N)\) operations by a binary
+interval decomposition.
+Each length-\(N\) wire segment fixes two prefix bits.
+Retain their tensor weight and query the suffix MLE.
+The public-I/O values and permuted labels at the remaining
+\(n_{\mathsf{io}}\) positions are evaluated directly.
+The identity-label MLE is computed by Appendix~\ref{appx:mleiota}.
+Consequently, the two copy terminals leave six ordinary wire
+queries and three weighted queries to the public matrix.
+
+\smallskip\noindent\textbf{Batched openings and composition.}
+There are nine ordinary wire queries: three from the gate check
+and six from the copy check.
+The two Hadamard terminals and eight public queries give
+ten packed queries.
+Apply the column-projection step of Section~\ref{sec:pcs}
+to each packed query.
+Fix all column messages and ordinary claimed values before
+sampling independent projection vectors for the packed queries
+and independent scalar weights for the ordinary queries.
+Extend each query by zeros outside its committed block, and
+sum the resulting inner-product claims within each group.
+
+If an ordinary claim is false, its scalar weight has a nonzero
+error coefficient.
+If a packed column message is false and its scalar check passes,
+injectivity gives
+\((\bm U-\bm\Xi^\top\bm A)\ext{\bm\beta}\ne\bm0\).
+Thus a group containing a false claim has a nonzero linear
+error polynomial in its independent batching challenges.
+Cancellation occurs with probability at most
+\(1/|\ExtensionField|\) per group.
+
+The witness concatenation has logical length \(3N\), padded
+to \(4N\); the public packing has length \(N\).
+One invocation of Fact~\ref{fact:ip} per group therefore adds
+\(2\log_2(4N)/|\ExtensionField|\) and
+\(2\log_2N/|\ExtensionField|\) error, respectively.
+The verifier computes the combined query-side evaluation in
+each group exactly: use the recurrence of Section~\ref{sec:pcs}
+for packed queries and tensor contractions for ordinary
+queries, retaining the witness block-prefix weights.
+This leaves two underlying PCS openings.
+Their joint binding and opening error is
+\(\epsilon_{\mathsf{PCS}}\).
+
+Combining these bounds gives:
+\[
+\begin{aligned}
+    \epsilon_{\mathsf{multi}}
+    \leq{}&\epsilon_{\mathsf{PCS}}
+       +\frac{2\kappa-2}{|\ExtensionField|-\kappa}\\
+       &+\frac{
+          L-1+3\mu(\mu-1)+2\mu
+          +8\log_2N+2\log_2(N\kappa)+6
+       }{|\ExtensionField|}.
+\end{aligned}
+\]
+Here the constant \(6\) includes the two aggregation checks
+and the extra prefix rounds for the length-\(4N\) witness.
+Since \(L\leq4N\), \(\kappa\leq N\), and
+\((\log_2N)^2=O(N)\), this proves
+Eq.~\eqref{eq:together-multiple-soundness}.
 
 \smallskip\noindent\textbf{Efficiency.}
-Computing \(\bm W_L\circ\bm W_R\) costs \(O(N)\bb\).
-The one packed Hadamard proof and two packed openings cost
-\(O(\kappa N)\bb\), using \(m\geq\kappa\).
-The gate sum-check operates on a constant number of
-length-\(m\) extension-field tables and costs
-\(O(m)\) extension-field operations.
+Each wire matrix has \(N\kappa\) entries.
+Computing \(\bm W_L\circ\bm W_R\) costs \(O(N\kappa)\bb\).
+The Hadamard reduction and ten packed column projections each
+cost \(O(N\kappa^2+\kappa^3)\bb\), which is
+\(O(N\kappa^2)\bb\) because \(N\geq\kappa\).
+The assumption \(q\geq2\kappa-1\) supplies the interpolation
+nodes over \(\Field\), so no intermediate-field table is needed.
+The gate sumcheck and the two final inner-product reductions
+use \(O(N)\) extension-field operations.
+The product-tree layer lengths sum to \(O(N)\), and their
+sumchecks cost \(O(N+\mu^2)\) extension-field operations.
+Under schoolbook arithmetic, these contributions give
+\(O(N\kappa^2)\bb\) total algebraic prover time.
 
-For the product trees, the layer lengths form a geometric
-series summing to \(O(L)\). Forming their entries, generating
-the equality tables, and running the layer sum-checks therefore
-cost \(O(L+(\log_2L)^2)\) extension-field operations in total.
-The layer transcripts and verifier checks cost
-\(O((\log_2L)^2)\) extension-field elements and operations,
-respectively.
-Schoolbook multiplication converts these bounds to the
-\(\kappa^2[L+(\log_2L)^2]\bb\) term.
-
-The packed Hadamard check contributes \(O(\kappa^3)\bb\)
-to verifier time, and the two packed opening reductions add
-\(O(\kappa^3(1+\log_2m))\bb\).
+The packed Hadamard check uses \(O(\kappa)\ee\) verifier time,
+and the ten column projections and terminal query contractions
+use \(O(\kappa\log_2N)\ee\).
+The gate, tree, and final inner-product checks add
+\(O((\log_2N)^2)\ee\).
 Packing the public I/O reads \(O(\kappa n_{\mathsf{io}})\)
-base-field coordinates, and its terminal contractions cost
-\(O(n_{\mathsf{io}}+\log L)\) extension-field operations.
-The identity labels are handled by
-Proposition~\ref{proposition:position-encoding-evaluation}.
-Combining these costs proves the verifier bound.
+base-field coordinates, and its terminal contractions and
+the direct identity-label evaluations take
+\(O(n_{\mathsf{io}}+\log N)\) extension-field operations.
+This gives the stated verifier time.
 
-The packed messages occupy \(O(\kappa^2+\kappa\log_2m)\)
-base-field coordinates, in addition to the
-\(O((\log_2L)^2)\) extension-field elements of the direct
-gate and copy reductions.
-Sequential execution stores \(O(N)\) witness coordinates and
-\(O(L)\) extension-field product-tree entries, giving
-\(O(N+\kappa L)\) coordinates of space.
-These are the bounds in
+The ten column messages contain \(O(\kappa)\)
+extension-field elements in total.
+The Hadamard proof, gate sumcheck, tree reductions, and final
+inner-product proofs add
+\(O(\kappa+(\log_2N)^2)\) extension-field elements,
+giving the proof-size bound.
+The witnesses and public matrix occupy \(O(N\kappa)\)
+base-field coordinates.
+Sequential execution retains \(O(N)\) extension-field
+tree and sumcheck entries and \(O(\kappa^2)\) coordinates
+for the column messages.
+Thus algebraic prover memory is \(O(N\kappa)\Field\).
+
+The online PCS costs cover one witness commitment and two
+openings on vectors of logical lengths \(3N\) and \(N\).
+Their aggregate argument is therefore \(4N\), with the required
+witness padding included in the PCS cost functions.
+Public commitment generation is part of circuit preprocessing;
+both retained commitment states count toward PCS memory.
+These calculations prove
 Eq.~\eqref{eq:together-multiple-efficiency}.
-The three witness commitments and seventeen underlying openings
-are charged separately, at the lengths stated in the theorem.
-For \(L=O(m)\), substituting \(N=m\kappa\) and dividing the
-total prover cost by \(\kappa\) gives the amortized bound.
+Dividing the algebraic prover time and peak memory by
+\(\kappa\) gives the amortized per-instance bounds.
 \end{proof}

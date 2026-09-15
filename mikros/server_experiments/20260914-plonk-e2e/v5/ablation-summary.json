@@ -1,0 +1,884 @@
+[
+  {
+    "directory": "ablation-constant-bitbanks",
+    "disabled": [
+      "constant-bitbanks"
+    ],
+    "mode": "single",
+    "samples": 1,
+    "scope": "exploratory; confirm effects near timing variation",
+    "mikros_ms": 5495.571624,
+    "flock_ms": 9199.361938,
+    "all_on_ratio": 1.8315950868397648,
+    "off_ratio": 1.673959065117991,
+    "relative_ratio_change_pct": -8.606488565863057,
+    "same_proof_commitments_and_binary": true,
+    "times": {
+      "mikros": {
+        "commit_ms": 15.092378,
+        "copy_ms": 1364.5115409999999,
+        "gates_ms": 65.48048800000001,
+        "prover_ms": 5495.571624,
+        "public_claims": 89,
+        "public_pcs_open_ms": 1522.9892619999998,
+        "public_recommit_ms": 537.0300930000001,
+        "public_ring_claims": 89,
+        "recommit_ms": 15.257112999999999,
+        "release_ms": 1736.253493,
+        "serialization_ms": 0.719477,
+        "witness_claims": 11,
+        "witness_pcs_open_ms": 237.875107,
+        "witness_ring_claims": 11
+      },
+      "flock": {
+        "commit_ms": 15.337267,
+        "copy_ms": 6418.4330039999995,
+        "gates_ms": 16.825575999999998,
+        "prover_ms": 9199.361938,
+        "public_claims": 84,
+        "public_pcs_open_ms": 1014.857632,
+        "public_recommit_ms": 545.743509,
+        "public_ring_claims": 84,
+        "recommit_ms": 29.196423,
+        "release_ms": 950.469391,
+        "serialization_ms": 0.51464,
+        "witness_claims": 7,
+        "witness_pcs_open_ms": 207.695492,
+        "witness_ring_claims": 7
+      }
+    }
+  },
+  {
+    "directory": "ablation-constant-bitbanks",
+    "disabled": [
+      "constant-bitbanks"
+    ],
+    "mode": "multiple",
+    "samples": 1,
+    "scope": "exploratory; confirm effects near timing variation",
+    "mikros_ms": 22409.023744,
+    "flock_ms": 24308.349704,
+    "all_on_ratio": 1.1122401521207341,
+    "off_ratio": 1.0847571934278728,
+    "relative_ratio_change_pct": -2.4709554533217437,
+    "same_proof_commitments_and_binary": true,
+    "times": {
+      "mikros": {
+        "commit_ms": 1837.920588,
+        "copy_ms": 4279.234678,
+        "gates_ms": 1352.8348,
+        "prover_ms": 22409.023744,
+        "public_claims": 8,
+        "public_pcs_open_ms": 1305.5497950000001,
+        "public_recommit_ms": 536.386298,
+        "public_ring_claims": 8,
+        "recommit_ms": 2027.802098,
+        "release_ms": 3254.5154159999997,
+        "serialization_ms": 0.5995710000000001,
+        "witness_claims": 11,
+        "witness_pcs_open_ms": 7813.894573,
+        "witness_ring_claims": 11
+      },
+      "flock": {
+        "commit_ms": 1863.704013,
+        "copy_ms": 6511.906163,
+        "gates_ms": 1779.124887,
+        "prover_ms": 24308.349704,
+        "public_claims": 3,
+        "public_pcs_open_ms": 1054.842719,
+        "public_recommit_ms": 556.352681,
+        "public_ring_claims": 3,
+        "recommit_ms": 1924.2164520000001,
+        "release_ms": 3523.025587,
+        "serialization_ms": 1.2087809999999999,
+        "witness_claims": 7,
+        "witness_pcs_open_ms": 7093.656488,
+        "witness_ring_claims": 7
+      }
+    }
+  },
+  {
+    "directory": "ablation-jit-fused",
+    "disabled": [
+      "jit-fused"
+    ],
+    "mode": "single",
+    "samples": 1,
+    "scope": "exploratory; confirm effects near timing variation",
+    "mikros_ms": 6066.288704,
+    "flock_ms": 10406.910067,
+    "all_on_ratio": 1.8315950868397648,
+    "off_ratio": 1.7155316165776737,
+    "relative_ratio_change_pct": -6.336742825749065,
+    "same_proof_commitments_and_binary": true,
+    "times": {
+      "mikros": {
+        "commit_ms": 15.928987,
+        "copy_ms": 1322.0722190000001,
+        "gates_ms": 70.813899,
+        "prover_ms": 6066.288704,
+        "public_claims": 89,
+        "public_pcs_open_ms": 2022.3071539999999,
+        "public_recommit_ms": 618.747051,
+        "public_ring_claims": 89,
+        "recommit_ms": 15.367968,
+        "release_ms": 1698.195631,
+        "serialization_ms": 0.748569,
+        "witness_claims": 11,
+        "witness_pcs_open_ms": 301.81633600000004,
+        "witness_ring_claims": 11
+      },
+      "flock": {
+        "commit_ms": 15.153017,
+        "copy_ms": 6815.079145000001,
+        "gates_ms": 20.007695,
+        "prover_ms": 10406.910067,
+        "public_claims": 84,
+        "public_pcs_open_ms": 1630.3068729999998,
+        "public_recommit_ms": 642.800619,
+        "public_ring_claims": 84,
+        "recommit_ms": 20.33747,
+        "release_ms": 964.243661,
+        "serialization_ms": 0.5242410000000001,
+        "witness_claims": 7,
+        "witness_pcs_open_ms": 298.1432,
+        "witness_ring_claims": 7
+      }
+    }
+  },
+  {
+    "directory": "ablation-jit-fused",
+    "disabled": [
+      "jit-fused"
+    ],
+    "mode": "multiple",
+    "samples": 1,
+    "scope": "exploratory; confirm effects near timing variation",
+    "mikros_ms": 25259.981992,
+    "flock_ms": 29158.646128,
+    "all_on_ratio": 1.1122401521207341,
+    "off_ratio": 1.154341524757806,
+    "relative_ratio_change_pct": 3.785277177486912,
+    "same_proof_commitments_and_binary": true,
+    "times": {
+      "mikros": {
+        "commit_ms": 1952.5125079999998,
+        "copy_ms": 4295.874642000001,
+        "gates_ms": 1347.5558030000002,
+        "prover_ms": 25259.981992,
+        "public_claims": 8,
+        "public_pcs_open_ms": 2324.537746,
+        "public_recommit_ms": 601.549785,
+        "public_ring_claims": 8,
+        "recommit_ms": 1755.149297,
+        "release_ms": 2926.808465,
+        "serialization_ms": 0.610643,
+        "witness_claims": 11,
+        "witness_pcs_open_ms": 10055.024909,
+        "witness_ring_claims": 11
+      },
+      "flock": {
+        "commit_ms": 2294.994616,
+        "copy_ms": 6865.335688,
+        "gates_ms": 1836.706731,
+        "prover_ms": 29158.646128,
+        "public_claims": 3,
+        "public_pcs_open_ms": 2087.479112,
+        "public_recommit_ms": 538.701197,
+        "public_ring_claims": 3,
+        "recommit_ms": 1946.503535,
+        "release_ms": 3430.7434380000004,
+        "serialization_ms": 0.555284,
+        "witness_claims": 7,
+        "witness_pcs_open_ms": 10157.125935,
+        "witness_ring_claims": 7
+      }
+    }
+  },
+  {
+    "directory": "ablation-label-fold",
+    "disabled": [
+      "label-fold"
+    ],
+    "mode": "single",
+    "samples": 1,
+    "scope": "exploratory; confirm effects near timing variation",
+    "mikros_ms": 5214.676277,
+    "flock_ms": 9414.443341,
+    "all_on_ratio": 1.8315950868397648,
+    "off_ratio": 1.8053744548867996,
+    "relative_ratio_change_pct": -1.431573612604864,
+    "same_proof_commitments_and_binary": true,
+    "times": {
+      "mikros": {
+        "commit_ms": 15.081226,
+        "copy_ms": 1322.7555739999998,
+        "gates_ms": 69.06542400000001,
+        "prover_ms": 5214.676277,
+        "public_claims": 89,
+        "public_pcs_open_ms": 1199.8294039999998,
+        "public_recommit_ms": 568.311136,
+        "public_ring_claims": 89,
+        "recommit_ms": 15.100336,
+        "release_ms": 1773.4366840000002,
+        "serialization_ms": 0.81456,
+        "witness_claims": 11,
+        "witness_pcs_open_ms": 249.830141,
+        "witness_ring_claims": 11
+      },
+      "flock": {
+        "commit_ms": 15.621302,
+        "copy_ms": 6661.233759,
+        "gates_ms": 16.745043000000003,
+        "prover_ms": 9414.443341,
+        "public_claims": 84,
+        "public_pcs_open_ms": 907.251358,
+        "public_recommit_ms": 575.3607480000001,
+        "public_ring_claims": 84,
+        "recommit_ms": 16.966745,
+        "release_ms": 1008.446342,
+        "serialization_ms": 0.777299,
+        "witness_claims": 7,
+        "witness_pcs_open_ms": 211.733756,
+        "witness_ring_claims": 7
+      }
+    }
+  },
+  {
+    "directory": "ablation-label-fold",
+    "disabled": [
+      "label-fold"
+    ],
+    "mode": "multiple",
+    "samples": 1,
+    "scope": "exploratory; confirm effects near timing variation",
+    "mikros_ms": 21903.040026,
+    "flock_ms": 24727.166614,
+    "all_on_ratio": 1.1122401521207341,
+    "off_ratio": 1.128937653615554,
+    "relative_ratio_change_pct": 1.5012496593458158,
+    "same_proof_commitments_and_binary": true,
+    "times": {
+      "mikros": {
+        "commit_ms": 1670.7293779999998,
+        "copy_ms": 4633.394873,
+        "gates_ms": 1341.286755,
+        "prover_ms": 21903.040026,
+        "public_claims": 8,
+        "public_pcs_open_ms": 1286.724226,
+        "public_recommit_ms": 602.899461,
+        "public_ring_claims": 8,
+        "recommit_ms": 1951.923503,
+        "release_ms": 3288.4050500000008,
+        "serialization_ms": 0.56511,
+        "witness_claims": 11,
+        "witness_pcs_open_ms": 7126.821555,
+        "witness_ring_claims": 11
+      },
+      "flock": {
+        "commit_ms": 1772.4520909999999,
+        "copy_ms": 7181.143691,
+        "gates_ms": 1824.866467,
+        "prover_ms": 24727.166614,
+        "public_claims": 3,
+        "public_pcs_open_ms": 1017.9378640000001,
+        "public_recommit_ms": 668.2026129999999,
+        "public_ring_claims": 3,
+        "recommit_ms": 2059.138379,
+        "release_ms": 3493.730162,
+        "serialization_ms": 0.623581,
+        "witness_claims": 7,
+        "witness_pcs_open_ms": 6708.749805,
+        "witness_ring_claims": 7
+      }
+    }
+  },
+  {
+    "directory": "ablation-leaf-cache",
+    "disabled": [
+      "leaf-cache"
+    ],
+    "mode": "single",
+    "samples": 1,
+    "scope": "exploratory; confirm effects near timing variation",
+    "mikros_ms": 5083.251135,
+    "flock_ms": 9371.564605,
+    "all_on_ratio": 1.8315950868397648,
+    "off_ratio": 1.8436162912497926,
+    "relative_ratio_change_pct": 0.6563243424489329,
+    "same_proof_commitments_and_binary": true,
+    "times": {
+      "mikros": {
+        "commit_ms": 16.595717,
+        "copy_ms": 1363.829198,
+        "gates_ms": 70.749363,
+        "prover_ms": 5083.251135,
+        "public_claims": 89,
+        "public_pcs_open_ms": 1182.477826,
+        "public_recommit_ms": 499.112118,
+        "public_ring_claims": 89,
+        "recommit_ms": 23.165961,
+        "release_ms": 1706.2920439999998,
+        "serialization_ms": 0.785216,
+        "witness_claims": 11,
+        "witness_pcs_open_ms": 219.964957,
+        "witness_ring_claims": 11
+      },
+      "flock": {
+        "commit_ms": 16.878531,
+        "copy_ms": 6560.253654,
+        "gates_ms": 16.912724,
+        "prover_ms": 9371.564605,
+        "public_claims": 84,
+        "public_pcs_open_ms": 897.435779,
+        "public_recommit_ms": 699.4694380000001,
+        "public_ring_claims": 84,
+        "recommit_ms": 27.665458,
+        "release_ms": 933.0791489999999,
+        "serialization_ms": 0.8975329999999999,
+        "witness_claims": 7,
+        "witness_pcs_open_ms": 218.700074,
+        "witness_ring_claims": 7
+      }
+    }
+  },
+  {
+    "directory": "ablation-leaf-cache",
+    "disabled": [
+      "leaf-cache"
+    ],
+    "mode": "multiple",
+    "samples": 1,
+    "scope": "exploratory; confirm effects near timing variation",
+    "mikros_ms": 21510.787926999998,
+    "flock_ms": 23705.342598000003,
+    "all_on_ratio": 1.1122401521207341,
+    "off_ratio": 1.102021119749195,
+    "relative_ratio_change_pct": -0.9187793078728856,
+    "same_proof_commitments_and_binary": true,
+    "times": {
+      "mikros": {
+        "commit_ms": 1912.884139,
+        "copy_ms": 4203.202125,
+        "gates_ms": 1351.862253,
+        "prover_ms": 21510.787926999998,
+        "public_claims": 8,
+        "public_pcs_open_ms": 1344.5792880000001,
+        "public_recommit_ms": 525.082672,
+        "public_ring_claims": 8,
+        "recommit_ms": 1726.4058909999999,
+        "release_ms": 3209.6347329999994,
+        "serialization_ms": 1.072683,
+        "witness_claims": 11,
+        "witness_pcs_open_ms": 7235.784858999999,
+        "witness_ring_claims": 11
+      },
+      "flock": {
+        "commit_ms": 1733.30767,
+        "copy_ms": 6484.382443,
+        "gates_ms": 1780.217184,
+        "prover_ms": 23705.342598000003,
+        "public_claims": 3,
+        "public_pcs_open_ms": 1054.048653,
+        "public_recommit_ms": 563.327132,
+        "public_ring_claims": 3,
+        "recommit_ms": 1848.505846,
+        "release_ms": 3468.131108,
+        "serialization_ms": 0.6119190000000001,
+        "witness_claims": 7,
+        "witness_pcs_open_ms": 6772.516596,
+        "witness_ring_claims": 7
+      }
+    }
+  },
+  {
+    "directory": "ablation-ordinary-eval",
+    "disabled": [
+      "ordinary-eval"
+    ],
+    "mode": "single",
+    "samples": 1,
+    "scope": "exploratory; confirm effects near timing variation",
+    "mikros_ms": 5045.046123,
+    "flock_ms": 9224.998825,
+    "all_on_ratio": 1.8315950868397648,
+    "off_ratio": 1.8285261621184985,
+    "relative_ratio_change_pct": -0.1675547583260606,
+    "same_proof_commitments_and_binary": true,
+    "times": {
+      "mikros": {
+        "commit_ms": 15.618392,
+        "copy_ms": 1302.324686,
+        "gates_ms": 73.837353,
+        "prover_ms": 5045.046123,
+        "public_claims": 89,
+        "public_pcs_open_ms": 1145.572514,
+        "public_recommit_ms": 565.37047,
+        "public_ring_claims": 89,
+        "recommit_ms": 23.550123,
+        "release_ms": 1673.0173720000003,
+        "serialization_ms": 0.733696,
+        "witness_claims": 11,
+        "witness_pcs_open_ms": 244.692699,
+        "witness_ring_claims": 11
+      },
+      "flock": {
+        "commit_ms": 15.381076,
+        "copy_ms": 6489.809608,
+        "gates_ms": 16.678096,
+        "prover_ms": 9224.998825,
+        "public_claims": 84,
+        "public_pcs_open_ms": 896.281287,
+        "public_recommit_ms": 545.233618,
+        "public_ring_claims": 84,
+        "recommit_ms": 23.294609,
+        "release_ms": 986.972959,
+        "serialization_ms": 0.678853,
+        "witness_claims": 7,
+        "witness_pcs_open_ms": 250.25747599999997,
+        "witness_ring_claims": 7
+      }
+    }
+  },
+  {
+    "directory": "ablation-ordinary-eval",
+    "disabled": [
+      "ordinary-eval"
+    ],
+    "mode": "multiple",
+    "samples": 1,
+    "scope": "exploratory; confirm effects near timing variation",
+    "mikros_ms": 22843.173873,
+    "flock_ms": 24473.763962,
+    "all_on_ratio": 1.1122401521207341,
+    "off_ratio": 1.0713819409713163,
+    "relative_ratio_change_pct": -3.6735062181950995,
+    "same_proof_commitments_and_binary": true,
+    "times": {
+      "mikros": {
+        "commit_ms": 1843.4890579999999,
+        "copy_ms": 5432.3712239999995,
+        "gates_ms": 1341.36633,
+        "prover_ms": 22843.173873,
+        "public_claims": 8,
+        "public_pcs_open_ms": 1304.929012,
+        "public_recommit_ms": 602.8050069999999,
+        "public_ring_claims": 8,
+        "recommit_ms": 2070.571417,
+        "release_ms": 3088.0724910000004,
+        "serialization_ms": 0.595941,
+        "witness_claims": 11,
+        "witness_pcs_open_ms": 7158.711578,
+        "witness_ring_claims": 11
+      },
+      "flock": {
+        "commit_ms": 1687.3386099999998,
+        "copy_ms": 7208.2938380000005,
+        "gates_ms": 1794.545683,
+        "prover_ms": 24473.763962,
+        "public_claims": 3,
+        "public_pcs_open_ms": 1046.497454,
+        "public_recommit_ms": 552.068059,
+        "public_ring_claims": 3,
+        "recommit_ms": 1831.346238,
+        "release_ms": 3692.693438,
+        "serialization_ms": 0.797047,
+        "witness_claims": 7,
+        "witness_pcs_open_ms": 6659.862160000001,
+        "witness_ring_claims": 7
+      }
+    }
+  },
+  {
+    "directory": "ablation-paired-bitbanks",
+    "disabled": [
+      "paired-bitbanks"
+    ],
+    "mode": "single",
+    "samples": 1,
+    "scope": "exploratory; confirm effects near timing variation",
+    "mikros_ms": 5109.699225,
+    "flock_ms": 9356.647696,
+    "all_on_ratio": 1.8315950868397648,
+    "off_ratio": 1.8311542977365756,
+    "relative_ratio_change_pct": -0.024065859662780742,
+    "same_proof_commitments_and_binary": true,
+    "times": {
+      "mikros": {
+        "commit_ms": 15.205952,
+        "copy_ms": 1352.07908,
+        "gates_ms": 65.816202,
+        "prover_ms": 5109.699225,
+        "public_claims": 89,
+        "public_pcs_open_ms": 1225.554583,
+        "public_recommit_ms": 544.309929,
+        "public_ring_claims": 89,
+        "recommit_ms": 15.340549,
+        "release_ms": 1659.632121,
+        "serialization_ms": 0.94116,
+        "witness_claims": 11,
+        "witness_pcs_open_ms": 230.45521599999998,
+        "witness_ring_claims": 11
+      },
+      "flock": {
+        "commit_ms": 15.272333000000001,
+        "copy_ms": 6626.754483,
+        "gates_ms": 16.546961999999997,
+        "prover_ms": 9356.647696,
+        "public_claims": 84,
+        "public_pcs_open_ms": 876.4846739999999,
+        "public_recommit_ms": 571.8917799999999,
+        "public_ring_claims": 84,
+        "recommit_ms": 25.597406,
+        "release_ms": 974.7628,
+        "serialization_ms": 0.517921,
+        "witness_claims": 7,
+        "witness_pcs_open_ms": 248.378888,
+        "witness_ring_claims": 7
+      }
+    }
+  },
+  {
+    "directory": "ablation-paired-bitbanks",
+    "disabled": [
+      "paired-bitbanks"
+    ],
+    "mode": "multiple",
+    "samples": 1,
+    "scope": "exploratory; confirm effects near timing variation",
+    "mikros_ms": 22097.309061,
+    "flock_ms": 24208.788572,
+    "all_on_ratio": 1.1122401521207341,
+    "off_ratio": 1.0955536941249826,
+    "relative_ratio_change_pct": -1.5002567533580868,
+    "same_proof_commitments_and_binary": true,
+    "times": {
+      "mikros": {
+        "commit_ms": 1982.136901,
+        "copy_ms": 4302.578261,
+        "gates_ms": 1395.578327,
+        "prover_ms": 22097.309061,
+        "public_claims": 8,
+        "public_pcs_open_ms": 1395.777399,
+        "public_recommit_ms": 556.9611880000001,
+        "public_ring_claims": 8,
+        "recommit_ms": 1848.749902,
+        "release_ms": 3168.50124,
+        "serialization_ms": 0.57852,
+        "witness_claims": 11,
+        "witness_pcs_open_ms": 7446.179524,
+        "witness_ring_claims": 11
+      },
+      "flock": {
+        "commit_ms": 1810.820052,
+        "copy_ms": 6732.6360669999995,
+        "gates_ms": 1757.55384,
+        "prover_ms": 24208.788572,
+        "public_claims": 3,
+        "public_pcs_open_ms": 1048.043571,
+        "public_recommit_ms": 580.097075,
+        "public_ring_claims": 3,
+        "recommit_ms": 1866.881354,
+        "release_ms": 3516.7289570000003,
+        "serialization_ms": 0.602397,
+        "witness_claims": 7,
+        "witness_pcs_open_ms": 6895.058437999999,
+        "witness_ring_claims": 7
+      }
+    }
+  },
+  {
+    "directory": "ablation-row-grouping",
+    "disabled": [
+      "row-grouping"
+    ],
+    "mode": "single",
+    "samples": 1,
+    "scope": "exploratory; confirm effects near timing variation",
+    "mikros_ms": 5640.449773,
+    "flock_ms": 10019.733769,
+    "all_on_ratio": 1.8315950868397648,
+    "off_ratio": 1.7764068775087734,
+    "relative_ratio_change_pct": -3.0131228090490847,
+    "same_proof_commitments_and_binary": true,
+    "times": {
+      "mikros": {
+        "commit_ms": 14.563162,
+        "copy_ms": 1328.9053820000001,
+        "gates_ms": 67.252031,
+        "prover_ms": 5640.449773,
+        "public_claims": 89,
+        "public_pcs_open_ms": 1698.360191,
+        "public_recommit_ms": 554.391573,
+        "public_ring_claims": 89,
+        "recommit_ms": 19.770937999999997,
+        "release_ms": 1702.5203149999998,
+        "serialization_ms": 0.5320849999999999,
+        "witness_claims": 11,
+        "witness_pcs_open_ms": 253.82693299999997,
+        "witness_ring_claims": 11
+      },
+      "flock": {
+        "commit_ms": 15.603975,
+        "copy_ms": 6545.081501000001,
+        "gates_ms": 16.680104,
+        "prover_ms": 10019.733769,
+        "public_claims": 84,
+        "public_pcs_open_ms": 1459.79671,
+        "public_recommit_ms": 621.448338,
+        "public_ring_claims": 84,
+        "recommit_ms": 26.306472,
+        "release_ms": 1040.0427690000001,
+        "serialization_ms": 0.61741,
+        "witness_claims": 7,
+        "witness_pcs_open_ms": 293.821596,
+        "witness_ring_claims": 7
+      }
+    }
+  },
+  {
+    "directory": "ablation-row-grouping",
+    "disabled": [
+      "row-grouping"
+    ],
+    "mode": "multiple",
+    "samples": 1,
+    "scope": "exploratory; confirm effects near timing variation",
+    "mikros_ms": 23339.815937,
+    "flock_ms": 24268.422858,
+    "all_on_ratio": 1.1122401521207341,
+    "off_ratio": 1.0397863857841272,
+    "relative_ratio_change_pct": -6.514219631296148,
+    "same_proof_commitments_and_binary": true,
+    "times": {
+      "mikros": {
+        "commit_ms": 2042.5486839999999,
+        "copy_ms": 4398.72464,
+        "gates_ms": 1376.866967,
+        "prover_ms": 23339.815937,
+        "public_claims": 8,
+        "public_pcs_open_ms": 2191.482073,
+        "public_recommit_ms": 547.873853,
+        "public_ring_claims": 8,
+        "recommit_ms": 1928.417732,
+        "release_ms": 3284.13182,
+        "serialization_ms": 0.5688460000000001,
+        "witness_claims": 11,
+        "witness_pcs_open_ms": 7568.92212,
+        "witness_ring_claims": 11
+      },
+      "flock": {
+        "commit_ms": 1798.414673,
+        "copy_ms": 6633.916851,
+        "gates_ms": 1769.884792,
+        "prover_ms": 24268.422858,
+        "public_claims": 3,
+        "public_pcs_open_ms": 1388.500842,
+        "public_recommit_ms": 548.9658,
+        "public_ring_claims": 3,
+        "recommit_ms": 1869.79081,
+        "release_ms": 3499.161272,
+        "serialization_ms": 1.510162,
+        "witness_claims": 7,
+        "witness_pcs_open_ms": 6757.98247,
+        "witness_ring_claims": 7
+      }
+    }
+  },
+  {
+    "directory": "ablation-sparse-bitbanks",
+    "disabled": [
+      "sparse-bitbanks"
+    ],
+    "mode": "single",
+    "samples": 1,
+    "scope": "exploratory; confirm effects near timing variation",
+    "mikros_ms": 5280.797851,
+    "flock_ms": 9454.898207999999,
+    "all_on_ratio": 1.8315950868397648,
+    "off_ratio": 1.7904298696473617,
+    "relative_ratio_change_pct": -2.2475064214891316,
+    "same_proof_commitments_and_binary": true,
+    "times": {
+      "mikros": {
+        "commit_ms": 15.069557000000001,
+        "copy_ms": 1391.5247239999999,
+        "gates_ms": 67.683503,
+        "prover_ms": 5280.797851,
+        "public_claims": 89,
+        "public_pcs_open_ms": 1378.309585,
+        "public_recommit_ms": 537.324301,
+        "public_ring_claims": 89,
+        "recommit_ms": 19.557091,
+        "release_ms": 1636.7554019999998,
+        "serialization_ms": 1.036616,
+        "witness_claims": 11,
+        "witness_pcs_open_ms": 233.17252299999998,
+        "witness_ring_claims": 11
+      },
+      "flock": {
+        "commit_ms": 15.607205,
+        "copy_ms": 6639.556361,
+        "gates_ms": 16.795929,
+        "prover_ms": 9454.898207999999,
+        "public_claims": 84,
+        "public_pcs_open_ms": 965.042887,
+        "public_recommit_ms": 554.372048,
+        "public_ring_claims": 84,
+        "recommit_ms": 27.022076,
+        "release_ms": 981.927336,
+        "serialization_ms": 1.240162,
+        "witness_claims": 7,
+        "witness_pcs_open_ms": 252.958179,
+        "witness_ring_claims": 7
+      }
+    }
+  },
+  {
+    "directory": "ablation-sparse-bitbanks",
+    "disabled": [
+      "sparse-bitbanks"
+    ],
+    "mode": "multiple",
+    "samples": 1,
+    "scope": "exploratory; confirm effects near timing variation",
+    "mikros_ms": 22126.426381999998,
+    "flock_ms": 24993.316322,
+    "all_on_ratio": 1.1122401521207341,
+    "off_ratio": 1.1295685932515627,
+    "relative_ratio_change_pct": 1.5579765842644644,
+    "same_proof_commitments_and_binary": true,
+    "times": {
+      "mikros": {
+        "commit_ms": 1871.060734,
+        "copy_ms": 4367.072072,
+        "gates_ms": 1371.518143,
+        "prover_ms": 22126.426381999998,
+        "public_claims": 8,
+        "public_pcs_open_ms": 1329.106047,
+        "public_recommit_ms": 594.414906,
+        "public_ring_claims": 8,
+        "recommit_ms": 1788.299579,
+        "release_ms": 3311.330988,
+        "serialization_ms": 0.6077549999999999,
+        "witness_claims": 11,
+        "witness_pcs_open_ms": 7492.716496,
+        "witness_ring_claims": 11
+      },
+      "flock": {
+        "commit_ms": 1844.672447,
+        "copy_ms": 6697.335659,
+        "gates_ms": 1780.728795,
+        "prover_ms": 24993.316322,
+        "public_claims": 3,
+        "public_pcs_open_ms": 1059.436604,
+        "public_recommit_ms": 604.159358,
+        "public_ring_claims": 3,
+        "recommit_ms": 2079.712245,
+        "release_ms": 3577.982742,
+        "serialization_ms": 0.770579,
+        "witness_claims": 7,
+        "witness_pcs_open_ms": 7348.162245,
+        "witness_ring_claims": 7
+      }
+    }
+  },
+  {
+    "directory": "ablation-tree-fusion",
+    "disabled": [
+      "tree-fusion"
+    ],
+    "mode": "single",
+    "samples": 1,
+    "scope": "exploratory; confirm effects near timing variation",
+    "mikros_ms": 5250.138918000001,
+    "flock_ms": 9432.996490000001,
+    "all_on_ratio": 1.8315950868397648,
+    "off_ratio": 1.7967136941194364,
+    "relative_ratio_change_pct": -1.904427074027193,
+    "same_proof_commitments_and_binary": true,
+    "times": {
+      "mikros": {
+        "commit_ms": 16.07426,
+        "copy_ms": 1328.1898270000002,
+        "gates_ms": 75.152857,
+        "prover_ms": 5250.138918000001,
+        "public_claims": 89,
+        "public_pcs_open_ms": 1208.844911,
+        "public_recommit_ms": 578.343236,
+        "public_ring_claims": 89,
+        "recommit_ms": 25.06914,
+        "release_ms": 1764.493375,
+        "serialization_ms": 1.31396,
+        "witness_claims": 11,
+        "witness_pcs_open_ms": 252.35515800000002,
+        "witness_ring_claims": 11
+      },
+      "flock": {
+        "commit_ms": 15.269905,
+        "copy_ms": 6790.667432,
+        "gates_ms": 18.574576999999998,
+        "prover_ms": 9432.996490000001,
+        "public_claims": 84,
+        "public_pcs_open_ms": 875.01315,
+        "public_recommit_ms": 547.879966,
+        "public_ring_claims": 84,
+        "recommit_ms": 14.848828999999999,
+        "release_ms": 991.76097,
+        "serialization_ms": 1.043639,
+        "witness_claims": 7,
+        "witness_pcs_open_ms": 177.629169,
+        "witness_ring_claims": 7
+      }
+    }
+  },
+  {
+    "directory": "ablation-tree-fusion",
+    "disabled": [
+      "tree-fusion"
+    ],
+    "mode": "multiple",
+    "samples": 1,
+    "scope": "exploratory; confirm effects near timing variation",
+    "mikros_ms": 21879.742356000002,
+    "flock_ms": 23928.608503,
+    "all_on_ratio": 1.1122401521207341,
+    "off_ratio": 1.093642151432288,
+    "relative_ratio_change_pct": -1.672120958138834,
+    "same_proof_commitments_and_binary": true,
+    "times": {
+      "mikros": {
+        "commit_ms": 1864.0016369999998,
+        "copy_ms": 4492.966799000001,
+        "gates_ms": 1388.7003929999998,
+        "prover_ms": 21879.742356000002,
+        "public_claims": 8,
+        "public_pcs_open_ms": 1287.4318979999998,
+        "public_recommit_ms": 583.575438,
+        "public_ring_claims": 8,
+        "recommit_ms": 1927.4014209999998,
+        "release_ms": 3243.759978,
+        "serialization_ms": 0.6049059999999999,
+        "witness_claims": 11,
+        "witness_pcs_open_ms": 7091.016108,
+        "witness_ring_claims": 11
+      },
+      "flock": {
+        "commit_ms": 1808.38999,
+        "copy_ms": 6463.722154,
+        "gates_ms": 1810.5285310000002,
+        "prover_ms": 23928.608503,
+        "public_claims": 3,
+        "public_pcs_open_ms": 1030.248556,
+        "public_recommit_ms": 520.860433,
+        "public_ring_claims": 3,
+        "recommit_ms": 1944.658914,
+        "release_ms": 3654.910631,
+        "serialization_ms": 0.626951,
+        "witness_claims": 7,
+        "witness_pcs_open_ms": 6694.2923439999995,
+        "witness_ring_claims": 7
+      }
+    }
+  }
+]

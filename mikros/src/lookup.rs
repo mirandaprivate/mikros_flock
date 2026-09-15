@@ -329,6 +329,110 @@ pub(crate) fn pack_pair_weighted_with_wide_message_into(
     pack_pair_weighted_with_message_into(a, b, column_weights, row_weights, a_out, b_out)
 }
 
+/// The same packing and first message, with a bounded row-weight tile. The
+/// challenge-dependent binding table is shared across all tasks, and native
+/// tasks retain the original wide product accumulators across 1024 rows.
+pub(crate) fn pack_pair_tiled_weights_with_wide_message_into(
+    a: &[u8],
+    b: &[u8],
+    column_weights: &[F128],
+    fill_weights: impl Fn(usize, &mut [F128]) + Sync,
+    a_out: &mut Vec<F128>,
+    b_out: &mut Vec<F128>,
+) -> [F128; 2] {
+    assert_eq!(a.len(), b.len());
+    assert_eq!(a.len() % ROW_BYTES, 0);
+    const BLOCK_ROWS: usize = 1024;
+    let table = BindingTable::new(column_weights);
+    let len = a.len() / ROW_BYTES;
+    let a_storage = crate::inner_product::prepare_output(a_out, len);
+    let b_storage = crate::inner_product::prepare_output(b_out, len);
+    let bind_chunk =
+        |start: usize, a_out: &mut [MaybeUninit<F128>], b_out: &mut [MaybeUninit<F128>]| {
+            let mut weights = [F128::ZERO; BLOCK_ROWS];
+            let weights = &mut weights[..a_out.len()];
+            fill_weights(start, weights);
+            let end = start + a_out.len();
+            let a = &a[start * ROW_BYTES..end * ROW_BYTES];
+            let b = &b[start * ROW_BYTES..end * ROW_BYTES];
+            #[cfg(all(
+                target_arch = "x86_64",
+                target_feature = "avx512f",
+                target_feature = "avx512bw",
+                target_feature = "vpclmulqdq",
+                target_feature = "pclmulqdq",
+                target_feature = "sse4.1"
+            ))]
+            {
+                // SAFETY: feature gates match the original kernel. The input,
+                // weights and disjoint output slices contain identical rows.
+                unsafe { x86_64::pack_pair_wide(&table, a, b, weights, a_out, b_out) }
+            }
+            #[cfg(not(all(
+                target_arch = "x86_64",
+                target_feature = "avx512f",
+                target_feature = "avx512bw",
+                target_feature = "vpclmulqdq",
+                target_feature = "pclmulqdq",
+                target_feature = "sse4.1"
+            )))]
+            {
+                let mut sums = [F256Unreduced::ZERO; 2];
+                for offset in (0..weights.len()).step_by(8) {
+                    let take = (weights.len() - offset).min(8);
+                    let mut a_values = [F128::ZERO; 8];
+                    let mut b_values = [F128::ZERO; 8];
+                    for i in 0..take {
+                        let input = (offset + i) * ROW_BYTES;
+                        a_values[i] = table.fold(&a[input..input + ROW_BYTES]);
+                        b_values[i] = table.fold(&b[input..input + ROW_BYTES]);
+                    }
+                    weight_native(&mut b_values[..take], &weights[offset..offset + take]);
+                    let message = crate::inner_product::native_message_chunk(
+                        &a_values[..take],
+                        &b_values[..take],
+                    );
+                    sums[0] ^= message[0];
+                    sums[1] ^= message[1];
+                    for i in 0..take {
+                        a_out[offset + i].write(a_values[i]);
+                        b_out[offset + i].write(b_values[i]);
+                    }
+                }
+                sums
+            }
+        };
+    // Tiles start on even rows, preserving every first-message pair. Keep
+    // tiles bounded even on a one-worker pool: no full tensor is regenerated.
+    let sums = if len < 4096 || rayon::current_num_threads() == 1 {
+        a_storage
+            .chunks_mut(BLOCK_ROWS)
+            .zip(b_storage.chunks_mut(BLOCK_ROWS))
+            .enumerate()
+            .fold([F256Unreduced::ZERO; 2], |sum, (block, (a, b))| {
+                let next = bind_chunk(block * BLOCK_ROWS, a, b);
+                [sum[0] ^ next[0], sum[1] ^ next[1]]
+            })
+    } else {
+        a_storage
+            .par_chunks_mut(BLOCK_ROWS)
+            .zip(b_storage.par_chunks_mut(BLOCK_ROWS))
+            .enumerate()
+            .map(|(block, (a, b))| bind_chunk(block * BLOCK_ROWS, a, b))
+            .reduce(
+                || [F256Unreduced::ZERO; 2],
+                |a, b| [a[0] ^ b[0], a[1] ^ b[1]],
+            )
+    };
+    // SAFETY: each output slot was initialized once in a disjoint chunk, and
+    // all tasks have joined. On panic both owner vectors still have length 0.
+    unsafe {
+        a_out.set_len(len);
+        b_out.set_len(len);
+    }
+    sums.map(F256Unreduced::reduce)
+}
+
 /// Four-lane deferred product accumulation for C's projection. The shared
 /// binding table is still computed online from this proof's column challenge.
 pub(crate) fn project_rows_native(c: &[u8], column_weights: &[F128], row_weights: &[F128]) -> F128 {
@@ -427,11 +531,59 @@ pub(crate) fn project_rows(c: &[u8], column_weights: &[F128], row_weights: &[F12
 #[cfg(test)]
 mod tests {
     use super::{
-        ROW_BYTES, pack_pair_weighted, pack_pair_weighted_with_message_into,
-        pack_pair_weighted_with_wide_message_into, pack_rows, project_rows, project_rows_native,
+        ROW_BYTES, pack_pair_tiled_weights_with_wide_message_into, pack_pair_weighted,
+        pack_pair_weighted_with_message_into, pack_pair_weighted_with_wide_message_into, pack_rows,
+        project_rows, project_rows_native,
     };
     use crate::tensor::{KAPPA, Kernel};
     use flock_field::{F128, test_rng::Rng};
+
+    #[test]
+    fn tiled_row_weight_packing_preserves_wide_message_and_odd_tails() {
+        let mut rng = Rng::new(0x710E_DFAC);
+        for threads in [1, 3] {
+            let pool = rayon::ThreadPoolBuilder::new()
+                .num_threads(threads)
+                .build()
+                .unwrap();
+            for rows in [0, 1, 7, 1023, 1024, 1025, 4095, 4096, 4097] {
+                let mut a = vec![0; rows * ROW_BYTES];
+                let mut b = a.clone();
+                rng.fill_bytes(&mut a);
+                rng.fill_bytes(&mut b);
+                let columns = rng.f128_vec(KAPPA);
+                let mut weights = rng.f128_vec(rows);
+                if rows > 1 {
+                    weights[1] = F128::ZERO;
+                }
+                pool.install(|| {
+                    let mut baseline_a = Vec::new();
+                    let mut baseline_b = Vec::new();
+                    let expected = pack_pair_weighted_with_wide_message_into(
+                        &a,
+                        &b,
+                        &columns,
+                        &weights,
+                        &mut baseline_a,
+                        &mut baseline_b,
+                    );
+                    let mut tiled_a = vec![F128::ONE; rows + 13];
+                    let mut tiled_b = vec![F128::ONE; rows + 17];
+                    let actual = pack_pair_tiled_weights_with_wide_message_into(
+                        &a,
+                        &b,
+                        &columns,
+                        |start, out| out.copy_from_slice(&weights[start..start + out.len()]),
+                        &mut tiled_a,
+                        &mut tiled_b,
+                    );
+                    assert_eq!(actual, expected, "rows={rows}, threads={threads}");
+                    assert_eq!(tiled_a, baseline_a);
+                    assert_eq!(tiled_b, baseline_b);
+                });
+            }
+        }
+    }
 
     #[test]
     fn all_byte_subsets_at_every_position_match_direct_sum() {

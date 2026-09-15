@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "levels": [
+    26
+  ],
+  "repetitions": 1,
+  "seed": 97,
+  "threads": 64,
+  "cpu_affinity": "0-47,48-55,72-79",
+  "toolchain": "+nightly-2026-03-21",
+  "rustflags": "-C target-cpu=native",
+  "target_dir": "/home/mscong1/mikros-experiments/20260912T-native64/v14-packed-aggregate-20260914/source/target",
+  "source_dir": "/home/mscong1/mikros-experiments/20260912T-native64/v23-n26-wp-gate-20260915/source",
+  "rust_min_stack_bytes": 16777216,
+  "cleared_environment_keys": [],
+  "build_skipped": true,
+  "tests_skipped": true,
+  "case_timeout_seconds": 14400,
+  "minimum_large_memory_gib": 350,
+  "disabled_optimizations": [],
+  "diagnostic_trace": true,
+  "allocator_policy": "system",
+  "packed_direct": true,
+  "piop_fingerprints": true,
+  "direct_wp_simd": false,
+  "gate_selector_simd": false,
+  "measured_environment": {
+    "PCS_TRACE": "1",
+    "LIG_PROVE_TRACE": "1",
+    "E2E_PIOP_TRACE": "1",
+    "FLOCK_PCS_PACKED_DIRECT": "1"
+  },
+  "pilot_scope": "selected levels only; root manages evidence from earlier invocations when selecting a subset",
+  "source_manifest_sha256": "d2782f58541863e7e82463a66ed1191d6bb318ff252f39fa6ba176f80c7582c7",
+  "base_revision": "d399b71ea33ce2d2e3208a6ab414134c9f879d00"
+}

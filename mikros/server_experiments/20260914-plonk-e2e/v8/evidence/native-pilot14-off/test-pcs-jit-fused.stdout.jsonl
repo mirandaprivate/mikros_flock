@@ -1,0 +1,8 @@
+
+running 3 tests
+test pcs::ligerito::extension::tests::fused_jit_keeps_blocked_and_tiny_fallbacks ... ok
+test pcs::ligerito::extension::tests::fused_jit_matches_unfused_windows_boundaries_and_zero_challenges ... ok
+test pcs::ligerito::extension::tests::fused_jit_preserves_native_proof_and_transcript ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 486 filtered out; finished in 0.08s
+

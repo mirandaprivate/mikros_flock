@@ -7,15 +7,18 @@
 //! roots into the challenger before calling either [`prove`] or [`verify`].
 
 pub mod e2e_lincheck;
+pub mod extension_product;
 pub mod flock_baseline;
 pub mod hadamard;
 mod inner_product;
 pub mod layout;
 pub mod lookup;
 pub mod mixed_tensor;
+pub mod multiple_gate;
 pub mod packed_ip;
 pub mod tensor;
 pub mod univariate;
+pub mod weighted_hadamard;
 mod weights;
 
 pub use hadamard::{

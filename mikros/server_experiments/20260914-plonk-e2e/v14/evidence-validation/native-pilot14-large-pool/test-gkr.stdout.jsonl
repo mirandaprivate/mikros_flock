@@ -1,0 +1,18 @@
+
+running 13 tests
+test product_gkr::tests::batched_claim_matches_direct_mle ... ok
+test product_gkr::tests::batched_copy_constraint_single_witness ... ok
+test product_gkr::tests::batched_grinding_roundtrip_and_rejects_bad_nonce_shape ... ok
+test product_gkr::tests::batched_honest_roundtrip_shared_point ... ok
+test product_gkr::tests::batched_rejects_broken_copy_constraint ... ok
+test product_gkr::tests::batched_rejects_transcript_tampering ... ok
+test product_gkr::tests::batched_verify_trusts_s_sigma_unless_sigma_is_known ... ok
+test product_gkr::tests::f128_ntt_prefix_extension_roundtrip ... ok
+test product_gkr::tests::grouped_bounded_matches_pooled_proof_transcript_and_verifier ... ok
+test product_gkr::tests::grouped_matches_dense_masked ... ok
+test product_gkr::tests::live_mask_closed_forms_and_masked_roundtrip ... ok
+test product_gkr::tests::tag_matches_basis_expansion ... ok
+test product_gkr::tests::verify_rejects_shape_errors ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 482 filtered out; finished in 0.21s
+

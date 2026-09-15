@@ -1,0 +1,267 @@
+{
+  "state": "complete",
+  "started_utc": "2026-09-15T06:11:06Z",
+  "commands": [
+    {
+      "id": "rustc-version",
+      "started_utc": "2026-09-15T06:11:07Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 1.0021835120860487,
+      "finished_utc": "2026-09-15T06:11:08Z"
+    },
+    {
+      "id": "native-cfg",
+      "started_utc": "2026-09-15T06:11:08Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 1.0021771749015898,
+      "finished_utc": "2026-09-15T06:11:09Z"
+    },
+    {
+      "id": "build",
+      "started_utc": "2026-09-15T06:11:09Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 29.03038307884708,
+      "finished_utc": "2026-09-15T06:11:38Z"
+    },
+    {
+      "id": "test-mikros",
+      "started_utc": "2026-09-15T06:11:38Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 10.011843184940517,
+      "finished_utc": "2026-09-15T06:11:48Z"
+    },
+    {
+      "id": "test-e2e-fixture",
+      "started_utc": "2026-09-15T06:11:48Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 4.005410250974819,
+      "finished_utc": "2026-09-15T06:11:52Z"
+    },
+    {
+      "id": "test-permutation",
+      "started_utc": "2026-09-15T06:11:52Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 7.008575611049309,
+      "finished_utc": "2026-09-15T06:11:59Z"
+    },
+    {
+      "id": "test-gkr",
+      "started_utc": "2026-09-15T06:11:59Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 27.029360363958403,
+      "finished_utc": "2026-09-15T06:12:26Z"
+    },
+    {
+      "id": "test-pcs-tensor",
+      "started_utc": "2026-09-15T06:12:26Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 2.002757040085271,
+      "finished_utc": "2026-09-15T06:12:28Z"
+    },
+    {
+      "id": "test-pcs-split-rows",
+      "started_utc": "2026-09-15T06:12:28Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 1.0015822020359337,
+      "finished_utc": "2026-09-15T06:12:29Z"
+    },
+    {
+      "id": "test-pcs-column-bitbank",
+      "started_utc": "2026-09-15T06:12:29Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 1.0019708080217242,
+      "finished_utc": "2026-09-15T06:12:30Z"
+    },
+    {
+      "id": "test-pcs-column-s-hat",
+      "started_utc": "2026-09-15T06:12:30Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 1.0020406709518284,
+      "finished_utc": "2026-09-15T06:12:31Z"
+    },
+    {
+      "id": "test-pcs-full-rectangle",
+      "started_utc": "2026-09-15T06:12:31Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 1.0020969109609723,
+      "finished_utc": "2026-09-15T06:12:32Z"
+    },
+    {
+      "id": "test-pcs-bounded-l0",
+      "started_utc": "2026-09-15T06:12:32Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 1.002312886994332,
+      "finished_utc": "2026-09-15T06:12:33Z"
+    },
+    {
+      "id": "test-pcs-row-grouping",
+      "started_utc": "2026-09-15T06:12:33Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 1.002096065087244,
+      "finished_utc": "2026-09-15T06:12:34Z"
+    },
+    {
+      "id": "test-pcs-direct-block-parallel",
+      "started_utc": "2026-09-15T06:12:34Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 1.0022928640246391,
+      "finished_utc": "2026-09-15T06:12:35Z"
+    },
+    {
+      "id": "test-pcs-direct-wp-simd",
+      "started_utc": "2026-09-15T06:12:35Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 1.0023560349363834,
+      "finished_utc": "2026-09-15T06:12:36Z"
+    },
+    {
+      "id": "test-pcs-paired-bitbanks",
+      "started_utc": "2026-09-15T06:12:36Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 1.00217116298154,
+      "finished_utc": "2026-09-15T06:12:37Z"
+    },
+    {
+      "id": "test-pcs-sparse-bitbanks",
+      "started_utc": "2026-09-15T06:12:37Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 1.002249110955745,
+      "finished_utc": "2026-09-15T06:12:38Z"
+    },
+    {
+      "id": "test-pcs-constant-bitbanks",
+      "started_utc": "2026-09-15T06:12:38Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 1.0019037760794163,
+      "finished_utc": "2026-09-15T06:12:39Z"
+    },
+    {
+      "id": "test-pcs-jit-fused",
+      "started_utc": "2026-09-15T06:12:39Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 1.0018813509959728,
+      "finished_utc": "2026-09-15T06:12:40Z"
+    },
+    {
+      "id": "test-pcs-configs",
+      "started_utc": "2026-09-15T06:12:40Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 1.0023005029652268,
+      "finished_utc": "2026-09-15T06:12:41Z"
+    },
+    {
+      "id": "test-pcs-large-caps",
+      "started_utc": "2026-09-15T06:12:41Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 1.0020456418860704,
+      "finished_utc": "2026-09-15T06:12:42Z"
+    },
+    {
+      "id": "n14-single-mikros",
+      "started_utc": "2026-09-15T06:12:43Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 1.0016643421258777,
+      "finished_utc": "2026-09-15T06:12:44Z"
+    },
+    {
+      "id": "n14-single-flock",
+      "started_utc": "2026-09-15T06:12:45Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 1.0018395781517029,
+      "finished_utc": "2026-09-15T06:12:46Z"
+    },
+    {
+      "id": "n14-multiple-flock",
+      "started_utc": "2026-09-15T06:12:48Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 1.0019111188594252,
+      "finished_utc": "2026-09-15T06:12:49Z"
+    },
+    {
+      "id": "n14-multiple-mikros",
+      "started_utc": "2026-09-15T06:12:50Z",
+      "state": "complete",
+      "exit_code": 0,
+      "wall_seconds": 1.0019368699286133,
+      "finished_utc": "2026-09-15T06:12:51Z"
+    }
+  ],
+  "cases": [
+    {
+      "id": "n14-single-mikros",
+      "mode": "single",
+      "system": "mikros",
+      "log_gates": 14,
+      "gates_per_instance": 16384,
+      "instances": 1,
+      "total_gates": 16384,
+      "state": "complete",
+      "wall_seconds": 1.0016643421258777,
+      "exit_code": 0
+    },
+    {
+      "id": "n14-single-flock",
+      "mode": "single",
+      "system": "flock",
+      "log_gates": 14,
+      "gates_per_instance": 16384,
+      "instances": 1,
+      "total_gates": 16384,
+      "state": "complete",
+      "wall_seconds": 1.0018395781517029,
+      "exit_code": 0
+    },
+    {
+      "id": "n14-multiple-flock",
+      "mode": "multiple",
+      "system": "flock",
+      "log_gates": 14,
+      "gates_per_instance": 16384,
+      "instances": 128,
+      "total_gates": 2097152,
+      "state": "complete",
+      "wall_seconds": 1.0019111188594252,
+      "exit_code": 0
+    },
+    {
+      "id": "n14-multiple-mikros",
+      "mode": "multiple",
+      "system": "mikros",
+      "log_gates": 14,
+      "gates_per_instance": 16384,
+      "instances": 128,
+      "total_gates": 2097152,
+      "state": "complete",
+      "wall_seconds": 1.0019368699286133,
+      "exit_code": 0
+    }
+  ],
+  "source_hashes_verified_before_and_after": true,
+  "binary_hashes_verified_before_and_after": true,
+  "finished_utc": "2026-09-15T06:12:51Z"
+}
