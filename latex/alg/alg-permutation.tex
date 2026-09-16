@@ -22,6 +22,7 @@ if \(q\geq2\kappa-1\); otherwise use
 and the addition and multiplication tables of Section~\ref{sec:hadamard}\;
 After the commitments are fixed,
 \(\VtoP:\ext z\ChooseRandom\ExtensionField\)\;
+Precompute \(1,\ext z,\ldots,\ext z^\kappa\) once for both trees\;
 
 \ForEach{\(\bm D\in\{\bm A,\bm B\}\)}{
     \tcp{Construct the coefficient and extension-field trees}
@@ -33,7 +34,7 @@ After the commitments are fixed,
     Evaluate and flatten
     \(\bm c_{\log_2\kappa}(\ext z)
       \leftarrow\operatorname{vec}(\bm C_{\log_2\kappa}(\ext z))
-      \in\ExtensionField^m\)\;
+      \in\ExtensionField^m\), in column-major order\;
     Complete the tree over \(\ExtensionField\), using
     \(\bm c_{\tau+1}(\ext z)
     \leftarrow\bm c_{\tau,U}(\ext z)\circ\bm c_{\tau,D}(\ext z)\)
@@ -65,7 +66,8 @@ After the commitments are fixed,
     \For{\(\tau=\log_2\kappa-1,\ldots,0\)}{
         Reconstruct \(\bm C_\tau(Z)\) and \(\bm C_{\tau+1}(Z)\)
         from the witness, reusing the coefficient workspace\;
-        Form \(\bm g_\tau(Z,X)\leftarrow\bm C_\tau(Z)\bm\psi(X)\)\;
+        Define \(\bm g_\tau(Z,X)\leftarrow\bm C_\tau(Z)\bm\psi(X)\)
+        implicitly; process one interpolation node at a time\;
         Aggregate each column of \(\bm C_{\tau+1}(Z)\) against
         \(\ext{\bm l}_{\tau+1}\), then evaluate at \(\ext z\) to obtain
         \(\ext{\bm u}_{\tau+1}^\top\)\;
@@ -90,6 +92,11 @@ After the commitments are fixed,
         =\ext{\bm u}_{\tau+1}^\top\ext{\bm r}_{\tau+1}\)\;
         Sample \(\VtoP:\ext x\ChooseRandom\ExtensionField\setminus\mathcal H\)
         and set \(\ext{\bm\rho}(\ext x)\leftarrow\bm\psi(\ext x)\)\;
+        Contract each coefficient matrix of \(\bm C_\tau(Z)\) with
+        \(\ext{\bm\rho}(\ext x)\), then evaluate the resulting
+        row polynomials at \(\ext z\) to form
+        \(\bm g_{\tau,U}(\ext z,\ext x)\) and
+        \(\bm g_{\tau,D}(\ext z,\ext x)\)\;
         Apply cubic weighted sumcheck to
         \(\langle\ext{\bm l}_{\tau+1},
         \bm g_{\tau,U}(\ext z,\ext x)\circ\bm g_{\tau,D}(\ext z,\ext x)\rangle

@@ -1,0 +1,13 @@
+[
+  "cargo",
+  "+nightly-2026-03-21",
+  "test",
+  "--release",
+  "--offline",
+  "--locked",
+  "-j8",
+  "--message-format=short",
+  "-p",
+  "flock-core",
+  "--lib"
+]

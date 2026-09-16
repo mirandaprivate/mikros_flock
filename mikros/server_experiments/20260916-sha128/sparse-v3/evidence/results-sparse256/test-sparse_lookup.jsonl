@@ -1,0 +1,9 @@
+
+running 4 tests
+test sparse_lookup::tests::sparse_lookup_canonicalizes_binary_postings_before_padding_and_timestamps ... ok
+test sparse_lookup::tests::sparse_lookup_rejects_source_changes_wrong_reads_and_forged_messages ... ok
+test sparse_lookup::tests::sparse_lookup_roundtrip_rectangles_repeated_addresses_and_padding ... ok
+test sparse_lookup::tests::sparse_lookup_timestamp_increment_is_integer_not_field_xor ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 125 filtered out; finished in 0.02s
+

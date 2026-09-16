@@ -1,0 +1,17 @@
+
+running 12 tests
+test multiple_image::tests::batch_columns_endpoints_swaps_and_different_queries_rejected ... ok
+test multiple_image::tests::batch_fusion_preserves_bytes_claims_and_transcript ... ok
+test multiple_image::tests::batch_fusion_preserves_projected_identity_selfcheck ... ok
+test multiple_image::tests::batch_projection_and_terminals_match_independent_sources ... ok
+test multiple_image::tests::columns_rounds_endpoints_and_source_tampering_rejected ... ok
+test multiple_image::tests::nonidentity_roundtrip_all_endpoints_and_low_first_points ... ok
+test multiple_image::tests::public_csc_batch_rejects_columns_sources_rounds_side_and_witness ... ok
+test multiple_image::tests::public_csc_dense_reference_single_and_batch ... ok
+test multiple_image::tests::public_csc_rejects_malformed_inputs_and_public_outputs ... ok
+test multiple_image::tests::public_csc_single_rejects_columns_endpoints_rounds_side_and_witness ... ok
+test multiple_image::tests::public_csc_zero_and_cancelling_batch_weights ... ok
+test multiple_image::tests::public_frobenius_recursion_matches_direct_coordinate_projection ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 136 filtered out; finished in 0.34s
+

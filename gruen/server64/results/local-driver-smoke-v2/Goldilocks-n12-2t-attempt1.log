@@ -1,5 +1,0 @@
-Goldilocks n=12 gruen_2eval                   2.596 ms [2.574,2.612]
-Goldilocks n=12 gruen_skip_kappa              3.431 ms [3.392,3.547]
-Goldilocks n=12 mikros_lagrange_reference     3.849 ms [3.650,4.141]
-Goldilocks n=12 mikros_lagrange_optimized     3.671 ms [3.412,3.904]
-Verified 20 proofs; saved /mnt/c/Users/miranda/git/mikros_flock/gruen/server64/results/local-driver-smoke-v2/Goldilocks-n12-2t-attempt1

@@ -1,0 +1,96 @@
+{
+  "stage": "refinement",
+  "state": "complete",
+  "completed": [
+    {
+      "name": "build",
+      "exit_code": 0,
+      "wall_seconds": 31.46542864688672
+    },
+    {
+      "name": "validation-baseline",
+      "exit_code": 0,
+      "wall_seconds": 3.5203300500288606
+    },
+    {
+      "name": "validation-selected",
+      "exit_code": 0,
+      "wall_seconds": 3.470246209995821
+    },
+    {
+      "name": "selected-0",
+      "exit_code": 0,
+      "wall_seconds": 3.671161696081981
+    },
+    {
+      "name": "blocked-0",
+      "exit_code": 0,
+      "wall_seconds": 3.6198994640726596
+    },
+    {
+      "name": "serial-0",
+      "exit_code": 0,
+      "wall_seconds": 3.6202566740103066
+    },
+    {
+      "name": "gfni-0",
+      "exit_code": 0,
+      "wall_seconds": 3.6209277890156955
+    },
+    {
+      "name": "flock-0",
+      "exit_code": 0,
+      "wall_seconds": 3.720334031851962
+    },
+    {
+      "name": "blocked-1",
+      "exit_code": 0,
+      "wall_seconds": 3.5708637058269233
+    },
+    {
+      "name": "serial-1",
+      "exit_code": 0,
+      "wall_seconds": 3.570893035037443
+    },
+    {
+      "name": "gfni-1",
+      "exit_code": 0,
+      "wall_seconds": 3.570700502023101
+    },
+    {
+      "name": "flock-1",
+      "exit_code": 0,
+      "wall_seconds": 3.7211062379647046
+    },
+    {
+      "name": "selected-1",
+      "exit_code": 0,
+      "wall_seconds": 3.6212145558092743
+    },
+    {
+      "name": "gfni-2",
+      "exit_code": 0,
+      "wall_seconds": 3.570665370905772
+    },
+    {
+      "name": "flock-2",
+      "exit_code": 0,
+      "wall_seconds": 3.721102246083319
+    },
+    {
+      "name": "selected-2",
+      "exit_code": 0,
+      "wall_seconds": 3.670772495912388
+    },
+    {
+      "name": "blocked-2",
+      "exit_code": 0,
+      "wall_seconds": 3.6208772459067404
+    },
+    {
+      "name": "serial-2",
+      "exit_code": 0,
+      "wall_seconds": 3.5711527629755437
+    }
+  ]
+}

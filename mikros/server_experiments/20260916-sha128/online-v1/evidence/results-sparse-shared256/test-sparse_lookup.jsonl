@@ -1,0 +1,12 @@
+
+running 7 tests
+test sparse_lookup::tests::fused_kernels_match_reference_at_chunk_boundaries_and_degenerate_points ... ok
+test sparse_lookup::tests::fused_lookup_proof_bytes_and_transcript_match_reference ... ok
+test sparse_lookup::tests::sparse_lookup_canonicalizes_binary_postings_before_padding_and_timestamps ... ok
+test sparse_lookup::tests::sparse_lookup_engineering_benchmark ... ignored, manual release timing of identical sparse PIOPs
+test sparse_lookup::tests::sparse_lookup_rejects_source_changes_wrong_reads_and_forged_messages ... ok
+test sparse_lookup::tests::sparse_lookup_roundtrip_rectangles_repeated_addresses_and_padding ... ok
+test sparse_lookup::tests::sparse_lookup_timestamp_increment_is_integer_not_field_xor ... ok
+
+test result: ok. 6 passed; 0 failed; 1 ignored; 0 measured; 129 filtered out; finished in 0.07s
+

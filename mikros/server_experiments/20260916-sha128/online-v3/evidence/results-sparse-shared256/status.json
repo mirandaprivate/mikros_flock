@@ -1,0 +1,100 @@
+{
+  "state": "complete",
+  "completed": [
+    {
+      "name": "build",
+      "exit_code": 0,
+      "wall_seconds": 33.720210305880755
+    },
+    {
+      "name": "test-multiple_image",
+      "exit_code": 0,
+      "wall_seconds": 13.730297924019396
+    },
+    {
+      "name": "test-packed_sources",
+      "exit_code": 0,
+      "wall_seconds": 0.1800533370114863
+    },
+    {
+      "name": "test-sparse_lookup",
+      "exit_code": 0,
+      "wall_seconds": 0.26324106892570853
+    },
+    {
+      "name": "test-shared-hadamard",
+      "exit_code": 0,
+      "wall_seconds": 0.07843510597012937
+    },
+    {
+      "name": "test-sparse-prefix",
+      "exit_code": 0,
+      "wall_seconds": 26.643797148019075
+    },
+    {
+      "name": "test-zero-weight-block-skip",
+      "exit_code": 0,
+      "wall_seconds": 0.45498609403148293
+    },
+    {
+      "name": "test-sparse-scaled-eq",
+      "exit_code": 0,
+      "wall_seconds": 0.2711796339135617
+    },
+    {
+      "name": "test-checked-initial-message",
+      "exit_code": 0,
+      "wall_seconds": 0.07199898408725858
+    },
+    {
+      "name": "test-sparse-sha-encoding",
+      "exit_code": 0,
+      "wall_seconds": 52.66796492203139
+    },
+    {
+      "name": "test-compact-sha-encoding",
+      "exit_code": 0,
+      "wall_seconds": 1.8239821719471365
+    },
+    {
+      "name": "test-sha",
+      "exit_code": 0,
+      "wall_seconds": 21.3814385200385
+    },
+    {
+      "name": "validation",
+      "exit_code": 0,
+      "wall_seconds": 4.097028461983427
+    },
+    {
+      "name": "mikros-0",
+      "exit_code": 0,
+      "wall_seconds": 11.560070097912103
+    },
+    {
+      "name": "flock-0",
+      "exit_code": 0,
+      "wall_seconds": 2.8617104201111943
+    },
+    {
+      "name": "flock-1",
+      "exit_code": 0,
+      "wall_seconds": 2.828207724960521
+    },
+    {
+      "name": "mikros-1",
+      "exit_code": 0,
+      "wall_seconds": 11.254932396113873
+    },
+    {
+      "name": "mikros-2",
+      "exit_code": 0,
+      "wall_seconds": 12.067111877957359
+    },
+    {
+      "name": "flock-2",
+      "exit_code": 0,
+      "wall_seconds": 2.8133034559432417
+    }
+  ]
+}

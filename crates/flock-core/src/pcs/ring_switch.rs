@@ -78,6 +78,33 @@ use crate::{
     zerocheck::{PaddingSpec, multilinear::lagrange_weights_naive, univariate_skip::build_eq},
 };
 
+#[cfg(test)]
+std::thread_local! {
+    static ZERO_WEIGHT_BLOCK_SKIP_OVERRIDE: std::cell::Cell<Option<bool>> = const {
+        std::cell::Cell::new(None)
+    };
+}
+
+fn zero_weight_block_skip_enabled() -> bool {
+    #[cfg(test)]
+    if let Some(enabled) = ZERO_WEIGHT_BLOCK_SKIP_OVERRIDE.get() {
+        return enabled;
+    }
+    std::env::var_os("FLOCK_NO_ZERO_WEIGHT_BLOCK_SKIP").is_none()
+}
+
+#[cfg(test)]
+pub(crate) fn with_zero_weight_block_skip<T>(enabled: bool, run: impl FnOnce() -> T) -> T {
+    struct Reset(Option<bool>);
+    impl Drop for Reset {
+        fn drop(&mut self) {
+            ZERO_WEIGHT_BLOCK_SKIP_OVERRIDE.set(self.0);
+        }
+    }
+    let _reset = Reset(ZERO_WEIGHT_BLOCK_SKIP_OVERRIDE.replace(Some(enabled)));
+    run()
+}
+
 /// Per-block padding descriptor in F_{2^128} units. Computed once from a bit-
 /// level [`PaddingSpec`] and reused across the fold kernels: any chunk whose
 /// index modulo `chunks_per_block` is ≥ `useful_chunks_per_block` is fully
@@ -981,6 +1008,7 @@ pub fn fold_1b_rows_split(
     assert_eq!(packed_witness.len(), b * eq_hi.len());
     let chunks_per_block = b / 16;
     let skip = ChunkPadding::new(padding, 16);
+    let skip_zero = zero_weight_block_skip_enabled();
 
     // Precompute the eq_lo subset-sum tables once and reuse for every block.
     // `tables[c]` holds the four 16-entry tables for local chunk `c`'s 16 eq_lo
@@ -1003,6 +1031,12 @@ pub fn fold_1b_rows_split(
         .fold(
             || vec![F128::ZERO; n],
             |mut acc, (i_hi, w_block)| {
+                // This is a public equality weight, independent of witness
+                // contents. Its entire bitbank contribution is exactly zero.
+                let e = eq_hi[i_hi];
+                if skip_zero && e.is_zero() {
+                    return acc;
+                }
                 let mut inner = [F128::ZERO; 128];
                 let base_chunk = i_hi * chunks_per_block;
                 for c in 0..chunks_per_block {
@@ -1054,7 +1088,6 @@ pub fn fold_1b_rows_split(
                 // Outer: scale this block's length-128 partial by eq_hi[i_hi].
                 // `e · (Σ eq_lo·bit) = Σ (e·eq_lo)·bit` distributes exactly, so
                 // each term equals the materialized `t[i] = eq_lo·eq_hi` term.
-                let e = eq_hi[i_hi];
                 for r in 0..n {
                     acc[r] += e * inner[r];
                 }
@@ -1103,6 +1136,7 @@ pub fn fold_1b_rows_split_2way(
     assert_eq!(packed_witness.len(), b * n_hi);
     let chunks_per_block = b / 16;
     let skip = ChunkPadding::new(padding, 16);
+    let skip_zero = zero_weight_block_skip_enabled();
 
     // Precompute both claims' subset-sum tables once.
     let tables_0: Vec<[[F128; 16]; 4]> = (0..chunks_per_block)
@@ -1164,6 +1198,21 @@ pub fn fold_1b_rows_split_2way(
         .par_chunks(b)
         .enumerate()
         .fold(zero_acc, |(mut acc0, mut acc1), (i_hi, w_block)| {
+            let e0 = eq_hi_0[i_hi];
+            let e1 = eq_hi_1[i_hi];
+            if skip_zero && (e0.is_zero() || e1.is_zero()) {
+                // Fixed column prefixes often give disjoint row supports.
+                // Skip both-zero blocks before reading/transposing q. With
+                // one live claim, reuse only its precomputed lookup tables.
+                let base_chunk = i_hi * chunks_per_block;
+                if !e0.is_zero() {
+                    fold_single_live_block(w_block, &tables_0, skip, base_chunk, e0, &mut acc0);
+                }
+                if !e1.is_zero() {
+                    fold_single_live_block(w_block, &tables_1, skip, base_chunk, e1, &mut acc1);
+                }
+                return (acc0, acc1);
+            }
             // Two stack-allocated inner accumulators — identical layout to
             // the single-claim split path, just two of them.
             let mut inner0 = [F128::ZERO; 128];
@@ -1215,8 +1264,6 @@ pub fn fold_1b_rows_split_2way(
                     }
                 }
             }
-            let e0 = eq_hi_0[i_hi];
-            let e1 = eq_hi_1[i_hi];
             for r in 0..n {
                 acc0[r] += e0 * inner0[r];
                 acc1[r] += e1 * inner1[r];
@@ -1230,6 +1277,60 @@ pub fn fold_1b_rows_split_2way(
             }
             (a0, a1)
         })
+}
+
+/// One live half of a two-claim block. Keep the ordinary two-live-claim loop
+/// unchanged; this helper is entered only after the other public weight was
+/// proved zero. Tables and global padding indices are reused without rebuilding.
+fn fold_single_live_block(
+    words: &[F128],
+    tables: &[[[F128; 16]; 4]],
+    skip: ChunkPadding,
+    base_chunk: usize,
+    weight: F128,
+    acc: &mut [F128],
+) {
+    let mut inner = [F128::ZERO; 128];
+    for (c, [tbl0, tbl1, tbl2, tbl3]) in tables.iter().enumerate() {
+        if skip.skip(base_chunk + c) {
+            continue;
+        }
+        let m_chunk = &words[c * 16..c * 16 + 16];
+        let mut m_bytes = [[0u8; 16]; 16];
+        for (e, slot) in m_bytes.iter_mut().enumerate() {
+            slot[..8].copy_from_slice(&m_chunk[e].lo.to_le_bytes());
+            slot[8..].copy_from_slice(&m_chunk[e].hi.to_le_bytes());
+        }
+        for r_byte in 0..16 {
+            let lo8 = (m_bytes[0][r_byte] as u64)
+                | ((m_bytes[1][r_byte] as u64) << 8)
+                | ((m_bytes[2][r_byte] as u64) << 16)
+                | ((m_bytes[3][r_byte] as u64) << 24)
+                | ((m_bytes[4][r_byte] as u64) << 32)
+                | ((m_bytes[5][r_byte] as u64) << 40)
+                | ((m_bytes[6][r_byte] as u64) << 48)
+                | ((m_bytes[7][r_byte] as u64) << 56);
+            let hi8 = (m_bytes[8][r_byte] as u64)
+                | ((m_bytes[9][r_byte] as u64) << 8)
+                | ((m_bytes[10][r_byte] as u64) << 16)
+                | ((m_bytes[11][r_byte] as u64) << 24)
+                | ((m_bytes[12][r_byte] as u64) << 32)
+                | ((m_bytes[13][r_byte] as u64) << 40)
+                | ((m_bytes[14][r_byte] as u64) << 48)
+                | ((m_bytes[15][r_byte] as u64) << 56);
+            let tlo = transpose_8x8_bits(lo8).to_le_bytes();
+            let thi = transpose_8x8_bits(hi8).to_le_bytes();
+            for p in 0..8 {
+                inner[r_byte * 8 + p] += tbl0[(tlo[p] & 0x0F) as usize]
+                    + tbl1[(tlo[p] >> 4) as usize]
+                    + tbl2[(thi[p] & 0x0F) as usize]
+                    + tbl3[(thi[p] >> 4) as usize];
+            }
+        }
+    }
+    for (dst, value) in acc.iter_mut().zip(inner) {
+        *dst += weight * value;
+    }
 }
 
 /// AB-claim `s_hat_v` specialization that **skips `fold_1b_rows` entirely**
@@ -3643,6 +3744,171 @@ mod tests {
                 }
             }
         }
+    }
+
+    #[test]
+    fn zero_weight_block_skip_matches_dense_and_padded_folds() {
+        use super::with_zero_weight_block_skip;
+        let mut rng = Rng::new(0x2E_20_B10C);
+        for l in [4usize, 7, 10, 12] {
+            let w = rng.f128_vec(1 << l);
+            for n_lo in 4..=l {
+                let lo = [rng.f128_vec(1 << n_lo), rng.f128_vec(1 << n_lo)];
+                let n_hi = 1 << (l - n_lo);
+                for pattern in 0..6 {
+                    let mut hi = [rng.f128_vec(n_hi), rng.f128_vec(n_hi)];
+                    for i in 0..n_hi {
+                        let zeros = match pattern {
+                            0 => [false, false],           // original dense kernel
+                            1 => [true, true],             // empty supports
+                            2 => [false, true],            // only claim 0
+                            3 => [true, false],            // only claim 1
+                            4 => [i % 2 == 0, i % 2 != 0], // disjoint
+                            _ => [i % 3 == 0, i % 4 == 0], // partial overlap
+                        };
+                        for j in 0..2 {
+                            if zeros[j] {
+                                hi[j][i] = F128::ZERO;
+                            }
+                        }
+                    }
+                    let padding_log = (l + LOG_PACKING).min(12);
+                    for padding in [
+                        PaddingSpec::dense(l + LOG_PACKING),
+                        PaddingSpec::uniform(
+                            padding_log,
+                            3 << (padding_log - 3),
+                            1 << (l + LOG_PACKING - padding_log),
+                        ),
+                    ] {
+                        let want: [_; 2] = std::array::from_fn(|j| {
+                            let weights: Vec<_> = hi[j]
+                                .iter()
+                                .flat_map(|&h| lo[j].iter().map(move |&v| h * v))
+                                .collect();
+                            fold_1b_rows_1way_method_of_four_russians_16wide_padded(
+                                &w, &weights, &padding,
+                            )
+                        });
+                        for enabled in [false, true] {
+                            with_zero_weight_block_skip(enabled, || {
+                                for j in 0..2 {
+                                    assert_eq!(
+                                        fold_1b_rows_split(&w, &lo[j], &hi[j], &padding),
+                                        want[j],
+                                        "single l={l} split={n_lo} pattern={pattern} enabled={enabled}",
+                                    );
+                                }
+                                let (a, b) = fold_1b_rows_split_2way(
+                                    &w, &lo[0], &hi[0], &lo[1], &hi[1], &padding,
+                                );
+                                assert_eq!(
+                                    [a, b],
+                                    want,
+                                    "pair l={l} split={n_lo} pattern={pattern} enabled={enabled}",
+                                );
+                            });
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn zero_weight_block_skip_native_pcs_preserves_proof_and_transcript() {
+        use super::with_zero_weight_block_skip;
+        use crate::pcs::{self, OpeningGrinding, PcsParams, ligerito::LigeritoProfile};
+        let mut rng = Rng::new(0x2E_20_B10D);
+        let q = rng.f128_vec(1 << 15);
+        let params = PcsParams {
+            m: 22,
+            log_inv_rate: 1,
+            log_batch_size: 6,
+            profile: LigeritoProfile::Fast,
+            num_lanes: None,
+            merkle_hash: Default::default(),
+        };
+        let (cm, data) = pcs::commit(&q, &params);
+        // The full one-column registry takes early bitbanks, as packed_sources
+        // does. Two disjoint prefix supports exercise paired live/zero blocks;
+        // a third point also exercises the unpaired single-claim kernel.
+        let mut points = [rng.f128_vec(16), rng.f128_vec(16), rng.f128_vec(16)];
+        points[0][12..].fill(F128::ZERO);
+        points[1][12..].fill(F128::ONE);
+        points[2][12..].copy_from_slice(&[F128::ONE, F128::ZERO, F128::ONE, F128::ZERO]);
+        let columns = [rng.f128_vec(128), rng.f128_vec(128), rng.f128_vec(128)];
+        let values: Vec<_> = points
+            .iter()
+            .zip(&columns)
+            .map(|(point, column)| {
+                claim_check(column, &fold_1b_rows_naive(&q, &build_eq(&point[1..])))
+            })
+            .collect();
+        let point_refs: Vec<_> = points.iter().map(Vec::as_slice).collect();
+        let column_refs: Vec<_> = columns.iter().map(Vec::as_slice).collect();
+        let start = || {
+            let mut ch = FsChallenger::new(b"zero-weight-block-skip-native-pcs-v1");
+            ch.observe_bytes(&bincode::serialize(&cm).unwrap());
+            for point in &points {
+                ch.observe_f128_slice(point);
+            }
+            for column in &columns {
+                ch.observe_f128_slice(column);
+            }
+            ch
+        };
+        let verify = |proof: &pcs::MergedOpenProof| {
+            let mut ch = start();
+            pcs::verify_batch_merged_weighted(
+                &cm,
+                &values,
+                &column_refs,
+                &point_refs,
+                &[],
+                &[1 << 15],
+                15,
+                proof,
+                &params.ligerito_verifier_config().unwrap(),
+                OpeningGrinding::disabled(),
+                &mut ch,
+            )?;
+            Ok::<_, pcs::PcsOpenError>(ch.sample_f128())
+        };
+        let prove = |enabled| {
+            with_zero_weight_block_skip(enabled, || {
+                let mut ch = start();
+                let proof = pcs::open_batch_merged(
+                    q.clone(),
+                    None,
+                    &data,
+                    &cm,
+                    &point_refs,
+                    &[],
+                    &[],
+                    &[],
+                    &PaddingSpec::dense(22),
+                    &[1 << 15],
+                    15,
+                    &params.ligerito_prover_config().unwrap(),
+                    OpeningGrinding::disabled(),
+                    &mut ch,
+                );
+                let next = ch.sample_f128();
+                assert_eq!(verify(&proof).unwrap(), next);
+                (proof, next)
+            })
+        };
+        let (old, old_next) = prove(false);
+        let (new, new_next) = prove(true);
+        assert_eq!(
+            bincode::serialize(&old).unwrap(),
+            bincode::serialize(&new).unwrap()
+        );
+        assert_eq!(old_next, new_next);
+        let mut bad = new;
+        bad.q_eval += F128::ONE;
+        assert!(verify(&bad).is_err());
     }
 
     /// `fold_1b_rows_split` is byte-identical to the materialized 16-wide

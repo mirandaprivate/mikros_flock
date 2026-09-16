@@ -1,0 +1,662 @@
+{
+  "method": "Exclude first record of each kind/side in each process (warmup); sum corresponding A+B before median; nested records remain separate.",
+  "modes": {
+    "baseline": {
+      "mikros_column_r1cs_profile": {
+        "samples": 9,
+        "median_ms": {
+          "claim_map_ms": 0.006807000000002006,
+          "deinterleave_ms": 2.408884,
+          "hadamard_ms": 9.382041000000001,
+          "images_ms": 22.622874000000003,
+          "total_ms": 34.39209700000001
+        },
+        "batch_medians_ms": [
+          {
+            "claim_map_ms": 0.007247000000006665,
+            "deinterleave_ms": 2.321572,
+            "hadamard_ms": 10.005891,
+            "images_ms": 23.373189000000004,
+            "total_ms": 35.657648
+          },
+          {
+            "claim_map_ms": 0.006807000000002006,
+            "deinterleave_ms": 2.226071,
+            "hadamard_ms": 8.987347,
+            "images_ms": 23.016422000000002,
+            "total_ms": 33.843275
+          },
+          {
+            "claim_map_ms": 0.0059499999999985675,
+            "deinterleave_ms": 2.47831,
+            "hadamard_ms": 9.639284,
+            "images_ms": 22.323892999999998,
+            "total_ms": 34.39209700000001
+          }
+        ]
+      },
+      "mikros_hadamard_shared_batch_profile": {
+        "samples": 9,
+        "median_ms": {
+          "aggregate_ms": 1.896938,
+          "c_project_ms": 1.046551,
+          "packing_ms": 1.416116,
+          "quotient_ms": 2.7887969999999997,
+          "shared_ip_ms": 1.2378339999999999,
+          "total_ms": 8.805895
+        },
+        "batch_medians_ms": [
+          {
+            "aggregate_ms": 1.8945750000000001,
+            "c_project_ms": 1.046551,
+            "packing_ms": 1.548359,
+            "quotient_ms": 2.830114,
+            "shared_ip_ms": 1.2378339999999999,
+            "total_ms": 9.469721999999999
+          },
+          {
+            "aggregate_ms": 1.874532,
+            "c_project_ms": 1.036944,
+            "packing_ms": 1.171379,
+            "quotient_ms": 2.7887969999999997,
+            "shared_ip_ms": 1.192062,
+            "total_ms": 8.455319
+          },
+          {
+            "aggregate_ms": 1.9901309999999999,
+            "c_project_ms": 1.1610489999999998,
+            "packing_ms": 1.416116,
+            "quotient_ms": 2.44875,
+            "shared_ip_ms": 1.253551,
+            "total_ms": 9.115656999999999
+          }
+        ]
+      },
+      "mikros_public_image_batch_profile:A": {
+        "samples": 9,
+        "median_ms": {
+          "columns_ms": 0.837496,
+          "combine_ms": 0.697598,
+          "coordinate_map_ms": 1.087428,
+          "csc_ms": 3.621607,
+          "first_message_ms": 0.152882,
+          "ip_ms": 0.649718,
+          "row_weights_ms": 3.6213629999999997,
+          "total_ms": 11.217581000000001,
+          "transcript_projection_ms": 0.21840600000000002
+        },
+        "batch_medians_ms": [
+          {
+            "columns_ms": 0.859148,
+            "combine_ms": 0.686821,
+            "coordinate_map_ms": 1.039606,
+            "csc_ms": 3.621607,
+            "first_message_ms": 0.164935,
+            "ip_ms": 0.529407,
+            "row_weights_ms": 3.397242,
+            "total_ms": 11.217581000000001,
+            "transcript_projection_ms": 0.21187
+          },
+          {
+            "columns_ms": 0.794222,
+            "combine_ms": 0.68156,
+            "coordinate_map_ms": 1.062594,
+            "csc_ms": 4.054537000000001,
+            "first_message_ms": 0.139157,
+            "ip_ms": 0.7558,
+            "row_weights_ms": 3.5338760000000002,
+            "total_ms": 11.349311,
+            "transcript_projection_ms": 0.21840600000000002
+          },
+          {
+            "columns_ms": 0.871838,
+            "combine_ms": 0.756302,
+            "coordinate_map_ms": 1.150485,
+            "csc_ms": 3.167891,
+            "first_message_ms": 0.152882,
+            "ip_ms": 0.6594390000000001,
+            "row_weights_ms": 3.813456,
+            "total_ms": 10.840805999999999,
+            "transcript_projection_ms": 0.251552
+          }
+        ]
+      },
+      "mikros_public_image_batch_profile:B": {
+        "samples": 9,
+        "median_ms": {
+          "columns_ms": 0.829546,
+          "combine_ms": 0.680696,
+          "coordinate_map_ms": 1.067215,
+          "csc_ms": 3.6784719999999997,
+          "first_message_ms": 0.143707,
+          "ip_ms": 0.660929,
+          "row_weights_ms": 3.5174220000000003,
+          "total_ms": 10.802356000000001,
+          "transcript_projection_ms": 0.211593
+        },
+        "batch_medians_ms": [
+          {
+            "columns_ms": 0.808633,
+            "combine_ms": 0.680696,
+            "coordinate_map_ms": 1.0025089999999999,
+            "csc_ms": 3.6784719999999997,
+            "first_message_ms": 0.143707,
+            "ip_ms": 0.666907,
+            "row_weights_ms": 3.5174220000000003,
+            "total_ms": 11.213236,
+            "transcript_projection_ms": 0.201379
+          },
+          {
+            "columns_ms": 0.805898,
+            "combine_ms": 0.647282,
+            "coordinate_map_ms": 0.981336,
+            "csc_ms": 3.858735,
+            "first_message_ms": 0.143102,
+            "ip_ms": 0.660929,
+            "row_weights_ms": 3.3367050000000003,
+            "total_ms": 10.802356000000001,
+            "transcript_projection_ms": 0.211593
+          },
+          {
+            "columns_ms": 0.879835,
+            "combine_ms": 0.715364,
+            "coordinate_map_ms": 1.209895,
+            "csc_ms": 3.162611,
+            "first_message_ms": 0.16413,
+            "ip_ms": 0.619913,
+            "row_weights_ms": 3.718183,
+            "total_ms": 10.773635,
+            "transcript_projection_ms": 0.227765
+          }
+        ]
+      },
+      "mikros_public_image_batch_profile:A+B": {
+        "samples": 9,
+        "median_ms": {
+          "columns_ms": 1.6677810000000002,
+          "combine_ms": 1.3918300000000001,
+          "coordinate_map_ms": 2.306608,
+          "csc_ms": 7.300079,
+          "first_message_ms": 0.304049,
+          "ip_ms": 1.2793520000000003,
+          "row_weights_ms": 7.0273319999999995,
+          "total_ms": 21.917029999999997,
+          "transcript_projection_ms": 0.43655
+        },
+        "batch_medians_ms": [
+          {
+            "columns_ms": 1.6677810000000002,
+            "combine_ms": 1.324843,
+            "coordinate_map_ms": 2.0344759999999997,
+            "csc_ms": 7.300079,
+            "first_message_ms": 0.314574,
+            "ip_ms": 1.193407,
+            "row_weights_ms": 6.914664,
+            "total_ms": 22.586168,
+            "transcript_projection_ms": 0.407311
+          },
+          {
+            "columns_ms": 1.60012,
+            "combine_ms": 1.344737,
+            "coordinate_map_ms": 2.04393,
+            "csc_ms": 7.913272000000001,
+            "first_message_ms": 0.29524,
+            "ip_ms": 1.458224,
+            "row_weights_ms": 6.8705810000000005,
+            "total_ms": 22.151667000000003,
+            "transcript_projection_ms": 0.43655
+          },
+          {
+            "columns_ms": 1.751673,
+            "combine_ms": 1.506001,
+            "coordinate_map_ms": 2.342377,
+            "csc_ms": 6.330502,
+            "first_message_ms": 0.31701199999999996,
+            "ip_ms": 1.2793520000000003,
+            "row_weights_ms": 7.531639,
+            "total_ms": 21.614441,
+            "transcript_projection_ms": 0.479317
+          }
+        ]
+      }
+    },
+    "csc": {
+      "mikros_column_r1cs_profile": {
+        "samples": 9,
+        "median_ms": {
+          "claim_map_ms": 0.005328999999996142,
+          "deinterleave_ms": 2.280958,
+          "hadamard_ms": 8.672287,
+          "images_ms": 20.847386,
+          "total_ms": 32.292739
+        },
+        "batch_medians_ms": [
+          {
+            "claim_map_ms": 0.004798000000000968,
+            "deinterleave_ms": 2.166971,
+            "hadamard_ms": 8.813532,
+            "images_ms": 21.892590999999996,
+            "total_ms": 32.845765
+          },
+          {
+            "claim_map_ms": 0.004989000000001909,
+            "deinterleave_ms": 2.280958,
+            "hadamard_ms": 8.260373,
+            "images_ms": 19.890170999999995,
+            "total_ms": 30.848943
+          },
+          {
+            "claim_map_ms": 0.006541999999996051,
+            "deinterleave_ms": 2.361209,
+            "hadamard_ms": 9.386860999999998,
+            "images_ms": 20.269534000000007,
+            "total_ms": 32.205244
+          }
+        ]
+      },
+      "mikros_hadamard_shared_batch_profile": {
+        "samples": 9,
+        "median_ms": {
+          "aggregate_ms": 1.6735309999999999,
+          "c_project_ms": 1.056819,
+          "packing_ms": 1.249102,
+          "quotient_ms": 2.469664,
+          "shared_ip_ms": 1.202542,
+          "total_ms": 8.071823
+        },
+        "batch_medians_ms": [
+          {
+            "aggregate_ms": 1.641742,
+            "c_project_ms": 1.087329,
+            "packing_ms": 1.045502,
+            "quotient_ms": 2.281257,
+            "shared_ip_ms": 1.385142,
+            "total_ms": 8.071823
+          },
+          {
+            "aggregate_ms": 1.6735309999999999,
+            "c_project_ms": 1.004776,
+            "packing_ms": 1.160038,
+            "quotient_ms": 2.535653,
+            "shared_ip_ms": 1.0713910000000002,
+            "total_ms": 7.747261
+          },
+          {
+            "aggregate_ms": 1.908972,
+            "c_project_ms": 1.056819,
+            "packing_ms": 1.389458,
+            "quotient_ms": 2.6201090000000002,
+            "shared_ip_ms": 1.202542,
+            "total_ms": 8.751658
+          }
+        ]
+      },
+      "mikros_public_image_batch_profile:A": {
+        "samples": 9,
+        "median_ms": {
+          "columns_ms": 0.869561,
+          "combine_ms": 0.7051959999999999,
+          "coordinate_map_ms": 1.175586,
+          "csc_ms": 3.448454,
+          "first_message_ms": 0.158452,
+          "ip_ms": 0.578825,
+          "row_weights_ms": 3.592864,
+          "total_ms": 10.883268,
+          "transcript_projection_ms": 0.22650599999999999
+        },
+        "batch_medians_ms": [
+          {
+            "columns_ms": 0.852346,
+            "combine_ms": 0.721453,
+            "coordinate_map_ms": 1.2514239999999999,
+            "csc_ms": 3.908151,
+            "first_message_ms": 0.164465,
+            "ip_ms": 0.639312,
+            "row_weights_ms": 3.577626,
+            "total_ms": 11.101995,
+            "transcript_projection_ms": 0.271317
+          },
+          {
+            "columns_ms": 0.907419,
+            "combine_ms": 0.799963,
+            "coordinate_map_ms": 1.109924,
+            "csc_ms": 3.448454,
+            "first_message_ms": 0.150083,
+            "ip_ms": 0.5102289999999999,
+            "row_weights_ms": 3.6531979999999997,
+            "total_ms": 10.330836,
+            "transcript_projection_ms": 0.190979
+          },
+          {
+            "columns_ms": 0.869561,
+            "combine_ms": 0.691891,
+            "coordinate_map_ms": 1.074649,
+            "csc_ms": 3.4358470000000003,
+            "first_message_ms": 0.158452,
+            "ip_ms": 0.691457,
+            "row_weights_ms": 3.4175389999999997,
+            "total_ms": 10.421467999999999,
+            "transcript_projection_ms": 0.22650599999999999
+          }
+        ]
+      },
+      "mikros_public_image_batch_profile:B": {
+        "samples": 9,
+        "median_ms": {
+          "columns_ms": 0.83683,
+          "combine_ms": 0.690496,
+          "coordinate_map_ms": 1.16946,
+          "csc_ms": 1.711635,
+          "first_message_ms": 0.15372000000000002,
+          "ip_ms": 0.767275,
+          "row_weights_ms": 3.6131840000000004,
+          "total_ms": 9.094582,
+          "transcript_projection_ms": 0.21379099999999998
+        },
+        "batch_medians_ms": [
+          {
+            "columns_ms": 0.8863420000000001,
+            "combine_ms": 0.6722549999999999,
+            "coordinate_map_ms": 1.2338959999999999,
+            "csc_ms": 2.156183,
+            "first_message_ms": 0.167225,
+            "ip_ms": 0.780185,
+            "row_weights_ms": 3.5397440000000002,
+            "total_ms": 9.603746,
+            "transcript_projection_ms": 0.254981
+          },
+          {
+            "columns_ms": 0.83683,
+            "combine_ms": 0.690496,
+            "coordinate_map_ms": 1.1854660000000001,
+            "csc_ms": 1.707873,
+            "first_message_ms": 0.13577,
+            "ip_ms": 0.609258,
+            "row_weights_ms": 3.618023,
+            "total_ms": 9.094582,
+            "transcript_projection_ms": 0.21379099999999998
+          },
+          {
+            "columns_ms": 0.8135640000000001,
+            "combine_ms": 0.711181,
+            "coordinate_map_ms": 1.014836,
+            "csc_ms": 1.68924,
+            "first_message_ms": 0.155885,
+            "ip_ms": 0.784662,
+            "row_weights_ms": 3.56932,
+            "total_ms": 8.97761,
+            "transcript_projection_ms": 0.20247400000000002
+          }
+        ]
+      },
+      "mikros_public_image_batch_profile:A+B": {
+        "samples": 9,
+        "median_ms": {
+          "columns_ms": 1.7307900000000003,
+          "combine_ms": 1.393708,
+          "coordinate_map_ms": 2.2953900000000003,
+          "csc_ms": 5.183262,
+          "first_message_ms": 0.30713900000000005,
+          "ip_ms": 1.32878,
+          "row_weights_ms": 7.210887,
+          "total_ms": 20.064959,
+          "transcript_projection_ms": 0.463064
+        },
+        "batch_medians_ms": [
+          {
+            "columns_ms": 1.749052,
+            "combine_ms": 1.393708,
+            "coordinate_map_ms": 2.500769,
+            "csc_ms": 6.1013790000000006,
+            "first_message_ms": 0.33169000000000004,
+            "ip_ms": 1.419497,
+            "row_weights_ms": 6.9603909999999996,
+            "total_ms": 21.061633,
+            "transcript_projection_ms": 0.571305
+          },
+          {
+            "columns_ms": 1.75663,
+            "combine_ms": 1.594681,
+            "coordinate_map_ms": 2.2953900000000003,
+            "csc_ms": 5.183262,
+            "first_message_ms": 0.283897,
+            "ip_ms": 1.188083,
+            "row_weights_ms": 7.266382,
+            "total_ms": 19.222172,
+            "transcript_projection_ms": 0.39821300000000004
+          },
+          {
+            "columns_ms": 1.689013,
+            "combine_ms": 1.383223,
+            "coordinate_map_ms": 2.089485,
+            "csc_ms": 5.125087000000001,
+            "first_message_ms": 0.306863,
+            "ip_ms": 1.458732,
+            "row_weights_ms": 6.98741,
+            "total_ms": 19.399078,
+            "transcript_projection_ms": 0.42898000000000003
+          }
+        ]
+      }
+    },
+    "selected": {
+      "mikros_column_r1cs_profile": {
+        "samples": 9,
+        "median_ms": {
+          "claim_map_ms": 0.005720000000000169,
+          "deinterleave_ms": 0.718548,
+          "hadamard_ms": 6.235359,
+          "images_ms": 14.802036000000001,
+          "total_ms": 21.693952999999997
+        },
+        "batch_medians_ms": [
+          {
+            "claim_map_ms": 0.006069000000000102,
+            "deinterleave_ms": 0.84997,
+            "hadamard_ms": 6.253608,
+            "images_ms": 14.802036000000001,
+            "total_ms": 21.868279
+          },
+          {
+            "claim_map_ms": 0.0050360000000004845,
+            "deinterleave_ms": 0.846163,
+            "hadamard_ms": 6.235359,
+            "images_ms": 14.18114,
+            "total_ms": 20.888683
+          },
+          {
+            "claim_map_ms": 0.006173999999997903,
+            "deinterleave_ms": 0.562012,
+            "hadamard_ms": 5.605595,
+            "images_ms": 15.002454,
+            "total_ms": 21.177173
+          }
+        ]
+      },
+      "mikros_hadamard_shared_batch_profile": {
+        "samples": 9,
+        "median_ms": {
+          "aggregate_ms": 0.9873410000000001,
+          "c_project_ms": 0.9654780000000001,
+          "packing_ms": 1.4958259999999999,
+          "quotient_ms": 0.15642299999999998,
+          "shared_ip_ms": 1.1708230000000002,
+          "total_ms": 5.763717
+        },
+        "batch_medians_ms": [
+          {
+            "aggregate_ms": 0.999668,
+            "c_project_ms": 1.075799,
+            "packing_ms": 1.754928,
+            "quotient_ms": 0.162055,
+            "shared_ip_ms": 1.1708230000000002,
+            "total_ms": 5.844874
+          },
+          {
+            "aggregate_ms": 0.967242,
+            "c_project_ms": 0.8939509999999999,
+            "packing_ms": 1.595429,
+            "quotient_ms": 0.131906,
+            "shared_ip_ms": 1.1586940000000001,
+            "total_ms": 5.8166
+          },
+          {
+            "aggregate_ms": 0.970862,
+            "c_project_ms": 0.880861,
+            "packing_ms": 0.9991810000000001,
+            "quotient_ms": 0.145529,
+            "shared_ip_ms": 1.262443,
+            "total_ms": 5.058664
+          }
+        ]
+      },
+      "mikros_public_image_batch_profile:A": {
+        "samples": 9,
+        "median_ms": {
+          "columns_ms": 0.876846,
+          "combine_ms": 0.66186,
+          "coordinate_map_ms": 1.0697720000000002,
+          "csc_ms": 3.543587,
+          "first_message_ms": 0.138688,
+          "ip_ms": 0.572909,
+          "row_weights_ms": 0.5532440000000001,
+          "total_ms": 7.514725,
+          "transcript_projection_ms": 0.23213899999999998
+        },
+        "batch_medians_ms": [
+          {
+            "columns_ms": 0.8651979999999999,
+            "combine_ms": 0.665732,
+            "coordinate_map_ms": 1.143535,
+            "csc_ms": 2.1287200000000004,
+            "first_message_ms": 0.16523300000000002,
+            "ip_ms": 0.595746,
+            "row_weights_ms": 0.590044,
+            "total_ms": 6.795991000000001,
+            "transcript_projection_ms": 0.23213899999999998
+          },
+          {
+            "columns_ms": 0.882737,
+            "combine_ms": 0.6445339999999999,
+            "coordinate_map_ms": 1.0697720000000002,
+            "csc_ms": 3.577375,
+            "first_message_ms": 0.135092,
+            "ip_ms": 0.5219130000000001,
+            "row_weights_ms": 0.5532440000000001,
+            "total_ms": 7.514725,
+            "transcript_projection_ms": 0.243635
+          },
+          {
+            "columns_ms": 0.8958250000000001,
+            "combine_ms": 0.66186,
+            "coordinate_map_ms": 1.06363,
+            "csc_ms": 3.543587,
+            "first_message_ms": 0.135861,
+            "ip_ms": 0.54274,
+            "row_weights_ms": 0.544168,
+            "total_ms": 7.711858,
+            "transcript_projection_ms": 0.198331
+          }
+        ]
+      },
+      "mikros_public_image_batch_profile:B": {
+        "samples": 9,
+        "median_ms": {
+          "columns_ms": 0.875261,
+          "combine_ms": 0.670175,
+          "coordinate_map_ms": 1.15184,
+          "csc_ms": 1.8082580000000001,
+          "first_message_ms": 0.15880000000000002,
+          "ip_ms": 0.721055,
+          "row_weights_ms": 0.563761,
+          "total_ms": 6.110337,
+          "transcript_projection_ms": 0.216757
+        },
+        "batch_medians_ms": [
+          {
+            "columns_ms": 0.845743,
+            "combine_ms": 0.6349100000000001,
+            "coordinate_map_ms": 0.982157,
+            "csc_ms": 1.618622,
+            "first_message_ms": 0.160109,
+            "ip_ms": 0.7283390000000001,
+            "row_weights_ms": 0.536277,
+            "total_ms": 6.110337,
+            "transcript_projection_ms": 0.196219
+          },
+          {
+            "columns_ms": 0.900263,
+            "combine_ms": 0.674052,
+            "coordinate_map_ms": 1.15184,
+            "csc_ms": 1.8082580000000001,
+            "first_message_ms": 0.15880000000000002,
+            "ip_ms": 0.647083,
+            "row_weights_ms": 0.613611,
+            "total_ms": 6.096184,
+            "transcript_projection_ms": 0.21906599999999998
+          },
+          {
+            "columns_ms": 0.875261,
+            "combine_ms": 0.670175,
+            "coordinate_map_ms": 1.274861,
+            "csc_ms": 1.8083339999999999,
+            "first_message_ms": 0.1568,
+            "ip_ms": 0.766656,
+            "row_weights_ms": 0.563761,
+            "total_ms": 6.4513039999999995,
+            "transcript_projection_ms": 0.200882
+          }
+        ]
+      },
+      "mikros_public_image_batch_profile:A+B": {
+        "samples": 9,
+        "median_ms": {
+          "columns_ms": 1.7426949999999999,
+          "combine_ms": 1.344813,
+          "coordinate_map_ms": 2.158602,
+          "csc_ms": 5.376278,
+          "first_message_ms": 0.301823,
+          "ip_ms": 1.370021,
+          "row_weights_ms": 1.126321,
+          "total_ms": 13.932490999999999,
+          "transcript_projection_ms": 0.435032
+        },
+        "batch_medians_ms": [
+          {
+            "columns_ms": 1.675124,
+            "combine_ms": 1.3670080000000002,
+            "coordinate_map_ms": 2.125692,
+            "csc_ms": 4.886797,
+            "first_message_ms": 0.325162,
+            "ip_ms": 1.405348,
+            "row_weights_ms": 1.126321,
+            "total_ms": 13.932490999999999,
+            "transcript_projection_ms": 0.428358
+          },
+          {
+            "columns_ms": 1.7426949999999999,
+            "combine_ms": 1.3185859999999998,
+            "coordinate_map_ms": 2.158602,
+            "csc_ms": 5.385633,
+            "first_message_ms": 0.29389200000000004,
+            "ip_ms": 1.242968,
+            "row_weights_ms": 1.175996,
+            "total_ms": 13.610909,
+            "transcript_projection_ms": 0.489981
+          },
+          {
+            "columns_ms": 1.840665,
+            "combine_ms": 1.344813,
+            "coordinate_map_ms": 2.335857,
+            "csc_ms": 5.376278,
+            "first_message_ms": 0.295488,
+            "ip_ms": 1.370021,
+            "row_weights_ms": 1.120777,
+            "total_ms": 14.235952000000001,
+            "transcript_projection_ms": 0.39921300000000004
+          }
+        ]
+      }
+    }
+  }
+}

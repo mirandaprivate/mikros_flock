@@ -83,6 +83,235 @@ use {
 };
 const DOMAIN: &[u8] = b"flock-circuit-wiring-v0";
 
+/// Native skip7 uses dense Boolean round one, so the dirty-buffer contract
+/// differs from skip6. Exercise both mostly empty and mostly occupied SHA
+/// slots, including repeated copy-free generation from deliberately poisoned
+/// scratch. Run this test alone with `--ignored --test-threads=1`.
+#[test]
+#[ignore] // Complete native PCS proofs at the embedded m22 minimum.
+fn native_skip7_partial_counts_and_dirty_in_place_match_prebuilt() {
+    use flock_core::{challenger::Challenger, scratch};
+    use prover::prove_fast_ligerito_union_circuit_with_skip;
+    use verifier::verify_ligerito_union_circuit_with_skip;
+
+    let nu = 7;
+    let (registry, r1cs) = sha2_registry(nu);
+    let circuit_lc = r1cs.csc_lincheck_circuit();
+    // 1 and 127 real rows out of 128 cover FreshZeroed and PooledZeroed;
+    // neither count can use the full-utilization shortcut.
+    for k_leaves in [0, 6] {
+        let mut rng = Rng::new(0x534b_4950_3700 + k_leaves as u64);
+        let tree = build_tree(k_leaves, nu, &mut rng);
+        let union = UnionInstance::new(&registry, vec![tree.n_gates]);
+        assert_ne!(tree.n_gates, 1 << nu);
+        assert!(!union.compaction_is_identity());
+        let pooled_dirty_slots = union.dense_words() * 2 > union.packed_len();
+        assert_eq!(pooled_dirty_slots, k_leaves == 6);
+        let pcs = union_pcs_params(&union);
+        let circuit = Circuit::new(
+            &registry,
+            vec![tree.n_gates],
+            tree.public.len(),
+            tree.wires.clone(),
+        )
+        .unwrap();
+        let prepared = generate_witness_batch_major_partial(&tree.compressions, nu);
+
+        if k_leaves == 0 {
+            let mut legacy_ch = FsChallenger::new(DOMAIN);
+            let (legacy, legacy_commitment, legacy_claims) = prove_fast_ligerito_union_circuit(
+                &union,
+                &circuit,
+                &tree.public,
+                &pcs,
+                vec![UnionSlotProverInput::new(prepared.clone(), circuit_lc)],
+                Vec::new(),
+                &mut legacy_ch,
+            );
+            let mut explicit_ch = FsChallenger::new(DOMAIN);
+            let (explicit, explicit_commitment, explicit_claims) =
+                prove_fast_ligerito_union_circuit_with_skip(
+                    &union,
+                    &circuit,
+                    &tree.public,
+                    6,
+                    &pcs,
+                    vec![UnionSlotProverInput::new(prepared.clone(), circuit_lc)],
+                    Vec::new(),
+                    &mut explicit_ch,
+                );
+            assert_eq!(
+                serialize(&(&legacy_commitment, &legacy)).unwrap(),
+                serialize(&(&explicit_commitment, &explicit)).unwrap(),
+                "explicit skip6 changed the original proof bytes"
+            );
+            assert_eq!(legacy_claims, explicit_claims);
+            let mut legacy_verifier = FsChallenger::new(DOMAIN);
+            assert_eq!(
+                verify_ligerito_union_circuit(
+                    &union,
+                    &circuit,
+                    &tree.public,
+                    &[circuit_lc],
+                    &legacy_commitment,
+                    &legacy,
+                    &pcs,
+                    &mut legacy_verifier,
+                )
+                .unwrap(),
+                legacy_claims
+            );
+            let mut explicit_verifier = FsChallenger::new(DOMAIN);
+            assert_eq!(
+                verify_ligerito_union_circuit_with_skip(
+                    &union,
+                    &circuit,
+                    &tree.public,
+                    &[circuit_lc],
+                    &explicit_commitment,
+                    &explicit,
+                    6,
+                    &pcs,
+                    &mut explicit_verifier,
+                )
+                .unwrap(),
+                explicit_claims
+            );
+            for _ in 0..4 {
+                let challenge = legacy_ch.sample_f128();
+                assert_eq!(challenge, explicit_ch.sample_f128());
+                assert_eq!(challenge, legacy_verifier.sample_f128());
+                assert_eq!(challenge, explicit_verifier.sample_f128());
+            }
+            assert!(
+                verify_ligerito_union_circuit_with_skip(
+                    &union,
+                    &circuit,
+                    &tree.public,
+                    &[circuit_lc],
+                    &legacy_commitment,
+                    &legacy,
+                    7,
+                    &pcs,
+                    &mut FsChallenger::new(DOMAIN),
+                )
+                .is_err(),
+                "skip7 accepted a skip6 proof"
+            );
+        }
+
+        let mut reference_ch = FsChallenger::new(DOMAIN);
+        let (reference, commitment, reference_claims) = prove_fast_ligerito_union_circuit_with_skip(
+            &union,
+            &circuit,
+            &tree.public,
+            7,
+            &pcs,
+            vec![UnionSlotProverInput::new(prepared.clone(), circuit_lc)],
+            Vec::new(),
+            &mut reference_ch,
+        );
+        let reference_bytes = serialize(&(&commitment, &reference)).unwrap();
+        let terminal: [F128; 4] = from_fn(|_| reference_ch.sample_f128());
+        let mut reference_verifier = FsChallenger::new(DOMAIN);
+        assert_eq!(
+            verify_ligerito_union_circuit_with_skip(
+                &union,
+                &circuit,
+                &tree.public,
+                &[circuit_lc],
+                &commitment,
+                &reference,
+                7,
+                &pcs,
+                &mut reference_verifier,
+            )
+            .unwrap(),
+            reference_claims
+        );
+        assert_eq!(terminal, from_fn(|_| reference_verifier.sample_f128()));
+        assert!(
+            verify_ligerito_union_circuit_with_skip(
+                &union,
+                &circuit,
+                &tree.public,
+                &[circuit_lc],
+                &commitment,
+                &reference,
+                6,
+                &pcs,
+                &mut FsChallenger::new(DOMAIN),
+            )
+            .is_err(),
+            "skip6 accepted a skip7 proof"
+        );
+
+        for attempt in 0..2 {
+            // Seed all three witness allocations and the stripe with nonzero
+            // bytes. The large partial-count case must actually receive those
+            // dirty allocations; checking the incoming destination pins that
+            // this is testing buffer reuse, rather than fresh zero pages.
+            scratch::clear();
+            let poison = F128::new(u64::MAX - attempt, 0xaaa5_5aaa_1234_5678);
+            for _ in 0..3 {
+                scratch::give_f128(vec![poison; union.packed_len()]);
+            }
+            scratch::give_u8(vec![0xa5; prepared.3.len()]);
+            let mut ch = FsChallenger::new(DOMAIN);
+            let slot = UnionSlotProverInput::in_place(
+                |dst| {
+                    assert!(!dst.dead_padding_unread, "dense skip7 reads a/b padding");
+                    if pooled_dirty_slots {
+                        assert!(!dst.elide_padding_writes);
+                        for buffer in [&*dst.z, &*dst.a, &*dst.b] {
+                            assert_eq!(buffer[0], poison, "poisoned scratch was not reused");
+                            assert_eq!(*buffer.last().unwrap(), poison);
+                        }
+                    }
+                    sha2::generate_witness_batch_major_partial_into(&tree.compressions, nu, dst)
+                },
+                circuit_lc,
+            );
+            let (proof, fresh_commitment, claims) = prove_fast_ligerito_union_circuit_with_skip(
+                &union,
+                &circuit,
+                &tree.public,
+                7,
+                &pcs,
+                vec![slot],
+                Vec::new(),
+                &mut ch,
+            );
+            assert_eq!(
+                reference_bytes,
+                serialize(&(&fresh_commitment, &proof)).unwrap(),
+                "dirty in-place attempt {attempt} changed the proof at count {}",
+                tree.n_gates
+            );
+            assert_eq!(reference_claims, claims);
+            assert_eq!(terminal, from_fn(|_| ch.sample_f128()));
+            let mut verifier_ch = FsChallenger::new(DOMAIN);
+            assert_eq!(
+                verify_ligerito_union_circuit_with_skip(
+                    &union,
+                    &circuit,
+                    &tree.public,
+                    &[circuit_lc],
+                    &fresh_commitment,
+                    &proof,
+                    7,
+                    &pcs,
+                    &mut verifier_ch,
+                )
+                .unwrap(),
+                claims
+            );
+            assert_eq!(terminal, from_fn(|_| verifier_ch.sample_f128()));
+        }
+        scratch::clear();
+    }
+}
+
 fn union_pcs_params(union: &UnionInstance<'_>) -> PcsParams {
     PcsParams {
         m: union.dense_m(),

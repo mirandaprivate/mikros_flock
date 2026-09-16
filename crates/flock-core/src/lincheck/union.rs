@@ -256,8 +256,24 @@ pub fn prove_union_capture_z_vec_with_grinding<Ch: Challenger>(
     grinding: LincheckGrinding,
     challenger: &mut Ch,
 ) -> (LincheckProof, LincheckClaim, Vec<F128>) {
+    prove_union_capture_z_vec_with_skip_and_grinding(
+        union, slots, x_ab, K_SKIP, grinding, challenger,
+    )
+}
+
+/// Union-column lincheck with a caller-selected skip dimension. The legacy
+/// entry remains skip6, with exactly the same transcript and messages.
+pub fn prove_union_capture_z_vec_with_skip_and_grinding<Ch: Challenger>(
+    union: &UnionInstance<'_>,
+    slots: &[UnionLincheckSlot<'_>],
+    x_ab: &QuirkyPoint,
+    k_skip: usize,
+    grinding: LincheckGrinding,
+    challenger: &mut Ch,
+) -> (LincheckProof, LincheckClaim, Vec<F128>) {
+    assert!(k_skip == 6 || k_skip == 7);
+    assert!(matches!(x_ab.z_skip, SkipPoint::Phi8(_)) || k_skip == K_SKIP);
     let registry = union.registry();
-    let k_skip = K_SKIP;
     let nu = union.n_log();
     let col_vars = union.m_bool() - nu;
     let inner_rest_len = col_vars - k_skip;
@@ -483,6 +499,8 @@ fn col_weight(z_partial: &[F128], rr: &[F128], k_skip: usize) -> Vec<F128> {
 /// first sumcheck is what turns it into one.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct MatrixAssertion {
+    /// Skip dimension selected by the verifier, never read from the proof.
+    pub k_skip: usize,
     /// The challenge batching the A- and B-matrices.
     pub alpha: F128,
     /// Row-side weight: `λ(z_skip) ⊗ eq(x_inner_rest)` — `λ` is the skip
@@ -522,7 +540,7 @@ impl MatrixAssertion {
     /// would name a different polynomial in every proof. These name the
     /// static matrices, and fold forever.
     pub fn claims(&self, registry: &Registry) -> Vec<(MatrixClaim, MatrixClaim)> {
-        let k_skip = K_SKIP;
+        let k_skip = self.k_skip;
         registry
             .boolean_types()
             .iter()
@@ -554,7 +572,7 @@ impl MatrixAssertion {
     /// the only place the base matrices are read) and check the closed-form
     /// Comb-hat collapse against [`Self::target`].
     pub fn check_reported(&self, registry: &Registry) -> Result<(), LincheckError> {
-        let k_skip = K_SKIP;
+        let k_skip = self.k_skip;
         if self.evals.len() != registry.num_boolean() {
             return Err(LincheckError::BadVectorLength {
                 which: "matrix_evals",
@@ -600,7 +618,7 @@ impl MatrixAssertion {
         circuits: &[&dyn LincheckCircuit],
     ) -> Result<(), LincheckError> {
         let registry = union.registry();
-        let k_skip = K_SKIP;
+        let k_skip = self.k_skip;
         assert_eq!(
             circuits.len(),
             registry.num_boolean(),
@@ -736,8 +754,28 @@ pub fn verify_union_deferred_with_grinding<Ch: Challenger>(
     grinding: LincheckGrinding,
     challenger: &mut Ch,
 ) -> Result<(LincheckClaim, MatrixAssertion), LincheckError> {
+    verify_union_deferred_with_skip_and_grinding(
+        union, circuits, x_ab, v_a, v_b, proof, K_SKIP, grinding, challenger,
+    )
+}
+
+/// Deferred union lincheck with a verifier-selected skip dimension. Proof
+/// lengths are checked against this configuration before any challenge.
+#[allow(clippy::too_many_arguments)]
+pub fn verify_union_deferred_with_skip_and_grinding<Ch: Challenger>(
+    union: &UnionInstance<'_>,
+    circuits: &[&dyn LincheckCircuit],
+    x_ab: &QuirkyPoint,
+    v_a: F128,
+    v_b: F128,
+    proof: &LincheckProof,
+    k_skip: usize,
+    grinding: LincheckGrinding,
+    challenger: &mut Ch,
+) -> Result<(LincheckClaim, MatrixAssertion), LincheckError> {
+    assert!(k_skip == 6 || k_skip == 7);
+    assert!(matches!(x_ab.z_skip, SkipPoint::Phi8(_)) || k_skip == K_SKIP);
     let registry = union.registry();
-    let k_skip = K_SKIP;
     let nu = union.n_log();
     let col_vars = union.m_bool() - nu;
     let inner_rest_len = col_vars - k_skip;
@@ -902,6 +940,7 @@ pub fn verify_union_deferred_with_grinding<Ch: Challenger>(
     let mut rr = r_rounds;
     rr.reverse();
     let assertion = MatrixAssertion {
+        k_skip,
         alpha,
         z_skip: x_ab.z_skip,
         x_inner_rest: x_ab.x_inner_rest.clone(),
@@ -965,14 +1004,22 @@ pub fn verify_union_deferred_with_grinding<Ch: Challenger>(
 
 #[cfg(test)]
 mod tests {
+    use super::{
+        UnionLincheckSlot, prove_union_capture_z_vec_with_grinding,
+        prove_union_capture_z_vec_with_skip_and_grinding, verify_union_deferred_with_grinding,
+        verify_union_deferred_with_skip_and_grinding,
+    };
     use crate::{
+        challenger::{Challenger, FsChallenger},
         lincheck::union::{
             F128, K_SKIP, Registry, build_eq_table, eq_prefix_sum, eq_prefix_weight,
             union_comb_partial,
         },
+        lincheck::{CscCircuit, LincheckGrinding, SkipPoint, pack_z_lincheck},
         r1cs::SparseBinaryMatrix,
         schedule::{TableClass, TableType},
         test_rng::Rng,
+        union::UnionInstance,
     };
 
     fn stub() -> SparseBinaryMatrix {
@@ -1067,5 +1114,198 @@ mod tests {
         }
 
         assert_eq!(union_comb_partial(&reg, &combs, &rr, k_skip), expected);
+    }
+
+    /// Explicit skip6 preserves the legacy proof and FS state; skip7 binds
+    /// exactly the same public CSC matrices and partial-count pin statement.
+    /// Direct sums over the logical witness independently check both source
+    /// claims, the captured bank, and the terminal witness opening.
+    #[test]
+    fn configured_skip_union_lincheck_checks_partial_counts_and_sources() {
+        for k_logs in [vec![7usize], vec![9usize], vec![9usize, 8]] {
+            for count in [0usize, 5, 16] {
+                for k_skip in [6usize, 7] {
+                    let nu = 4;
+                    let mut types = Vec::new();
+                    for &k_log in &k_logs {
+                        let k = 1 << k_log;
+                        let a = SparseBinaryMatrix::new(k, k, (0..k).map(|i| vec![i]).collect());
+                        let b = SparseBinaryMatrix::new(
+                            k,
+                            k,
+                            (0..k).map(|i| vec![(i + 1) % k]).collect(),
+                        );
+                        let mut table = ty(k_log, k);
+                        table.a_0 = a;
+                        table.b_0 = b;
+                        table.const_pin = Some(0);
+                        types.push(table);
+                    }
+                    let reg = Registry::new(types, nu);
+                    let counts: Vec<_> = (0..k_logs.len()).map(|i| (count + i).min(16)).collect();
+                    let union = UnionInstance::new(&reg, counts.clone());
+                    let mut rng = Rng::new(0x5717_1C);
+                    let mlv = rng.f128_vec(union.m_bool() - k_skip);
+                    let point = union.x_ab_from_multilinear_values_with_skip(
+                        SkipPoint::Phi8(rng.f128()),
+                        &mlv,
+                        k_skip,
+                    );
+                    let circuits: Vec<_> = reg
+                        .boolean_types()
+                        .iter()
+                        .map(|ty| {
+                            CscCircuit::from_matrices(&ty.a_0, &ty.b_0).with_const_pin(Some(0))
+                        })
+                        .collect();
+                    let witnesses: Vec<Vec<bool>> = reg
+                        .boolean_types()
+                        .iter()
+                        .zip(&counts)
+                        .map(|(ty, &n)| {
+                            let k = 1 << ty.k_log;
+                            (0..16 * k)
+                                .map(|i| i / k < n && (i % k == 0 || (i * 17 + i / k * 13) % 7 < 3))
+                                .collect()
+                        })
+                        .collect();
+                    let stripes: Vec<_> = witnesses
+                        .iter()
+                        .zip(reg.boolean_types())
+                        .map(|(w, ty)| pack_z_lincheck(w, nu + ty.k_log, ty.k_log))
+                        .collect();
+                    let slots: Vec<_> = stripes
+                        .iter()
+                        .zip(&circuits)
+                        .map(|(z_lincheck, circuit)| UnionLincheckSlot {
+                            z_lincheck,
+                            circuit,
+                        })
+                        .collect();
+                    let circuit_refs: Vec<&dyn super::LincheckCircuit> =
+                        circuits.iter().map(|c| c as _).collect();
+                    let row_eq = build_eq_table(&point.x_outer);
+                    let col_eq = super::build_quirky_eq_table_from_weights(
+                        &point.z_skip.weights(k_skip),
+                        &point.x_inner_rest,
+                    );
+                    let mut a_eval = F128::ZERO;
+                    let mut b_eval = F128::ZERO;
+                    let mut bank = vec![F128::ZERO; 1 << (union.m_bool() - nu)];
+                    for ((ty, slot), w) in
+                        reg.boolean_types().iter().zip(reg.slots()).zip(&witnesses)
+                    {
+                        let k = 1 << ty.k_log;
+                        let off = slot.prefix << ty.k_log;
+                        for row in 0..16 {
+                            for col in 0..k {
+                                let weight = row_eq[row] * col_eq[off + col];
+                                if w[row * k + col] {
+                                    a_eval += weight;
+                                    bank[off + col] += row_eq[row];
+                                }
+                                if w[row * k + (col + 1) % k] {
+                                    b_eval += weight;
+                                }
+                            }
+                        }
+                    }
+                    let grinding = LincheckGrinding::disabled();
+                    let mut prover = FsChallenger::new(b"configured-union-skip-test");
+                    let (proof, claim, captured) = prove_union_capture_z_vec_with_skip_and_grinding(
+                        &union,
+                        &slots,
+                        &point,
+                        k_skip,
+                        grinding,
+                        &mut prover,
+                    );
+                    assert_eq!(captured, bank);
+                    let mut verifier = FsChallenger::new(b"configured-union-skip-test");
+                    let (verified, assertion) = verify_union_deferred_with_skip_and_grinding(
+                        &union,
+                        &circuit_refs,
+                        &point,
+                        a_eval,
+                        b_eval,
+                        &proof,
+                        k_skip,
+                        grinding,
+                        &mut verifier,
+                    )
+                    .unwrap();
+                    assert_eq!(verified, claim);
+                    assertion.check(&union, &circuit_refs).unwrap();
+                    assertion.check_reported(&reg).unwrap();
+                    for ((a, b), ty) in assertion.claims(&reg).iter().zip(reg.boolean_types()) {
+                        assert!(a.check_direct(&ty.a_0));
+                        assert!(b.check_direct(&ty.b_0));
+                    }
+                    let terminal_weights = super::build_quirky_eq_table_from_weights(
+                        &claim.r_inner_skip.weights(k_skip),
+                        &claim.r_inner_rest,
+                    );
+                    assert_eq!(claim.w, super::inner_product(&bank, &terminal_weights));
+                    let after = prover.sample_f128();
+                    assert_eq!(after, verifier.sample_f128());
+                    if k_skip == 6 {
+                        let mut old = FsChallenger::new(b"configured-union-skip-test");
+                        let (p, c, z) = prove_union_capture_z_vec_with_grinding(
+                            &union, &slots, &point, grinding, &mut old,
+                        );
+                        assert_eq!(
+                            bincode::serialize(&p).unwrap(),
+                            bincode::serialize(&proof).unwrap()
+                        );
+                        assert_eq!((c, z), (claim, captured));
+                        assert_eq!(after, old.sample_f128());
+                        let mut old_v = FsChallenger::new(b"configured-union-skip-test");
+                        let (c, a) = verify_union_deferred_with_grinding(
+                            &union,
+                            &circuit_refs,
+                            &point,
+                            a_eval,
+                            b_eval,
+                            &proof,
+                            grinding,
+                            &mut old_v,
+                        )
+                        .unwrap();
+                        assert_eq!(c, verified);
+                        assert_eq!(a, assertion);
+                        assert_eq!(after, old_v.sample_f128());
+                    }
+                    // A wrong source value must fail the public-matrix check;
+                    // a proof from the other skip has the wrong shape.
+                    let (_, bad) = verify_union_deferred_with_skip_and_grinding(
+                        &union,
+                        &circuit_refs,
+                        &point,
+                        a_eval + F128::ONE,
+                        b_eval,
+                        &proof,
+                        k_skip,
+                        grinding,
+                        &mut FsChallenger::new(b"configured-union-skip-test"),
+                    )
+                    .unwrap();
+                    assert!(bad.check(&union, &circuit_refs).is_err());
+                    assert!(
+                        verify_union_deferred_with_skip_and_grinding(
+                            &union,
+                            &circuit_refs,
+                            &point,
+                            a_eval,
+                            b_eval,
+                            &proof,
+                            13 - k_skip,
+                            grinding,
+                            &mut FsChallenger::new(b"configured-union-skip-test"),
+                        )
+                        .is_err()
+                    );
+                }
+            }
+        }
     }
 }

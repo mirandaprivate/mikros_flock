@@ -1,0 +1,9 @@
+{
+  "source_manifest_sha256": "dbe6c08a04f5578d56bf5ddf528a18cadf5ddd43fcceb54c9a4cc1cc5be568f8",
+  "toolchain": "+nightly-2026-03-21",
+  "rustflags": "-C target-cpu=native",
+  "binary_sha256": {
+    "/home/mscong1/mikros-experiments/20260912T-native64/v14-packed-aggregate-20260914/source/target/release/examples/e2e_sha256_paired": "89159aa29fac09ba554ca29509999bcd327a209149f0a4ff2a8af7dfa342bd1b",
+    "/home/mscong1/mikros-experiments/20260912T-native64/v14-packed-aggregate-20260914/source/target/release/examples/e2e_flock_baseline": "1b2c5331e72f70f5a804c6d7b030963386a8718ee0fe8771f2383d7190a84521"
+  }
+}

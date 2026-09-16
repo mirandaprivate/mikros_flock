@@ -1,0 +1,80 @@
+{
+  "state": "complete",
+  "completed": [
+    {
+      "name": "build",
+      "exit_code": 0,
+      "wall_seconds": 30.708434770815074
+    },
+    {
+      "name": "test-multiple_image",
+      "exit_code": 0,
+      "wall_seconds": 12.997906714910641
+    },
+    {
+      "name": "test-packed_sources",
+      "exit_code": 0,
+      "wall_seconds": 0.17610420589335263
+    },
+    {
+      "name": "test-sparse_lookup",
+      "exit_code": 0,
+      "wall_seconds": 0.13510644808411598
+    },
+    {
+      "name": "test-shared-hadamard",
+      "exit_code": 0,
+      "wall_seconds": 0.07977230288088322
+    },
+    {
+      "name": "test-sparse-prefix",
+      "exit_code": 0,
+      "wall_seconds": 26.897240356775
+    },
+    {
+      "name": "test-sparse-sha-encoding",
+      "exit_code": 0,
+      "wall_seconds": 51.29578196303919
+    },
+    {
+      "name": "test-sha",
+      "exit_code": 0,
+      "wall_seconds": 21.820959902135655
+    },
+    {
+      "name": "validation",
+      "exit_code": 0,
+      "wall_seconds": 5.026551377028227
+    },
+    {
+      "name": "mikros-0",
+      "exit_code": 0,
+      "wall_seconds": 17.147180596832186
+    },
+    {
+      "name": "flock-0",
+      "exit_code": 0,
+      "wall_seconds": 2.913337029982358
+    },
+    {
+      "name": "flock-1",
+      "exit_code": 0,
+      "wall_seconds": 2.947850455995649
+    },
+    {
+      "name": "mikros-1",
+      "exit_code": 0,
+      "wall_seconds": 18.120980164967477
+    },
+    {
+      "name": "mikros-2",
+      "exit_code": 0,
+      "wall_seconds": 17.418232599971816
+    },
+    {
+      "name": "flock-2",
+      "exit_code": 0,
+      "wall_seconds": 2.921455327188596
+    }
+  ]
+}

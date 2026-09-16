@@ -7,8 +7,7 @@ use std::{env::var, sync::OnceLock, time::Instant};
 
 use lincheck::{
     LincheckCircuit, LincheckError, LincheckGrinding, LincheckProof, MatrixAssertion,
-    verify as verify_lincheck, verify_union_deferred_with_grinding,
-    verify_with_grinding as verify_lincheck_with_grinding,
+    verify as verify_lincheck, verify_with_grinding as verify_lincheck_with_grinding,
 };
 use pcs::{
     BatchOpeningProofLigerito, LOG_PACKING, PackedDirectClaimRef, PcsError, verify_batch_merged,
@@ -67,6 +66,10 @@ pub enum FlockVerifyError {
     /// for, or omits one it does — the statement and the proof disagree on
     /// which PIOPs ran.
     ClassMismatch,
+    /// The caller selected an unsupported Boolean univariate-skip dimension.
+    UnsupportedSkipDimension {
+        k_skip: usize,
+    },
     /// The wiring (copy-constraint) argument rejected.
     Wiring(WiringError),
     /// The circuit and the union instance are not the same statement: a
@@ -289,6 +292,39 @@ pub fn verify_ligerito_union_circuit<Ch: Challenger>(
     pcs_params: &PcsParams,
     challenger: &mut Ch,
 ) -> Result<UnionClassClaims, FlockVerifyError> {
+    verify_ligerito_union_circuit_with_skip(
+        union,
+        circuit,
+        public,
+        circuits,
+        commitment,
+        proof,
+        zerocheck::K_SKIP,
+        pcs_params,
+        challenger,
+    )
+}
+
+/// Verify a complete circuit proof with a caller-selected RS skip dimension.
+///
+/// The skip dimension is verifier policy, never read from the proof. Six
+/// preserves the original transcript; seven uses the domain-separated skip128
+/// zerocheck and derives all 128 ring-switch weights from the verified claims.
+#[allow(clippy::too_many_arguments)]
+pub fn verify_ligerito_union_circuit_with_skip<Ch: Challenger>(
+    union: &UnionInstance<'_>,
+    circuit: &Circuit,
+    public: &[F128],
+    circuits: &[&dyn LincheckCircuit],
+    commitment: &Commitment,
+    proof: &R1csProofCircuitMerged,
+    k_skip: usize,
+    pcs_params: &PcsParams,
+    challenger: &mut Ch,
+) -> Result<UnionClassClaims, FlockVerifyError> {
+    if k_skip != zerocheck::K_SKIP && k_skip != zerocheck::K_SKIP_128 {
+        return Err(FlockVerifyError::UnsupportedSkipDimension { k_skip });
+    }
     if !circuit.check_instance(union) || !circuit.check_public(public) {
         return Err(FlockVerifyError::CircuitMismatch);
     }
@@ -302,7 +338,13 @@ pub fn verify_ligerito_union_circuit<Ch: Challenger>(
         UnionVerifyBinding::Circuit { circuit, public },
         circuits,
         commitment,
-        proof.boolean.as_ref().map(BooleanPiopRef::Rs),
+        proof.boolean.as_ref().map(|p| {
+            if k_skip == zerocheck::K_SKIP_128 {
+                BooleanPiopRef::RsSkip7(p)
+            } else {
+                BooleanPiopRef::Rs(p)
+            }
+        }),
         proof.element.as_ref(),
         Some(&proof.wiring),
         false,
@@ -316,15 +358,15 @@ pub fn verify_ligerito_union_circuit<Ch: Challenger>(
     if let Some(a) = el_matrix {
         a.check_reported(union).map_err(FlockVerifyError::Element)?;
     }
-    verify_merged_opening(
+    verify_merged_opening_with_skip(
         union,
         commitment,
         &claims,
         &packed_direct_points,
         &proof.pcs_open,
+        k_skip,
         pcs_params,
         challenger,
-        None,
     )
 }
 
@@ -508,6 +550,92 @@ pub fn verify_ligerito_union_circuit_ag_deferred<Ch: Challenger>(
         },
         sigma.expect("a circuit binding always verifies wiring"),
     ))
+}
+
+/// Skip128 absorbs every in-word bit into the univariate point. Its address
+/// suffix therefore starts at the row coordinates; only the PCS transport
+/// retains a leading placeholder for the old unswitched bit.
+#[allow(clippy::too_many_arguments)]
+fn verify_merged_opening_with_skip<Ch: Challenger>(
+    union: &UnionInstance<'_>,
+    commitment: &Commitment,
+    claims: &UnionClassClaims,
+    packed_direct_points: &[(Vec<F128>, F128)],
+    pcs_open: &MergedOpenProof,
+    k_skip: usize,
+    pcs_params: &PcsParams,
+    challenger: &mut Ch,
+) -> Result<UnionClassClaims, FlockVerifyError> {
+    if k_skip == zerocheck::K_SKIP {
+        return verify_merged_opening(
+            union,
+            commitment,
+            claims,
+            packed_direct_points,
+            pcs_open,
+            pcs_params,
+            challenger,
+            None,
+        );
+    }
+    if k_skip != zerocheck::K_SKIP_128 {
+        return Err(FlockVerifyError::UnsupportedSkipDimension { k_skip });
+    }
+    let cl: Vec<&ZClaim> = match &claims.boolean {
+        Some(c) => vec![&c.ab, &c.c],
+        None => Vec::new(),
+    };
+    for z in &cl {
+        if !z.point.x_inner_rest.is_empty() {
+            return Err(FlockVerifyError::Lincheck(
+                LincheckError::BadInnerRestLength {
+                    which: "skip128 opening point",
+                    expected: 0,
+                    got: z.point.x_inner_rest.len(),
+                },
+            ));
+        }
+    }
+    let values: Vec<F128> = cl.iter().map(|z| z.value).collect();
+    let columns: Vec<Vec<F128>> = cl.iter().map(|z| z.point.z_skip.weights(k_skip)).collect();
+    let column_refs: Vec<&[F128]> = columns.iter().map(Vec::as_slice).collect();
+    let x_fulls: Vec<Vec<F128>> = cl
+        .iter()
+        .map(|z| {
+            let mut point = vec![F128::ZERO];
+            point.extend_from_slice(&z.point.x_outer);
+            point
+        })
+        .collect();
+    let x_refs: Vec<&[F128]> = x_fulls.iter().map(Vec::as_slice).collect();
+    let pd: Vec<PackedDirectClaimRef<'_>> = packed_direct_points
+        .iter()
+        .map(|(point, value)| PackedDirectClaimRef {
+            point,
+            value: *value,
+        })
+        .collect();
+    let lig_v_config = pcs_params
+        .ligerito_verifier_config()
+        .expect("Ligerito default verifier config");
+    verifier_pool()
+        .install(|| {
+            pcs::verify_batch_merged_weighted(
+                commitment,
+                &values,
+                &column_refs,
+                &x_refs,
+                &pd,
+                &union.jagged_heights(),
+                union.n_log(),
+                pcs_open,
+                &lig_v_config,
+                pcs_params.opening_grinding(),
+                challenger,
+            )
+        })
+        .map_err(FlockVerifyError::PcsOpen)?;
+    Ok(claims.clone())
 }
 
 /// The merged transport's verification, shared by the mixed-class and circuit
@@ -768,12 +896,12 @@ pub fn verify_ligerito_union_mixed_class_deferred<Ch: Challenger>(
     ))
 }
 
-/// The boolean sub-proof as [`verify_union_piops`] consumes it — either
-/// zerocheck flavor. Downstream of the zerocheck the two are identical (the
-/// lincheck and both claim points are generic over [`SkipPoint`]).
+/// The boolean sub-proof and verifier-selected zerocheck flavor. The
+/// lincheck and both claim points use the corresponding skip dimension.
 #[derive(Clone, Copy)]
 enum BooleanPiopRef<'a> {
     Rs(&'a BooleanPiopProof),
+    RsSkip7(&'a BooleanPiopProof),
     Ag(&'a BooleanPiopProofAg),
 }
 
@@ -838,6 +966,10 @@ fn verify_union_piops<Ch: Challenger>(
         let mut ch_w = par_transcript.then(|| challenger.fork(b"flock-par-wiring-v1"));
         let bool_claim = match boolean {
             Some(piop) => {
+                let k_skip = match piop {
+                    BooleanPiopRef::RsSkip7(_) => zerocheck::K_SKIP_128,
+                    BooleanPiopRef::Rs(_) | BooleanPiopRef::Ag(_) => zerocheck::K_SKIP,
+                };
                 // The boolean PIOP runs over the BOOLEAN REGION only — the
                 // prefix subcube `[0, 2^M_bool)`, `M_bool = M` for a
                 // boolean-only registry. (The element region cannot join this
@@ -846,13 +978,22 @@ fn verify_union_piops<Ch: Challenger>(
                 // skip point.
                 let (z_skip, mlv_challenges, a_eval, b_eval, c_eval, r_rest, lincheck_proof) =
                     match piop {
-                        BooleanPiopRef::Rs(p) => {
-                            let zc = verify_zerocheck_with_grinding(
-                                union.m_bool(),
-                                &p.zerocheck,
-                                pcs_params.zerocheck_grinding(),
-                                challenger,
-                            )
+                        BooleanPiopRef::Rs(p) | BooleanPiopRef::RsSkip7(p) => {
+                            let zc = if k_skip == zerocheck::K_SKIP_128 {
+                                zerocheck::verify_skip7_with_grinding(
+                                    union.m_bool(),
+                                    &p.zerocheck,
+                                    pcs_params.zerocheck_grinding(),
+                                    challenger,
+                                )
+                            } else {
+                                verify_zerocheck_with_grinding(
+                                    union.m_bool(),
+                                    &p.zerocheck,
+                                    pcs_params.zerocheck_grinding(),
+                                    challenger,
+                                )
+                            }
                             .map_err(FlockVerifyError::Zerocheck)?;
                             (
                                 SkipPoint::Phi8(zc.z),
@@ -883,20 +1024,22 @@ fn verify_union_piops<Ch: Challenger>(
                             )
                         }
                     };
-                let x_ab = union.x_ab_from_multilinear_values(z_skip, &mlv_challenges);
+                let x_ab =
+                    union.x_ab_from_multilinear_values_with_skip(z_skip, &mlv_challenges, k_skip);
                 // The union-column lincheck (one circuit per BOOLEAN slot, in
                 // slot order); the declared counts additionally bind through
                 // the per-type const-pin target terms.
                 // DEFERRED: the matrix work leaves as an assertion instead of
                 // being discharged here. Callers that are not accumulating get
                 // it discharged for them by the wrappers below.
-                let (lc_claim, assertion) = verify_union_deferred_with_grinding(
+                let (lc_claim, assertion) = lincheck::verify_union_deferred_with_skip_and_grinding(
                     union,
                     circuits,
                     &x_ab,
                     a_eval,
                     b_eval,
                     lincheck_proof,
+                    k_skip,
                     pcs_params.lincheck_grinding(),
                     challenger,
                 )
@@ -904,15 +1047,16 @@ fn verify_union_piops<Ch: Challenger>(
                 matrix = Some(assertion);
                 Some(R1csClaim {
                     ab: ZClaim {
-                        point: union.ab_claim_point(
+                        point: union.ab_claim_point_with_skip(
                             lc_claim.r_inner_skip,
                             &lc_claim.r_inner_rest,
                             &x_ab.x_outer,
+                            k_skip,
                         ),
                         value: lc_claim.w,
                     },
                     c: ZClaim {
-                        point: union.c_claim_point(z_skip, &r_rest),
+                        point: union.c_claim_point_with_skip(z_skip, &r_rest, k_skip),
                         value: c_eval,
                     },
                 })

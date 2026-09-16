@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "passed": true,
+  "audited_utc": "2026-09-16T16:16:32.988203+00:00",
+  "source_archive_sha256": "6ab2ef00bd57adef1b17868885bf9bf898dc074df060780aa958fe3a5994ef82",
+  "source_manifest_sha256": "dbe6c08a04f5578d56bf5ddf528a18cadf5ddd43fcceb54c9a4cc1cc5be568f8",
+  "local_manifest_file_sha256": "7313129358ee344001c7d179a24f2ad43e6491c89b0cb99b974819aeb01bd244",
+  "current_sources_verified": 403,
+  "archive_sources_verified": 403,
+  "evidence_files_verified": 85,
+  "elf_files_verified": 2,
+  "jsonl_files_verified": 13,
+  "jsonl_records_read": 81,
+  "formal_samples_verified": 54,
+  "warmup_samples_verified": 9,
+  "validation_samples_verified": 3,
+  "raw_summary_exact_match": true,
+  "complete_verification_and_fs": true,
+  "same_public_statement": true,
+  "same_flock6_flock7_commitment": true,
+  "negative_tests": {
+    "mikros": 36,
+    "flock6": 20,
+    "flock7": 20
+  },
+  "executed_binary_sha256": {
+    "evidence-binaries/e2e_sha256_paired": "89159aa29fac09ba554ca29509999bcd327a209149f0a4ff2a8af7dfa342bd1b",
+    "evidence-binaries/e2e_flock_baseline": "1b2c5331e72f70f5a804c6d7b030963386a8718ee0fe8771f2383d7190a84521"
+  },
+  "server_summary_sha256": "2da568e982ef7e7ed2286f4ac742e53c072c9ba16c067f5888b78b0d3136c901",
+  "statistics_file": "audit_statistics.json",
+  "statistics_sha256": "b22ff8dd85c339423e1f8f993e3ba38b3d3ffd6c40a58cc00c469019ae0e6294",
+  "local_audit_script_sha256": "059a9eae041eaf1821c23b0252503635db3d621e22c375280b2f40b84eec72a6"
+}

@@ -1,0 +1,106 @@
+{
+  "stage": "formal",
+  "modes": {
+    "baseline": {
+      "MIKROS_PUBLIC_CSC_SINGLE": "0",
+      "MIKROS_PCS_LOW_BIT_SUPPORT": "0",
+      "MIKROS_PCS_REUSE_UNIT_TABLE": "0",
+      "MIKROS_HADAMARD_WIDE_PACK": "0",
+      "MIKROS_HADAMARD_GROUP_TILES": "0",
+      "MIKROS_IP_BATCH_PARALLEL": "0",
+      "MIKROS_IMAGE_BLOCKED_WEIGHTS": "0",
+      "MIKROS_SERIAL_DEINTERLEAVE": "0",
+      "MIKROS_HADAMARD_GFNI_QUOTIENT": "0",
+      "MIKROS_HADAMARD_TILE_ROWS": "1024"
+    },
+    "core": {
+      "MIKROS_PUBLIC_CSC_SINGLE": "1",
+      "MIKROS_PCS_LOW_BIT_SUPPORT": "0",
+      "MIKROS_PCS_REUSE_UNIT_TABLE": "0",
+      "MIKROS_HADAMARD_WIDE_PACK": "0",
+      "MIKROS_HADAMARD_GROUP_TILES": "1",
+      "MIKROS_IP_BATCH_PARALLEL": "0",
+      "MIKROS_IMAGE_BLOCKED_WEIGHTS": "1",
+      "MIKROS_SERIAL_DEINTERLEAVE": "1",
+      "MIKROS_HADAMARD_GFNI_QUOTIENT": "1",
+      "MIKROS_HADAMARD_TILE_ROWS": "2048"
+    },
+    "selected": {
+      "MIKROS_PUBLIC_CSC_SINGLE": "1",
+      "MIKROS_PCS_LOW_BIT_SUPPORT": "1",
+      "MIKROS_PCS_REUSE_UNIT_TABLE": "1",
+      "MIKROS_HADAMARD_WIDE_PACK": "0",
+      "MIKROS_HADAMARD_GROUP_TILES": "1",
+      "MIKROS_IP_BATCH_PARALLEL": "0",
+      "MIKROS_IMAGE_BLOCKED_WEIGHTS": "1",
+      "MIKROS_SERIAL_DEINTERLEAVE": "1",
+      "MIKROS_HADAMARD_GFNI_QUOTIENT": "1",
+      "MIKROS_HADAMARD_TILE_ROWS": "2048"
+    },
+    "flock": {
+      "MIKROS_PUBLIC_CSC_SINGLE": "0",
+      "MIKROS_PCS_LOW_BIT_SUPPORT": "0",
+      "MIKROS_PCS_REUSE_UNIT_TABLE": "0",
+      "MIKROS_HADAMARD_WIDE_PACK": "0",
+      "MIKROS_HADAMARD_GROUP_TILES": "0",
+      "MIKROS_IP_BATCH_PARALLEL": "0",
+      "MIKROS_IMAGE_BLOCKED_WEIGHTS": "0",
+      "MIKROS_SERIAL_DEINTERLEAVE": "0",
+      "MIKROS_HADAMARD_GFNI_QUOTIENT": "0",
+      "MIKROS_HADAMARD_TILE_ROWS": "1024"
+    }
+  },
+  "order": [
+    [
+      "baseline",
+      "core",
+      "selected",
+      "flock"
+    ],
+    [
+      "core",
+      "selected",
+      "flock",
+      "baseline"
+    ],
+    [
+      "selected",
+      "flock",
+      "baseline",
+      "core"
+    ]
+  ],
+  "validation_modes": {
+    "baseline": {
+      "MIKROS_PUBLIC_CSC_SINGLE": "0",
+      "MIKROS_PCS_LOW_BIT_SUPPORT": "0",
+      "MIKROS_PCS_REUSE_UNIT_TABLE": "0",
+      "MIKROS_HADAMARD_WIDE_PACK": "0",
+      "MIKROS_HADAMARD_GROUP_TILES": "0",
+      "MIKROS_IP_BATCH_PARALLEL": "0",
+      "MIKROS_IMAGE_BLOCKED_WEIGHTS": "0",
+      "MIKROS_SERIAL_DEINTERLEAVE": "0",
+      "MIKROS_HADAMARD_GFNI_QUOTIENT": "0",
+      "MIKROS_HADAMARD_TILE_ROWS": "1024"
+    },
+    "selected": {
+      "MIKROS_PUBLIC_CSC_SINGLE": "1",
+      "MIKROS_PCS_LOW_BIT_SUPPORT": "1",
+      "MIKROS_PCS_REUSE_UNIT_TABLE": "1",
+      "MIKROS_HADAMARD_WIDE_PACK": "0",
+      "MIKROS_HADAMARD_GROUP_TILES": "1",
+      "MIKROS_IP_BATCH_PARALLEL": "0",
+      "MIKROS_IMAGE_BLOCKED_WEIGHTS": "1",
+      "MIKROS_SERIAL_DEINTERLEAVE": "1",
+      "MIKROS_HADAMARD_GFNI_QUOTIENT": "1",
+      "MIKROS_HADAMARD_TILE_ROWS": "2048"
+    }
+  },
+  "reps": 6,
+  "warmups": 1,
+  "batches": 3,
+  "profiling_enabled": false,
+  "source_files": 402,
+  "source_manifest_sha256": "c2e6a24439644af45ad25ea51bbfc6b47ed83613786adda18c3002ccaf8b6f97",
+  "selected_json_sha256": "bc76ff090415f18a476a2be4639f4c32ff4d9cf067db4ea3eef7d193f9706291"
+}

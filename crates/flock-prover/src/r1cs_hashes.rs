@@ -14,6 +14,9 @@ pub mod common;
 /// The Fiat–Shamir chain: BLAKE3 over a transcript with a finalize forked at
 /// every squeeze — the FS chain's witness generator, over [`blake3`]'s rows.
 pub mod fs_chain;
+/// Original compact Keccak-f[1600] relation with an explicit public circuit
+/// walker. Its sparse A/B descriptors are stubs and must not be used as CSCs.
+pub mod keccak;
 /// The recursion tower's Merkle glue gates (`SwapTable`, `BitSpreadTable`,
 /// `PowMaskTable`, `FamilyTransposeTileTable`): small R1CS tables that join
 /// the tower's in-circuit Merkle openings to the BLAKE3 compressions.

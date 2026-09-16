@@ -57,7 +57,8 @@ padding each input with ones to length \(4N\)\;
 \(\PtoV\): a common root \(\ext\Theta\)\;
 For each tree, run the degree-three layer sumchecks of
 Appendix~\ref{appx:proof-multiple-instance}, starting at \(\ext\Theta\).
-After checking each pair of child values, sample a fresh merge
+After checking the sumcheck terminal identity and fixing both child values,
+sample a fresh merge
 challenge and continue to the next layer; retain the terminal input claim\;
 Expand both terminals, retaining the prefix weights of the three
 wire segments. \(\PtoV\): six wire values and three permuted-label values\;

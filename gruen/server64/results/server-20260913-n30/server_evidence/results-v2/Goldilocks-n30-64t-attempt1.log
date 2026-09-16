@@ -1,5 +1,0 @@
-Goldilocks n=30 gruen_2eval                   7407.909 ms [7297.935,7540.729]
-Goldilocks n=30 gruen_skip_kappa              9262.790 ms [9097.803,9547.607]
-Goldilocks n=30 mikros_lagrange_reference     7025.576 ms [6848.390,7141.377]
-Goldilocks n=30 mikros_lagrange_optimized     6701.408 ms [6534.264,6895.535]
-Verified 36 proofs; saved /home/mscong1/mikros-experiments/20260912T-native64/gruen-20260913-n30/results-v2/Goldilocks-n30-64t-attempt1

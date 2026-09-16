@@ -1,0 +1,34 @@
+{
+  "scope": "Binary Hadamard packed-opening PIOP only; no PCS, commitment, extra column-to-tensor aggregation or E2E SNARK",
+  "systems": [
+    "pairreuse",
+    "flock128"
+  ],
+  "log_n": 30,
+  "batch_systems": [
+    [
+      "pairreuse",
+      "flock128"
+    ],
+    [
+      "flock128",
+      "pairreuse"
+    ],
+    [
+      "pairreuse",
+      "flock128"
+    ]
+  ],
+  "batches": 3,
+  "runs": 6,
+  "warmups": 1,
+  "unique_formal_witnesses": 6,
+  "repetitions_per_formal_witness_per_system": 3,
+  "profile_runs": 3,
+  "rss_cold_repetitions": 3,
+  "timing_scope": "Prover includes witness-dependent transforms, GF256 work, packing and IP tail; excludes input generation/digest, challenger creation, serialization and independent source-claim oracle. Verifier is reduction replay only; input-claim oracle time is separately reported.",
+  "memory_scope": "Fresh-process VmRSS immediately before prove and VmHWM immediately after prove, before verify/source oracle; both include packed input/runtime/setup and the HWM can include earlier preparation. GNU time peak is the complete process including input generation, prover, verifier, full source oracle and serialization. HWM minus initial RSS is an observed increase, not a precise allocation measurement.",
+  "source_files": 411,
+  "source_manifest_sha256": "f419ef72ec607019a926cc80c71c5880c00e383439af8ec1b1eb972aee2b1430",
+  "grinding": "disabled by existing PIOP APIs, not an environment override"
+}

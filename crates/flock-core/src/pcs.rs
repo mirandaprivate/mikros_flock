@@ -76,6 +76,7 @@ pub mod jagged;
 pub mod ligerito;
 pub mod merged_tensor;
 pub mod pack;
+pub mod paired;
 pub mod ring_switch;
 pub mod stratified;
 pub mod tensor_algebra;

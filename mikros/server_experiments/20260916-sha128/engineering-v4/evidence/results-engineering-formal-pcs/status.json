@@ -1,0 +1,61 @@
+{
+  "stage": "formal",
+  "state": "complete",
+  "completed": [
+    {
+      "name": "validation-baseline",
+      "exit_code": 0,
+      "wall_seconds": 3.4701753810513765
+    },
+    {
+      "name": "validation-selected",
+      "exit_code": 0,
+      "wall_seconds": 3.369851161027327
+    },
+    {
+      "name": "baseline-0",
+      "exit_code": 0,
+      "wall_seconds": 3.720795455854386
+    },
+    {
+      "name": "selected-0",
+      "exit_code": 0,
+      "wall_seconds": 3.57070844899863
+    },
+    {
+      "name": "flock-0",
+      "exit_code": 0,
+      "wall_seconds": 3.720640941988677
+    },
+    {
+      "name": "selected-1",
+      "exit_code": 0,
+      "wall_seconds": 3.570237359032035
+    },
+    {
+      "name": "flock-1",
+      "exit_code": 0,
+      "wall_seconds": 3.7210393098648638
+    },
+    {
+      "name": "baseline-1",
+      "exit_code": 0,
+      "wall_seconds": 3.7219162869732827
+    },
+    {
+      "name": "flock-2",
+      "exit_code": 0,
+      "wall_seconds": 3.720728361979127
+    },
+    {
+      "name": "baseline-2",
+      "exit_code": 0,
+      "wall_seconds": 3.671188703039661
+    },
+    {
+      "name": "selected-2",
+      "exit_code": 0,
+      "wall_seconds": 3.5710978789720684
+    }
+  ]
+}

@@ -1,8 +1,0 @@
-Traceback (most recent call last):
-  File "/home/mscong1/mikros-experiments/20260912T-native64/gruen-20260913-n30/source/run_server.py", line 244, in <module>
-    main()
-  File "/home/mscong1/mikros-experiments/20260912T-native64/gruen-20260913-n30/source/run_server.py", line 176, in main
-    execute("fmt", ["cargo", TOOLCHAIN, "fmt", "--all", "--", "--check"])
-  File "/home/mscong1/mikros-experiments/20260912T-native64/gruen-20260913-n30/source/run_server.py", line 171, in execute
-    assert proc.returncode == 0, f"{stage} failed; see retained log"
-AssertionError: fmt failed; see retained log

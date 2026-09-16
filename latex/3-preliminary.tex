@@ -82,14 +82,13 @@ We denote the prover and verifier by $\Prover$ and $\Verifier$.
 We specify relations as
 $\Relation=\{\text{public input}:\text{private input}\mid\text{constraint}\}$.
 
-\subsection{SNARK Protocol in Matrix Form}
+\subsection{SNARK Protocol in Vector Form}
 \label{sec:defgeneral}
 We express circuit satisfiability as vector identities and represent
 multilinear-extension (MLE) evaluations as inner products with
 tensor vectors. This formulation exposes the matrix structure used
 by our packing reductions. We first recall the PLONK constraint
 system and then state the evaluation and proof interfaces.
-
 
 \begin{definition}[PLONK constraint system for circuit
 satisfiability~\cite{iacr/GabizonWC19,iacr/AmbronaSTW22}]
@@ -139,6 +138,23 @@ Here,
 \(\bm w\) induced by \(\sigma\).
 \end{definition}
 
+\begin{definition}[R1CS constraint system for circuit satisfiability]
+\label{def:r1cs}
+An arithmetic circuit is specified by three sparse matrices
+\(
+    \bm S_L,\ \bm S_R,\ \bm S_O \in \Field^{N\times N},
+\)
+where \(N\) is the total number of multiplication gates and I/O gates
+(the public inputs and outputs). Let
+\(
+    \bm w = (\bm w^{\mathsf{mul}} \,\|\, \bm{\mathsf{io}}) \in \Field^{N}
+\)
+be the assignment to the multiplication gates and the I/O gates.
+The circuit is satisfied if and only if:
+\[
+    (\bm S_L \bm w) \circ (\bm S_R \bm w) = \bm S_O \bm w .
+\]
+\end{definition}
 
 The following tensor representation identifies an MLE query with a
 linear functional on its evaluation vector.

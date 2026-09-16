@@ -1,9 +1,0 @@
-KoalaBear n=20 gruen_2eval                   169.960 ms [158.858,177.404]
-KoalaBear n=20 gruen_skip_kappa              156.079 ms [152.303,160.238]
-KoalaBear n=20 mikros_lagrange_reference     109.411 ms [101.848,116.866]
-KoalaBear n=20 mikros_lagrange_optimized     108.996 ms [100.998,121.754]
-Goldilocks n=20 gruen_2eval                   635.658 ms [632.021,672.269]
-Goldilocks n=20 gruen_skip_kappa              862.947 ms [845.778,913.902]
-Goldilocks n=20 mikros_lagrange_reference     793.974 ms [778.648,846.096]
-Goldilocks n=20 mikros_lagrange_optimized     691.983 ms [685.771,696.257]
-Verified 72 proofs; saved /mnt/c/Users/miranda/git/mikros_flock/gruen/results/2026-09-12-mikros-gold-koala-confirm-1t

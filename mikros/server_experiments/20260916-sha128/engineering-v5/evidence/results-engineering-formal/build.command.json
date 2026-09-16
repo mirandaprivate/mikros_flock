@@ -1,0 +1,15 @@
+[
+  "cargo",
+  "+nightly-2026-03-21",
+  "build",
+  "--release",
+  "--offline",
+  "--locked",
+  "-j8",
+  "-p",
+  "mikros",
+  "--example",
+  "e2e_sha256_paired",
+  "--example",
+  "e2e_flock_baseline"
+]

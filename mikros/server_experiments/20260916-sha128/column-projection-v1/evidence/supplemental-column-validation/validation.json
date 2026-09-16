@@ -1,0 +1,9 @@
+{
+  "exit_code": 0,
+  "negative_tests": {
+    "separate": 35,
+    "paired": 36
+  },
+  "pairing_preserves_piop": true,
+  "paired_proof_matches_formal": true
+}

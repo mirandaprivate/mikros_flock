@@ -1,0 +1,154 @@
+{
+  "state": "complete",
+  "completed": [
+    {
+      "name": "build",
+      "exit_code": 0,
+      "wall_seconds": 31.21159058692865
+    },
+    {
+      "name": "validation-sha256-mikros",
+      "exit_code": 0,
+      "wall_seconds": 3.069296946050599,
+      "process_peak_rss_kib": 609428
+    },
+    {
+      "name": "validation-sha256-flock",
+      "exit_code": 0,
+      "wall_seconds": 2.969320931006223,
+      "process_peak_rss_kib": 620916
+    },
+    {
+      "name": "validation-keccak-mikros",
+      "exit_code": 0,
+      "wall_seconds": 1.1161344170104712,
+      "process_peak_rss_kib": 38352
+    },
+    {
+      "name": "validation-keccak-flock",
+      "exit_code": 0,
+      "wall_seconds": 0.3652685349807143,
+      "process_peak_rss_kib": 58976
+    },
+    {
+      "name": "validation-blake3-mikros",
+      "exit_code": 0,
+      "wall_seconds": 3.519655124982819,
+      "process_peak_rss_kib": 645120
+    },
+    {
+      "name": "validation-blake3-flock",
+      "exit_code": 0,
+      "wall_seconds": 3.4202094471547753,
+      "process_peak_rss_kib": 648192
+    },
+    {
+      "name": "sha256-mikros-0",
+      "exit_code": 0,
+      "wall_seconds": 3.4198566819541156,
+      "process_peak_rss_kib": 610956
+    },
+    {
+      "name": "sha256-flock-0",
+      "exit_code": 0,
+      "wall_seconds": 3.5207276691216975,
+      "process_peak_rss_kib": 647056
+    },
+    {
+      "name": "keccak-flock-0",
+      "exit_code": 0,
+      "wall_seconds": 1.1695232670754194,
+      "process_peak_rss_kib": 122424
+    },
+    {
+      "name": "keccak-mikros-0",
+      "exit_code": 0,
+      "wall_seconds": 1.1165087730623782,
+      "process_peak_rss_kib": 41364
+    },
+    {
+      "name": "blake3-mikros-0",
+      "exit_code": 0,
+      "wall_seconds": 3.670304731000215,
+      "process_peak_rss_kib": 641280
+    },
+    {
+      "name": "blake3-flock-0",
+      "exit_code": 0,
+      "wall_seconds": 3.7714486739132553,
+      "process_peak_rss_kib": 665748
+    },
+    {
+      "name": "keccak-mikros-1",
+      "exit_code": 0,
+      "wall_seconds": 0.8666720450855792,
+      "process_peak_rss_kib": 58240
+    },
+    {
+      "name": "keccak-flock-1",
+      "exit_code": 0,
+      "wall_seconds": 1.0669716969132423,
+      "process_peak_rss_kib": 125476
+    },
+    {
+      "name": "blake3-flock-1",
+      "exit_code": 0,
+      "wall_seconds": 3.821540566161275,
+      "process_peak_rss_kib": 666396
+    },
+    {
+      "name": "blake3-mikros-1",
+      "exit_code": 0,
+      "wall_seconds": 3.721651041181758,
+      "process_peak_rss_kib": 644104
+    },
+    {
+      "name": "sha256-flock-1",
+      "exit_code": 0,
+      "wall_seconds": 3.6212684460915625,
+      "process_peak_rss_kib": 649348
+    },
+    {
+      "name": "sha256-mikros-1",
+      "exit_code": 0,
+      "wall_seconds": 3.270177163882181,
+      "process_peak_rss_kib": 610884
+    },
+    {
+      "name": "blake3-mikros-2",
+      "exit_code": 0,
+      "wall_seconds": 3.7713488650042564,
+      "process_peak_rss_kib": 644004
+    },
+    {
+      "name": "blake3-flock-2",
+      "exit_code": 0,
+      "wall_seconds": 3.721285196952522,
+      "process_peak_rss_kib": 661736
+    },
+    {
+      "name": "sha256-mikros-2",
+      "exit_code": 0,
+      "wall_seconds": 3.4710453080479056,
+      "process_peak_rss_kib": 610872
+    },
+    {
+      "name": "sha256-flock-2",
+      "exit_code": 0,
+      "wall_seconds": 3.5709062251262367,
+      "process_peak_rss_kib": 651636
+    },
+    {
+      "name": "keccak-flock-2",
+      "exit_code": 0,
+      "wall_seconds": 1.167222250951454,
+      "process_peak_rss_kib": 110496
+    },
+    {
+      "name": "keccak-mikros-2",
+      "exit_code": 0,
+      "wall_seconds": 1.0167789531406015,
+      "process_peak_rss_kib": 43420
+    }
+  ]
+}

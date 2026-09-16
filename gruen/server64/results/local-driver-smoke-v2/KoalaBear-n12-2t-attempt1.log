@@ -1,5 +1,0 @@
-KoalaBear n=12 gruen_2eval                   0.631 ms [0.611,0.755]
-KoalaBear n=12 gruen_skip_kappa              0.530 ms [0.521,0.543]
-KoalaBear n=12 mikros_lagrange_reference     0.647 ms [0.556,0.828]
-KoalaBear n=12 mikros_lagrange_optimized     0.520 ms [0.502,0.626]
-Verified 20 proofs; saved /mnt/c/Users/miranda/git/mikros_flock/gruen/server64/results/local-driver-smoke-v2/KoalaBear-n12-2t-attempt1

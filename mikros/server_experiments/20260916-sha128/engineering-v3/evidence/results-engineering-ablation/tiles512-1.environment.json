@@ -1,0 +1,14 @@
+{
+  "CARGO_TARGET_DIR": "/home/mscong1/mikros-experiments/20260912T-native64/v14-packed-aggregate-20260914/source/target",
+  "RUSTFLAGS": "-C target-cpu=native",
+  "RAYON_NUM_THREADS": "64",
+  "FLOCK_PCS_PACKED_DIRECT": "1",
+  "FLOCK_WP_UNINIT": "1",
+  "MIKROS_PUBLIC_CSC_SINGLE": "1",
+  "MIKROS_PCS_LOW_BIT_SUPPORT": "1",
+  "MIKROS_PCS_REUSE_UNIT_TABLE": "1",
+  "MIKROS_HADAMARD_WIDE_PACK": "1",
+  "MIKROS_HADAMARD_GROUP_TILES": "1",
+  "MIKROS_IP_BATCH_PARALLEL": "0",
+  "MIKROS_HADAMARD_TILE_ROWS": "512"
+}

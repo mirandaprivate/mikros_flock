@@ -1,0 +1,103 @@
+{
+  "metadata": {
+    "arch": "x86_64",
+    "build_configuration_blake3": "b18000767e9f61000ea5049dd2e8b8d373027939094a3c0b8852a2e3516cb224",
+    "carryless_backend": "vpclmul-avx512",
+    "carryless_scope": "coeffclmul/coeffnibble encode directly to binary planes using 512 KiB byte or 64 KiB nibble tables; four-row VPCLMUL Karatsuba high convolution, AES reduction, decode and original register consumer; same 2048-row outer blocks as PairAggregate; all witness conversions online; safe original native/lookup fallback; corresponding reuse modes retain independent scratch capacity",
+    "coefficient_scope": "coefflookup/coeffnative use monomial row encoding and upper schoolbook products; coeffnative uses GFNI/AVX-512 when available; column claims and monomial quotient bytes are identical to existing kernels; interpolate_quotient_ms measures sparse division for these modes; witness-to-coefficient conversion and products are online and timed; only input-independent lookup tables persist; coefflookupreuse/coeffnativereuse retain independent per-system allocation capacity",
+    "compiled_target_features": [
+      "gfni",
+      "avx512f",
+      "avx512bw",
+      "avx512vbmi",
+      "vpclmulqdq",
+      "pclmulqdq",
+      "avx2",
+      "sse4.1"
+    ],
+    "cpu": "Intel(R) Xeon(R) Gold 6342 CPU @ 2.80GHz",
+    "extension_coordinates": 16,
+    "flock_skip_rounds": 7,
+    "flock_sources_blake3": "493cfff2fc6e0fa2f200c1cc24e61d681353155a3d3259d9c22dfd93adfee00f",
+    "grinding": "disabled; no equal-security claim",
+    "intermediate_field_bits": 8,
+    "kappa": 128,
+    "kernel_scope": "reference/lookup/native/tiled/basis/register/split/half/pair/affine/joint select the first aggregation only; native/reuse preserve the v5 kernel; basis/basisreuse retain v6 batched coordinate conversion; register/registerreuse avoid its intermediate zeroing; registerpacked/registerpackedreuse also defer IP message horizontal folds within each packing task; split/splitreuse separate H and continuation accumulation in eight-coordinate loops; half/halfreuse group eight coordinates by sample half; pair/pairreuse unroll paired continuation interpolation with the original consume loop; affine/affinereuse replace split H masks with eight-row GFNI affine maps; joint/jointreuse combine paired interpolation and affine H; split/half/pair/affine/joint retain the v6 Batch conversion and original packing; every mode uses the same mathematical GF256 basis, C projection, weights and IP protocol with hardware fallbacks",
+    "latex": "latex/4-block.tex",
+    "logs": [
+      30
+    ],
+    "memory": "VmHWM read immediately after prove, before verify and source checks; includes input and runtime",
+    "mikros_sources_blake3": "b5272fdd8204a7478472350bd29c79a7a24af32af82e2d17cef803b367569f36",
+    "mode": "fresh_process_rss_cold_proof",
+    "native_backend": "gfni-avx512",
+    "os": "linux",
+    "position_balanced": true,
+    "profile": false,
+    "protocol": "mikros-univariate-gf256-v1",
+    "rayon_actual_threads": 64,
+    "runs": 1,
+    "rustc": "rustc 1.96.0-nightly (ac7f9ec7d 2026-03-20); binary: rustc; commit-hash: ac7f9ec7da74d37fd28667c86bf117a39ba5b02a; commit-date: 2026-03-20; host: x86_64-unknown-linux-gnu; release: 1.96.0-nightly; LLVM version: 22.1.0",
+    "scope": "Direct packed-opening PIOP only; no extra column-to-tensor aggregation or PCS; all source claims independently checked outside timings",
+    "scratch": "reuse/tiledreuse/basisreuse/registerreuse/registerpackedreuse/splitreuse/halfreuse/pairreuse/affinereuse/jointreuse retain independent per-system allocation capacity, reset for each dimension; other Mikros modes allocate and deallocate per proof; all dynamic values rebuilt; Flock uses its production pool",
+    "setup": "fixed tables initialized inside first proof and included in warmup/cold timing; no costs subtracted",
+    "source_check_policy": "Every proof is verified and its transcript checked; each (dimension,run) has new immutable inputs and a new cache. First Mikros claims use the full source oracle; optional --reuse-source-checks permits later kernels only when their verifier-returned Claims equal the previously checked Claims exactly. Records identify full_oracle versus exact_claim_cache and the anchor system. Flock always uses its full oracle. All checks and comparisons are outside prover timing.",
+    "source_check_reuse": false,
+    "systems": [
+      "flock128"
+    ],
+    "threads": 64,
+    "timing": "input generation/digest, challenger creation, serialization and source claim checks excluded; verifier is reduction replay only",
+    "unix_timestamp_seconds": 1789579239
+  },
+  "samples": [
+    {
+      "bincode_bytes": 4912,
+      "input_claim_check_ms": 9100.192421,
+      "input_digest": "e527f65e39324179c618aa7530540274238543700a629a71045fa4afbc09fd34",
+      "log_n": 30,
+      "mikros_phases": null,
+      "order": 0,
+      "payload_field_bytes": 4880,
+      "payload_field_elements": 305,
+      "proof_digest": "605dc9b172e6a3d3e14b7febff3109248a71524661c4a079391a278634997d0e",
+      "prover_ms": 77.66671,
+      "run": 0,
+      "source_check_anchor": "flock128",
+      "source_check_method": "full_oracle",
+      "source_claims_verified": true,
+      "system": "flock128",
+      "transcript_matched": true,
+      "verifier_ms": 0.444075,
+      "verifier_passed": true,
+      "vm_hwm_after_prove_kib": 811972,
+      "vm_rss_before_prove_kib": 406404
+    }
+  ],
+  "schema_version": 1,
+  "summaries": [
+    {
+      "bincode_bytes": 4912,
+      "input_claim_check_ms": {
+        "max": 9100.192421,
+        "median": 9100.192421,
+        "min": 9100.192421
+      },
+      "log_n": 30,
+      "payload_field_bytes": 4880,
+      "prover_ms": {
+        "max": 77.66671,
+        "median": 77.66671,
+        "min": 77.66671
+      },
+      "runs": 1,
+      "system": "flock128",
+      "verifier_ms": {
+        "max": 0.444075,
+        "median": 0.444075,
+        "min": 0.444075
+      }
+    }
+  ],
+  "warmups": []
+}

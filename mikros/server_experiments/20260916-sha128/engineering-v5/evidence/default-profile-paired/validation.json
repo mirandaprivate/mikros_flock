@@ -1,0 +1,14 @@
+{
+  "default_switches_all_unset": true,
+  "all_verified": true,
+  "all_transcripts_match": true,
+  "proof_blake3": "a8c04f1e0baf0fa22dc2c8e1dff067426712a11cb8c3d64d41c822fa09299161",
+  "samples": 4,
+  "negative_tests": [
+    {
+      "opening": "paired",
+      "record": "negative_tests",
+      "rejected": 36
+    }
+  ]
+}

@@ -620,6 +620,7 @@ fn verify(
 
 struct Options {
     leaves: usize,
+    compressions: Option<usize>,
     threads: usize,
     reps: usize,
     warmups: usize,
@@ -631,6 +632,7 @@ struct Options {
 fn options() -> Result<Options, String> {
     let mut o = Options {
         leaves: 3,
+        compressions: None,
         threads: 4,
         reps: 3,
         warmups: 1,
@@ -640,7 +642,12 @@ fn options() -> Result<Options, String> {
         permutation: "packed".into(),
     };
     let mut args = env::args().skip(1);
+    let mut explicit_leaves = false;
     while let Some(k) = args.next() {
+        if k == "--help" {
+            println!("--log-leaves N | --compressions N; --threads N --reps N --warmups N --system flock|mikros|both --permutation legacy|packed|both --reduction legacy|cube|lockstep --tamper");
+            std::process::exit(0);
+        }
         if k == "--tamper" {
             o.tamper = true;
             continue;
@@ -661,7 +668,11 @@ fn options() -> Result<Options, String> {
                     _ => return Err("bad reduction (legacy/cube/lockstep)".into()),
                 }
             }
-            "--log-leaves" => o.leaves = v.parse().map_err(|_| "bad leaves")?,
+            "--log-leaves" => {
+                o.leaves = v.parse().map_err(|_| "bad leaves")?;
+                explicit_leaves = true;
+            }
+            "--compressions" => o.compressions = Some(v.parse().map_err(|_| "bad compressions")?),
             "--threads" => o.threads = v.parse().map_err(|_| "bad threads")?,
             "--reps" => o.reps = v.parse().map_err(|_| "bad reps")?,
             "--warmups" => o.warmups = v.parse().map_err(|_| "bad warmups")?,
@@ -676,8 +687,13 @@ fn options() -> Result<Options, String> {
             _ => return Err(format!("unknown {k}")),
         }
     }
-    if o.threads == 0 || o.reps == 0 || o.leaves > 18 {
+    if o.threads == 0 || o.reps == 0 || o.leaves > 18
+        || o.compressions.is_some_and(|n| n == 0 || n > 1 << 19)
+    {
         return Err("invalid dimensions / thread count".into());
+    }
+    if explicit_leaves && o.compressions.is_some() {
+        return Err("--compressions and --log-leaves are mutually exclusive".into());
     }
     if o.systems.contains(&System::Mikros) && o.permutation != "legacy" {
         if o.reduction != Reduction::Lockstep {
@@ -703,7 +719,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         return Err("all-core pool already initialized".into());
     }
     let t = Instant::now();
-    let fixture = TreeFixture::new(o.leaves);
+    let fixture = match o.compressions {
+        Some(count) => TreeFixture::independent_compressions(count),
+        None => TreeFixture::new(o.leaves),
+    };
     let vk = fixture.verifier();
     let params = parameters(&vk);
     let pcs_config = params.ligerito_prover_config()?;
@@ -716,6 +735,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     .to_hex()
     .to_string();
     let offline_circuit_ms = ms(t);
+    let fixture_digest = blake3::hash(&bincode::serialize(&(
+        &fixture.compressions, &fixture.public,
+    ))?).to_hex().to_string();
+    let circuit_digest: String = fixture.circuit.digest().iter()
+        .map(|b| format!("{b:02x}")).collect();
     let t = Instant::now();
     let witness = fixture.prepare_witness();
     let offline_witness_ms = ms(t);
@@ -753,7 +777,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     writeln!(
         out,
         "{}",
-        json!({"record":"metadata","schema_version":4,"fixture":"sha256-binary-tree",
+        json!({"record":"metadata","schema_version":4,"fixture":fixture.fixture_name(),
+            "fixture_digest_blake3":fixture_digest,"circuit_digest_blake3":circuit_digest,
+            "sha_input_semantics":"fixed standard IV; 512-bit unpadded compression blocks; not complete SHA-256 hashes",
+            "independent_compressions":fixture.independent,
+            "public_output_count":if fixture.independent {fixture.compressions.len()} else {1},
             "reduction":o.reduction.name(),
             "permutation":o.permutation,
             "packed_permutation_kappa":packed_prep.as_ref().map(|p| p.kappa()),
@@ -763,7 +791,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             "wiring_grinding_scope":"Mikros permutation wrapper PoW-and-squeeze wall time only, including fingerprint; cube gather and PCS excluded from this diagnostic; Flock unmeasured=null; all grinding remains included in online prover_ms",
             "gather_audit_bits":if o.reduction==Reduction::Legacy {0} else {2},
             "gather_audit_degree":if o.reduction==Reduction::Legacy {0} else {3},
-            "log_leaves":o.leaves,"sha_compressions":vk.live_rows,"row_log":vk.nu,"logical_bit_log":vk.r1cs.m,
+            "log_leaves":if fixture.independent {None} else {Some(o.leaves)},"sha_compressions":vk.live_rows,"row_log":vk.nu,"logical_bit_log":vk.r1cs.m,
             "wiring_bit_log":bit.log_bits,"wiring_bits":1usize<<bit.log_bits,"threads":o.threads,
             "all_core_threads":flock_parallel::all_core_pool().current_num_threads(),"systems":o.systems,
             "pcs_params":params,"compression_kappa":128,"flock_skip":7,
@@ -783,7 +811,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             "piop_policy":"Boolean challenges PoW8; permutation fingerprint PoW log2(bit count), Flock native tail policy, Mikros cubic PoW2; cube table audit explicit PoW2 for degree <=3, all 8 values bound before sampling; per-event work factors, no total-128 claim",
             "pcs_policy":"unchanged embedded Fast config and OpeningGrinding",
             "zero_knowledge":false,"verifier":"public data and proof only; all terminal claims authenticated",
-            "native_root_u32":fixture.root,"target_features":features(),
+            "native_root_u32":if fixture.independent {None} else {Some(fixture.root)},
+            "native_last_output_u32":fixture.root,"target_features":features(),
         })
     )?;
     out.flush()?;
@@ -859,7 +888,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             )?;
             out.flush()?;
             if o.tamper && rep == 0 {
-                let count = tamper_checks(&vk, &params, &bit.sigma, &mstmt, &proof)?;
+                let output_indices = if fixture.independent {
+                    let count = fixture.compressions.len();
+                    let mut indices: Vec<_> = [0, count / 2, count - 1].into_iter()
+                        .map(|row| 2 + 4 * count + 2 * row).collect();
+                    indices.dedup();
+                    indices
+                } else {
+                    vec![vk.public.len() - 1]
+                };
+                let count = tamper_checks(&vk, &params, &bit.sigma, &mstmt, &proof, &output_indices)?;
                 writeln!(
                     out,
                     "{}",
@@ -878,6 +916,7 @@ fn tamper_checks(
     sigma: &[usize],
     stmt: &mw::BitWiringStatement,
     p: &Proof,
+    output_indices: &[usize],
 ) -> Result<usize, String> {
     let reject = |q: &Proof| {
         if verify(vk, params, sigma, stmt, p.system, p.reduction, q).is_err() {
@@ -936,20 +975,22 @@ fn tamper_checks(
     bad.commitment.params.num_lanes = None;
     reject(&bad)?;
     n += 1;
-    let mut public = vk.public.to_vec();
-    *public.last_mut().expect("SHA public output") += F128::ONE;
-    let bad_vk = TreeVerifier {
-        public: &public,
-        nu: vk.nu,
-        r1cs: vk.r1cs,
-        registry: vk.registry,
-        circuit: vk.circuit,
-        live_rows: vk.live_rows,
-    };
-    if verify(&bad_vk, params, sigma, stmt, p.system, p.reduction, p).is_ok() {
-        return Err("changed public output accepted".into());
+    for &index in output_indices {
+        let mut public = vk.public.to_vec();
+        public[index] += F128::ONE;
+        let bad_vk = TreeVerifier {
+            public: &public,
+            nu: vk.nu,
+            r1cs: vk.r1cs,
+            registry: vk.registry,
+            circuit: vk.circuit,
+            live_rows: vk.live_rows,
+        };
+        if verify(&bad_vk, params, sigma, stmt, p.system, p.reduction, p).is_ok() {
+            return Err(format!("changed public output word {index} accepted"));
+        }
+        n += 1;
     }
-    n += 1;
     let mut bad = p.clone();
     match &mut bad.boolean {
         BooleanProof::Flock(b) => b.zerocheck.final_a_eval += F128::ONE,

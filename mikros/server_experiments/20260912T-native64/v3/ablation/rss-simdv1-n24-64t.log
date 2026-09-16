@@ -1,6 +1,0 @@
-PIOP reductions, BLAKE3 transcript, no grinding, 64 thread(s)
-Generation/digest and original-input claim checks excluded from prove/verify time.
-RSS mode: one cold proof in this process, no warmup; VmHWM read before verification/input checks.
-  n=2^24 run=1 simdv1   : prove 8.561 ms, verify 0.180 ms, 35608 bytes
-  median n=2^24 simdv1   : 8.561 ms prove [8.561, 8.561], 0.180 ms verify
-JSON: /home/mscong1/mikros-experiments/20260912T-native64/v3/ablation/rss-simdv1-n24-64t.json

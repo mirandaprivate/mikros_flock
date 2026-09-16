@@ -1,0 +1,14 @@
+[
+  "cargo",
+  "+nightly-2026-03-21",
+  "test",
+  "--release",
+  "--offline",
+  "--locked",
+  "-j8",
+  "--message-format=short",
+  "-p",
+  "mikros",
+  "--example",
+  "e2e_sha256_paired"
+]

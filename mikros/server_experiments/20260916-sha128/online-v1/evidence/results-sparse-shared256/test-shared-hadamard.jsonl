@@ -1,0 +1,7 @@
+
+running 2 tests
+test hadamard::shared_batch_tests::independent_oracles_shared_rows_distinct_columns_and_transcript ... ok
+test hadamard::shared_batch_tests::shared_batch_swaps_messages_endpoints_and_shapes_rejected ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 134 filtered out; finished in 0.02s
+

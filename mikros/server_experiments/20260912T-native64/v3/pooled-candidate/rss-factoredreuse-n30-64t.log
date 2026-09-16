@@ -1,6 +1,0 @@
-PIOP reductions, BLAKE3 transcript, no grinding, 64 thread(s)
-Generation/digest and original-input claim checks excluded from prove/verify time.
-RSS mode: one cold proof in this process, no warmup; VmHWM read before verification/input checks.
-  n=2^30 run=1 factoredreuse: prove 87.671 ms, verify 0.188 ms, 35800 bytes
-  median n=2^30 factoredreuse: 87.671 ms prove [87.671, 87.671], 0.188 ms verify
-JSON: /home/mscong1/mikros-experiments/20260912T-native64/v3/pooled-candidate/rss-factoredreuse-n30-64t.json

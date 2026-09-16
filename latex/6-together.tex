@@ -20,6 +20,168 @@ When packing multiple executions of the same circuit,
 the shared wiring allows its encoding and the associated
 proof work to be amortized across executions.
 
+\iffalse
+\subsection{Proof for the Lincheck}
+\label{sec:lincheck}
+
+For the R1CS relation in Definition~\ref{def:r1cs}, let
+\(\bm S_L=\bm A\), \(\bm S_R=\bm B\), and \(\bm S_O=\bm C\).
+The prover supplies \(\bm w_L,\bm w_R,\bm w_O\in\Field^N\).
+The Hadamard relation \(\bm w_L\circ\bm w_R=\bm w_O\) is handled
+by Section~\ref{sec:hadamard}. It remains to prove the three
+linear relations \(\bm w_\star=\bm S_\star\bm w\), for
+\(\star\in\{L,R,O\}\).
+We reduce each relation to a weighted inner product and an indexed
+lookup into the same assignment \(\bm w\).
+
+\smallskip\noindent\textbf{Sparse linear relations.}
+After the assignment and the three output vectors are fixed,
+the verifier samples a tensor vector
+\(\ext{\bm\xi}\in\ExtensionField^N\) at a uniformly random
+MLE point and requests the authenticated values
+\(\ext v_\star=\langle\ext{\bm\xi},\bm w_\star\rangle\).
+We describe one relation and omit the subscript \(\star\).
+Enumerate the \(M\) nonzero entries of \(\bm S\) by their values
+\(\bm s\in\Field^M\), row indices \(\bm\tau\in[N]^M\), and
+column indices \(\bm\sigma\in[N]^M\).
+Define \(\bm u=(w_{\sigma_j})_{j=1}^M\) and
+\(\ext{\bm\xi}'=(\ext\xi_{\tau_j})_{j=1}^M\).
+The claimed linear relation reduces to:
+\[
+    \ext v
+    =\langle\ext{\bm\xi},\bm S\bm w\rangle
+    =\langle\ext{\bm\xi}',\bm s\circ\bm u\rangle,
+    \qquad
+    u_j=w_{\sigma_j}\quad(j\in[M]).
+\]
+The last conditions form an indexed lookup: each row of
+\((\bm u,\bm\sigma)\) must occur in \((\bm w,\bm i)\), where
+\(\bm i=(1,\ldots,N)^\top\). Repeated column indices are allowed.
+
+For the scalar identity, apply Fact~\ref{fact:ip} to
+\(\ext{\bm\xi}'\circ\bm s\) and \(\bm u\), padding with zeros
+as necessary. The former vector is public and its terminal
+evaluation is computed from the sparse matrix and
+\(\ext{\bm\xi}\); the latter is authenticated against the same
+commitment to \(\bm u\) used by the lookup.
+This gives a general reduction without assuming that
+\(\ext{\bm\xi}'\) retains tensor structure.
+A direct implementation uses \(O(M)\) extension-field operations
+for this inner-product step and \(O(M)\) for the verifier's
+public terminal evaluation.
+
+\smallskip\noindent\textbf{Joint encoding of values and positions.}
+Let \(q=|\Field|\). Choose \(\underline q=2^s\leq q\), with
+\(s=\Theta(\log_2q)\), and
+\(\delta_1,\ldots,\delta_s\in\Field\) such that
+\(\sum_{t=1}^s2^{t-1}b_t\mapsto\sum_{t=1}^s\delta_tb_t\)
+is injective on \(\{0,1\}^s\).
+For prime \(q\), take \(s=\lfloor\log_2q\rfloor\) and
+\(\delta_t=2^{t-1}\).
+Appendix~\ref{appx:mleiota} gives a choice for every finite field.
+Choose a power of two \(d\) satisfying
+\(d\geq\lceil\log_{\underline q}N\rceil+1\) and \(q^d-1>M\).
+We use the tower:
+\[
+    \Field\subset\mathbb K\subset\ExtensionField,
+    \qquad
+    [\mathbb K:\Field]=d,
+    \qquad
+    [\ExtensionField:\Field]=\kappa,
+    \qquad
+    4d\mid\kappa.
+\]
+Here \(\kappa\) is a power of two.
+Fix an \(\Field\)-basis
+\(\bm\theta=(\theta_1,\ldots,\theta_d)^\top\) of \(\mathbb K\).
+Write the zero-based positions in radix \(\underline q\):
+\[
+\begin{aligned}
+    \bm\sigma-\bm1_M
+      &=\sum_{j=1}^{\lceil\log_{\underline q}N\rceil}
+          \underline q^{j-1}\bm\sigma_{(j)},&
+    \bm\sigma_{(j)}&\in[0,\underline q-1]^M,\\
+    \bm i-\bm1_N
+      &=\sum_{j=1}^{\lceil\log_{\underline q}N\rceil}
+          \underline q^{j-1}\bm i_{(j)},&
+    \bm i_{(j)}&\in[0,\underline q-1]^N.
+\end{aligned}
+\]
+These are integer decompositions. In field expressions, each digit
+is interpreted through the injection above. Define:
+\[
+    \bm\varsigma
+      =\sum_{j=1}^{\lceil\log_{\underline q}N\rceil}
+          \theta_j\bm\sigma_{(j)}\in\mathbb K^M,
+    \qquad
+    \bm\iota
+      =\sum_{j=1}^{\lceil\log_{\underline q}N\rceil}
+          \theta_j\bm i_{(j)}\in\mathbb K^N.
+\]
+The labels \(\iota_1,\ldots,\iota_N\) are distinct and
+\(\varsigma_j=\iota_{\sigma_j}\). Using the remaining basis
+coordinate for the value, define:
+\[
+    \bm a=\bm\varsigma+\theta_d\bm u\in\mathbb K^M,
+    \qquad
+    \bm b=\bm\iota+\theta_d\bm w\in\mathbb K^N.
+\]
+Thus \(\bm a\) is looked up from \(\bm b\) if and only if
+\(u_j=w_{\sigma_j}\) for every \(j\in[M]\).
+The table \(\bm b\) is bound to the original assignment commitment;
+its values are not supplied independently.
+
+\smallskip\noindent\textbf{Lookup from a permutation.}
+We use the multiplicative-counter variant of Lasso's
+memory-checking argument~\cite[Remark~2]{eurocrypt/SettyTW24}.
+Fix \(e\in\mathbb K^\times\) of order greater than \(M\).
+Each table entry has an initial counter \(1\).
+A lookup reads its current counter and multiplies it by \(e\).
+Let \(\bm\nu\in(\mathbb K^\times)^M\) contain the read counters
+and \(\bm\mu\in\mathbb K^N\) the final counters.
+For an entry accessed \(c\) times, the honest read counters are
+\(1,e,\ldots,e^{c-1}\), and its final counter is \(e^c\).
+
+Choose \(\vartheta\in\ExtensionField\) of degree two over
+\(\mathbb K\). The basis \((1,\vartheta)\) encodes each
+value--counter pair injectively in \(\mathbb K(\vartheta)\).
+The lookup is certified by:
+\[
+    (\bm a\mathbin{\|}\bm b)
+       +\vartheta(\bm\nu\mathbin{\|}\bm\mu)
+    \stackrel{\mathsf{perm}}{=}
+    (\bm b\mathbin{\|}\bm a)
+       +\vartheta(\bm1_N\mathbin{\|}e\bm\nu).
+\]
+The left side contains the reads and final states; the right side
+contains the initial states and writes.
+The prover also supplies an inverse vector and proves
+\(\bm\nu\circ\bm\nu^{-1}=\bm1_M\) using
+Section~\ref{sec:hadamard} over \(\mathbb K\).
+This excludes zero counters.
+If a value absent from \(\bm b\) occurred among the reads,
+its nonzero counters would form a multiset invariant under
+multiplication by \(e\). Such a multiset has at least
+\(\operatorname{ord}(e)>M\) entries, a contradiction.
+Hence the permutation and nonzero-counter checks imply the lookup;
+no separate proof that the counters are powers of \(e\) is needed.
+
+All counter vectors are represented over \(\mathbb K\) and fixed
+before the permutation challenges are sampled.
+We apply Section~\ref{sec:permutation} with base field
+\(\mathbb K(\vartheta)\) and challenge field \(\ExtensionField\),
+whose relative degree is \(\kappa/(2d)\).
+Both vectors are padded identically to meet that protocol's
+packing dimensions, and terminal evaluations are bound to
+\(\bm u,\bm w,\bm\nu,\bm\mu\) through their coordinate
+representations.
+Together with the scalar inner-product check, this proves the
+weighted lincheck. For a fixed incorrect output vector, the initial
+random projection contributes at most
+\(\lceil\log_2N\rceil/|\ExtensionField|\) soundness error,
+in addition to the errors of the invoked reductions and openings.
+\fi
+
 \subsection{Proof for the Copy Constraint}
 \label{sec:plonk-copy}
 
@@ -250,6 +412,161 @@ Algorithm~\ref{alg:single-instance-packing} gives the protocol.
 \subsection{Packing Multiple Circ-SAT Instances of the Same Circuit}
 \label{sec:multi-instance-packing}
 
+For multiple executions of the same circuit, we use the R1CS
+formulation of Definition~\ref{def:r1cs}.
+The shared matrices \(\bm S_L,\bm S_R,\bm S_O\) act on the
+row dimension, whereas packing acts on the instance dimension.
+These operations commute, allowing us to authenticate the
+linear images through one packed assignment.
+
+Consider \(\kappa\) instances with assignments
+\(\bm w^{(j)}\in\Field^N\), for \(j\in[\kappa]\).
+Using the fixed basis \(\ext{\bm\beta}\) of
+Section~\ref{sec:pcs}, define:
+\[
+    \bm W
+       =\concat{\bm w^{(1)},\ldots,\bm w^{(\kappa)}}
+       \in\Field^{N\times\kappa},
+    \qquad
+    \ext{\bm w}=\bm W\ext{\bm\beta}\in\ExtensionField^N.
+\]
+The prover commits to the private coordinates of
+\(\ext{\bm w}\) before any challenge; its public-I/O coordinates
+are the corresponding packings of the supplied inputs and outputs.
+All \(\kappa\) instances satisfy the circuit if and only if:
+\[
+    (\bm S_L\bm W)\circ(\bm S_R\bm W)=\bm S_O\bm W.
+\]
+For \(\star\in\{L,R,O\}\), the matrices
+\(\bm S_\star\bm W\in\Field^{N\times\kappa}\) are treated as
+virtual witnesses. They require no separate commitments.
+
+\smallskip\noindent\textbf{Packed constraint check.}
+The verifier samples independent row and column MLE challenges
+and checks the corresponding tensor-weighted sum of the matrix
+residual. Applying Section~\ref{sec:hadamard} to the two virtual
+input matrices reduces this check to weighted evaluations of
+the form:
+\[
+    \ext v_\star
+       =\ext{\bm\xi}^{\top}
+          \bm S_\star\bm W\ext{\bm\rho},
+    \qquad
+    \star\in\{L,R,O\},
+\]
+where \(\ext{\bm\xi}\in\ExtensionField^N\) is a tensor vector
+and \(\ext{\bm\rho}\in\ExtensionField^\kappa\).
+The query weights may differ between the three claims.
+We describe their authentication for one fixed \(\star\).
+
+\smallskip\noindent\textbf{Authenticate the linear images.}
+Following the column-projection step of Section~\ref{sec:pcs},
+write \(\ext{\bm\xi}=\bm\Xi\ext{\bm\beta}\), with
+\(\bm\Xi\in\Field^{N\times\kappa}\).
+The prover sends the column evaluations
+\(\ext{\bm u}=\bm U^\top\ext{\bm\beta}\), whose base-field
+coordinate matrix is claimed to satisfy:
+\[
+    \bm U=\bm\Xi^\top\bm S_\star\bm W
+       \in\Field^{\kappa\times\kappa}.
+\]
+The verifier extracts \(\bm U\) and checks
+\(\ext v_\star=\ext{\bm u}^{\top}\ext{\bm\rho}\).
+Because \(\bm S_\star\) and \(\bm W\) have base-field entries,
+injectivity of basis packing gives:
+\[
+    \bm U=\bm\Xi^\top\bm S_\star\bm W
+    \quad\Longleftrightarrow\quad
+    \bm U\ext{\bm\beta}
+       =\bm\Xi^\top\bm S_\star\ext{\bm w}.
+\]
+Thus the query-dependent column weights have been replaced
+by the fixed packing basis.
+
+After \(\bm U\) is fixed, the verifier samples
+\(\ext{\bm r}\sample\ExtensionField^\kappa\).
+The remaining matrix identity reduces to:
+\[
+    \ext{\bm r}^{\top}\bm U\ext{\bm\beta}
+       =\left\langle
+           \ext{\bm w},
+           \bm S_\star^\top\bm\Xi\ext{\bm r}
+         \right\rangle.
+\]
+For an incorrect matrix identity, this projection accepts with
+probability at most \(1/|\ExtensionField|\).
+Fact~\ref{fact:ip} reduces the scalar identity to an MLE opening
+of \(\ext{\bm w}\) and a public terminal evaluation.
+At the terminal point \(\ext{\bm y}\), the latter is:
+\[
+    \tensorspan{\ext{\bm y}}^\top
+       \bm S_\star^\top\bm\Xi\ext{\bm r}.
+\]
+The witness opening uses the original packed commitment, with
+the public-I/O contribution evaluated directly.
+To authenticate the public terminal value, apply
+Fact~\ref{fact:ip} once more to:
+\[
+    \tensorspan{\ext{\bm y}}^\top
+       \bm S_\star^\top\bm\Xi\ext{\bm r}
+    =
+    \left\langle
+        \bm S_\star\tensorspan{\ext{\bm y}},
+        \bm\Xi\ext{\bm r}
+    \right\rangle.
+\]
+At its terminal point \(\ext{\bm x}\), the two claims are
+evaluations of:
+\[
+    \tensorspan{\ext{\bm x}}^\top
+       \bm S_\star\tensorspan{\ext{\bm y}},
+    \qquad
+    \tensorspan{\ext{\bm x}}^\top\bm\Xi\ext{\bm r}.
+\]
+The first is an ordinary matrix MLE claim, authenticated by
+Spartan's SPARK sparse-polynomial evaluation protocol against
+the preprocessed circuit commitment~\cite{crypto/Setty20}.
+The second is evaluated using the tensor recursion of
+Section~\ref{sec:pcs}.
+Thus the verifier does not scan the sparse matrices.
+The matrix-evaluation proofs for
+\(\bm S_L,\bm S_R,\bm S_O\) are performed once for the packed
+batch, rather than once per instance. Their prover cost is
+therefore amortized over the \(\kappa\) instances, while circuit
+preprocessing is shared across batches.
+
+\smallskip\noindent\textbf{Larger batches.}
+For \(\nu\kappa\) instances, form \(\nu\) packed assignments
+\(\ext{\bm w}^{(1)},\ldots,\ext{\bm w}^{(\nu)}\).
+Each block undergoes the packed constraint check above.
+For terminal claims sharing \(\bm\Xi\) and \(\bm S_\star\),
+fix all claimed matrices \(\bm U^{(j)}\), then sample independent
+\(\ext z_1,\ldots,\ext z_\nu\sample\ExtensionField\).
+Their authentication identities combine as:
+\[
+    \left(\textstyle\sum_{j=1}^{\nu}\ext z_j\bm U^{(j)}\right)
+       \ext{\bm\beta}
+    =
+    \bm\Xi^\top\bm S_\star
+       \left(\textstyle\sum_{j=1}^{\nu}\ext z_j
+          \ext{\bm w}^{(j)}\right).
+\]
+This random combination contributes at most
+\(1/|\ExtensionField|\) error for a fixed nonzero collection
+of residuals. The resulting inner-product proof ends in an
+opening of the same linear combination of committed vectors,
+implemented by the underlying PCS's batched-opening interface.
+Claims with different query matrices retain their respective
+public queries.
+Only the linear authentication identities are combined:
+the Hadamard constraints remain separate, since multiplying
+combined assignments would introduce cross-instance terms.
+
+
+\iffalse
+\subsection{Packing Multiple Circ-SAT Instances of the Same Circuit}
+\label{sec:multi-instance-packing}
+
 The $\log_q N$ term in
 Theorem~\ref{theorem:single-instance-packing} introduced by the
 position-encoding overhead can be amortized by packing executions of the same circuit.
@@ -299,7 +616,7 @@ The \(\kappa\) instances satisfy the PLONK constraints if and only if:
     +\bm q_R\circ\ext{\bm w}_R
     +\bm q_M\circ\ext{\bm w}_M
     +\bm q_O\circ\ext{\bm w}_O
-    +\left(\sum_{j=1}^{\kappa}\ext\beta_j\right)\bm q_C
+    +\textstyle \left(\sum_{j=1}^{\kappa}\ext\beta_j\right)\bm q_C
        &=\bm0_N,
        \label{eq:together-multiple-gates}\\
     \sigma(\ext{\bm w})&=\ext{\bm w}.
@@ -311,6 +628,25 @@ The shared selectors and permutation are \(\Field\)-linear,
 and the basis packing is injective.
 Thus each packed equality holds if and only if it holds in
 every column of \(\bm W\).
+
+To handle \(\nu\kappa\) instances we draw fresh challenges
+\(\ext z_1,\dots,\ext z_\nu \sample \ExtensionField\) and combine the
+\(\nu\) packed gate equations into one. Writing
+\[
+    \ext{\bm w}_\star^{\,z}
+    \;:=\;\textstyle\sum_{\ell=1}^{\nu}\ext z_\ell\cdot\ext{\bm w}_\star^{(\ell)}
+    \qquad\text{for }\star\in\{L,R,M,O\},
+\]
+the combined constraint reads
+\begin{align*}
+    \bm q_L\circ\ext{\bm w}_L^{\,z}
+    +\bm q_R\circ\ext{\bm w}_R^{\,z}
+    +\bm q_M\circ\ext{\bm w}_M^{\,z}
+    +\bm q_O\circ\ext{\bm w}_O^{\,z}
+    +\Bigl(\textstyle\sum_{\ell=1}^{\nu}\ext z_\ell\Bigr)
+     \Bigl(\textstyle\sum_{j=1}^{\kappa}\ext\beta_j\Bigr)\bm q_C
+       =\bm0_N.
+\end{align*}
 
 \smallskip\noindent\textbf{Gate constraints.}
 The verifier samples
@@ -427,86 +763,4 @@ Algorithm~\ref{alg:multiple-instance-packing} gives the protocol.
 A PCS whose prover time and memory are linear in its
 extension-field input length therefore gives an end-to-end
 bitwidth-aware construction.
-
-\iffalse
-\subsection{Binary-Field Instantiation}
-\label{sec:binary-packing}
-
-For binary circuits, we use a small binary extension as the working
-field of the entire PIOP. By contrast, the intermediate-field
-Hadamard variant in Section~\ref{sec:hadamard} retains the
-original base-field witness and its fixed-basis commitment,
-using the intermediate field only for certificate construction.
-For compatible \(t\mid\kappa\) and \(2^t\geq2\kappa-1\),
-its tabulated implementation has \(O(N\kappa)\) online
-base-field cost when \(N\geq\kappa^2\). The storage includes
-\(O(\kappa^2t+t2^{2t})\) precomputed base-field coordinates.
-The working-field instantiation here supplies interpolation nodes
-and represents the witness in byte-field coordinates. Choose:
-\[
-    \mathbb F_2\subset\mathbb K=\mathbb F_{2^8}
-       \subset\ExtensionField,
-    \qquad [\mathbb K:\mathbb F_2]=8,
-    \qquad [\ExtensionField:\mathbb K]=\kappa_{\mathbb K}.
-\]
-Arithmetize the circuit over \(\mathbb K\), including constraints
-\(w^2-w=0\) for the binary wires, and define \(m,N\) for this
-arithmetization. Instantiate the building blocks, packed PCS, and
-multiple-instance composition with
-\((\Field,q,\kappa)=(\mathbb K,256,\kappa_{\mathbb K})\).
-Here \(N=m\kappa_{\mathbb K}\) counts working-field entries.
-
-\smallskip\noindent\textbf{Packing and openings.}
-Assume \(256\geq2\kappa_{\mathbb K}-1\), so \(\mathbb K\)
-contains the interpolation nodes and off-domain samples needed
-by Section~\ref{sec:hadamard}. Represent \(\ExtensionField\) in a
-\(\mathbb K\)-basis. All coordinate matrices in
-Section~\ref{sec:pcs} use this basis. The verifier checks public
-query contractions using Eq.~\eqref{eq:pcs-query-recurrence},
-while the gate and copy challenges lie in \(\ExtensionField\).
-
-\smallskip\noindent\textbf{Position encoding.}
-Set \(s=8\) and \(\underline q=256\), and assume
-\(\lceil\log_{256}L\rceil\leq\kappa_{\mathbb K}\).
-Choose an \(\mathbb F_2\)-basis
-\((\delta_1,\ldots,\delta_8)\) of \(\mathbb K\) and encode each
-eight-bit position block as \(\sum_{t=1}^8\delta_tb_t\).
-These digits give injective labels in \(\ExtensionField\) through
-Eq.~\eqref{eq:together-multiple-labels}.
-The proof in Appendix~\ref{appx:proof-position-encoding} applies
-to these coefficients and gives the same MLE identity,
-Eq.~\eqref{eq:position-encoding-evaluation}.
-Thus the randomized copy argument operates in the stated tower.
-The role of \(\mathbb K\) here is to support the PIOP arithmetic.
-Using \(\mathbb F_{2^8}\) instead for the joint value-and-position
-encoding of Section~\ref{sec:plonk-packing} over \(\mathbb F_2\)
-would impose \(1+\lceil\log_2L\rceil\leq8\), or \(L\leq2^7\).
-
-\smallskip\noindent\textbf{Using a binary linear code.}
-Appendix~\ref{appx:pcs} gives the code-switching
-instantiation of the PCS. A binary generator matrix extends
-first to \(\mathbb K\) and then to \(\ExtensionField\) without
-changing its entries. The source encoding can therefore be
-computed on the eight bit-coordinate matrices over \(\mathbb F_2\),
-while the packed opening reduction uses the
-\(\ExtensionField/\mathbb K\) basis.
-Code switching supplies the terminal extension-field opening
-through a characteristic-two-compatible BaseFold
-instantiation~\cite{eurocrypt/DiamondP26}.
-
-\smallskip\noindent\textbf{Efficiency and soundness.}
-The proof of Theorem~\ref{theorem:multiple-instance-packing} uses
-field identities, injective labels, and polynomial degree bounds,
-which apply in characteristic two. With the packed PCS of
-Section~\ref{sec:pcs}, its efficiency and soundness bounds hold with
-\(q=256\) and \(\kappa=\kappa_{\mathbb K}\), subject to the
-stated field-size and packing conditions.
-Each packed opening has error at most
-\(\epsilon_{\mathsf{PCS}}+(1+2\log_2m)/|\ExtensionField|\).
-Arithmetic costs are measured in \(\mathbb K\)-operations,
-and communication and space in \(\mathbb K\)-coordinates.
-For the code-based instantiation, substitute the underlying PCS
-error and costs of the chosen Blaze construction as specified in
-Appendix~\ref{appx:pcs}. The packed-opening, gate,
-Hadamard, and copy-reduction bounds apply with the same parameters.
 \fi

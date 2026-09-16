@@ -1,0 +1,1206 @@
+{
+  "instances": 256,
+  "threads": 64,
+  "metadata": {
+    "mikros": [
+      {
+        "all_core_threads": 64,
+        "circuit_digest_blake3": "40a7c02ba4a1ef9dd63cddaccbe5df33d1bc1595ff76646ebafe1d215367d466",
+        "comparison": "native FLOCK retains its native circuit representation and prover API; same SHA public statement and Ligerito Fast backend, differing layouts/PIOPs",
+        "fixture": "sha256-independent-compressions",
+        "fixture_digest_blake3": "604926042d63f082df458903107ff12b56a7a5d84dfc57ce5bdab0cd5691d008",
+        "matrix_authentication": "packed sparse SPARK memory-checking lookup; all L/R/O; verifier receives no matrices",
+        "native_flock_circuit_digest_blake3": "e7cafab73734c50363f00ebdc291321bbd3b73fa2977aaa4432a5c6eff34074f",
+        "nonzeros": [
+          535556,
+          209348,
+          32768
+        ],
+        "offline_circuit_witness_sparse_commit_ms": 2088.6675069999997,
+        "opening_logical_field_bits": 256,
+        "pcs_params": {
+          "log_batch_size": 6,
+          "log_inv_rate": 1,
+          "m": 23,
+          "merkle_hash": "blake3",
+          "num_lanes": null,
+          "profile": "fast"
+        },
+        "read_columns": [
+          {
+            "len": 1048576,
+            "width": 128,
+            "word_len": 1048576,
+            "word_offset": 0
+          },
+          {
+            "len": 1048576,
+            "width": 128,
+            "word_len": 1048576,
+            "word_offset": 1048576
+          },
+          {
+            "len": 262144,
+            "width": 128,
+            "word_len": 262144,
+            "word_offset": 2097152
+          },
+          {
+            "len": 262144,
+            "width": 128,
+            "word_len": 262144,
+            "word_offset": 2359296
+          },
+          {
+            "len": 32768,
+            "width": 128,
+            "word_len": 32768,
+            "word_offset": 2621440
+          },
+          {
+            "len": 32768,
+            "width": 128,
+            "word_len": 32768,
+            "word_offset": 2654208
+          },
+          {
+            "len": 1048576,
+            "width": 128,
+            "word_len": 1048576,
+            "word_offset": 3145728
+          },
+          {
+            "len": 1048576,
+            "width": 128,
+            "word_len": 1048576,
+            "word_offset": 4194304
+          },
+          {
+            "len": 262144,
+            "width": 128,
+            "word_len": 262144,
+            "word_offset": 5242880
+          },
+          {
+            "len": 262144,
+            "width": 128,
+            "word_len": 262144,
+            "word_offset": 5505024
+          },
+          {
+            "len": 32768,
+            "width": 128,
+            "word_len": 32768,
+            "word_offset": 5767168
+          },
+          {
+            "len": 32768,
+            "width": 128,
+            "word_len": 32768,
+            "word_offset": 5799936
+          }
+        ],
+        "read_commitment_bytes": 134217728,
+        "read_pcs_params": {
+          "log_batch_size": 6,
+          "log_inv_rate": 1,
+          "m": 30,
+          "merkle_hash": "blake3",
+          "num_lanes": null,
+          "profile": "fast"
+        },
+        "record": "metadata",
+        "reduction_field_bits": 128,
+        "schema_version": 2,
+        "sha_compressions": 256,
+        "sha_r1cs_encoding": "Mikros retains 48 schedule, 64 T1 and 64 extra E/A words in 5632 formerly unused slots; 31102 useful slots within the same 32768-row dimension and original SHA inputs/outputs; native FLOCK unchanged",
+        "static_columns": [
+          {
+            "len": 1048576,
+            "width": 16,
+            "word_len": 131072,
+            "word_offset": 0
+          },
+          {
+            "len": 1048576,
+            "width": 16,
+            "word_len": 131072,
+            "word_offset": 131072
+          },
+          {
+            "len": 1048576,
+            "width": 32,
+            "word_len": 262144,
+            "word_offset": 262144
+          },
+          {
+            "len": 1048576,
+            "width": 32,
+            "word_len": 262144,
+            "word_offset": 524288
+          },
+          {
+            "len": 1048576,
+            "width": 32,
+            "word_len": 262144,
+            "word_offset": 786432
+          },
+          {
+            "len": 1048576,
+            "width": 32,
+            "word_len": 262144,
+            "word_offset": 1048576
+          },
+          {
+            "len": 32768,
+            "width": 32,
+            "word_len": 8192,
+            "word_offset": 1310720
+          },
+          {
+            "len": 32768,
+            "width": 32,
+            "word_len": 8192,
+            "word_offset": 1318912
+          },
+          {
+            "len": 1048576,
+            "width": 1,
+            "word_len": 8192,
+            "word_offset": 1327104
+          },
+          {
+            "len": 262144,
+            "width": 16,
+            "word_len": 32768,
+            "word_offset": 1343488
+          },
+          {
+            "len": 262144,
+            "width": 16,
+            "word_len": 32768,
+            "word_offset": 1376256
+          },
+          {
+            "len": 262144,
+            "width": 32,
+            "word_len": 65536,
+            "word_offset": 1441792
+          },
+          {
+            "len": 262144,
+            "width": 32,
+            "word_len": 65536,
+            "word_offset": 1507328
+          },
+          {
+            "len": 262144,
+            "width": 32,
+            "word_len": 65536,
+            "word_offset": 1572864
+          },
+          {
+            "len": 262144,
+            "width": 32,
+            "word_len": 65536,
+            "word_offset": 1638400
+          },
+          {
+            "len": 32768,
+            "width": 32,
+            "word_len": 8192,
+            "word_offset": 1703936
+          },
+          {
+            "len": 32768,
+            "width": 32,
+            "word_len": 8192,
+            "word_offset": 1712128
+          },
+          {
+            "len": 262144,
+            "width": 1,
+            "word_len": 2048,
+            "word_offset": 1720320
+          },
+          {
+            "len": 32768,
+            "width": 16,
+            "word_len": 4096,
+            "word_offset": 1724416
+          },
+          {
+            "len": 32768,
+            "width": 16,
+            "word_len": 4096,
+            "word_offset": 1728512
+          },
+          {
+            "len": 32768,
+            "width": 16,
+            "word_len": 4096,
+            "word_offset": 1732608
+          },
+          {
+            "len": 32768,
+            "width": 16,
+            "word_len": 4096,
+            "word_offset": 1736704
+          },
+          {
+            "len": 32768,
+            "width": 16,
+            "word_len": 4096,
+            "word_offset": 1740800
+          },
+          {
+            "len": 32768,
+            "width": 16,
+            "word_len": 4096,
+            "word_offset": 1744896
+          },
+          {
+            "len": 32768,
+            "width": 16,
+            "word_len": 4096,
+            "word_offset": 1748992
+          },
+          {
+            "len": 32768,
+            "width": 16,
+            "word_len": 4096,
+            "word_offset": 1753088
+          },
+          {
+            "len": 32768,
+            "width": 1,
+            "word_len": 256,
+            "word_offset": 1757184
+          }
+        ],
+        "static_commitment_bytes": 33554432,
+        "static_pcs_params": {
+          "log_batch_size": 4,
+          "log_inv_rate": 1,
+          "m": 28,
+          "merkle_hash": "blake3",
+          "num_lanes": null,
+          "profile": "fast"
+        },
+        "target_features": [
+          "avx512f",
+          "avx512bw",
+          "gfni",
+          "vpclmulqdq"
+        ],
+        "threads": 64,
+        "timing": "offline circuit, fixed sparse metadata commitment, witness/image preparation and input clone excluded; all query-dependent reads, read commitment, F128 reductions, lookup proofs and three native PCS openings included",
+        "witness_commitment_bytes": 1048576,
+        "zero_knowledge": false
+      },
+      {
+        "all_core_threads": 64,
+        "circuit_digest_blake3": "40a7c02ba4a1ef9dd63cddaccbe5df33d1bc1595ff76646ebafe1d215367d466",
+        "comparison": "native FLOCK retains its native circuit representation and prover API; same SHA public statement and Ligerito Fast backend, differing layouts/PIOPs",
+        "fixture": "sha256-independent-compressions",
+        "fixture_digest_blake3": "604926042d63f082df458903107ff12b56a7a5d84dfc57ce5bdab0cd5691d008",
+        "matrix_authentication": "packed sparse SPARK memory-checking lookup; all L/R/O; verifier receives no matrices",
+        "native_flock_circuit_digest_blake3": "e7cafab73734c50363f00ebdc291321bbd3b73fa2977aaa4432a5c6eff34074f",
+        "nonzeros": [
+          535556,
+          209348,
+          32768
+        ],
+        "offline_circuit_witness_sparse_commit_ms": 2121.547459,
+        "opening_logical_field_bits": 256,
+        "pcs_params": {
+          "log_batch_size": 6,
+          "log_inv_rate": 1,
+          "m": 23,
+          "merkle_hash": "blake3",
+          "num_lanes": null,
+          "profile": "fast"
+        },
+        "read_columns": [
+          {
+            "len": 1048576,
+            "width": 128,
+            "word_len": 1048576,
+            "word_offset": 0
+          },
+          {
+            "len": 1048576,
+            "width": 128,
+            "word_len": 1048576,
+            "word_offset": 1048576
+          },
+          {
+            "len": 262144,
+            "width": 128,
+            "word_len": 262144,
+            "word_offset": 2097152
+          },
+          {
+            "len": 262144,
+            "width": 128,
+            "word_len": 262144,
+            "word_offset": 2359296
+          },
+          {
+            "len": 32768,
+            "width": 128,
+            "word_len": 32768,
+            "word_offset": 2621440
+          },
+          {
+            "len": 32768,
+            "width": 128,
+            "word_len": 32768,
+            "word_offset": 2654208
+          },
+          {
+            "len": 1048576,
+            "width": 128,
+            "word_len": 1048576,
+            "word_offset": 3145728
+          },
+          {
+            "len": 1048576,
+            "width": 128,
+            "word_len": 1048576,
+            "word_offset": 4194304
+          },
+          {
+            "len": 262144,
+            "width": 128,
+            "word_len": 262144,
+            "word_offset": 5242880
+          },
+          {
+            "len": 262144,
+            "width": 128,
+            "word_len": 262144,
+            "word_offset": 5505024
+          },
+          {
+            "len": 32768,
+            "width": 128,
+            "word_len": 32768,
+            "word_offset": 5767168
+          },
+          {
+            "len": 32768,
+            "width": 128,
+            "word_len": 32768,
+            "word_offset": 5799936
+          }
+        ],
+        "read_commitment_bytes": 134217728,
+        "read_pcs_params": {
+          "log_batch_size": 6,
+          "log_inv_rate": 1,
+          "m": 30,
+          "merkle_hash": "blake3",
+          "num_lanes": null,
+          "profile": "fast"
+        },
+        "record": "metadata",
+        "reduction_field_bits": 128,
+        "schema_version": 2,
+        "sha_compressions": 256,
+        "sha_r1cs_encoding": "Mikros retains 48 schedule, 64 T1 and 64 extra E/A words in 5632 formerly unused slots; 31102 useful slots within the same 32768-row dimension and original SHA inputs/outputs; native FLOCK unchanged",
+        "static_columns": [
+          {
+            "len": 1048576,
+            "width": 16,
+            "word_len": 131072,
+            "word_offset": 0
+          },
+          {
+            "len": 1048576,
+            "width": 16,
+            "word_len": 131072,
+            "word_offset": 131072
+          },
+          {
+            "len": 1048576,
+            "width": 32,
+            "word_len": 262144,
+            "word_offset": 262144
+          },
+          {
+            "len": 1048576,
+            "width": 32,
+            "word_len": 262144,
+            "word_offset": 524288
+          },
+          {
+            "len": 1048576,
+            "width": 32,
+            "word_len": 262144,
+            "word_offset": 786432
+          },
+          {
+            "len": 1048576,
+            "width": 32,
+            "word_len": 262144,
+            "word_offset": 1048576
+          },
+          {
+            "len": 32768,
+            "width": 32,
+            "word_len": 8192,
+            "word_offset": 1310720
+          },
+          {
+            "len": 32768,
+            "width": 32,
+            "word_len": 8192,
+            "word_offset": 1318912
+          },
+          {
+            "len": 1048576,
+            "width": 1,
+            "word_len": 8192,
+            "word_offset": 1327104
+          },
+          {
+            "len": 262144,
+            "width": 16,
+            "word_len": 32768,
+            "word_offset": 1343488
+          },
+          {
+            "len": 262144,
+            "width": 16,
+            "word_len": 32768,
+            "word_offset": 1376256
+          },
+          {
+            "len": 262144,
+            "width": 32,
+            "word_len": 65536,
+            "word_offset": 1441792
+          },
+          {
+            "len": 262144,
+            "width": 32,
+            "word_len": 65536,
+            "word_offset": 1507328
+          },
+          {
+            "len": 262144,
+            "width": 32,
+            "word_len": 65536,
+            "word_offset": 1572864
+          },
+          {
+            "len": 262144,
+            "width": 32,
+            "word_len": 65536,
+            "word_offset": 1638400
+          },
+          {
+            "len": 32768,
+            "width": 32,
+            "word_len": 8192,
+            "word_offset": 1703936
+          },
+          {
+            "len": 32768,
+            "width": 32,
+            "word_len": 8192,
+            "word_offset": 1712128
+          },
+          {
+            "len": 262144,
+            "width": 1,
+            "word_len": 2048,
+            "word_offset": 1720320
+          },
+          {
+            "len": 32768,
+            "width": 16,
+            "word_len": 4096,
+            "word_offset": 1724416
+          },
+          {
+            "len": 32768,
+            "width": 16,
+            "word_len": 4096,
+            "word_offset": 1728512
+          },
+          {
+            "len": 32768,
+            "width": 16,
+            "word_len": 4096,
+            "word_offset": 1732608
+          },
+          {
+            "len": 32768,
+            "width": 16,
+            "word_len": 4096,
+            "word_offset": 1736704
+          },
+          {
+            "len": 32768,
+            "width": 16,
+            "word_len": 4096,
+            "word_offset": 1740800
+          },
+          {
+            "len": 32768,
+            "width": 16,
+            "word_len": 4096,
+            "word_offset": 1744896
+          },
+          {
+            "len": 32768,
+            "width": 16,
+            "word_len": 4096,
+            "word_offset": 1748992
+          },
+          {
+            "len": 32768,
+            "width": 16,
+            "word_len": 4096,
+            "word_offset": 1753088
+          },
+          {
+            "len": 32768,
+            "width": 1,
+            "word_len": 256,
+            "word_offset": 1757184
+          }
+        ],
+        "static_commitment_bytes": 33554432,
+        "static_pcs_params": {
+          "log_batch_size": 4,
+          "log_inv_rate": 1,
+          "m": 28,
+          "merkle_hash": "blake3",
+          "num_lanes": null,
+          "profile": "fast"
+        },
+        "target_features": [
+          "avx512f",
+          "avx512bw",
+          "gfni",
+          "vpclmulqdq"
+        ],
+        "threads": 64,
+        "timing": "offline circuit, fixed sparse metadata commitment, witness/image preparation and input clone excluded; all query-dependent reads, read commitment, F128 reductions, lookup proofs and three native PCS openings included",
+        "witness_commitment_bytes": 1048576,
+        "zero_knowledge": false
+      },
+      {
+        "all_core_threads": 64,
+        "circuit_digest_blake3": "40a7c02ba4a1ef9dd63cddaccbe5df33d1bc1595ff76646ebafe1d215367d466",
+        "comparison": "native FLOCK retains its native circuit representation and prover API; same SHA public statement and Ligerito Fast backend, differing layouts/PIOPs",
+        "fixture": "sha256-independent-compressions",
+        "fixture_digest_blake3": "604926042d63f082df458903107ff12b56a7a5d84dfc57ce5bdab0cd5691d008",
+        "matrix_authentication": "packed sparse SPARK memory-checking lookup; all L/R/O; verifier receives no matrices",
+        "native_flock_circuit_digest_blake3": "e7cafab73734c50363f00ebdc291321bbd3b73fa2977aaa4432a5c6eff34074f",
+        "nonzeros": [
+          535556,
+          209348,
+          32768
+        ],
+        "offline_circuit_witness_sparse_commit_ms": 2098.98012,
+        "opening_logical_field_bits": 256,
+        "pcs_params": {
+          "log_batch_size": 6,
+          "log_inv_rate": 1,
+          "m": 23,
+          "merkle_hash": "blake3",
+          "num_lanes": null,
+          "profile": "fast"
+        },
+        "read_columns": [
+          {
+            "len": 1048576,
+            "width": 128,
+            "word_len": 1048576,
+            "word_offset": 0
+          },
+          {
+            "len": 1048576,
+            "width": 128,
+            "word_len": 1048576,
+            "word_offset": 1048576
+          },
+          {
+            "len": 262144,
+            "width": 128,
+            "word_len": 262144,
+            "word_offset": 2097152
+          },
+          {
+            "len": 262144,
+            "width": 128,
+            "word_len": 262144,
+            "word_offset": 2359296
+          },
+          {
+            "len": 32768,
+            "width": 128,
+            "word_len": 32768,
+            "word_offset": 2621440
+          },
+          {
+            "len": 32768,
+            "width": 128,
+            "word_len": 32768,
+            "word_offset": 2654208
+          },
+          {
+            "len": 1048576,
+            "width": 128,
+            "word_len": 1048576,
+            "word_offset": 3145728
+          },
+          {
+            "len": 1048576,
+            "width": 128,
+            "word_len": 1048576,
+            "word_offset": 4194304
+          },
+          {
+            "len": 262144,
+            "width": 128,
+            "word_len": 262144,
+            "word_offset": 5242880
+          },
+          {
+            "len": 262144,
+            "width": 128,
+            "word_len": 262144,
+            "word_offset": 5505024
+          },
+          {
+            "len": 32768,
+            "width": 128,
+            "word_len": 32768,
+            "word_offset": 5767168
+          },
+          {
+            "len": 32768,
+            "width": 128,
+            "word_len": 32768,
+            "word_offset": 5799936
+          }
+        ],
+        "read_commitment_bytes": 134217728,
+        "read_pcs_params": {
+          "log_batch_size": 6,
+          "log_inv_rate": 1,
+          "m": 30,
+          "merkle_hash": "blake3",
+          "num_lanes": null,
+          "profile": "fast"
+        },
+        "record": "metadata",
+        "reduction_field_bits": 128,
+        "schema_version": 2,
+        "sha_compressions": 256,
+        "sha_r1cs_encoding": "Mikros retains 48 schedule, 64 T1 and 64 extra E/A words in 5632 formerly unused slots; 31102 useful slots within the same 32768-row dimension and original SHA inputs/outputs; native FLOCK unchanged",
+        "static_columns": [
+          {
+            "len": 1048576,
+            "width": 16,
+            "word_len": 131072,
+            "word_offset": 0
+          },
+          {
+            "len": 1048576,
+            "width": 16,
+            "word_len": 131072,
+            "word_offset": 131072
+          },
+          {
+            "len": 1048576,
+            "width": 32,
+            "word_len": 262144,
+            "word_offset": 262144
+          },
+          {
+            "len": 1048576,
+            "width": 32,
+            "word_len": 262144,
+            "word_offset": 524288
+          },
+          {
+            "len": 1048576,
+            "width": 32,
+            "word_len": 262144,
+            "word_offset": 786432
+          },
+          {
+            "len": 1048576,
+            "width": 32,
+            "word_len": 262144,
+            "word_offset": 1048576
+          },
+          {
+            "len": 32768,
+            "width": 32,
+            "word_len": 8192,
+            "word_offset": 1310720
+          },
+          {
+            "len": 32768,
+            "width": 32,
+            "word_len": 8192,
+            "word_offset": 1318912
+          },
+          {
+            "len": 1048576,
+            "width": 1,
+            "word_len": 8192,
+            "word_offset": 1327104
+          },
+          {
+            "len": 262144,
+            "width": 16,
+            "word_len": 32768,
+            "word_offset": 1343488
+          },
+          {
+            "len": 262144,
+            "width": 16,
+            "word_len": 32768,
+            "word_offset": 1376256
+          },
+          {
+            "len": 262144,
+            "width": 32,
+            "word_len": 65536,
+            "word_offset": 1441792
+          },
+          {
+            "len": 262144,
+            "width": 32,
+            "word_len": 65536,
+            "word_offset": 1507328
+          },
+          {
+            "len": 262144,
+            "width": 32,
+            "word_len": 65536,
+            "word_offset": 1572864
+          },
+          {
+            "len": 262144,
+            "width": 32,
+            "word_len": 65536,
+            "word_offset": 1638400
+          },
+          {
+            "len": 32768,
+            "width": 32,
+            "word_len": 8192,
+            "word_offset": 1703936
+          },
+          {
+            "len": 32768,
+            "width": 32,
+            "word_len": 8192,
+            "word_offset": 1712128
+          },
+          {
+            "len": 262144,
+            "width": 1,
+            "word_len": 2048,
+            "word_offset": 1720320
+          },
+          {
+            "len": 32768,
+            "width": 16,
+            "word_len": 4096,
+            "word_offset": 1724416
+          },
+          {
+            "len": 32768,
+            "width": 16,
+            "word_len": 4096,
+            "word_offset": 1728512
+          },
+          {
+            "len": 32768,
+            "width": 16,
+            "word_len": 4096,
+            "word_offset": 1732608
+          },
+          {
+            "len": 32768,
+            "width": 16,
+            "word_len": 4096,
+            "word_offset": 1736704
+          },
+          {
+            "len": 32768,
+            "width": 16,
+            "word_len": 4096,
+            "word_offset": 1740800
+          },
+          {
+            "len": 32768,
+            "width": 16,
+            "word_len": 4096,
+            "word_offset": 1744896
+          },
+          {
+            "len": 32768,
+            "width": 16,
+            "word_len": 4096,
+            "word_offset": 1748992
+          },
+          {
+            "len": 32768,
+            "width": 16,
+            "word_len": 4096,
+            "word_offset": 1753088
+          },
+          {
+            "len": 32768,
+            "width": 1,
+            "word_len": 256,
+            "word_offset": 1757184
+          }
+        ],
+        "static_commitment_bytes": 33554432,
+        "static_pcs_params": {
+          "log_batch_size": 4,
+          "log_inv_rate": 1,
+          "m": 28,
+          "merkle_hash": "blake3",
+          "num_lanes": null,
+          "profile": "fast"
+        },
+        "target_features": [
+          "avx512f",
+          "avx512bw",
+          "gfni",
+          "vpclmulqdq"
+        ],
+        "threads": 64,
+        "timing": "offline circuit, fixed sparse metadata commitment, witness/image preparation and input clone excluded; all query-dependent reads, read commitment, F128 reductions, lookup proofs and three native PCS openings included",
+        "witness_commitment_bytes": 1048576,
+        "zero_knowledge": false
+      }
+    ],
+    "flock": [
+      {
+        "all_core_threads": 64,
+        "architecture": "x86_64",
+        "cell_log": 12,
+        "circuit_digest_blake3": "e7cafab73734c50363f00ebdc291321bbd3b73fa2977aaa4432a5c6eff34074f",
+        "dense_m": 23,
+        "fixture": "sha256-independent-compressions",
+        "fixture_digest_blake3": "604926042d63f082df458903107ff12b56a7a5d84dfc57ce5bdab0cd5691d008",
+        "gate_count": 256,
+        "independent_compressions": true,
+        "leaves": null,
+        "log_leaves": null,
+        "native_last_output_u32": [
+          2685497557,
+          1973661056,
+          1995358399,
+          4039789264,
+          1557587119,
+          2493982981,
+          2358250508,
+          115708351
+        ],
+        "native_root_u32": null,
+        "offline_fixture_ms": 1834.119951,
+        "offline_prepared_bytes": 4194304,
+        "offline_witness_ms": 4.0107479999999995,
+        "padded_m": 23,
+        "pcs_config_blake3": "7ccce29fc729183ed261edb5863bf488de4dbaf9d41eca17b8dc3706ab23a662",
+        "pcs_fold_grinding_bits": [
+          0,
+          0,
+          0
+        ],
+        "pcs_params": {
+          "log_batch_size": 6,
+          "log_inv_rate": 1,
+          "m": 23,
+          "merkle_hash": "blake3",
+          "num_lanes": 50,
+          "profile": "fast"
+        },
+        "pcs_queries": [
+          244,
+          79,
+          48
+        ],
+        "pcs_query_grinding_bits": [
+          16,
+          16,
+          16
+        ],
+        "proof_encoding": "bincode serialize((Commitment, R1csProofCircuitMerged)); full bundle including cap and PCS",
+        "public_output_count": 256,
+        "public_words": 1538,
+        "record": "metadata",
+        "reps": 6,
+        "row_log": 8,
+        "schema_version": 1,
+        "seed": 6494266865122166094,
+        "sha_compressions": 256,
+        "sha_input_semantics": "fixed standard IV; 512-bit unpadded compression blocks; not complete SHA-256 hashes",
+        "system": "flock-circuit-e2e",
+        "target_features": [
+          "aes",
+          "pclmulqdq",
+          "avx2",
+          "avx512f",
+          "avx512bw",
+          "gfni",
+          "vpclmulqdq"
+        ],
+        "threads": 64,
+        "timing_boundary": "prepare clone excluded; prove includes union assembly, compaction, commitment, Hadamard, lincheck, wiring, and merged PCS; no pure-online claim",
+        "verification": "complete non-deferred verifier; no witness input; matrix and sigma obligations discharged",
+        "warmups": 1,
+        "zero_knowledge_claim": false
+      },
+      {
+        "all_core_threads": 64,
+        "architecture": "x86_64",
+        "cell_log": 12,
+        "circuit_digest_blake3": "e7cafab73734c50363f00ebdc291321bbd3b73fa2977aaa4432a5c6eff34074f",
+        "dense_m": 23,
+        "fixture": "sha256-independent-compressions",
+        "fixture_digest_blake3": "604926042d63f082df458903107ff12b56a7a5d84dfc57ce5bdab0cd5691d008",
+        "gate_count": 256,
+        "independent_compressions": true,
+        "leaves": null,
+        "log_leaves": null,
+        "native_last_output_u32": [
+          2685497557,
+          1973661056,
+          1995358399,
+          4039789264,
+          1557587119,
+          2493982981,
+          2358250508,
+          115708351
+        ],
+        "native_root_u32": null,
+        "offline_fixture_ms": 1863.0710210000002,
+        "offline_prepared_bytes": 4194304,
+        "offline_witness_ms": 4.869267,
+        "padded_m": 23,
+        "pcs_config_blake3": "7ccce29fc729183ed261edb5863bf488de4dbaf9d41eca17b8dc3706ab23a662",
+        "pcs_fold_grinding_bits": [
+          0,
+          0,
+          0
+        ],
+        "pcs_params": {
+          "log_batch_size": 6,
+          "log_inv_rate": 1,
+          "m": 23,
+          "merkle_hash": "blake3",
+          "num_lanes": 50,
+          "profile": "fast"
+        },
+        "pcs_queries": [
+          244,
+          79,
+          48
+        ],
+        "pcs_query_grinding_bits": [
+          16,
+          16,
+          16
+        ],
+        "proof_encoding": "bincode serialize((Commitment, R1csProofCircuitMerged)); full bundle including cap and PCS",
+        "public_output_count": 256,
+        "public_words": 1538,
+        "record": "metadata",
+        "reps": 6,
+        "row_log": 8,
+        "schema_version": 1,
+        "seed": 6494266865122166094,
+        "sha_compressions": 256,
+        "sha_input_semantics": "fixed standard IV; 512-bit unpadded compression blocks; not complete SHA-256 hashes",
+        "system": "flock-circuit-e2e",
+        "target_features": [
+          "aes",
+          "pclmulqdq",
+          "avx2",
+          "avx512f",
+          "avx512bw",
+          "gfni",
+          "vpclmulqdq"
+        ],
+        "threads": 64,
+        "timing_boundary": "prepare clone excluded; prove includes union assembly, compaction, commitment, Hadamard, lincheck, wiring, and merged PCS; no pure-online claim",
+        "verification": "complete non-deferred verifier; no witness input; matrix and sigma obligations discharged",
+        "warmups": 1,
+        "zero_knowledge_claim": false
+      },
+      {
+        "all_core_threads": 64,
+        "architecture": "x86_64",
+        "cell_log": 12,
+        "circuit_digest_blake3": "e7cafab73734c50363f00ebdc291321bbd3b73fa2977aaa4432a5c6eff34074f",
+        "dense_m": 23,
+        "fixture": "sha256-independent-compressions",
+        "fixture_digest_blake3": "604926042d63f082df458903107ff12b56a7a5d84dfc57ce5bdab0cd5691d008",
+        "gate_count": 256,
+        "independent_compressions": true,
+        "leaves": null,
+        "log_leaves": null,
+        "native_last_output_u32": [
+          2685497557,
+          1973661056,
+          1995358399,
+          4039789264,
+          1557587119,
+          2493982981,
+          2358250508,
+          115708351
+        ],
+        "native_root_u32": null,
+        "offline_fixture_ms": 1817.25655,
+        "offline_prepared_bytes": 4194304,
+        "offline_witness_ms": 4.515417,
+        "padded_m": 23,
+        "pcs_config_blake3": "7ccce29fc729183ed261edb5863bf488de4dbaf9d41eca17b8dc3706ab23a662",
+        "pcs_fold_grinding_bits": [
+          0,
+          0,
+          0
+        ],
+        "pcs_params": {
+          "log_batch_size": 6,
+          "log_inv_rate": 1,
+          "m": 23,
+          "merkle_hash": "blake3",
+          "num_lanes": 50,
+          "profile": "fast"
+        },
+        "pcs_queries": [
+          244,
+          79,
+          48
+        ],
+        "pcs_query_grinding_bits": [
+          16,
+          16,
+          16
+        ],
+        "proof_encoding": "bincode serialize((Commitment, R1csProofCircuitMerged)); full bundle including cap and PCS",
+        "public_output_count": 256,
+        "public_words": 1538,
+        "record": "metadata",
+        "reps": 6,
+        "row_log": 8,
+        "schema_version": 1,
+        "seed": 6494266865122166094,
+        "sha_compressions": 256,
+        "sha_input_semantics": "fixed standard IV; 512-bit unpadded compression blocks; not complete SHA-256 hashes",
+        "system": "flock-circuit-e2e",
+        "target_features": [
+          "aes",
+          "pclmulqdq",
+          "avx2",
+          "avx512f",
+          "avx512bw",
+          "gfni",
+          "vpclmulqdq"
+        ],
+        "threads": 64,
+        "timing_boundary": "prepare clone excluded; prove includes union assembly, compaction, commitment, Hadamard, lincheck, wiring, and merged PCS; no pure-online claim",
+        "verification": "complete non-deferred verifier; no witness input; matrix and sigma obligations discharged",
+        "warmups": 1,
+        "zero_knowledge_claim": false
+      }
+    ]
+  },
+  "same_f128_reduction": true,
+  "same_mikros_commitment": true,
+  "same_sha_public_statement": true,
+  "native_pcs_backend": "FLOCK Ligerito Fast",
+  "pcs_layouts_differ": true,
+  "sha_r1cs_encodings_differ": true,
+  "formal_repetitions": 18,
+  "matrix_authentication": "packed sparse lookup; all L/R/O; no verifier matrix scan",
+  "paired": {
+    "prover_ms": 3919.7921665,
+    "witness_commit_ms": 9.124746000000002,
+    "hadamard_ms": 6.0624839999999995,
+    "image_reduction_ms": 65.250587,
+    "read_prepare_commit_ms": 172.3409155,
+    "lookup_reduction_ms": 1461.054224,
+    "public_and_pair_values_ms": 32.919647,
+    "pair_reduction_ms": 0.1080565,
+    "witness_open_ms": 45.79793,
+    "static_open_ms": 1154.2036914999999,
+    "read_open_ms": 931.6862570000001,
+    "prover_range_ms": [
+      3608.8189580000003,
+      4314.789844
+    ],
+    "proof_bytes": 1663450,
+    "proof_blake3": "54dea334bf99717da22bd76e89bc3fc9b687279f300852b3b593273338987db2",
+    "verify_ms": 52.0383845,
+    "witness_claims": 8,
+    "static_claims": 66,
+    "read_claims": 36,
+    "inner_openings": 3
+  },
+  "separate": {
+    "prover_ms": 3878.876411,
+    "witness_commit_ms": 9.6304345,
+    "hadamard_ms": 6.789263,
+    "image_reduction_ms": 66.5195125,
+    "read_prepare_commit_ms": 184.116166,
+    "lookup_reduction_ms": 1419.3472554999998,
+    "public_and_pair_values_ms": 35.306693,
+    "pair_reduction_ms": 0.0398705,
+    "witness_open_ms": 64.937157,
+    "static_open_ms": 1133.544941,
+    "read_open_ms": 929.581342,
+    "prover_range_ms": [
+      3669.57141,
+      4174.290196
+    ],
+    "proof_bytes": 1663698,
+    "proof_blake3": "9b30fb4e86c1d5f583c46b5ba5ba56c3d3681a6671f78600325a5cd47b982e28",
+    "verify_ms": 52.2592585,
+    "witness_claims": 16,
+    "static_claims": 66,
+    "read_claims": 36,
+    "inner_openings": 3
+  },
+  "flock": {
+    "prove_with_commit_ms": 109.13315850000001,
+    "prover_range_ms": [
+      89.63297800000001,
+      127.63106699999999
+    ],
+    "proof_bytes": 310955,
+    "proof_blake3": "d9d8edac4085a9c75619e855c732891be59cb2561f555955da4cddb4a1efd823",
+    "verify_ms": 17.890373000000004
+  },
+  "pairing_speedup": 0.989561753847645,
+  "flock_over_paired": 0.027841567579192726,
+  "negative_tests": [
+    {
+      "opening": "separate",
+      "record": "negative_tests",
+      "rejected": 23
+    },
+    {
+      "opening": "paired",
+      "record": "negative_tests",
+      "rejected": 24
+    }
+  ]
+}

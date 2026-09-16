@@ -545,15 +545,29 @@ impl<'r> UnionInstance<'r> {
     /// [`BlockR1cs::x_ab_from_multilinear_values`] (BatchMajor). Stays in BOOLEAN-REGION
     /// coordinates — the boolean lincheck's column domain is `M_bool − nu`.
     pub fn x_ab_from_multilinear_values(&self, z_skip: SkipPoint, mlv: &[F128]) -> QuirkyPoint {
+        self.x_ab_from_multilinear_values_with_skip(z_skip, mlv, K_SKIP)
+    }
+
+    /// The semantic lincheck point for an explicitly selected 64- or 128-bit
+    /// univariate skip. With skip7 the packed word has no remaining bit
+    /// coordinate before the shared batch coordinates.
+    pub fn x_ab_from_multilinear_values_with_skip(
+        &self,
+        z_skip: SkipPoint,
+        mlv: &[F128],
+        k_skip: usize,
+    ) -> QuirkyPoint {
+        assert!(k_skip == 6 || k_skip == 7);
         let nu = self.n_log();
-        assert_eq!(mlv.len(), self.m_bool() - K_SKIP);
-        let mut x_inner_rest = Vec::with_capacity(1 + self.boolean_col_log());
-        x_inner_rest.push(mlv[0]);
-        x_inner_rest.extend_from_slice(&mlv[1 + nu..]);
+        let prefix = 7 - k_skip;
+        assert_eq!(mlv.len(), self.m_bool() - k_skip);
+        let mut x_inner_rest = Vec::with_capacity(prefix + self.boolean_col_log());
+        x_inner_rest.extend_from_slice(&mlv[..prefix]);
+        x_inner_rest.extend_from_slice(&mlv[prefix + nu..]);
         QuirkyPoint {
             z_skip,
             x_inner_rest,
-            x_outer: mlv[1..1 + nu].to_vec(),
+            x_outer: mlv[prefix..prefix + nu].to_vec(),
         }
     }
 
@@ -573,16 +587,30 @@ impl<'r> UnionInstance<'r> {
         r_inner_rest: &[F128],
         x_outer: &[F128],
     ) -> QuirkyPoint {
+        self.ab_claim_point_with_skip(r_inner_skip, r_inner_rest, x_outer, K_SKIP)
+    }
+
+    /// Address-ordered AB claim for the selected skip. The skip7 point has
+    /// an empty `x_inner_rest`; its `x_outer` contains every word coordinate.
+    pub fn ab_claim_point_with_skip(
+        &self,
+        r_inner_skip: SkipPoint,
+        r_inner_rest: &[F128],
+        x_outer: &[F128],
+        k_skip: usize,
+    ) -> QuirkyPoint {
+        assert!(k_skip == 6 || k_skip == 7);
+        let prefix = 7 - k_skip;
         assert_eq!(x_outer.len(), self.n_log());
-        assert_eq!(r_inner_rest.len(), 1 + self.boolean_col_log());
+        assert_eq!(r_inner_rest.len(), prefix + self.boolean_col_log());
         let frozen = self.boolean_frozen_high();
-        let mut suffix = Vec::with_capacity(x_outer.len() + r_inner_rest.len() - 1 + frozen);
+        let mut suffix = Vec::with_capacity(x_outer.len() + r_inner_rest.len() - prefix + frozen);
         suffix.extend_from_slice(x_outer);
-        suffix.extend_from_slice(&r_inner_rest[1..]);
+        suffix.extend_from_slice(&r_inner_rest[prefix..]);
         suffix.extend(repeat_n(F128::ZERO, frozen));
         QuirkyPoint {
             z_skip: r_inner_skip,
-            x_inner_rest: vec![r_inner_rest[0]],
+            x_inner_rest: r_inner_rest[..prefix].to_vec(),
             x_outer: suffix,
         }
     }
@@ -592,14 +620,27 @@ impl<'r> UnionInstance<'r> {
     /// lifted with the frozen-zero high coordinates. Union analog of
     /// [`BlockR1cs::c_claim_point`] (BatchMajor).
     pub fn c_claim_point(&self, z_skip: SkipPoint, r_rest: &[F128]) -> QuirkyPoint {
-        assert_eq!(r_rest.len(), self.m_bool() - K_SKIP);
+        self.c_claim_point_with_skip(z_skip, r_rest, K_SKIP)
+    }
+
+    /// Address-ordered C claim for the selected skip, including frozen high
+    /// coordinates that exclude the element region from the Boolean claim.
+    pub fn c_claim_point_with_skip(
+        &self,
+        z_skip: SkipPoint,
+        r_rest: &[F128],
+        k_skip: usize,
+    ) -> QuirkyPoint {
+        assert!(k_skip == 6 || k_skip == 7);
+        let prefix = 7 - k_skip;
+        assert_eq!(r_rest.len(), self.m_bool() - k_skip);
         let frozen = self.boolean_frozen_high();
-        let mut x_outer = Vec::with_capacity(r_rest.len() - 1 + frozen);
-        x_outer.extend_from_slice(&r_rest[1..]);
+        let mut x_outer = Vec::with_capacity(r_rest.len() - prefix + frozen);
+        x_outer.extend_from_slice(&r_rest[prefix..]);
         x_outer.extend(repeat_n(F128::ZERO, frozen));
         QuirkyPoint {
             z_skip,
-            x_inner_rest: vec![r_rest[0]],
+            x_inner_rest: r_rest[..prefix].to_vec(),
             x_outer,
         }
     }
@@ -1225,6 +1266,57 @@ mod tests {
                 r1cs.c_claim_point(SkipPoint::Phi8(z_skip), &r_rest),
                 "c_claim_point diverged"
             );
+        }
+    }
+
+    /// Both skips address the same BatchMajor layout. Skip7 absorbs the
+    /// entire low word, while mixed registries still freeze every high
+    /// coordinate outside the Boolean region.
+    #[test]
+    fn configured_skip_claim_points_match_address_weights() {
+        for types in [
+            vec![ty(7, 128)],
+            vec![ty(9, 256), ty(8, 128), elem_ty(3, 5)],
+        ] {
+            let reg = Registry::new(types, 3);
+            let union = UnionInstance::new(&reg, vec![5; reg.types().len()]);
+            let mut rng = Rng::new(0x5717_A00);
+            for k_skip in [6usize, 7] {
+                let prefix = 7 - k_skip;
+                let mlv = rng.f128_vec(union.m_bool() - k_skip);
+                let z = SkipPoint::Phi8(rng.f128());
+                let x = union.x_ab_from_multilinear_values_with_skip(z, &mlv, k_skip);
+                let c = union.c_claim_point_with_skip(z, &mlv, k_skip);
+                let a = union.ab_claim_point_with_skip(z, &x.x_inner_rest, &x.x_outer, k_skip);
+                assert_eq!(a, c);
+                assert_eq!(a.x_inner_rest.len(), prefix);
+                assert_eq!(x.x_outer, mlv[prefix..prefix + 3]);
+                let lambda = z.weights(k_skip);
+                let eq_inner = crate::lincheck::build_eq_table(&x.x_inner_rest);
+                let eq_rows = crate::lincheck::build_eq_table(&x.x_outer);
+                let mut address = a.x_inner_rest.clone();
+                address.extend_from_slice(&a.x_outer);
+                let eq_address = crate::lincheck::build_eq_table(&address);
+                for i in 0..1usize << union.m_total() {
+                    let bit = i & 127;
+                    let row = (i >> 7) & 7;
+                    let col = i >> 10;
+                    let expected = if i < 1 << union.m_bool() {
+                        lambda[bit & ((1 << k_skip) - 1)]
+                            * eq_rows[row]
+                            * eq_inner[(bit >> k_skip) | (col << prefix)]
+                    } else {
+                        F128::ZERO
+                    };
+                    let actual = lambda[i & ((1 << k_skip) - 1)] * eq_address[i >> k_skip];
+                    assert_eq!(actual, expected, "skip={k_skip}, address={i}");
+                }
+                if k_skip == K_SKIP {
+                    assert_eq!(x, union.x_ab_from_multilinear_values(z, &mlv));
+                    assert_eq!(a, union.ab_claim_point(z, &x.x_inner_rest, &x.x_outer));
+                    assert_eq!(c, union.c_claim_point(z, &mlv));
+                }
+            }
         }
     }
 

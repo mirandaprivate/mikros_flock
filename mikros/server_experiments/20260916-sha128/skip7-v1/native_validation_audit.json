@@ -1,0 +1,88 @@
+{
+  "passed": true,
+  "files_verified": 12,
+  "tests": {
+    "core": {
+      "passed": 501,
+      "failed": 0,
+      "ignored": 9,
+      "command": [
+        "cargo",
+        "+nightly-2026-03-21",
+        "test",
+        "--release",
+        "--offline",
+        "--locked",
+        "-j8",
+        "--message-format=short",
+        "-p",
+        "flock-core",
+        "--lib"
+      ],
+      "log_sha256": "2e5e1aec7b756854077a822a7b033cfe58678e82632d8886b0ee89b854fe4491"
+    },
+    "mikros": {
+      "passed": 151,
+      "failed": 0,
+      "ignored": 2,
+      "command": [
+        "cargo",
+        "+nightly-2026-03-21",
+        "test",
+        "--release",
+        "--offline",
+        "--locked",
+        "-j8",
+        "--message-format=short",
+        "-p",
+        "mikros",
+        "--lib"
+      ],
+      "log_sha256": "1bcd02317986fd2fa5cfb4f9463c6504003a6c4bb799ca0f7c74af03461bddd6"
+    },
+    "sha": {
+      "passed": 17,
+      "failed": 0,
+      "ignored": 0,
+      "command": [
+        "cargo",
+        "+nightly-2026-03-21",
+        "test",
+        "--release",
+        "--offline",
+        "--locked",
+        "-j8",
+        "--message-format=short",
+        "-p",
+        "mikros",
+        "--example",
+        "e2e_sha256_paired"
+      ],
+      "log_sha256": "8e70441a1e5589da294b44521cb478a8cccaa68e0606a6ed381fbac29842ddca"
+    },
+    "native-skip7": {
+      "passed": 1,
+      "failed": 0,
+      "ignored": 0,
+      "command": [
+        "cargo",
+        "+nightly-2026-03-21",
+        "test",
+        "--release",
+        "--offline",
+        "--locked",
+        "-j8",
+        "--message-format=short",
+        "-p",
+        "flock-prover",
+        "--test",
+        "circuit_wiring",
+        "native_skip7",
+        "--",
+        "--ignored",
+        "--test-threads=1"
+      ],
+      "log_sha256": "1a884b14b6fcb7449b8a12372bbb499bd9173640fbff0e64c5ee15f386708cb2"
+    }
+  }
+}

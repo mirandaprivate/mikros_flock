@@ -54,6 +54,45 @@ pub(super) unsafe fn message_chunk(a: &[F128], b: &[F128]) -> [F256Unreduced; 2]
     }
 }
 
+/// First message plus g(1), allowing the caller to check the full inner
+/// product g(0)+g(1) without a separate scalar dot-product pass.
+///
+/// # Safety
+/// Requires AVX-512F/BW, VPCLMULQDQ, PCLMULQDQ, and SSE4.1.
+#[target_feature(enable = "avx512f,avx512bw,vpclmulqdq,pclmulqdq,sse4.1")]
+pub(super) unsafe fn checked_message_chunk(a: &[F128], b: &[F128]) -> [F256Unreduced; 3] {
+    assert_eq!(a.len(), b.len());
+    assert_eq!(a.len() % 2, 0);
+    // SAFETY: each vector step reads eight elements within both input slices;
+    // the even-sized tail is handled by bounded scalar adjacent pairs.
+    unsafe {
+        let mut zero = WideGhashX4::zero();
+        let mut one = WideGhashX4::zero();
+        let mut infinity = WideGhashX4::zero();
+        let bulk = a.len() / 8 * 8;
+        for offset in (0..bulk).step_by(8) {
+            let (a0, a1) = separate_pairs(
+                f128x4_loadu(a.as_ptr().add(offset)),
+                f128x4_loadu(a.as_ptr().add(offset + 4)),
+            );
+            let (b0, b1) = separate_pairs(
+                f128x4_loadu(b.as_ptr().add(offset)),
+                f128x4_loadu(b.as_ptr().add(offset + 4)),
+            );
+            zero.mul_acc(a0, b0);
+            one.mul_acc(a1, b1);
+            infinity.mul_acc(_mm512_xor_si512(a0, a1), _mm512_xor_si512(b0, b1));
+        }
+        let mut sums = [zero.fold(), one.fold(), infinity.fold()];
+        for (a, b) in a[bulk..].chunks_exact(2).zip(b[bulk..].chunks_exact(2)) {
+            sums[0] ^= a[0].mul_unreduced(b[0]);
+            sums[1] ^= a[1].mul_unreduced(b[1]);
+            sums[2] ^= (a[0] + a[1]).mul_unreduced(b[0] + b[1]);
+        }
+        sums
+    }
+}
+
 #[inline]
 #[target_feature(enable = "avx512f,avx512bw,vpclmulqdq,pclmulqdq,sse4.1")]
 unsafe fn fold_eight(input: *const F128, challenge: __m512i) -> __m512i {

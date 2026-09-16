@@ -1,3 +1,0 @@
-   Compiling mikros-permutation v0.1.0 (/home/mscong1/mikros-experiments/20260912T-native64/v15-plonk-e2e-20260914/source/mikros/permutation)
-    Finished `release` profile [optimized] target(s) in 4.83s
-     Running unittests src/lib.rs (/home/mscong1/mikros-experiments/20260912T-native64/v14-packed-aggregate-20260914/source/target/release/deps/mikros_permutation-cba0d33989686e8e)

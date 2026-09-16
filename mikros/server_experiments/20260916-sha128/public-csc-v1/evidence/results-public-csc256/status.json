@@ -1,0 +1,55 @@
+{
+  "state": "complete",
+  "completed": [
+    {
+      "name": "build",
+      "exit_code": 0,
+      "wall_seconds": 31.228121320018545
+    },
+    {
+      "name": "test-paired-pcs",
+      "exit_code": 0,
+      "wall_seconds": 31.414314770139754
+    },
+    {
+      "name": "test-sha",
+      "exit_code": 0,
+      "wall_seconds": 21.81755565619096
+    },
+    {
+      "name": "validation",
+      "exit_code": 0,
+      "wall_seconds": 4.879305872134864
+    },
+    {
+      "name": "mikros-0",
+      "exit_code": 0,
+      "wall_seconds": 4.64446510002017
+    },
+    {
+      "name": "flock-0",
+      "exit_code": 0,
+      "wall_seconds": 3.7167304980102926
+    },
+    {
+      "name": "flock-1",
+      "exit_code": 0,
+      "wall_seconds": 3.7153178649023175
+    },
+    {
+      "name": "mikros-1",
+      "exit_code": 0,
+      "wall_seconds": 4.591005415888503
+    },
+    {
+      "name": "mikros-2",
+      "exit_code": 0,
+      "wall_seconds": 4.597756450995803
+    },
+    {
+      "name": "flock-2",
+      "exit_code": 0,
+      "wall_seconds": 3.6912239720113575
+    }
+  ]
+}

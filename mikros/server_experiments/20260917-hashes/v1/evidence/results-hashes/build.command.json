@@ -1,0 +1,13 @@
+[
+  "cargo",
+  "+nightly-2026-03-21",
+  "build",
+  "--release",
+  "--offline",
+  "--locked",
+  "-j8",
+  "-p",
+  "mikros",
+  "--example",
+  "e2e_hash_compare"
+]

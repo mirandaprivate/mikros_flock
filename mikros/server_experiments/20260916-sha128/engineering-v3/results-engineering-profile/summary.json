@@ -1,0 +1,462 @@
+{
+  "stage": "profile",
+  "instances": 256,
+  "threads": 64,
+  "batches": 3,
+  "reps_per_batch": 3,
+  "warmups_per_batch": 1,
+  "mode_environments": {
+    "baseline": {
+      "MIKROS_PUBLIC_CSC_SINGLE": "0",
+      "MIKROS_PCS_LOW_BIT_SUPPORT": "0",
+      "MIKROS_PCS_REUSE_UNIT_TABLE": "0",
+      "MIKROS_HADAMARD_WIDE_PACK": "0",
+      "MIKROS_HADAMARD_GROUP_TILES": "0",
+      "MIKROS_IP_BATCH_PARALLEL": "0",
+      "MIKROS_HADAMARD_TILE_ROWS": "1024"
+    },
+    "csc": {
+      "MIKROS_PUBLIC_CSC_SINGLE": "1",
+      "MIKROS_PCS_LOW_BIT_SUPPORT": "0",
+      "MIKROS_PCS_REUSE_UNIT_TABLE": "0",
+      "MIKROS_HADAMARD_WIDE_PACK": "0",
+      "MIKROS_HADAMARD_GROUP_TILES": "0",
+      "MIKROS_IP_BATCH_PARALLEL": "0",
+      "MIKROS_HADAMARD_TILE_ROWS": "1024"
+    }
+  },
+  "process_order_by_batch": [
+    [
+      "baseline",
+      "csc"
+    ],
+    [
+      "baseline",
+      "csc"
+    ],
+    [
+      "csc",
+      "baseline"
+    ]
+  ],
+  "modes": {
+    "baseline": {
+      "prover_ms": 95.989033,
+      "commit_ms": 19.716515,
+      "reduction_f128_ms": 35.624231,
+      "public_io_ms": 0.7746460000000001,
+      "pair_reduction_ms": 0.12108300000000001,
+      "pcs_open_ms": 41.453166,
+      "samples": 9,
+      "warmup_samples": 3,
+      "verify_ms": 36.993286,
+      "prover_range_ms": [
+        87.874704,
+        107.15551199999999
+      ],
+      "proof_bytes": 376547,
+      "proof_blake3": "a8c04f1e0baf0fa22dc2c8e1dff067426712a11cb8c3d64d41c822fa09299161",
+      "metadata": [
+        {
+          "all_core_threads": 64,
+          "carrier_bytes": 1048576,
+          "carrier_words": 65536,
+          "circuit_digest_blake3": "e7cafab73734c50363f00ebdc291321bbd3b73fa2977aaa4432a5c6eff34074f",
+          "comparison": "same SHA compression inputs/outputs and native PCS backend; Mikros transposed full carrier vs native FLOCK compacted witness, layouts and commitment hashes differ",
+          "engineering_environment": {
+            "MIKROS_HADAMARD_GROUP_TILES": "0",
+            "MIKROS_HADAMARD_TILE_ROWS": "1024",
+            "MIKROS_HADAMARD_WIDE_PACK": "0",
+            "MIKROS_IP_BATCH_PARALLEL": "0",
+            "MIKROS_PCS_LOW_BIT_SUPPORT": "0",
+            "MIKROS_PCS_REUSE_UNIT_TABLE": "0",
+            "MIKROS_PUBLIC_CSC_SINGLE": "0"
+          },
+          "fixture": "sha256-independent-compressions",
+          "fixture_digest_blake3": "604926042d63f082df458903107ff12b56a7a5d84dfc57ce5bdab0cd5691d008",
+          "instance_groups": 2,
+          "instances_per_group": 128,
+          "linear_reduction": "separate Hadamards with shared row challenges and independent column MLE queries; fix all block column messages, fresh block weights and128coordinate projection, one ordinary IP per A/B on fixed-basis witness; public CSC endpoints checked directly",
+          "logical_f256_words": 32768,
+          "matrix_authentication": "public CSC; complete verifier checks both matrix terminals; no matrix/read PCS",
+          "native_k_skip": 6,
+          "offline_transpose_ms": 4.112623,
+          "offline_witness_ms": 1823.303967,
+          "opening_logical_field_bits": 256,
+          "packed_direct": "1",
+          "pcs_carrier_field_bits": 128,
+          "pcs_params": {
+            "log_batch_size": 6,
+            "log_inv_rate": 1,
+            "m": 23,
+            "merkle_hash": "blake3",
+            "num_lanes": null,
+            "profile": "fast"
+          },
+          "pcs_queries": [
+            244,
+            79,
+            48
+          ],
+          "prepared_witness_blake3": "06998276e848ac9a31387a7816e695ae165506ef875ee3ea1a9ef9222125a7ce",
+          "r1cs_c_identity": true,
+          "r1cs_digest_blake3": "b631344bd10c178e3db11ca685b5bdaccb1c0e776095c8877ae5636a7811016a",
+          "r1cs_k_log": 15,
+          "record": "metadata",
+          "reduction": "column",
+          "reduction_field_bits": 128,
+          "relation": "A0 Z bitwise-product B0 Z = Z; SHA C0=I. Two groups of128instancebits; public IO and pin PCS-authenticated.",
+          "schema_version": 2,
+          "sha_compressions": 256,
+          "target_features": [
+            "avx512f",
+            "avx512bw",
+            "gfni",
+            "vpclmulqdq"
+          ],
+          "threads": 64,
+          "timing": "offline witness/transposition and input clone excluded; online F128 reduction, IO checks, pairing, commitment, native PCS and cleanup included",
+          "zero_knowledge": false
+        },
+        {
+          "all_core_threads": 64,
+          "carrier_bytes": 1048576,
+          "carrier_words": 65536,
+          "circuit_digest_blake3": "e7cafab73734c50363f00ebdc291321bbd3b73fa2977aaa4432a5c6eff34074f",
+          "comparison": "same SHA compression inputs/outputs and native PCS backend; Mikros transposed full carrier vs native FLOCK compacted witness, layouts and commitment hashes differ",
+          "engineering_environment": {
+            "MIKROS_HADAMARD_GROUP_TILES": "0",
+            "MIKROS_HADAMARD_TILE_ROWS": "1024",
+            "MIKROS_HADAMARD_WIDE_PACK": "0",
+            "MIKROS_IP_BATCH_PARALLEL": "0",
+            "MIKROS_PCS_LOW_BIT_SUPPORT": "0",
+            "MIKROS_PCS_REUSE_UNIT_TABLE": "0",
+            "MIKROS_PUBLIC_CSC_SINGLE": "0"
+          },
+          "fixture": "sha256-independent-compressions",
+          "fixture_digest_blake3": "604926042d63f082df458903107ff12b56a7a5d84dfc57ce5bdab0cd5691d008",
+          "instance_groups": 2,
+          "instances_per_group": 128,
+          "linear_reduction": "separate Hadamards with shared row challenges and independent column MLE queries; fix all block column messages, fresh block weights and128coordinate projection, one ordinary IP per A/B on fixed-basis witness; public CSC endpoints checked directly",
+          "logical_f256_words": 32768,
+          "matrix_authentication": "public CSC; complete verifier checks both matrix terminals; no matrix/read PCS",
+          "native_k_skip": 6,
+          "offline_transpose_ms": 3.6795500000000003,
+          "offline_witness_ms": 1823.679066,
+          "opening_logical_field_bits": 256,
+          "packed_direct": "1",
+          "pcs_carrier_field_bits": 128,
+          "pcs_params": {
+            "log_batch_size": 6,
+            "log_inv_rate": 1,
+            "m": 23,
+            "merkle_hash": "blake3",
+            "num_lanes": null,
+            "profile": "fast"
+          },
+          "pcs_queries": [
+            244,
+            79,
+            48
+          ],
+          "prepared_witness_blake3": "06998276e848ac9a31387a7816e695ae165506ef875ee3ea1a9ef9222125a7ce",
+          "r1cs_c_identity": true,
+          "r1cs_digest_blake3": "b631344bd10c178e3db11ca685b5bdaccb1c0e776095c8877ae5636a7811016a",
+          "r1cs_k_log": 15,
+          "record": "metadata",
+          "reduction": "column",
+          "reduction_field_bits": 128,
+          "relation": "A0 Z bitwise-product B0 Z = Z; SHA C0=I. Two groups of128instancebits; public IO and pin PCS-authenticated.",
+          "schema_version": 2,
+          "sha_compressions": 256,
+          "target_features": [
+            "avx512f",
+            "avx512bw",
+            "gfni",
+            "vpclmulqdq"
+          ],
+          "threads": 64,
+          "timing": "offline witness/transposition and input clone excluded; online F128 reduction, IO checks, pairing, commitment, native PCS and cleanup included",
+          "zero_knowledge": false
+        },
+        {
+          "all_core_threads": 64,
+          "carrier_bytes": 1048576,
+          "carrier_words": 65536,
+          "circuit_digest_blake3": "e7cafab73734c50363f00ebdc291321bbd3b73fa2977aaa4432a5c6eff34074f",
+          "comparison": "same SHA compression inputs/outputs and native PCS backend; Mikros transposed full carrier vs native FLOCK compacted witness, layouts and commitment hashes differ",
+          "engineering_environment": {
+            "MIKROS_HADAMARD_GROUP_TILES": "0",
+            "MIKROS_HADAMARD_TILE_ROWS": "1024",
+            "MIKROS_HADAMARD_WIDE_PACK": "0",
+            "MIKROS_IP_BATCH_PARALLEL": "0",
+            "MIKROS_PCS_LOW_BIT_SUPPORT": "0",
+            "MIKROS_PCS_REUSE_UNIT_TABLE": "0",
+            "MIKROS_PUBLIC_CSC_SINGLE": "0"
+          },
+          "fixture": "sha256-independent-compressions",
+          "fixture_digest_blake3": "604926042d63f082df458903107ff12b56a7a5d84dfc57ce5bdab0cd5691d008",
+          "instance_groups": 2,
+          "instances_per_group": 128,
+          "linear_reduction": "separate Hadamards with shared row challenges and independent column MLE queries; fix all block column messages, fresh block weights and128coordinate projection, one ordinary IP per A/B on fixed-basis witness; public CSC endpoints checked directly",
+          "logical_f256_words": 32768,
+          "matrix_authentication": "public CSC; complete verifier checks both matrix terminals; no matrix/read PCS",
+          "native_k_skip": 6,
+          "offline_transpose_ms": 3.638893,
+          "offline_witness_ms": 1822.204455,
+          "opening_logical_field_bits": 256,
+          "packed_direct": "1",
+          "pcs_carrier_field_bits": 128,
+          "pcs_params": {
+            "log_batch_size": 6,
+            "log_inv_rate": 1,
+            "m": 23,
+            "merkle_hash": "blake3",
+            "num_lanes": null,
+            "profile": "fast"
+          },
+          "pcs_queries": [
+            244,
+            79,
+            48
+          ],
+          "prepared_witness_blake3": "06998276e848ac9a31387a7816e695ae165506ef875ee3ea1a9ef9222125a7ce",
+          "r1cs_c_identity": true,
+          "r1cs_digest_blake3": "b631344bd10c178e3db11ca685b5bdaccb1c0e776095c8877ae5636a7811016a",
+          "r1cs_k_log": 15,
+          "record": "metadata",
+          "reduction": "column",
+          "reduction_field_bits": 128,
+          "relation": "A0 Z bitwise-product B0 Z = Z; SHA C0=I. Two groups of128instancebits; public IO and pin PCS-authenticated.",
+          "schema_version": 2,
+          "sha_compressions": 256,
+          "target_features": [
+            "avx512f",
+            "avx512bw",
+            "gfni",
+            "vpclmulqdq"
+          ],
+          "threads": 64,
+          "timing": "offline witness/transposition and input clone excluded; online F128 reduction, IO checks, pairing, commitment, native PCS and cleanup included",
+          "zero_knowledge": false
+        }
+      ],
+      "baseline_over_mode": 1.0
+    },
+    "csc": {
+      "prover_ms": 93.843091,
+      "commit_ms": 16.02855,
+      "reduction_f128_ms": 31.893831999999996,
+      "public_io_ms": 0.793724,
+      "pair_reduction_ms": 0.107129,
+      "pcs_open_ms": 42.899997,
+      "samples": 9,
+      "warmup_samples": 3,
+      "verify_ms": 34.160924,
+      "prover_range_ms": [
+        87.013274,
+        101.322723
+      ],
+      "proof_bytes": 376547,
+      "proof_blake3": "a8c04f1e0baf0fa22dc2c8e1dff067426712a11cb8c3d64d41c822fa09299161",
+      "metadata": [
+        {
+          "all_core_threads": 64,
+          "carrier_bytes": 1048576,
+          "carrier_words": 65536,
+          "circuit_digest_blake3": "e7cafab73734c50363f00ebdc291321bbd3b73fa2977aaa4432a5c6eff34074f",
+          "comparison": "same SHA compression inputs/outputs and native PCS backend; Mikros transposed full carrier vs native FLOCK compacted witness, layouts and commitment hashes differ",
+          "engineering_environment": {
+            "MIKROS_HADAMARD_GROUP_TILES": "0",
+            "MIKROS_HADAMARD_TILE_ROWS": "1024",
+            "MIKROS_HADAMARD_WIDE_PACK": "0",
+            "MIKROS_IP_BATCH_PARALLEL": "0",
+            "MIKROS_PCS_LOW_BIT_SUPPORT": "0",
+            "MIKROS_PCS_REUSE_UNIT_TABLE": "0",
+            "MIKROS_PUBLIC_CSC_SINGLE": "1"
+          },
+          "fixture": "sha256-independent-compressions",
+          "fixture_digest_blake3": "604926042d63f082df458903107ff12b56a7a5d84dfc57ce5bdab0cd5691d008",
+          "instance_groups": 2,
+          "instances_per_group": 128,
+          "linear_reduction": "separate Hadamards with shared row challenges and independent column MLE queries; fix all block column messages, fresh block weights and128coordinate projection, one ordinary IP per A/B on fixed-basis witness; public CSC endpoints checked directly",
+          "logical_f256_words": 32768,
+          "matrix_authentication": "public CSC; complete verifier checks both matrix terminals; no matrix/read PCS",
+          "native_k_skip": 6,
+          "offline_transpose_ms": 3.802572,
+          "offline_witness_ms": 1818.275361,
+          "opening_logical_field_bits": 256,
+          "packed_direct": "1",
+          "pcs_carrier_field_bits": 128,
+          "pcs_params": {
+            "log_batch_size": 6,
+            "log_inv_rate": 1,
+            "m": 23,
+            "merkle_hash": "blake3",
+            "num_lanes": null,
+            "profile": "fast"
+          },
+          "pcs_queries": [
+            244,
+            79,
+            48
+          ],
+          "prepared_witness_blake3": "06998276e848ac9a31387a7816e695ae165506ef875ee3ea1a9ef9222125a7ce",
+          "r1cs_c_identity": true,
+          "r1cs_digest_blake3": "b631344bd10c178e3db11ca685b5bdaccb1c0e776095c8877ae5636a7811016a",
+          "r1cs_k_log": 15,
+          "record": "metadata",
+          "reduction": "column",
+          "reduction_field_bits": 128,
+          "relation": "A0 Z bitwise-product B0 Z = Z; SHA C0=I. Two groups of128instancebits; public IO and pin PCS-authenticated.",
+          "schema_version": 2,
+          "sha_compressions": 256,
+          "target_features": [
+            "avx512f",
+            "avx512bw",
+            "gfni",
+            "vpclmulqdq"
+          ],
+          "threads": 64,
+          "timing": "offline witness/transposition and input clone excluded; online F128 reduction, IO checks, pairing, commitment, native PCS and cleanup included",
+          "zero_knowledge": false
+        },
+        {
+          "all_core_threads": 64,
+          "carrier_bytes": 1048576,
+          "carrier_words": 65536,
+          "circuit_digest_blake3": "e7cafab73734c50363f00ebdc291321bbd3b73fa2977aaa4432a5c6eff34074f",
+          "comparison": "same SHA compression inputs/outputs and native PCS backend; Mikros transposed full carrier vs native FLOCK compacted witness, layouts and commitment hashes differ",
+          "engineering_environment": {
+            "MIKROS_HADAMARD_GROUP_TILES": "0",
+            "MIKROS_HADAMARD_TILE_ROWS": "1024",
+            "MIKROS_HADAMARD_WIDE_PACK": "0",
+            "MIKROS_IP_BATCH_PARALLEL": "0",
+            "MIKROS_PCS_LOW_BIT_SUPPORT": "0",
+            "MIKROS_PCS_REUSE_UNIT_TABLE": "0",
+            "MIKROS_PUBLIC_CSC_SINGLE": "1"
+          },
+          "fixture": "sha256-independent-compressions",
+          "fixture_digest_blake3": "604926042d63f082df458903107ff12b56a7a5d84dfc57ce5bdab0cd5691d008",
+          "instance_groups": 2,
+          "instances_per_group": 128,
+          "linear_reduction": "separate Hadamards with shared row challenges and independent column MLE queries; fix all block column messages, fresh block weights and128coordinate projection, one ordinary IP per A/B on fixed-basis witness; public CSC endpoints checked directly",
+          "logical_f256_words": 32768,
+          "matrix_authentication": "public CSC; complete verifier checks both matrix terminals; no matrix/read PCS",
+          "native_k_skip": 6,
+          "offline_transpose_ms": 3.667174,
+          "offline_witness_ms": 1870.7441139999999,
+          "opening_logical_field_bits": 256,
+          "packed_direct": "1",
+          "pcs_carrier_field_bits": 128,
+          "pcs_params": {
+            "log_batch_size": 6,
+            "log_inv_rate": 1,
+            "m": 23,
+            "merkle_hash": "blake3",
+            "num_lanes": null,
+            "profile": "fast"
+          },
+          "pcs_queries": [
+            244,
+            79,
+            48
+          ],
+          "prepared_witness_blake3": "06998276e848ac9a31387a7816e695ae165506ef875ee3ea1a9ef9222125a7ce",
+          "r1cs_c_identity": true,
+          "r1cs_digest_blake3": "b631344bd10c178e3db11ca685b5bdaccb1c0e776095c8877ae5636a7811016a",
+          "r1cs_k_log": 15,
+          "record": "metadata",
+          "reduction": "column",
+          "reduction_field_bits": 128,
+          "relation": "A0 Z bitwise-product B0 Z = Z; SHA C0=I. Two groups of128instancebits; public IO and pin PCS-authenticated.",
+          "schema_version": 2,
+          "sha_compressions": 256,
+          "target_features": [
+            "avx512f",
+            "avx512bw",
+            "gfni",
+            "vpclmulqdq"
+          ],
+          "threads": 64,
+          "timing": "offline witness/transposition and input clone excluded; online F128 reduction, IO checks, pairing, commitment, native PCS and cleanup included",
+          "zero_knowledge": false
+        },
+        {
+          "all_core_threads": 64,
+          "carrier_bytes": 1048576,
+          "carrier_words": 65536,
+          "circuit_digest_blake3": "e7cafab73734c50363f00ebdc291321bbd3b73fa2977aaa4432a5c6eff34074f",
+          "comparison": "same SHA compression inputs/outputs and native PCS backend; Mikros transposed full carrier vs native FLOCK compacted witness, layouts and commitment hashes differ",
+          "engineering_environment": {
+            "MIKROS_HADAMARD_GROUP_TILES": "0",
+            "MIKROS_HADAMARD_TILE_ROWS": "1024",
+            "MIKROS_HADAMARD_WIDE_PACK": "0",
+            "MIKROS_IP_BATCH_PARALLEL": "0",
+            "MIKROS_PCS_LOW_BIT_SUPPORT": "0",
+            "MIKROS_PCS_REUSE_UNIT_TABLE": "0",
+            "MIKROS_PUBLIC_CSC_SINGLE": "1"
+          },
+          "fixture": "sha256-independent-compressions",
+          "fixture_digest_blake3": "604926042d63f082df458903107ff12b56a7a5d84dfc57ce5bdab0cd5691d008",
+          "instance_groups": 2,
+          "instances_per_group": 128,
+          "linear_reduction": "separate Hadamards with shared row challenges and independent column MLE queries; fix all block column messages, fresh block weights and128coordinate projection, one ordinary IP per A/B on fixed-basis witness; public CSC endpoints checked directly",
+          "logical_f256_words": 32768,
+          "matrix_authentication": "public CSC; complete verifier checks both matrix terminals; no matrix/read PCS",
+          "native_k_skip": 6,
+          "offline_transpose_ms": 3.569913,
+          "offline_witness_ms": 1861.313727,
+          "opening_logical_field_bits": 256,
+          "packed_direct": "1",
+          "pcs_carrier_field_bits": 128,
+          "pcs_params": {
+            "log_batch_size": 6,
+            "log_inv_rate": 1,
+            "m": 23,
+            "merkle_hash": "blake3",
+            "num_lanes": null,
+            "profile": "fast"
+          },
+          "pcs_queries": [
+            244,
+            79,
+            48
+          ],
+          "prepared_witness_blake3": "06998276e848ac9a31387a7816e695ae165506ef875ee3ea1a9ef9222125a7ce",
+          "r1cs_c_identity": true,
+          "r1cs_digest_blake3": "b631344bd10c178e3db11ca685b5bdaccb1c0e776095c8877ae5636a7811016a",
+          "r1cs_k_log": 15,
+          "record": "metadata",
+          "reduction": "column",
+          "reduction_field_bits": 128,
+          "relation": "A0 Z bitwise-product B0 Z = Z; SHA C0=I. Two groups of128instancebits; public IO and pin PCS-authenticated.",
+          "schema_version": 2,
+          "sha_compressions": 256,
+          "target_features": [
+            "avx512f",
+            "avx512bw",
+            "gfni",
+            "vpclmulqdq"
+          ],
+          "threads": 64,
+          "timing": "offline witness/transposition and input clone excluded; online F128 reduction, IO checks, pairing, commitment, native PCS and cleanup included",
+          "zero_knowledge": false
+        }
+      ],
+      "baseline_over_mode": 1.0228673414007645
+    }
+  },
+  "negative_tests": {
+    "baseline": 36,
+    "selected": 36
+  },
+  "frozen_column_proof_blake3": "a8c04f1e0baf0fa22dc2c8e1dff067426712a11cb8c3d64d41c822fa09299161",
+  "same_protocol_and_mikros_proof": true,
+  "shared_statement_digests": {
+    "fixture_digest_blake3": "604926042d63f082df458903107ff12b56a7a5d84dfc57ce5bdab0cd5691d008",
+    "circuit_digest_blake3": "e7cafab73734c50363f00ebdc291321bbd3b73fa2977aaa4432a5c6eff34074f",
+    "r1cs_digest_blake3": "b631344bd10c178e3db11ca685b5bdaccb1c0e776095c8877ae5636a7811016a",
+    "prepared_witness_blake3": "06998276e848ac9a31387a7816e695ae165506ef875ee3ea1a9ef9222125a7ce"
+  }
+}

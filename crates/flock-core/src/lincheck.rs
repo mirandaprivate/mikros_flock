@@ -144,8 +144,10 @@ pub use crate::lincheck::kernels::{
 };
 pub use crate::lincheck::union::{
     MatrixAssertion, UnionLincheckSlot, eq_prefix_sum, eq_prefix_weight, prove_union_capture_z_vec,
-    prove_union_capture_z_vec_with_grinding, union_bitbank_fold, union_comb_partial, verify_union,
-    verify_union_deferred, verify_union_deferred_with_grinding, verify_union_with_grinding,
+    prove_union_capture_z_vec_with_grinding, prove_union_capture_z_vec_with_skip_and_grinding,
+    union_bitbank_fold, union_comb_partial, verify_union,
+    verify_union_deferred, verify_union_deferred_with_grinding,
+    verify_union_deferred_with_skip_and_grinding, verify_union_with_grinding,
 };
 use crate::{
     all_core_pool, alloc_uninit_vec,
@@ -286,6 +288,13 @@ pub trait LincheckCircuit: Sync {
             *x += *y;
         }
         (a, b)
+    }
+
+    /// One public column marginal: A when `left`, B otherwise. Circuits may
+    /// override this to avoid traversing the other matrix.
+    fn fold_side(&self, eq_inner: &[F128], left: bool) -> Vec<F128> {
+        let (a, b) = self.fold_split(eq_inner);
+        if left { a } else { b }
     }
 
     /// Column index of a constant-one wire to pin, or `None` if the circuit has
@@ -449,6 +458,27 @@ impl LincheckCircuit for CscCircuit {
     }
     fn const_pin_col(&self) -> Option<usize> {
         self.const_pin
+    }
+    fn fold_side(&self, eq_inner: &[F128], left: bool) -> Vec<F128> {
+        assert_eq!(eq_inner.len(), self.n_cols);
+        let (ptr, rows) = if left {
+            (&self.a_col_ptr, &self.a_rows)
+        } else {
+            (&self.b_col_ptr, &self.b_rows)
+        };
+        let one_col = |c: usize| {
+            rows[ptr[c] as usize..ptr[c + 1] as usize]
+                .iter()
+                .fold(F128::ZERO, |sum, &r| sum + eq_inner[r as usize])
+        };
+        if self.n_cols < SUMCHECK_PAR_THRESHOLD {
+            return (0..self.n_cols).map(one_col).collect();
+        }
+        let mut out = vec![F128::ZERO; self.n_cols];
+        out.par_iter_mut()
+            .enumerate()
+            .for_each(|(c, x)| *x = one_col(c));
+        out
     }
     fn fold_alpha_batched(&self, alpha: F128, eq_inner: &[F128]) -> Vec<F128> {
         assert_eq!(eq_inner.len(), self.n_cols);
@@ -2254,6 +2284,33 @@ pub fn verify_with_grinding<Ch: Challenger>(
 #[cfg(test)]
 mod tests {
     use std::collections::HashSet;
+
+    #[test]
+    fn csc_single_side_matches_split_serial_and_parallel() {
+        use super::{CscCircuit, LincheckCircuit, SUMCHECK_PAR_THRESHOLD};
+        for n in [1, 8, SUMCHECK_PAR_THRESHOLD] {
+            let a = SparseBinaryMatrix::new(
+                n,
+                n,
+                (0..n)
+                    .map(|r| {
+                        if r % 3 == 0 {
+                            vec![]
+                        } else {
+                            vec![r, (r + 1) % n, r]
+                        }
+                    })
+                    .collect(),
+            );
+            let b = SparseBinaryMatrix::new(n, n, (0..n).map(|r| vec![(3 * r) % n]).collect());
+            let circuit = CscCircuit::from_matrices(&a, &b);
+            let mut rng = Rng::new(0x51DE_C5C0);
+            let eq: Vec<_> = (0..n).map(|_| rng.f128()).collect();
+            let (xa, xb) = circuit.fold_split(&eq);
+            assert_eq!(circuit.fold_side(&eq, true), xa);
+            assert_eq!(circuit.fold_side(&eq, false), xb);
+        }
+    }
 
     #[cfg(target_arch = "x86_64")]
     use crate::lincheck::partial_fold_packed_z_x86_tiled_padded;

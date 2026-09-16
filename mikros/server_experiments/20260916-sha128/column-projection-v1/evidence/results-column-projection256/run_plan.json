@@ -1,0 +1,95 @@
+{
+  "modes": [
+    "legacy",
+    "column",
+    "flock"
+  ],
+  "process_order_by_batch": [
+    [
+      "legacy",
+      "column",
+      "flock"
+    ],
+    [
+      "column",
+      "flock",
+      "legacy"
+    ],
+    [
+      "flock",
+      "legacy",
+      "column"
+    ]
+  ],
+  "formal_commands": {
+    "legacy": [
+      "/home/mscong1/mikros-experiments/20260912T-native64/v14-packed-aggregate-20260914/source/target/release/examples/e2e_sha256_paired",
+      "--opening",
+      "paired",
+      "--reduction",
+      "legacy",
+      "--threads",
+      "64",
+      "--reps",
+      "6",
+      "--warmups",
+      "1"
+    ],
+    "column": [
+      "/home/mscong1/mikros-experiments/20260912T-native64/v14-packed-aggregate-20260914/source/target/release/examples/e2e_sha256_paired",
+      "--opening",
+      "paired",
+      "--reduction",
+      "column",
+      "--threads",
+      "64",
+      "--reps",
+      "6",
+      "--warmups",
+      "1"
+    ],
+    "flock": [
+      "/home/mscong1/mikros-experiments/20260912T-native64/v14-packed-aggregate-20260914/source/target/release/examples/e2e_flock_baseline",
+      "--compressions",
+      "256",
+      "--profile",
+      "fast",
+      "--threads",
+      "64",
+      "--reps",
+      "6",
+      "--warmups",
+      "1"
+    ]
+  },
+  "validation_commands": {
+    "legacy": [
+      "/home/mscong1/mikros-experiments/20260912T-native64/v14-packed-aggregate-20260914/source/target/release/examples/e2e_sha256_paired",
+      "--opening",
+      "paired",
+      "--reduction",
+      "legacy",
+      "--threads",
+      "64",
+      "--reps",
+      "1",
+      "--warmups",
+      "0",
+      "--tamper"
+    ],
+    "column": [
+      "/home/mscong1/mikros-experiments/20260912T-native64/v14-packed-aggregate-20260914/source/target/release/examples/e2e_sha256_paired",
+      "--opening",
+      "paired",
+      "--reduction",
+      "column",
+      "--threads",
+      "64",
+      "--reps",
+      "1",
+      "--warmups",
+      "0",
+      "--tamper"
+    ]
+  }
+}

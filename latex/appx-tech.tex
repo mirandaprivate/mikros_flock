@@ -21,6 +21,16 @@ aggregates the coefficients of \(\bm\eta_{\tau,j}(Z)\) before
 evaluating at \(\ext z\). The protocol messages and checks
 are unchanged by tabulation.
 
+Algorithms~\ref{alg:ip}, \ref{alg:hadamard}, and
+\ref{alg:permutation} return reduction checks and terminal
+claims; acceptance additionally requires authenticating those claims.
+An input may be fixed by a commitment or defined from previously
+fixed inputs, as with the virtual product in Section~\ref{sec:together}.
+In the latter case, the calling protocol reduces its terminal
+claim further before opening the committed witnesses.
+All algorithms reject malformed messages, including polynomials
+exceeding the specified degree bounds.
+
 \input{alg/alg-ip}
 \input{alg/alg-hadamard}
 \input{alg/alg-permutation}

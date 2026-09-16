@@ -1,0 +1,8 @@
+
+running 3 tests
+test pcs::jagged::tests::sparse_prefix_weights_and_prime_preserve_jagged_and_empty_support ... ok
+test pcs::jagged::tests::sparse_prefix_weights_native_pcs_preserves_proof_bytes_and_transcript ... ok
+test pcs::jagged::tests::sparse_prefix_weights_support_matches_full_equality ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 499 filtered out; finished in 0.11s
+

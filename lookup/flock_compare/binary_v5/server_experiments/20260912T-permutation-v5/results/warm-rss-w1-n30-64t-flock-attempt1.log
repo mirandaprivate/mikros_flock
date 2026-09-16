@@ -1,2 +1,0 @@
-n=30 threads=64 run=0 flock core=13016.903 total=14060.904 source=808.266 ms
-n=30 threads=64 run=1 flock core=13106.893 total=14283.680 source=631.431 ms

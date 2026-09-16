@@ -1,0 +1,22 @@
+[
+  "/usr/bin/time",
+  "-v",
+  "-o",
+  "/home/mscong1/mikros-experiments/20260912T-native64/v30-sha128-20260916/online-v1/source/results-sparse-shared256/test-multiple_image.resource.txt",
+  "taskset",
+  "-c",
+  "0-47,48-55,72-79",
+  "cargo",
+  "+nightly-2026-03-21",
+  "test",
+  "--release",
+  "--offline",
+  "--locked",
+  "-j8",
+  "-p",
+  "mikros",
+  "--lib",
+  "multiple_image::tests",
+  "--",
+  "--test-threads=1"
+]

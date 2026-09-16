@@ -1,0 +1,23 @@
+[
+  "/usr/bin/time",
+  "-v",
+  "-o",
+  "/home/mscong1/mikros-experiments/20260912T-native64/v30-sha128-20260916/skip7-v1/source/results-skip7/validation-flock6.resource.txt",
+  "taskset",
+  "-c",
+  "0-47,48-55,72-79",
+  "/home/mscong1/mikros-experiments/20260912T-native64/v30-sha128-20260916/skip7-v1/source/results-skip7/evidence-binaries/e2e_flock_baseline",
+  "--compressions",
+  "256",
+  "--profile",
+  "fast",
+  "--skip",
+  "6",
+  "--threads",
+  "64",
+  "--reps",
+  "1",
+  "--warmups",
+  "0",
+  "--tamper"
+]

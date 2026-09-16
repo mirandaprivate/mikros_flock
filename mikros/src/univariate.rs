@@ -8,7 +8,9 @@ pub(crate) mod domain;
 pub(crate) mod field;
 
 use flock_field::F128;
-use rayon::prelude::{IndexedParallelIterator, ParallelIterator, ParallelSlice};
+use rayon::prelude::{
+    IndexedParallelIterator, IntoParallelIterator, ParallelIterator, ParallelSlice,
+};
 
 #[cfg(test)]
 mod tests {
@@ -159,6 +161,48 @@ pub(crate) fn aggregate(a: &[u8], b: &[u8], weights: &[F128], kernel: Kernel) ->
         .reduce(|| vec![[0; 16]; SAMPLES], add_evaluations)
 }
 
+/// Schedule independent packed groups and their row tiles in one worker queue.
+/// Only the associative XOR accumulation is reordered; the caller still emits
+/// certificates in the original group order. Each worker retains one small
+/// accumulator per group instead of materializing all tile results.
+pub(crate) fn aggregate_groups(
+    a: &[&[u8]],
+    b: &[&[u8]],
+    weights: &[F128],
+    kernel: Kernel,
+    tile_rows: usize,
+) -> Vec<Vec<[u8; 16]>> {
+    assert!(!kernel.is_coefficient());
+    assert!(!a.is_empty() && a.len() == b.len());
+    assert!(matches!(tile_rows, 512 | 1024 | 2048));
+    assert!(a.iter().chain(b).all(|x| x.len() == weights.len() * 16));
+    let _ = domain::domain();
+    let _ = field::field();
+    let tiles = weights.len().div_ceil(tile_rows);
+    let empty = || vec![vec![[0; 16]; SAMPLES]; a.len()];
+    (0..a.len() * tiles)
+        .into_par_iter()
+        .fold(empty, |mut sums, task| {
+            let group = task / tiles;
+            let start = task % tiles * tile_rows;
+            let end = (start + tile_rows).min(weights.len());
+            let partial = aggregate_block(
+                &a[group][start * 16..end * 16],
+                &b[group][start * 16..end * 16],
+                &weights[start..end],
+                kernel,
+            );
+            add_evaluations_into(&mut sums[group], &partial);
+            sums
+        })
+        .reduce(empty, |mut left, right| {
+            for (left, right) in left.iter_mut().zip(right) {
+                add_evaluations_into(left, &right);
+            }
+            left
+        })
+}
+
 /// Generate weights at the unchanged 2048-row worker boundary. Public GF(256)
 /// interpolation tables are built once; each worker calls the same full block
 /// kernel as `aggregate`, including its 64-row register tiles and GFNI path.
@@ -187,12 +231,16 @@ pub(crate) fn aggregate_tiled_weights(
 }
 
 fn add_evaluations(mut left: Vec<[u8; 16]>, right: Vec<[u8; 16]>) -> Vec<[u8; 16]> {
+    add_evaluations_into(&mut left, &right);
+    left
+}
+
+fn add_evaluations_into(left: &mut [[u8; 16]], right: &[[u8; 16]]) {
     for (left, right) in left.iter_mut().zip(right) {
-        for (x, y) in left.iter_mut().zip(right) {
+        for (x, &y) in left.iter_mut().zip(right) {
             *x ^= y;
         }
     }
-    left
 }
 
 fn aggregate_block(a: &[u8], b: &[u8], l: &[F128], kernel: Kernel) -> Vec<[u8; 16]> {

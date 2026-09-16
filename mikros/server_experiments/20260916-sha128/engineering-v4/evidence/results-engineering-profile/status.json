@@ -1,0 +1,61 @@
+{
+  "stage": "profile",
+  "state": "complete",
+  "completed": [
+    {
+      "name": "validation-baseline",
+      "exit_code": 0,
+      "wall_seconds": 3.5701847379095852
+    },
+    {
+      "name": "validation-selected",
+      "exit_code": 0,
+      "wall_seconds": 3.420443370938301
+    },
+    {
+      "name": "baseline-0",
+      "exit_code": 0,
+      "wall_seconds": 3.420801450032741
+    },
+    {
+      "name": "csc-0",
+      "exit_code": 0,
+      "wall_seconds": 3.320249018026516
+    },
+    {
+      "name": "selected-0",
+      "exit_code": 0,
+      "wall_seconds": 3.2700655017979443
+    },
+    {
+      "name": "csc-1",
+      "exit_code": 0,
+      "wall_seconds": 3.320041828090325
+    },
+    {
+      "name": "selected-1",
+      "exit_code": 0,
+      "wall_seconds": 3.2701530081685632
+    },
+    {
+      "name": "baseline-1",
+      "exit_code": 0,
+      "wall_seconds": 3.320310343056917
+    },
+    {
+      "name": "selected-2",
+      "exit_code": 0,
+      "wall_seconds": 3.219867378938943
+    },
+    {
+      "name": "baseline-2",
+      "exit_code": 0,
+      "wall_seconds": 3.37044757604599
+    },
+    {
+      "name": "csc-2",
+      "exit_code": 0,
+      "wall_seconds": 3.320291561074555
+    }
+  ]
+}

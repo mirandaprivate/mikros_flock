@@ -31,6 +31,33 @@ pub(crate) fn domain() -> &'static Domain {
     DOMAIN.get_or_init(Domain::new)
 }
 
+#[cfg(test)]
+std::thread_local! {
+    static QUOTIENT_GFNI_OVERRIDE: std::cell::Cell<Option<bool>> = const {
+        std::cell::Cell::new(None)
+    };
+}
+
+fn quotient_gfni_requested() -> bool {
+    #[cfg(test)]
+    if let Some(value) = QUOTIENT_GFNI_OVERRIDE.with(|slot| slot.get()) {
+        return value;
+    }
+    std::env::var_os("MIKROS_HADAMARD_GFNI_QUOTIENT").is_none_or(|value| value == "1")
+}
+
+#[cfg(test)]
+fn with_quotient_gfni_override<T>(value: bool, run: impl FnOnce() -> T) -> T {
+    struct Restore(Option<bool>);
+    impl Drop for Restore {
+        fn drop(&mut self) {
+            QUOTIENT_GFNI_OVERRIDE.with(|slot| slot.set(self.0));
+        }
+    }
+    let _restore = Restore(QUOTIENT_GFNI_OVERRIDE.with(|slot| slot.replace(Some(value))));
+    run()
+}
+
 impl Domain {
     /// The same Flock continuation, retained in registers for fused consumers.
     ///
@@ -214,6 +241,17 @@ impl Domain {
     /// subtraction of the interpolated column polynomial is byte XOR.
     pub(crate) fn quotient(&self, samples: &[[u8; COORDINATES]]) -> Vec<F128> {
         assert_eq!(samples.len(), SAMPLES);
+        #[cfg(target_arch = "x86_64")]
+        if quotient_gfni_requested() && std::is_x86_feature_detected!("gfni") {
+            // SAFETY: x86_64 provides SSE2; GFNI is checked at runtime. The
+            // dimension check above covers every 16-byte sample load.
+            return unsafe { self.quotient_gfni(samples) };
+        }
+        self.quotient_scalar(samples)
+    }
+
+    /// Original multiplication-table implementation, also the portable fallback.
+    fn quotient_scalar(&self, samples: &[[u8; COORDINATES]]) -> Vec<F128> {
         let f = field();
         let mut h_values = vec![[0u8; COORDINATES]; QUOTIENTS];
         for (i, (h_value, weights)) in h_values.iter_mut().zip(&self.h_on_lambda).enumerate() {
@@ -238,6 +276,64 @@ impl Domain {
                 }
             }
         }
+        coefficients
+            .iter()
+            .map(|coefficient| f.compose(coefficient))
+            .collect()
+    }
+
+    /// Vectorize the existing two GF256 matrix products across all 16 field
+    /// coordinates. Four output accumulators share each input load, without
+    /// adding coefficient tables or changing the final GHASH basis embedding.
+    #[cfg(target_arch = "x86_64")]
+    #[target_feature(enable = "gfni,sse2")]
+    unsafe fn quotient_gfni(&self, samples: &[[u8; COORDINATES]]) -> Vec<F128> {
+        use std::arch::x86_64::{
+            _mm_gf2p8mul_epi8, _mm_loadu_si128, _mm_set1_epi8, _mm_setzero_si128, _mm_storeu_si128,
+            _mm_xor_si128,
+        };
+
+        debug_assert_eq!(samples.len(), SAMPLES);
+        let mut h_values = vec![[0u8; COORDINATES]; QUOTIENTS];
+        let mut coefficients = vec![[0u8; COORDINATES]; QUOTIENTS];
+        // SAFETY: all source and destination rows contain exactly 16 bytes.
+        // The last output tile has three rows; every matrix access and vector
+        // load/store is restricted to the initialized `take` rows.
+        unsafe {
+            for start in (0..QUOTIENTS).step_by(4) {
+                let take = (QUOTIENTS - start).min(4);
+                let mut sums = [_mm_setzero_si128(); 4];
+                for (column, sample) in samples[..KAPPA].iter().enumerate() {
+                    let value = _mm_loadu_si128(sample.as_ptr().cast());
+                    for lane in 0..take {
+                        let scalar = _mm_set1_epi8(self.h_on_lambda[start + lane][column] as i8);
+                        sums[lane] = _mm_xor_si128(sums[lane], _mm_gf2p8mul_epi8(value, scalar));
+                    }
+                }
+                for lane in 0..take {
+                    let index = start + lane;
+                    let aggregate = _mm_loadu_si128(samples[KAPPA + index].as_ptr().cast());
+                    let inverse = _mm_set1_epi8(self.psi_inverse_on_lambda[index] as i8);
+                    let value = _mm_gf2p8mul_epi8(_mm_xor_si128(aggregate, sums[lane]), inverse);
+                    _mm_storeu_si128(h_values[index].as_mut_ptr().cast(), value);
+                }
+            }
+            for start in (0..QUOTIENTS).step_by(4) {
+                let take = (QUOTIENTS - start).min(4);
+                let mut sums = [_mm_setzero_si128(); 4];
+                for (index, sample) in h_values.iter().enumerate() {
+                    let value = _mm_loadu_si128(sample.as_ptr().cast());
+                    for lane in 0..take {
+                        let scalar = _mm_set1_epi8(self.lambda_basis[index][start + lane] as i8);
+                        sums[lane] = _mm_xor_si128(sums[lane], _mm_gf2p8mul_epi8(value, scalar));
+                    }
+                }
+                for lane in 0..take {
+                    _mm_storeu_si128(coefficients[start + lane].as_mut_ptr().cast(), sums[lane]);
+                }
+            }
+        }
+        let f = field();
         coefficients
             .iter()
             .map(|coefficient| f.compose(coefficient))
@@ -327,6 +423,7 @@ pub(crate) fn lagrange_basis(nodes: &[u8]) -> (Vec<Vec<u8>>, Vec<u8>) {
 mod tests {
     use super::*;
     use flock_field::{phi8, test_rng::Rng};
+    use rayon::prelude::*;
 
     fn oracle_evaluate(polynomial: &[F8], x: F8) -> F8 {
         polynomial.iter().rev().fold(F8::ZERO, |v, &c| v * x + c)
@@ -473,6 +570,48 @@ mod tests {
     }
 
     #[test]
+    fn quotient_gfni_matches_scalar_on_coordinate_lanes_and_threads() {
+        let mut cases = vec![
+            vec![[0u8; COORDINATES]; SAMPLES],
+            vec![[1u8; COORDINATES]; SAMPLES],
+            vec![[u8::MAX; COORDINATES]; SAMPLES],
+        ];
+        // Exercise every coordinate separately, including high-bit byte values
+        // and the final three-output SIMD tile at coefficient/sample 124..126.
+        for coordinate in 0..COORDINATES {
+            let mut samples = vec![[0u8; COORDINATES]; SAMPLES];
+            for (index, sample) in samples.iter_mut().enumerate() {
+                sample[coordinate] = (index as u8).wrapping_mul(17).wrapping_add(0x80);
+            }
+            cases.push(samples);
+        }
+        let mut rng = Rng::new(0x5155_4F54_4746_4E49);
+        for _ in 0..4 {
+            let mut samples = vec![[0u8; COORDINATES]; SAMPLES];
+            for sample in &mut samples {
+                rng.fill_bytes(sample);
+            }
+            cases.push(samples);
+        }
+        let d = domain();
+        for threads in [1, 3] {
+            let pool = rayon::ThreadPoolBuilder::new()
+                .num_threads(threads)
+                .build()
+                .unwrap();
+            pool.install(|| {
+                cases.par_iter().enumerate().for_each(|(case, samples)| {
+                    // Overrides are local to the worker currently evaluating this
+                    // case; no environment variable is mutated by parallel tests.
+                    let expected = with_quotient_gfni_override(false, || d.quotient(samples));
+                    let actual = with_quotient_gfni_override(true, || d.quotient(samples));
+                    assert_eq!(actual, expected, "threads={threads}, case={case}");
+                })
+            });
+        }
+    }
+
+    #[test]
     fn quotient_matches_direct_polynomial_product_and_long_division() {
         let d = domain();
         let f = field();
@@ -482,7 +621,12 @@ mod tests {
         let psi = (0..KAPPA).fold(vec![F8::ONE], |p, i| {
             oracle_multiply(&p, &[F8(i as u8), F8::ONE])
         });
-        assert_eq!(d.quotient(&samples), expected);
+        for enabled in [false, true] {
+            assert_eq!(
+                with_quotient_gfni_override(enabled, || d.quotient(&samples)),
+                expected
+            );
+        }
         for _ in 0..3 {
             let mut a = [0; COORDINATES];
             let mut b = [0; COORDINATES];
@@ -514,7 +658,12 @@ mod tests {
                 }
             }
             assert!(residual.iter().all(|&c| c == F8::ZERO));
-            assert_eq!(d.quotient(&samples), expected);
+            for enabled in [false, true] {
+                assert_eq!(
+                    with_quotient_gfni_override(enabled, || d.quotient(&samples)),
+                    expected
+                );
+            }
         }
     }
 }

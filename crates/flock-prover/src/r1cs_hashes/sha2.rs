@@ -206,6 +206,13 @@ pub const A_NEW_BASE: usize = E_NEW_BASE + N_EA_SLOTS * WORD_BITS; // 24,197
 pub const OUT_CARRY_BASE: usize = A_NEW_BASE + N_EA_SLOTS * WORD_BITS; // 25,221
 pub const Z_CONST_POS: usize = OUT_CARRY_BASE + N_OUT_WORDS * CARRIES_PER_ADD; // 25,469
 pub const USEFUL_BITS: usize = Z_CONST_POS + 1; // 25,470
+/// Optional sparse-matrix encoding: preserve every original slot and place
+/// W[16..64], T1, and the previously inline E/A words in the old padding region.
+pub const SPARSE_SCHEDULE_BASE: usize = USEFUL_BITS;
+pub const SPARSE_T1_BASE: usize = SPARSE_SCHEDULE_BASE + N_SCHED * WORD_BITS; // 27,006
+pub const SPARSE_E_NEW_BASE: usize = SPARSE_T1_BASE + N_ROUNDS * WORD_BITS; // 29,054
+pub const SPARSE_A_NEW_BASE: usize = SPARSE_E_NEW_BASE + N_EA_SLOTS * WORD_BITS; // 30,078
+pub const SPARSE_USEFUL_BITS: usize = SPARSE_A_NEW_BASE + N_EA_SLOTS * WORD_BITS; // 31,102
 
 // Slot accessors.
 #[inline]
@@ -356,6 +363,14 @@ fn big_sigma_1(w: &Word) -> Word {
 trait RowSink {
     /// Emit row `slot` with `A = a`, `B = b` (products and copy rows alike).
     fn row(&mut self, slot: usize, a: &Sup, b: &Sup);
+
+    /// Return the next carry/majority as an affine product `a*b + prior`.
+    /// Native FLOCK stores the product at `slot` and keeps `prior` inline.
+    /// Optional sparse encodings may instead store the resulting carry.
+    fn carry_row(&mut self, slot: usize, a: &Sup, b: &Sup, prior: &Sup) -> Sup {
+        self.row(slot, a, b);
+        xor_sup(prior, &vec![slot])
+    }
 }
 
 /// Writes the sparse `(A_0, B_0)` rows.
@@ -367,6 +382,55 @@ impl RowSink for MatSink<'_> {
     fn row(&mut self, slot: usize, a: &Sup, b: &Sup) {
         self.a_rows[slot] = a.clone();
         self.b_rows[slot] = b.clone();
+    }
+}
+
+/// Store actual carries rather than cumulative product auxiliaries. Moving
+/// the affine correction into C keeps subsequent A/B supports short:
+/// `(x+c)(y+c) = cout+c`, `(x+z)(y+z) = majority+z` over GF(2).
+struct CompactMatSink<'m> {
+    a_rows: &'m mut [Sup],
+    b_rows: &'m mut [Sup],
+    c_rows: &'m mut [Sup],
+}
+
+impl RowSink for CompactMatSink<'_> {
+    fn row(&mut self, slot: usize, a: &Sup, b: &Sup) {
+        self.a_rows[slot] = a.clone();
+        self.b_rows[slot] = b.clone();
+        self.c_rows[slot] = vec![slot];
+    }
+
+    fn carry_row(&mut self, slot: usize, a: &Sup, b: &Sup, prior: &Sup) -> Sup {
+        self.row(slot, a, b);
+        self.c_rows[slot] = xor_sup(&vec![slot], prior);
+        vec![slot]
+    }
+}
+
+/// The symbolic walk is in dependency order even when its output slots are
+/// not increasing. Seed only public inputs/pin, then assign each product or
+/// actual carry once. This conversion is independent of proof challenges.
+struct CompactWitnessSink<'w> {
+    z: &'w mut [bool],
+}
+
+impl CompactWitnessSink<'_> {
+    fn evaluate(&self, support: &Sup) -> bool {
+        support
+            .iter()
+            .fold(false, |sum, &column| sum ^ self.z[column])
+    }
+}
+
+impl RowSink for CompactWitnessSink<'_> {
+    fn row(&mut self, slot: usize, a: &Sup, b: &Sup) {
+        self.z[slot] = self.evaluate(a) & self.evaluate(b);
+    }
+
+    fn carry_row(&mut self, slot: usize, a: &Sup, b: &Sup, prior: &Sup) -> Sup {
+        self.z[slot] = (self.evaluate(a) & self.evaluate(b)) ^ self.evaluate(prior);
+        vec![slot]
     }
 }
 
@@ -406,8 +470,7 @@ fn add32_inline<S: RowSink, F: Fn(usize) -> usize>(
         sum[i] = xor3(&x[i], &y[i], &cin);
         if i < CARRIES_PER_ADD {
             let slot = carry_slot(i);
-            sink.row(slot, &xor_sup(&x[i], &cin), &xor_sup(&y[i], &cin));
-            cin = xor_sup(&cin, &vec![slot]);
+            cin = sink.carry_row(slot, &xor_sup(&x[i], &cin), &xor_sup(&y[i], &cin), &cin);
         }
     }
     sum
@@ -436,8 +499,12 @@ fn add_const_inline<S: RowSink>(k: u32, y: &Word, base: usize, sink: &mut S) -> 
         sum[i] = xor3(&k_sup(i), &y[i], &carry);
         if (t..CARRIES_PER_ADD).contains(&i) {
             let slot = base + (i - t);
-            sink.row(slot, &xor_sup(&k_sup(i), &carry), &xor_sup(&y[i], &carry));
-            carry = xor_sup(&carry, &vec![slot]);
+            carry = sink.carry_row(
+                slot,
+                &xor_sup(&k_sup(i), &carry),
+                &xor_sup(&y[i], &carry),
+                &carry,
+            );
         }
     }
     sum
@@ -459,10 +526,7 @@ fn csa_layer<S: RowSink>(
         p[i] = xor3(&x[i], &y[i], &z[i]);
         if i < CARRIES_PER_ADD {
             let slot = maj_base + i;
-            sink.row(slot, &xor_sup(&x[i], &z[i]), &xor_sup(&y[i], &z[i]));
-            if i + 1 < WORD_BITS {
-                bw[i + 1] = xor_sup(&vec![slot], &z[i]);
-            }
+            bw[i + 1] = sink.carry_row(slot, &xor_sup(&x[i], &z[i]), &xor_sup(&y[i], &z[i]), &z[i]);
         }
     }
     (p, bw)
@@ -477,8 +541,7 @@ fn csa_ripple<S: RowSink>(p: &Word, bw: &Word, rip_base: usize, sink: &mut S) ->
         sum[i] = xor3(&p[i], &bw[i], &g);
         if (1..=RIPPLE_BITS).contains(&i) {
             let slot = rip_base + (i - 1);
-            sink.row(slot, &xor_sup(&p[i], &g), &xor_sup(&bw[i], &g));
-            g = xor_sup(&g, &vec![slot]);
+            g = sink.carry_row(slot, &xor_sup(&p[i], &g), &xor_sup(&bw[i], &g), &g);
         }
     }
     sum
@@ -552,8 +615,33 @@ fn add32_alloc<S: RowSink, F1: Fn(usize) -> usize, F2: Fn(usize) -> usize>(
 #[derive(Copy, Clone)]
 struct MatCfg {
     ea: bool,
+    schedule_materialize: bool,
+    t1_materialize: bool,
+    ea_every_round: bool,
+    ch_maj_actual: bool,
 }
-const MAT_PROD: MatCfg = MatCfg { ea: true };
+const MAT_PROD: MatCfg = MatCfg {
+    ea: true,
+    schedule_materialize: false,
+    t1_materialize: false,
+    ea_every_round: false,
+    ch_maj_actual: false,
+};
+const MAT_SPARSE: MatCfg = MatCfg {
+    schedule_materialize: true,
+    t1_materialize: true,
+    ea_every_round: true,
+    ..MAT_PROD
+};
+
+/// Only the two optional compact entry points read this ablation switch.
+/// Matrix and witness construction must use the same process configuration.
+fn compact_cfg() -> MatCfg {
+    MatCfg {
+        ch_maj_actual: !std::env::var_os("MIKROS_SHA_CARRY_ONLY").is_some_and(|value| value == "1"),
+        ..MAT_SPARSE
+    }
+}
 
 fn walk_rows<S: RowSink>(sink: &mut S) {
     walk_rows_cfg(sink, MAT_PROD)
@@ -582,8 +670,8 @@ fn walk_rows_cfg<S: RowSink>(sink: &mut S, mat: MatCfg) {
 
     // Message schedule (W[16..64]): one fused 4-operand tree per step
     // (σ1(W[t-2]) + σ0(W[t-15]) + W[t-7] + W[t-16], the plain-slot words
-    // riding the shared sides); W[t] materialized (the schedule cascades
-    // for t ≥ 32 without it).
+    // riding the shared sides). Native FLOCK leaves W[t] inline; the optional
+    // sparse encoding materializes it to stop recursive support expansion.
     for t in 16..(16 + N_SCHED) {
         let s1 = sigma_1(&w_arr[t - 2]);
         let s0 = sigma_0(&w_arr[t - 15]);
@@ -599,7 +687,16 @@ fn walk_rows_cfg<S: RowSink>(sink: &mut S, mat: MatCfg) {
             sched_bit(t, SC_RIP),
             sink,
         );
-        w_arr.push(raw);
+        let word = if mat.schedule_materialize {
+            materialize(
+                &raw,
+                |bit| SPARSE_SCHEDULE_BASE + (t - 16) * WORD_BITS + bit,
+                sink,
+            )
+        } else {
+            raw
+        };
+        w_arr.push(word);
     }
 
     // Working state (a, b, c, d, e, f, g, h).
@@ -624,30 +721,50 @@ fn walk_rows_cfg<S: RowSink>(sink: &mut S, mat: MatCfg) {
         let g = state[6].clone();
         let h_var = state[7].clone();
 
-        // ch_and[r][bit] = e[bit] · (f[bit] ⊕ g[bit])
+        // Native slots store e*(f+g); compact Ch/Maj slots store the actual
+        // Ch value, with the affine g correction moved to the C row.
         let mut ch_and = zero_word();
         for bit in 0..WORD_BITS {
             let s = ch_and_bit(r, bit);
-            sink.row(s, &e[bit], &xor_sup(&f[bit], &g[bit]));
-            ch_and[bit] = vec![s];
+            if mat.ch_maj_actual {
+                ch_and[bit] = sink.carry_row(s, &e[bit], &xor_sup(&f[bit], &g[bit]), &g[bit]);
+            } else {
+                sink.row(s, &e[bit], &xor_sup(&f[bit], &g[bit]));
+                ch_and[bit] = vec![s];
+            }
         }
-        // maj_and[r][bit] = (a[bit] ⊕ b[bit]) · (a[bit] ⊕ c[bit])
+        // Likewise (a+b)*(a+c) = Maj+a. Old encodings retain product slots.
         let mut maj_and = zero_word();
         for bit in 0..WORD_BITS {
             let s = maj_and_bit(r, bit);
-            sink.row(s, &xor_sup(&a[bit], &bb[bit]), &xor_sup(&a[bit], &c[bit]));
-            maj_and[bit] = vec![s];
+            if mat.ch_maj_actual {
+                maj_and[bit] = sink.carry_row(
+                    s,
+                    &xor_sup(&a[bit], &bb[bit]),
+                    &xor_sup(&a[bit], &c[bit]),
+                    &a[bit],
+                );
+            } else {
+                sink.row(s, &xor_sup(&a[bit], &bb[bit]), &xor_sup(&a[bit], &c[bit]));
+                maj_and[bit] = vec![s];
+            }
         }
-        let ch_out = xor_words(&ch_and, &g); // Ch = e·(f⊕g) ⊕ g
-        let maj_out = xor_words(&maj_and, &a); // Maj = (a⊕b)·(a⊕c) ⊕ a
+        let ch_out = if mat.ch_maj_actual {
+            ch_and
+        } else {
+            xor_words(&ch_and, &g)
+        };
+        let maj_out = if mat.ch_maj_actual {
+            maj_and
+        } else {
+            xor_words(&maj_and, &a)
+        };
 
         // hk = h + K[r]: the round constant folded in as a constant add.
         let hk = add_const_inline(SHA256_K[r], &h_var, round_bit(r, RC_ADDK), sink);
-        // T1 = hk + Σ1(e) + Ch + W[r]: one fused 4-operand tree. T1 is NOT
-        // materialized — its two consumers inline it (both feed rows whose
-        // other operands are materialized state, so the expansion is
-        // bounded; no cross-round cascade).
-        let t1 = fused_add4_inline(
+        // T1 = hk + Σ1(e) + Ch + W[r]: one fused 4-operand tree. Native
+        // FLOCK inlines T1 into both consumers; the sparse encoding stores it.
+        let t1_raw = fused_add4_inline(
             &hk,
             &big_sigma_1(&e),
             &ch_out,
@@ -657,6 +774,11 @@ fn walk_rows_cfg<S: RowSink>(sink: &mut S, mat: MatCfg) {
             round_bit(r, RC_RIP),
             sink,
         );
+        let t1 = if mat.t1_materialize {
+            materialize(&t1_raw, |bit| SPARSE_T1_BASE + r * WORD_BITS + bit, sink)
+        } else {
+            t1_raw
+        };
         // a_new = T1 + Σ0(a) + Maj: T2 dissolves into a fused 3-op tree.
         let a_raw = fused_add3_inline(
             &t1,
@@ -666,16 +788,37 @@ fn walk_rows_cfg<S: RowSink>(sink: &mut S, mat: MatCfg) {
             round_bit(r, RC_ARIP),
             sink,
         );
-        let mat_this_round = mat.ea && r % EA_PERIOD == EA_PERIOD - 1;
+        let original_ea_slot = r % EA_PERIOD == EA_PERIOD - 1;
+        let mat_this_round = mat.ea && (original_ea_slot || mat.ea_every_round);
         let a_new = if mat_this_round {
-            materialize(&a_raw, |b| a_new_bit(r, b), sink)
+            materialize(
+                &a_raw,
+                |b| {
+                    if original_ea_slot {
+                        a_new_bit(r, b)
+                    } else {
+                        SPARSE_A_NEW_BASE + (r / EA_PERIOD) * WORD_BITS + b
+                    }
+                },
+                sink,
+            )
         } else {
             a_raw
         };
         // e_new = d + T1.
         let e_raw = add32_inline(&d, &t1, |i| round_bit(r, RC_ENEW + i), sink);
         let e_new = if mat_this_round {
-            materialize(&e_raw, |b| e_new_bit(r, b), sink)
+            materialize(
+                &e_raw,
+                |b| {
+                    if original_ea_slot {
+                        e_new_bit(r, b)
+                    } else {
+                        SPARSE_E_NEW_BASE + (r / EA_PERIOD) * WORD_BITS + b
+                    }
+                },
+                sink,
+            )
         } else {
             e_raw
         };
@@ -700,12 +843,19 @@ fn walk_rows_cfg<S: RowSink>(sink: &mut S, mat: MatCfg) {
 /// (circuit shape); use [`build_block_r1cs`] to wrap these into a
 /// [`BlockR1cs`].
 pub fn build_matrices() -> (SparseBinaryMatrix, SparseBinaryMatrix) {
+    build_matrices_cfg(MAT_PROD)
+}
+
+fn build_matrices_cfg(mat: MatCfg) -> (SparseBinaryMatrix, SparseBinaryMatrix) {
     let mut a_rows: Vec<Sup> = vec![Sup::new(); K];
     let mut b_rows: Vec<Sup> = vec![Sup::new(); K];
-    walk_rows(&mut MatSink {
-        a_rows: &mut a_rows,
-        b_rows: &mut b_rows,
-    });
+    walk_rows_cfg(
+        &mut MatSink {
+            a_rows: &mut a_rows,
+            b_rows: &mut b_rows,
+        },
+        mat,
+    );
     let to_mat = |rows| SparseBinaryMatrix::new(K, K, rows);
     (to_mat(a_rows), to_mat(b_rows))
 }
@@ -811,6 +961,82 @@ pub fn build_block_witness(h_in: &[u32; 8], m: &[u32; 16]) -> Vec<bool> {
     z
 }
 
+/// Witness for [`build_sparse_block_r1cs`]. Existing useful bits, including
+/// public I/O and the constant pin, are unchanged; only former padding slots
+/// contain the 48 schedule words, 64 T1 words, and 32 even-round E/A pairs.
+/// The original odd-round E/A slots are reused. Remaining padding is zero.
+pub fn build_sparse_block_witness(h_in: &[u32; 8], m: &[u32; 16]) -> Vec<bool> {
+    let mut z = build_block_witness(h_in, m);
+    let mut schedule = [0u32; 64];
+    schedule[..M_WORDS].copy_from_slice(m);
+    for t in M_WORDS..M_WORDS + N_SCHED {
+        schedule[t] = small_sigma1(schedule[t - 2])
+            .wrapping_add(schedule[t - 7])
+            .wrapping_add(small_sigma0(schedule[t - 15]))
+            .wrapping_add(schedule[t - 16]);
+        write_word(
+            &mut z,
+            SPARSE_SCHEDULE_BASE + (t - M_WORDS) * WORD_BITS,
+            schedule[t],
+        );
+    }
+    let mut state = *h_in;
+    for r in 0..N_ROUNDS {
+        let [a, b, c, d, e, f, g, h] = state;
+        let ch = (e & (f ^ g)) ^ g;
+        let maj = ((a ^ b) & (a ^ c)) ^ a;
+        let t1 = h
+            .wrapping_add(SHA256_K[r])
+            .wrapping_add(big_sigma1(e))
+            .wrapping_add(ch)
+            .wrapping_add(schedule[r]);
+        let a_new = t1.wrapping_add(big_sigma0(a)).wrapping_add(maj);
+        let e_new = d.wrapping_add(t1);
+        write_word(&mut z, SPARSE_T1_BASE + r * WORD_BITS, t1);
+        if r % EA_PERIOD != EA_PERIOD - 1 {
+            write_word(
+                &mut z,
+                SPARSE_A_NEW_BASE + (r / EA_PERIOD) * WORD_BITS,
+                a_new,
+            );
+            write_word(
+                &mut z,
+                SPARSE_E_NEW_BASE + (r / EA_PERIOD) * WORD_BITS,
+                e_new,
+            );
+        }
+        state = [a_new, a, b, c, e_new, e, f, g];
+    }
+    z
+}
+
+/// Witness for [`build_sparse_compact_block_r1cs`]. Public I/O, pin, word
+/// materialized sum slots and padding match [`build_sparse_block_witness`].
+/// Carry-aux slots hold actual carries, and Ch/Maj slots hold actual function
+/// values. Set `MIKROS_SHA_CARRY_ONLY=1` for the prior product-slot Ch/Maj
+/// representation, with the same setting during matrix construction. Do not
+/// use either variant with the C=I matrix or native FLOCK witness kernels.
+pub fn build_sparse_compact_block_witness(h_in: &[u32; 8], m: &[u32; 16]) -> Vec<bool> {
+    build_sparse_compact_block_witness_cfg(h_in, m, compact_cfg())
+}
+
+fn build_sparse_compact_block_witness_cfg(
+    h_in: &[u32; 8],
+    m: &[u32; 16],
+    mat: MatCfg,
+) -> Vec<bool> {
+    let mut z = vec![false; K];
+    z[Z_CONST_POS] = true;
+    for w in 0..H_WORDS {
+        write_word(&mut z, h_bit(w, 0), h_in[w]);
+    }
+    for i in 0..M_WORDS {
+        write_word(&mut z, m_bit(i, 0), m[i]);
+    }
+    walk_rows_cfg(&mut CompactWitnessSink { z: &mut z }, mat);
+    z
+}
+
 /// Read the 8-word post-compression hash out of a single block of witness.
 pub fn read_h_out(z: &[bool]) -> [u32; 8] {
     from_fn(|w| (0..WORD_BITS).fold(0u32, |acc, b| acc | ((z[h_out_bit(w, b)] as u32) << b)))
@@ -836,6 +1062,63 @@ pub fn build_block_r1cs(n_blocks_log: usize) -> BlockR1cs {
         // in every block. Requires padding blocks filled with valid compressions.
         Some(Z_CONST_POS),
     )
+}
+
+/// Optional SHA-256 matrix encoding for sparse lookup authentication. It
+/// materializes W[16..64], T1, and every-round E/A in 5,632 formerly padded
+/// rows, retaining K, all original addresses, C=I, and the constant pin. Use
+/// [`build_sparse_block_witness`]; native FLOCK builders and walkers are unchanged.
+pub fn build_sparse_block_r1cs(n_blocks_log: usize) -> BlockR1cs {
+    let (a_0, b_0) = build_matrices_cfg(MAT_SPARSE);
+    build_block_r1cs_with_matrices(
+        n_blocks_log,
+        K_LOG,
+        K_SKIP,
+        SPARSE_USEFUL_BITS,
+        a_0,
+        b_0,
+        Some(Z_CONST_POS),
+    )
+}
+
+/// Optional sparse SHA encoding storing actual carries and Ch/Maj values in
+/// the same slots. `MIKROS_SHA_CARRY_ONLY=1` selects the prior compact carry
+/// encoding while retaining product-slot Ch/Maj; use it for both builders.
+/// Unlike [`build_sparse_block_r1cs`], C is not the identity: every carry row
+/// moves its affine correction into C. All three matrix images must therefore
+/// be authenticated, including C; this is not a native FLOCK C=I circuit.
+/// K, useful_bits, public I/O addresses, pin, and materialized words are fixed.
+pub fn build_sparse_compact_block_r1cs(n_blocks_log: usize) -> BlockR1cs {
+    build_sparse_compact_block_r1cs_cfg(n_blocks_log, compact_cfg())
+}
+
+fn build_sparse_compact_block_r1cs_cfg(n_blocks_log: usize, mat: MatCfg) -> BlockR1cs {
+    let mut a_rows = vec![Sup::new(); K];
+    let mut b_rows = vec![Sup::new(); K];
+    // Unvisited padding rows still enforce 0*0 = z[slot].
+    let mut c_rows: Vec<Sup> = (0..K).map(|slot| vec![slot]).collect();
+    walk_rows_cfg(
+        &mut CompactMatSink {
+            a_rows: &mut a_rows,
+            b_rows: &mut b_rows,
+            c_rows: &mut c_rows,
+        },
+        mat,
+    );
+    let to_mat = |rows| SparseBinaryMatrix::new(K, K, rows);
+    let mut result = build_block_r1cs_with_matrices(
+        n_blocks_log,
+        K_LOG,
+        K_SKIP,
+        SPARSE_USEFUL_BITS,
+        to_mat(a_rows),
+        to_mat(b_rows),
+        Some(Z_CONST_POS),
+    );
+    // Both caches are still empty. The existing CSC cache uses the actual
+    // A/B above, and statement_digest will include this nonidentity C.
+    result.c_0 = to_mat(c_rows);
+    result
 }
 // ───────────────────────────────────────────────────────────────────────────
 // Lincheck circuit walker — the SAME `walk_rows` the matrix builder runs,
@@ -2000,6 +2283,285 @@ mod tests {
         assert_eq!(Z_CONST_POS, 25_469);
         assert_eq!(USEFUL_BITS, 25_470);
         assert!(USEFUL_BITS <= K);
+    }
+
+    #[test]
+    fn sparse_schedule_witness_preserves_prefix_and_satisfies_r1cs() {
+        use super::{
+            SPARSE_A_NEW_BASE, SPARSE_E_NEW_BASE, SPARSE_SCHEDULE_BASE, SPARSE_T1_BASE,
+            SPARSE_USEFUL_BITS, build_sparse_block_r1cs, build_sparse_block_witness,
+        };
+
+        let r1cs = build_sparse_block_r1cs(3);
+        assert_eq!(r1cs.k_log, K_LOG);
+        assert_eq!(r1cs.useful_bits, 31_102);
+        assert_eq!(r1cs.useful_bits, SPARSE_USEFUL_BITS);
+        assert_eq!(SPARSE_SCHEDULE_BASE, USEFUL_BITS);
+        assert_eq!(SPARSE_T1_BASE, 27_006);
+        assert_eq!(SPARSE_E_NEW_BASE, 29_054);
+        assert_eq!(SPARSE_A_NEW_BASE, 30_078);
+        assert!(SPARSE_USEFUL_BITS < K);
+        assert_eq!(r1cs.const_pin, Some(Z_CONST_POS));
+        assert!(r1cs.c0_is_identity());
+        let nnz = |matrix: &SparseBinaryMatrix| matrix.rows.iter().map(Vec::len).sum::<usize>();
+        eprintln!(
+            "sparse SHA schedule/T1/every-round-EA: A {} + B {} + C {} nnz, useful_bits {} / K {}",
+            nnz(&r1cs.a_0),
+            nnz(&r1cs.b_0),
+            nnz(&r1cs.c_0),
+            SPARSE_USEFUL_BITS,
+            K,
+        );
+
+        let mut rng = Rng::new(0x5A25_5CED);
+        for (h_in, message) in [
+            (SHA256_IV, [0; 16]),
+            (SHA256_IV, [u32::MAX; 16]),
+            (SHA256_IV, rng.next_block()),
+            (from_fn(|_| rng.next_u32()), rng.next_block()),
+        ] {
+            let original = build_block_witness(&h_in, &message);
+            let z = build_sparse_block_witness(&h_in, &message);
+            assert_eq!(z.len(), K);
+            assert_eq!(&z[..USEFUL_BITS], &original[..USEFUL_BITS]);
+            assert!(original[USEFUL_BITS..].iter().all(|&bit| !bit));
+            assert!(z[SPARSE_USEFUL_BITS..].iter().all(|&bit| !bit));
+            assert!(z[Z_CONST_POS]);
+            assert_eq!(read_h_out(&z), sha256_compress(&h_in, &message));
+            assert_eq!(
+                satisfies_singleblock(&r1cs.a_0, &r1cs.b_0, &z),
+                Ok(()),
+                "sparse schedule/round constraints must match the unchanged SHA witness"
+            );
+            for position in [
+                SPARSE_SCHEDULE_BASE,
+                SPARSE_T1_BASE - 1,
+                SPARSE_T1_BASE,
+                SPARSE_E_NEW_BASE - 1,
+                SPARSE_E_NEW_BASE,
+                SPARSE_A_NEW_BASE - 1,
+                SPARSE_A_NEW_BASE,
+                SPARSE_USEFUL_BITS - 1,
+                SPARSE_USEFUL_BITS,
+                K - 1,
+            ] {
+                let mut bad = z.clone();
+                bad[position] = !bad[position];
+                assert!(
+                    satisfies_singleblock(&r1cs.a_0, &r1cs.b_0, &bad).is_err(),
+                    "schedule/T1/extra-EA/padding bit {position} must be constrained"
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn sparse_compact_carries_preserve_sha_words_and_satisfy_three_matrices() {
+        for ch_maj_actual in [false, true] {
+            check_sparse_compact_variant(ch_maj_actual);
+        }
+    }
+
+    fn check_sparse_compact_variant(ch_maj_actual: bool) {
+        use super::{
+            MAT_SPARSE, MatCfg, RC_ADDK, RC_AMAJ, RC_ARIP, RC_ENEW, RC_MAJ1, RC_MAJ2, RC_RIP,
+            SC_MAJ1, SC_MAJ2, SC_RIP, SPARSE_SCHEDULE_BASE, SPARSE_T1_BASE, SPARSE_USEFUL_BITS,
+            build_sparse_block_witness, build_sparse_compact_block_r1cs,
+            build_sparse_compact_block_r1cs_cfg, build_sparse_compact_block_witness,
+            build_sparse_compact_block_witness_cfg, ch_and_bit, compact_cfg, maj_and_bit,
+            out_carry_bit, round_bit, sched_bit,
+        };
+        let mat = MatCfg {
+            ch_maj_actual,
+            ..MAT_SPARSE
+        };
+        let r1cs = build_sparse_compact_block_r1cs_cfg(3, mat);
+        if compact_cfg().ch_maj_actual == ch_maj_actual {
+            assert_eq!(
+                r1cs.statement_digest(),
+                build_sparse_compact_block_r1cs(3).statement_digest()
+            );
+        }
+        assert_eq!(r1cs.k(), K);
+        assert_eq!(r1cs.useful_bits, SPARSE_USEFUL_BITS);
+        assert_eq!(r1cs.const_pin, Some(Z_CONST_POS));
+        assert!(!r1cs.c0_is_identity());
+        let matrices = [&r1cs.a_0, &r1cs.b_0, &r1cs.c_0];
+        let nnz = matrices.map(|s| s.rows.iter().map(Vec::len).sum::<usize>());
+        let padded = nnz.map(usize::next_power_of_two);
+        eprintln!(
+            "compact sparse SHA (actual Ch/Maj={ch_maj_actual}): nnz A/B/C {nnz:?}; entry padding {padded:?}; useful {} / K {}",
+            r1cs.useful_bits, K
+        );
+        for matrix in matrices {
+            assert_eq!(
+                (matrix.num_rows, matrix.num_cols, matrix.rows.len()),
+                (K, K, K)
+            );
+            assert!(
+                matrix
+                    .rows
+                    .iter()
+                    .all(|row| row.windows(2).all(|p| p[0] < p[1]))
+            );
+            assert!(matrix.rows.iter().flatten().all(|&column| column < K));
+        }
+        let check = |z: &[bool]| -> Result<(), usize> {
+            for row in 0..K {
+                let [a, b, c] = matrices.map(|s| s.rows[row].iter().fold(false, |v, &j| v ^ z[j]));
+                if (a & b) != c {
+                    return Err(row);
+                }
+            }
+            Ok(())
+        };
+        let mut rng = Rng::new(0x5A2C_CA77);
+        for (h_in, message) in [
+            (SHA256_IV, [0; 16]),
+            (SHA256_IV, [u32::MAX; 16]),
+            (SHA256_IV, rng.next_block()),
+            (from_fn(|_| rng.next_u32()), rng.next_block()),
+        ] {
+            let old = build_sparse_block_witness(&h_in, &message);
+            let z = build_sparse_compact_block_witness_cfg(&h_in, &message, mat);
+            if compact_cfg().ch_maj_actual == ch_maj_actual {
+                assert_eq!(z, build_sparse_compact_block_witness(&h_in, &message));
+            }
+            assert_eq!(z.len(), K);
+            assert!(z[Z_CONST_POS]);
+            assert!(z[SPARSE_USEFUL_BITS..].iter().all(|&b| !b));
+            assert_eq!(read_h_out(&z), sha256_compress(&h_in, &message));
+            for slot in 0..K {
+                let carry = (ROUND_CARRY_BASE..E_NEW_BASE).contains(&slot)
+                    || (OUT_CARRY_BASE..Z_CONST_POS).contains(&slot);
+                let changed_function =
+                    ch_maj_actual && (CH_AND_BASE..ROUND_CARRY_BASE).contains(&slot);
+                if !carry && !changed_function {
+                    assert_eq!(z[slot], old[slot], "unchanged slot {slot} changed");
+                }
+            }
+            let opposite = build_sparse_compact_block_witness_cfg(
+                &h_in,
+                &message,
+                MatCfg {
+                    ch_maj_actual: !ch_maj_actual,
+                    ..mat
+                },
+            );
+            assert!(
+                check(&opposite).is_err(),
+                "witness and matrix configuration must match"
+            );
+            // The representation change only affects the original Ch/Maj
+            // slots. Every real carry and materialized sum remains identical.
+            for slot in 0..K {
+                if !(CH_AND_BASE..ROUND_CARRY_BASE).contains(&slot) {
+                    assert_eq!(z[slot], opposite[slot]);
+                }
+            }
+            assert_eq!(check(&z), Ok(()), "all A*z AND B*z = C*z rows");
+            assert!(
+                r1cs.satisfies(&z.repeat(8)),
+                "BlockR1cs must use the nonidentity C"
+            );
+            for slot in [
+                sched_bit(16, SC_MAJ1),
+                sched_bit(30, SC_MAJ2),
+                sched_bit(63, SC_RIP + 29),
+                round_bit(0, RC_MAJ1),
+                round_bit(1, RC_MAJ2),
+                round_bit(2, RC_RIP),
+                round_bit(3, RC_AMAJ),
+                round_bit(4, RC_ARIP),
+                round_bit(5, RC_ENEW),
+                round_bit(63, RC_ADDK),
+                out_carry_bit(0, 0),
+                out_carry_bit(7, 30),
+                ch_and_bit(0, 0),
+                ch_and_bit(63, 31),
+                maj_and_bit(0, 0),
+                maj_and_bit(63, 31),
+                H_BASE,
+                H_OUT_BASE,
+                M_BASE,
+                Z_CONST_POS,
+                SPARSE_SCHEDULE_BASE,
+                SPARSE_T1_BASE,
+                SPARSE_USEFUL_BITS - 1,
+                SPARSE_USEFUL_BITS,
+                K - 1,
+            ] {
+                let mut bad = z.clone();
+                bad[slot] = !bad[slot];
+                assert!(
+                    check(&bad).is_err(),
+                    "carry/word/I/O/pin/padding slot {slot} unconstrained"
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn sparse_compact_csc_digest_and_native_encoding_are_consistent() {
+        use super::{
+            MAT_SPARSE, MatCfg, build_sparse_block_r1cs, build_sparse_compact_block_r1cs_cfg,
+        };
+        let old_sparse = build_sparse_block_r1cs(8);
+        let mut previous_digest = None;
+        for ch_maj_actual in [false, true] {
+            let compact = build_sparse_compact_block_r1cs_cfg(
+                8,
+                MatCfg {
+                    ch_maj_actual,
+                    ..MAT_SPARSE
+                },
+            );
+            assert!(compact.digest_cache.get().is_none());
+            assert!(compact.csc_cache.get().is_none());
+            let digest = compact.statement_digest();
+            assert_ne!(
+                Some(digest),
+                previous_digest,
+                "carry-only and Ch/Maj matrices must bind different statements"
+            );
+            previous_digest = Some(digest);
+            assert_ne!(digest, old_sparse.statement_digest());
+            let mut wrong_c = compact.clone();
+            wrong_c.c_0 = old_sparse.c_0.clone();
+            assert_ne!(digest, wrong_c.statement_digest(), "statement must bind C");
+            let eq: Vec<_> = (0..K)
+                .map(|i| F128::new(i as u64, (3 * i + 1) as u64))
+                .collect();
+            let sparse = compact.sparse_lincheck_circuit();
+            let csc = compact.csc_lincheck_circuit();
+            assert_eq!(csc.const_pin_col(), Some(Z_CONST_POS));
+            assert_eq!(sparse.fold_split(&eq), csc.fold_split(&eq));
+            assert_eq!(digest, compact.statement_digest());
+        }
+
+        // Independently built from the frozen online-v2 source.tar.gz, before
+        // compact carries, at n_blocks_log=8. This is the R1CS matrix/layout
+        // digest, not the outer circuit digest that additionally binds wiring.
+        let native = build_block_r1cs(8);
+        let hex: String = native
+            .statement_digest()
+            .iter()
+            .map(|byte| format!("{byte:02x}"))
+            .collect();
+        assert_eq!(
+            hex,
+            "b631344bd10c178e3db11ca685b5bdaccb1c0e776095c8877ae5636a7811016a"
+        );
+        assert!(native.c0_is_identity());
+        assert!(old_sparse.c0_is_identity());
+        assert_eq!(
+            old_sparse.a_0.rows.iter().map(Vec::len).sum::<usize>(),
+            535_556
+        );
+        assert_eq!(
+            old_sparse.b_0.rows.iter().map(Vec::len).sum::<usize>(),
+            209_348
+        );
     }
 
     /// Density audit: template nnz + max row width of the REAL matrices —

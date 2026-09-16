@@ -1,0 +1,121 @@
+{
+  "stage": "refinement",
+  "modes": {
+    "selected": {
+      "MIKROS_PUBLIC_CSC_SINGLE": "1",
+      "MIKROS_PCS_LOW_BIT_SUPPORT": "0",
+      "MIKROS_PCS_REUSE_UNIT_TABLE": "0",
+      "MIKROS_HADAMARD_WIDE_PACK": "0",
+      "MIKROS_HADAMARD_GROUP_TILES": "1",
+      "MIKROS_IP_BATCH_PARALLEL": "0",
+      "MIKROS_IMAGE_BLOCKED_WEIGHTS": "0",
+      "MIKROS_SERIAL_DEINTERLEAVE": "0",
+      "MIKROS_HADAMARD_GFNI_QUOTIENT": "0",
+      "MIKROS_HADAMARD_TILE_ROWS": "2048"
+    },
+    "blocked": {
+      "MIKROS_PUBLIC_CSC_SINGLE": "1",
+      "MIKROS_PCS_LOW_BIT_SUPPORT": "0",
+      "MIKROS_PCS_REUSE_UNIT_TABLE": "0",
+      "MIKROS_HADAMARD_WIDE_PACK": "0",
+      "MIKROS_HADAMARD_GROUP_TILES": "1",
+      "MIKROS_IP_BATCH_PARALLEL": "0",
+      "MIKROS_IMAGE_BLOCKED_WEIGHTS": "1",
+      "MIKROS_SERIAL_DEINTERLEAVE": "0",
+      "MIKROS_HADAMARD_GFNI_QUOTIENT": "0",
+      "MIKROS_HADAMARD_TILE_ROWS": "2048"
+    },
+    "serial": {
+      "MIKROS_PUBLIC_CSC_SINGLE": "1",
+      "MIKROS_PCS_LOW_BIT_SUPPORT": "0",
+      "MIKROS_PCS_REUSE_UNIT_TABLE": "0",
+      "MIKROS_HADAMARD_WIDE_PACK": "0",
+      "MIKROS_HADAMARD_GROUP_TILES": "1",
+      "MIKROS_IP_BATCH_PARALLEL": "0",
+      "MIKROS_IMAGE_BLOCKED_WEIGHTS": "1",
+      "MIKROS_SERIAL_DEINTERLEAVE": "1",
+      "MIKROS_HADAMARD_GFNI_QUOTIENT": "0",
+      "MIKROS_HADAMARD_TILE_ROWS": "2048"
+    },
+    "gfni": {
+      "MIKROS_PUBLIC_CSC_SINGLE": "1",
+      "MIKROS_PCS_LOW_BIT_SUPPORT": "0",
+      "MIKROS_PCS_REUSE_UNIT_TABLE": "0",
+      "MIKROS_HADAMARD_WIDE_PACK": "0",
+      "MIKROS_HADAMARD_GROUP_TILES": "1",
+      "MIKROS_IP_BATCH_PARALLEL": "0",
+      "MIKROS_IMAGE_BLOCKED_WEIGHTS": "1",
+      "MIKROS_SERIAL_DEINTERLEAVE": "1",
+      "MIKROS_HADAMARD_GFNI_QUOTIENT": "1",
+      "MIKROS_HADAMARD_TILE_ROWS": "2048"
+    },
+    "flock": {
+      "MIKROS_PUBLIC_CSC_SINGLE": "0",
+      "MIKROS_PCS_LOW_BIT_SUPPORT": "0",
+      "MIKROS_PCS_REUSE_UNIT_TABLE": "0",
+      "MIKROS_HADAMARD_WIDE_PACK": "0",
+      "MIKROS_HADAMARD_GROUP_TILES": "0",
+      "MIKROS_IP_BATCH_PARALLEL": "0",
+      "MIKROS_IMAGE_BLOCKED_WEIGHTS": "0",
+      "MIKROS_SERIAL_DEINTERLEAVE": "0",
+      "MIKROS_HADAMARD_GFNI_QUOTIENT": "0",
+      "MIKROS_HADAMARD_TILE_ROWS": "1024"
+    }
+  },
+  "order": [
+    [
+      "selected",
+      "blocked",
+      "serial",
+      "gfni",
+      "flock"
+    ],
+    [
+      "blocked",
+      "serial",
+      "gfni",
+      "flock",
+      "selected"
+    ],
+    [
+      "gfni",
+      "flock",
+      "selected",
+      "blocked",
+      "serial"
+    ]
+  ],
+  "validation_modes": {
+    "baseline": {
+      "MIKROS_PUBLIC_CSC_SINGLE": "0",
+      "MIKROS_PCS_LOW_BIT_SUPPORT": "0",
+      "MIKROS_PCS_REUSE_UNIT_TABLE": "0",
+      "MIKROS_HADAMARD_WIDE_PACK": "0",
+      "MIKROS_HADAMARD_GROUP_TILES": "0",
+      "MIKROS_IP_BATCH_PARALLEL": "0",
+      "MIKROS_IMAGE_BLOCKED_WEIGHTS": "0",
+      "MIKROS_SERIAL_DEINTERLEAVE": "0",
+      "MIKROS_HADAMARD_GFNI_QUOTIENT": "0",
+      "MIKROS_HADAMARD_TILE_ROWS": "1024"
+    },
+    "selected": {
+      "MIKROS_PUBLIC_CSC_SINGLE": "1",
+      "MIKROS_PCS_LOW_BIT_SUPPORT": "0",
+      "MIKROS_PCS_REUSE_UNIT_TABLE": "0",
+      "MIKROS_HADAMARD_WIDE_PACK": "0",
+      "MIKROS_HADAMARD_GROUP_TILES": "1",
+      "MIKROS_IP_BATCH_PARALLEL": "0",
+      "MIKROS_IMAGE_BLOCKED_WEIGHTS": "1",
+      "MIKROS_SERIAL_DEINTERLEAVE": "1",
+      "MIKROS_HADAMARD_GFNI_QUOTIENT": "1",
+      "MIKROS_HADAMARD_TILE_ROWS": "2048"
+    }
+  },
+  "reps": 6,
+  "warmups": 1,
+  "batches": 3,
+  "profiling_enabled": false,
+  "source_files": 401,
+  "source_manifest_sha256": "fae389d490307a44a6511854be4fd120f6ba190a2024c36e1e9577e37c293e4a",
+  "selected_json_sha256": "d05f4e71631e48088f2e248da12eb58469038ad2e3f1c4b4be512f2cd703e3db"
+}

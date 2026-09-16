@@ -1542,6 +1542,468 @@ pub(crate) enum MergedWeightClaim<'a> {
     Scalar { z_row: &'a [F128], cols: &'a [F128] },
 }
 
+enum MergedWeightColSide<'a> {
+    /// The column coefficient is baked into a linear byte-lookup map.
+    Baked(Vec<F128>),
+    Combined(&'a [F128]),
+}
+
+#[cfg(test)]
+std::thread_local! {
+    static SPARSE_PREFIX_WEIGHTS_OVERRIDE: std::cell::Cell<Option<bool>> = const {
+        std::cell::Cell::new(None)
+    };
+    static SPARSE_SCALED_EQ_OVERRIDE: std::cell::Cell<Option<bool>> = const {
+        std::cell::Cell::new(None)
+    };
+    static MIKROS_LOW_BIT_SUPPORT_OVERRIDE: std::cell::Cell<Option<bool>> = const {
+        std::cell::Cell::new(None)
+    };
+    static MIKROS_REUSE_UNIT_TABLE_OVERRIDE: std::cell::Cell<Option<bool>> = const {
+        std::cell::Cell::new(None)
+    };
+}
+
+fn mikros_low_bit_support_enabled() -> bool {
+    #[cfg(test)]
+    if let Some(enabled) = MIKROS_LOW_BIT_SUPPORT_OVERRIDE.get() {
+        return enabled;
+    }
+    std::env::var_os("MIKROS_PCS_LOW_BIT_SUPPORT").is_none_or(|value| value == "1")
+}
+
+fn mikros_reuse_unit_table_enabled() -> bool {
+    #[cfg(test)]
+    if let Some(enabled) = MIKROS_REUSE_UNIT_TABLE_OVERRIDE.get() {
+        return enabled;
+    }
+    std::env::var_os("MIKROS_PCS_REUSE_UNIT_TABLE").is_none_or(|value| value == "1")
+}
+
+#[cfg(test)]
+fn with_mikros_single_column_options<T>(
+    low_bit: bool,
+    unit_table: bool,
+    run: impl FnOnce() -> T,
+) -> T {
+    struct Reset(Option<bool>, Option<bool>);
+    impl Drop for Reset {
+        fn drop(&mut self) {
+            MIKROS_LOW_BIT_SUPPORT_OVERRIDE.set(self.0);
+            MIKROS_REUSE_UNIT_TABLE_OVERRIDE.set(self.1);
+        }
+    }
+    let _reset = Reset(
+        MIKROS_LOW_BIT_SUPPORT_OVERRIDE.replace(Some(low_bit)),
+        MIKROS_REUSE_UNIT_TABLE_OVERRIDE.replace(Some(unit_table)),
+    );
+    run()
+}
+
+fn sparse_scaled_eq_enabled() -> bool {
+    #[cfg(test)]
+    if let Some(enabled) = SPARSE_SCALED_EQ_OVERRIDE.get() {
+        return enabled;
+    }
+    std::env::var_os("FLOCK_NO_SPARSE_SCALED_EQ").is_none()
+}
+
+#[cfg(test)]
+fn with_sparse_scaled_eq<T>(enabled: bool, run: impl FnOnce() -> T) -> T {
+    struct Reset(Option<bool>);
+    impl Drop for Reset {
+        fn drop(&mut self) {
+            SPARSE_SCALED_EQ_OVERRIDE.set(self.0);
+        }
+    }
+    let _reset = Reset(SPARSE_SCALED_EQ_OVERRIDE.replace(Some(enabled)));
+    run()
+}
+
+/// Seed a sparse scalar claim's equality tensor with its column coefficient.
+/// In characteristic two, (1+r)*v = v+r*v, so each expansion needs one
+/// multiplication. Called only by the single-column sparse-support path.
+fn sparse_scalar_eq(point: &[F128], seed: F128) -> Vec<F128> {
+    let len = 1usize
+        .checked_shl(point.len().try_into().expect("point is too large"))
+        .expect("equality table is too large");
+    // Match the original equality table's exact allocation size rather than
+    // retaining an oversized PCS scratch buffer for each small support. Only
+    // the initialized prefix is read; every newly exposed slot is assigned.
+    let mut table: Vec<F128> = crate::alloc_uninit_vec(len);
+    table[0] = seed;
+    for (i, &r) in point.iter().enumerate() {
+        let half = 1usize << i;
+        let (lo, tail) = table.split_at_mut(half);
+        let hi = &mut tail[..half];
+        let extend = |(lo, hi): (&mut F128, &mut F128)| {
+            let high = *lo * r;
+            *hi = high;
+            *lo += high;
+        };
+        if half < 1 << 12 {
+            lo.iter_mut().zip(hi).for_each(extend);
+        } else {
+            lo.par_iter_mut().zip(hi).for_each(extend);
+        }
+    }
+    table
+}
+
+fn sparse_prefix_weights_enabled() -> bool {
+    #[cfg(test)]
+    if let Some(enabled) = SPARSE_PREFIX_WEIGHTS_OVERRIDE.get() {
+        return enabled;
+    }
+    std::env::var_os("FLOCK_NO_SPARSE_PREFIX_WEIGHTS").is_none()
+}
+
+#[cfg(test)]
+fn with_sparse_prefix_weights<T>(enabled: bool, run: impl FnOnce() -> T) -> T {
+    struct Reset(Option<bool>);
+    impl Drop for Reset {
+        fn drop(&mut self) {
+            SPARSE_PREFIX_WEIGHTS_OVERRIDE.set(self.0);
+        }
+    }
+    let _reset = Reset(SPARSE_PREFIX_WEIGHTS_OVERRIDE.replace(Some(enabled)));
+    run()
+}
+
+/// Exact support of an ordinary equality tensor whose high coordinates are
+/// Boolean. All lower coordinates, including internal zeros/ones, retain their
+/// original order. An empty point has its usual one-element dense support.
+fn boolean_high_support(point: &[F128]) -> (usize, usize) {
+    let mut free = point.len();
+    let mut offset = 0;
+    while free > 0 {
+        let x = point[free - 1];
+        if x != F128::ZERO && x != F128::ONE {
+            break;
+        }
+        free -= 1;
+        if x == F128::ONE {
+            offset |= 1usize << free;
+        }
+    }
+    (offset, free)
+}
+
+fn low_bit_folded_map(point: &[F128], side: &MergedWeightColSide<'_>) -> bool {
+    matches!(side, MergedWeightColSide::Baked(_))
+        && point
+            .first()
+            .is_some_and(|&x| x == F128::ZERO || x == F128::ONE)
+}
+
+/// One equality table may serve the two interleaved C queries: only their
+/// lowest Boolean selector differs. High Boolean coordinates retain the
+/// existing aligned support. Scalar maps keep their original scaled tensors.
+struct LowBitWeightMap<'a> {
+    offset: usize,
+    stride: usize,
+    equality: usize,
+    side: MergedWeightColSide<'a>,
+    scaled: bool,
+}
+
+struct LowBitWeightTables<'a> {
+    maps: Vec<LowBitWeightMap<'a>>,
+    equality: Vec<Vec<F128>>,
+    low_selectors: usize,
+    shared_tails: usize,
+    high_support_entries: usize,
+}
+
+fn low_bit_weight_tables<'a>(
+    maps: Vec<(&'a [F128], MergedWeightColSide<'a>)>,
+    scale_eq: bool,
+) -> LowBitWeightTables<'a> {
+    let mut result = LowBitWeightTables {
+        maps: Vec::with_capacity(maps.len()),
+        equality: Vec::with_capacity(maps.len()),
+        low_selectors: 0,
+        shared_tails: 0,
+        high_support_entries: 0,
+    };
+    let mut shared: Vec<(&[F128], usize)> = Vec::new();
+    for (point, side) in maps {
+        let (mut offset, free) = boolean_high_support(point);
+        result.high_support_entries += 1usize << free;
+        let eligible = low_bit_folded_map(point, &side);
+        // When free=0 the high-support scan already fixed every bit, including
+        // bit zero. Do not shift the one-entry table or count its bit twice.
+        let strip_low = eligible && free > 0;
+        let stride = if strip_low { 2 } else { 1 };
+        let tail = if strip_low {
+            offset += usize::from(point[0] == F128::ONE);
+            result.low_selectors += 1;
+            &point[1..free]
+        } else {
+            &point[..free]
+        };
+        let scaled =
+            scale_eq && matches!(&side, MergedWeightColSide::Combined(cols) if cols.len() == 1);
+        let previous = eligible
+            .then(|| shared.iter().find(|(p, _)| *p == tail))
+            .flatten();
+        let equality = if let Some((_, index)) = previous {
+            result.shared_tails += 1;
+            *index
+        } else {
+            let table = if let MergedWeightColSide::Combined(cols) = &side
+                && scaled
+            {
+                sparse_scalar_eq(tail, cols[0])
+            } else {
+                build_eq_table(tail)
+            };
+            let index = result.equality.len();
+            result.equality.push(table);
+            if eligible {
+                shared.push((tail, index));
+            }
+            index
+        };
+        result.maps.push(LowBitWeightMap {
+            offset,
+            stride,
+            equality,
+            side,
+            scaled,
+        });
+    }
+    result
+}
+
+/// Opt-in single-column evaluator. Every output slot still participates in
+/// the original merged sumcheck and its fused prime. Only zero summands of a
+/// Folded map are omitted; in particular no witness support is discarded.
+fn build_merged_weight_low_bit_support(
+    params: &JaggedParams,
+    maps: Vec<(&[F128], MergedWeightColSide<'_>)>,
+    q: &[F128],
+) -> (Vec<F128>, (F128, F128)) {
+    use crate::pcs::ring_switch::fold_one_slot;
+    debug_assert_eq!(params.k, 0);
+    const CHUNK: usize = 1 << 14;
+    let area = params.area() as usize;
+    let n_total = 1usize << params.m;
+    assert_eq!(q.len(), n_total);
+    let tables = low_bit_weight_tables(maps, sparse_scaled_eq_enabled());
+    if var("PCS_TRACE").is_ok() {
+        eprintln!(
+            "  [open_merged] Mikros low-bit support: {} strided maps, {} shared tails; {} unique eq entries vs {} high-support / {} dense entries",
+            tables.low_selectors,
+            tables.shared_tails,
+            tables.equality.iter().map(Vec::len).sum::<usize>(),
+            tables.high_support_entries,
+            tables.maps.len() * (1usize << params.n),
+        );
+    }
+    let mut w = take_f128(n_total);
+    let wp = w.as_mut_ptr() as usize;
+    let states = crate::run_hetero_chunks_stateful(
+        n_total.div_ceil(CHUNK),
+        || (F128::ZERO, F128::ZERO),
+        |state: &mut (F128, F128), ci| {
+            let base = ci * CHUNK;
+            if base >= area {
+                // Match the existing support path's pooled dead-tail contract:
+                // whole chunks beyond area may stay dirty. The caller's trimmed
+                // sumcheck skips them and initializes its rounded guard slots.
+                return;
+            }
+            let end = (base + CHUNK).min(n_total);
+            let live_end = end.min(area);
+            // SAFETY: each parallel worker owns one disjoint output chunk.
+            // The full chunk is initialized before its fused prime reads it.
+            let out =
+                unsafe { std::slice::from_raw_parts_mut((wp as *mut F128).add(base), end - base) };
+            out.fill(F128::ZERO);
+            for map in &tables.maps {
+                let eq = &tables.equality[map.equality];
+                let begin = base
+                    .saturating_sub(map.offset)
+                    .div_ceil(map.stride)
+                    .min(eq.len());
+                let finish = live_end
+                    .saturating_sub(map.offset)
+                    .div_ceil(map.stride)
+                    .min(eq.len());
+                if begin >= finish {
+                    continue;
+                }
+                let offset = map.offset + begin * map.stride - base;
+                let slots = out[offset..].iter_mut().step_by(map.stride);
+                match &map.side {
+                    MergedWeightColSide::Baked(table) => {
+                        for (slot, &weight) in slots.zip(&eq[begin..finish]) {
+                            *slot += fold_one_slot(weight, table);
+                        }
+                    }
+                    MergedWeightColSide::Combined(cols) => {
+                        if map.scaled {
+                            for (slot, &weight) in slots.zip(&eq[begin..finish]) {
+                                *slot += weight;
+                            }
+                        } else if !cols[0].is_zero() {
+                            for (slot, &weight) in slots.zip(&eq[begin..finish]) {
+                                *slot += weight * cols[0];
+                            }
+                        }
+                    }
+                }
+            }
+            for (qp, weights) in q[base..end]
+                .as_chunks::<2>()
+                .0
+                .iter()
+                .zip(out.as_chunks::<2>().0.iter())
+            {
+                state.0 += qp[0] * weights[0];
+                state.1 += (qp[0] + qp[1]) * (weights[0] + weights[1]);
+            }
+        },
+    );
+    let prime = states
+        .into_iter()
+        .fold((F128::ZERO, F128::ZERO), |(a, b), (c, d)| (a + c, b + d));
+    (w, prime)
+}
+
+/// Same materialized W and round-zero prime as the dense builder. Query
+/// support only limits construction/evaluation of W; it never limits q's
+/// sumcheck or PCS authentication. No source value or claim is discarded.
+fn build_merged_weight_with_support(
+    params: &JaggedParams,
+    maps: Vec<(&[F128], MergedWeightColSide<'_>)>,
+    q: &[F128],
+) -> (Vec<F128>, (F128, F128)) {
+    use crate::pcs::ring_switch::{FOLD_N_BYTES, FOLD_TABLE_SIZE, fold_one_slot};
+    const TAB: usize = FOLD_N_BYTES * FOLD_TABLE_SIZE;
+    const CHUNK: usize = 1 << 14;
+    let area = params.area() as usize;
+    let n_total = 1usize << params.m;
+    assert_eq!(q.len(), n_total);
+    let scale_eq = sparse_scaled_eq_enabled();
+    let tables: Vec<_> = maps
+        .into_iter()
+        .map(|(point, side)| {
+            let (offset, free) = boolean_high_support(point);
+            let scaled =
+                scale_eq && matches!(&side, MergedWeightColSide::Combined(cols) if cols.len() == 1);
+            let eq = if let MergedWeightColSide::Combined(cols) = &side
+                && scaled
+            {
+                sparse_scalar_eq(&point[..free], cols[0])
+            } else {
+                build_eq_table(&point[..free])
+            };
+            (offset, eq, side, scaled)
+        })
+        .collect();
+    if var("PCS_TRACE").is_ok() {
+        eprintln!(
+            "  [open_merged] Boolean-prefix row weights: {} entries instead of {}",
+            tables.iter().map(|(_, t, _, _)| t.len()).sum::<usize>(),
+            tables.len() * (1usize << params.n),
+        );
+    }
+    let mut w = take_f128(n_total);
+    let ps = &params.col_prefix_sums;
+    let chunk_prime = |ci: usize, out: &mut [F128]| -> (F128, F128) {
+        let base = ci * CHUNK;
+        if base >= area {
+            // Keep the existing dead-tail contract: the caller never reads it
+            // except for the small guard region it initializes explicitly.
+            return (F128::ZERO, F128::ZERO);
+        }
+        let end = base + out.len();
+        let live_end = end.min(area);
+        // A chunk can miss the first claim, or every claim. Pooled scratch is
+        // dirty, so first-claim overwrite is not a valid initialization here.
+        out.fill(F128::ZERO);
+        for (offset, eq, side, scaled) in &tables {
+            let support_end = offset + eq.len();
+            let mut col = ps.partition_point(|&p| p <= base as u64) - 1;
+            let mut cursor = base;
+            while cursor < live_end {
+                while ps[col + 1] <= cursor as u64 {
+                    col += 1;
+                }
+                let segment_end = (ps[col + 1] as usize).min(live_end);
+                let row_start = cursor - ps[col] as usize;
+                let row_end = segment_end - ps[col] as usize;
+                let begin = row_start.max(*offset);
+                let finish = row_end.min(support_end);
+                if begin < finish {
+                    let dst_start = cursor - base + begin - row_start;
+                    let dst = &mut out[dst_start..dst_start + finish - begin];
+                    let weights = &eq[begin - offset..finish - offset];
+                    match side {
+                        MergedWeightColSide::Baked(all) => {
+                            let table = &all[col * TAB..(col + 1) * TAB];
+                            for (slot, &weight) in dst.iter_mut().zip(weights) {
+                                *slot += fold_one_slot(weight, table);
+                            }
+                        }
+                        MergedWeightColSide::Combined(cols) => {
+                            let scale = cols[col];
+                            if *scaled {
+                                for (slot, &weight) in dst.iter_mut().zip(weights) {
+                                    *slot += weight;
+                                }
+                            } else if !scale.is_zero() {
+                                for (slot, &weight) in dst.iter_mut().zip(weights) {
+                                    *slot += weight * scale;
+                                }
+                            }
+                        }
+                    }
+                }
+                cursor = segment_end;
+            }
+        }
+        // Exactly the existing fused prime, including a partial final chunk.
+        let mut u0 = F128::ZERO;
+        let mut u2 = F128::ZERO;
+        for (qp, wp) in q[base..end]
+            .as_chunks::<2>()
+            .0
+            .iter()
+            .zip(out.as_chunks::<2>().0.iter())
+        {
+            u0 += qp[0] * wp[0];
+            u2 += (qp[0] + qp[1]) * (wp[0] + wp[1]);
+        }
+        (u0, u2)
+    };
+    let wp = w.as_mut_ptr() as usize;
+    let states = crate::run_hetero_chunks_stateful(
+        n_total.div_ceil(CHUNK),
+        || (F128::ZERO, F128::ZERO),
+        |state: &mut (F128, F128), ci| {
+            let start = ci * CHUNK;
+            // SAFETY: every worker owns one distinct initialized Vec chunk;
+            // the parallel runner joins before w is accessed again.
+            let out = unsafe {
+                std::slice::from_raw_parts_mut(
+                    (wp as *mut F128).add(start),
+                    CHUNK.min(n_total - start),
+                )
+            };
+            let (a, b) = chunk_prime(ci, out);
+            state.0 += a;
+            state.1 += b;
+        },
+    );
+    let prime = states
+        .into_iter()
+        .fold((F128::ZERO, F128::ZERO), |(a, b), (c, d)| (a + c, b + d));
+    (w, prime)
+}
+
 pub(crate) fn build_merged_weight_and_prime(
     params: &JaggedParams,
     claims: &[MergedWeightClaim<'_>],
@@ -1549,21 +2011,29 @@ pub(crate) fn build_merged_weight_and_prime(
 ) -> (Vec<F128>, (F128, F128)) {
     let area = params.area() as usize;
     let n_total = 1usize << params.m;
-    enum ColSide<'a> {
-        /// A ring-switched claim's fold map with the COLUMN FACTOR BAKED IN,
-        /// one 16×256 byte table per column: `Ψ_c = φ ∘ (x ↦ eq_col[c]·x)`,
-        /// so a slot costs the 16 lookups only — no field multiply. Exact:
-        /// `x ↦ φ(eq_col[c]·x)` is F₂-linear, so its byte decomposition IS
-        /// the map. Measured at m=32 against the per-slot multiply: W build
-        /// 32.1 → 25.3 ms MT (3/3), 227 → 167 ST; the bake is ~1 ms MT.
-        Baked(Vec<F128>),
-        Combined(&'a [F128]),
-    }
     use crate::pcs::ring_switch::{FOLD_N_BYTES, FOLD_TABLE_SIZE, fold_one_slot};
+    use MergedWeightColSide as ColSide;
     const TAB: usize = FOLD_N_BYTES * FOLD_TABLE_SIZE;
     let ps_ref = &params.col_prefix_sums;
-    let bake = |eq_c: &[F128], tab: &[F128]| -> Vec<F128> {
+    let reuse_unit_table = params.k == 0 && mikros_reuse_unit_table_enabled();
+    let mut unit_tables_reused = 0usize;
+    let mut bake = |eq_c: &[F128], tab: &[F128]| -> Vec<F128> {
         let n_cols = ps_ref.len() - 1;
+        if reuse_unit_table
+            && n_cols == 1
+            && ps_ref[1] != ps_ref[0]
+            && eq_c == [F128::ONE]
+            && tab.len() == TAB
+            && tab
+                .chunks_exact(FOLD_TABLE_SIZE)
+                .all(|row| row[0].is_zero())
+        {
+            // A canonical F2-linear byte table has Phi(0)=0 in each byte.
+            // Applying it to the isolated byte basis with column factor one
+            // recovers this very table; gamma is already inside its entries.
+            unit_tables_reused += 1;
+            return tab.to_vec();
+        }
         let mut out = vec![F128::ZERO; n_cols * TAB];
         out.par_chunks_mut(TAB).enumerate().for_each(|(c, t)| {
             if ps_ref[c + 1] == ps_ref[c] {
@@ -1619,6 +2089,30 @@ pub(crate) fn build_merged_weight_and_prime(
             claims.len(),
             row_maps.len()
         );
+        if reuse_unit_table {
+            eprintln!(
+                "  [open_merged] Mikros unit-column tables: {unit_tables_reused} reused without rebaking"
+            );
+        }
+    }
+    if params.k == 0
+        && mikros_low_bit_support_enabled()
+        && row_maps
+            .iter()
+            .any(|(point, side)| low_bit_folded_map(point, side))
+    {
+        return build_merged_weight_low_bit_support(params, row_maps, q);
+    }
+    // Ordinary dense queries take precisely the original loops below. The
+    // sparse-column frontend appends Boolean address prefixes to its points;
+    // their equality tensors are zero outside one aligned interval. Reusing
+    // that public support avoids one full-carrier tensor and sweep per query.
+    if sparse_prefix_weights_enabled()
+        && row_maps
+            .iter()
+            .any(|(point, _)| boolean_high_support(point).1 < point.len())
+    {
+        return build_merged_weight_with_support(params, row_maps, q);
     }
     let tabs: Vec<(Vec<F128>, ColSide<'_>)> = row_maps
         .into_iter()
@@ -4880,6 +5374,642 @@ mod tests {
 
     fn sample_vec(ch: &mut RandomChallenger, n: usize) -> Vec<F128> {
         (0..n).map(|_| ch.sample_f128()).collect()
+    }
+
+    #[test]
+    fn mikros_single_column_options_match_weights_and_prime() {
+        use super::{
+            MergedWeightClaim, build_merged_weight_and_prime, with_mikros_single_column_options,
+            with_sparse_prefix_weights, with_sparse_scaled_eq,
+        };
+        let mut rng = Rng::new(0xC010_0101);
+        for (n, m, heights) in [
+            (0, 1, vec![1]),
+            (1, 1, vec![2]),
+            (4, 4, vec![16]),
+            (7, 7, vec![89]),
+            (7, 7, vec![0]),
+            (15, 15, vec![32768]),
+            // The opt-in switches must leave ordinary multi-column layouts
+            // on their existing loops, including non-unit column factors.
+            (6, 8, vec![17, 0, 55, 4]),
+        ] {
+            let params = JaggedParams::from_heights(&heights, n, m);
+            let area = params.area() as usize;
+            let mut q = rng.f128_vec(1 << m);
+            q[area..].fill(F128::ZERO);
+            let mut first = rng.f128_vec(n);
+            if n > 0 {
+                first[0] = F128::ZERO;
+            }
+            if n > 3 {
+                first[n - 1] = F128::ONE;
+                first[n - 2] = F128::ZERO;
+            }
+            let mut second = first.clone();
+            if n > 0 {
+                second[0] = F128::ONE;
+            }
+            let points = [
+                first,
+                second,
+                vec![F128::ONE; n],
+                vec![F128::ZERO; n],
+                rng.f128_vec(n),
+                rng.f128_vec(n),
+            ];
+            let col_points = [rng.f128_vec(params.k), vec![F128::ZERO; params.k]];
+            let gamma = F128::new(11, 19);
+            let coefficients = rng.f128_vec(128);
+            let tables = [
+                build_fold_byte_table(&coefficients.iter().map(|&x| x * gamma).collect::<Vec<_>>()),
+                build_fold_byte_table(&rng.f128_vec(128)),
+                build_fold_byte_table(&vec![F128::ZERO; 128]),
+            ];
+            let scalar = vec![gamma; heights.len()];
+            let zeros = vec![F128::ZERO; heights.len()];
+            let claims = [
+                MergedWeightClaim::Folded {
+                    z_row: &points[0],
+                    z_col: &col_points[0],
+                    table: &tables[0],
+                },
+                MergedWeightClaim::Folded {
+                    z_row: &points[1],
+                    z_col: &col_points[0],
+                    table: &tables[1],
+                },
+                MergedWeightClaim::Folded {
+                    z_row: &points[2],
+                    z_col: &col_points[1],
+                    table: &tables[0],
+                },
+                MergedWeightClaim::Folded {
+                    z_row: &points[3],
+                    z_col: &col_points[0],
+                    table: &tables[2],
+                },
+                MergedWeightClaim::Folded {
+                    z_row: &points[4],
+                    z_col: &col_points[0],
+                    table: &tables[1],
+                },
+                MergedWeightClaim::Scalar {
+                    z_row: &points[3],
+                    cols: &zeros,
+                },
+                MergedWeightClaim::Scalar {
+                    z_row: &points[5],
+                    cols: &scalar,
+                },
+            ];
+            // Definition-level reference, independent of the support tables
+            // and baking path; directly evaluate each map at eq_row*eq_col.
+            let row_eq: Vec<_> = points.iter().map(|p| build_eq_table(p)).collect();
+            let col_eq: Vec<_> = col_points.iter().map(|p| build_eq_table(p)).collect();
+            let mut expected = vec![F128::ZERO; 1 << m];
+            for (i, value) in expected[..area].iter_mut().enumerate() {
+                let (row, col) = params.unrank(i as u64);
+                *value = fold_one_slot(row_eq[0][row] * col_eq[0][col], &tables[0])
+                    + fold_one_slot(row_eq[1][row] * col_eq[0][col], &tables[1])
+                    + fold_one_slot(row_eq[2][row] * col_eq[1][col], &tables[0])
+                    + fold_one_slot(row_eq[3][row] * col_eq[0][col], &tables[2])
+                    + fold_one_slot(row_eq[4][row] * col_eq[0][col], &tables[1])
+                    + row_eq[5][row] * scalar[col];
+            }
+            let expected_prime = q
+                .as_chunks::<2>()
+                .0
+                .iter()
+                .zip(expected.as_chunks::<2>().0)
+                .fold((F128::ZERO, F128::ZERO), |(u0, u2), (a, b)| {
+                    (u0 + a[0] * b[0], u2 + (a[0] + a[1]) * (b[0] + b[1]))
+                });
+            for scaled in [false, true] {
+                let run = |low, unit, prefix| {
+                    with_mikros_single_column_options(low, unit, || {
+                        with_sparse_prefix_weights(prefix, || {
+                            with_sparse_scaled_eq(scaled, || {
+                                crate::scratch::give_f128(vec![F128::ONE; 1 << m]);
+                                build_merged_weight_and_prime(&params, &claims, &q)
+                            })
+                        })
+                    })
+                };
+                let old = run(false, false, false);
+                assert_eq!(&old.0[..area], &expected[..area]);
+                assert_eq!(old.1, expected_prime);
+                for (low, unit, prefix) in [
+                    (false, true, true),
+                    (true, false, true),
+                    (true, true, true),
+                    (true, true, false),
+                ] {
+                    let new = run(low, unit, prefix);
+                    assert_eq!(
+                        &new.0[..area],
+                        &old.0[..area],
+                        "n={n} k={} low={low} unit={unit}",
+                        params.k
+                    );
+                    assert_eq!(new.1, old.1);
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn mikros_single_column_support_shares_tail_and_preserves_selectors() {
+        use super::{MergedWeightColSide as Side, low_bit_weight_tables};
+        let mut rng = Rng::new(0xC010_0202);
+        let n = 16;
+        let mut left = rng.f128_vec(n);
+        left[0] = F128::ZERO;
+        let mut right = left.clone();
+        right[0] = F128::ONE;
+        let ab = [rng.f128_vec(n), rng.f128_vec(n)];
+        let mut io = rng.f128_vec(n);
+        io[11..].fill(F128::ZERO);
+        let mut pin = vec![F128::ONE; n];
+        pin[0] = rng.f128();
+        let gamma = [F128::new(23, 47)];
+        let table = build_fold_byte_table(&rng.f128_vec(128));
+        let packed = low_bit_weight_tables(
+            vec![
+                (&left, Side::Baked(table.clone())),
+                (&right, Side::Baked(table.clone())),
+                (&ab[0], Side::Combined(&gamma)),
+                (&ab[1], Side::Combined(&gamma)),
+                (&io, Side::Combined(&gamma)),
+                (&pin, Side::Combined(&gamma)),
+            ],
+            true,
+        );
+        assert_eq!(packed.low_selectors, 2);
+        assert_eq!(packed.shared_tails, 1);
+        assert_eq!(packed.high_support_entries, 264194);
+        assert_eq!(packed.equality.iter().map(Vec::len).sum::<usize>(), 165890);
+        assert_eq!(packed.maps[0].equality, packed.maps[1].equality);
+        for (point, map) in [&left, &right, &ab[0], &ab[1], &io, &pin]
+            .iter()
+            .zip(&packed.maps)
+        {
+            let mut actual = vec![F128::ZERO; 1 << n];
+            for (j, &value) in packed.equality[map.equality].iter().enumerate() {
+                actual[map.offset + j * map.stride] = value;
+            }
+            let mut expected = build_eq_table(point);
+            if map.scaled {
+                expected.iter_mut().for_each(|v| *v *= gamma[0]);
+            }
+            assert_eq!(actual, expected);
+        }
+        // Combined low/high selectors and all-Boolean points must retain
+        // their exact addresses, including the free=0 one-entry case.
+        for n in 1..8 {
+            for high in 0..=n {
+                for low in [F128::ZERO, F128::ONE] {
+                    let mut point = rng.f128_vec(n);
+                    point[0] = low;
+                    for (j, p) in point.iter_mut().enumerate().skip(n - high) {
+                        *p = if j & 1 == 0 { F128::ONE } else { F128::ZERO };
+                    }
+                    let packed =
+                        low_bit_weight_tables(vec![(&point, Side::Baked(table.clone()))], true);
+                    let map = &packed.maps[0];
+                    let mut actual = vec![F128::ZERO; 1 << n];
+                    for (j, &value) in packed.equality[map.equality].iter().enumerate() {
+                        actual[map.offset + j * map.stride] = value;
+                    }
+                    assert_eq!(actual, build_eq_table(&point));
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn mikros_single_column_native_proof_bytes_and_transcript_match() {
+        use super::with_mikros_single_column_options;
+        use crate::{
+            pcs::{
+                self, DirectEqInd, OpeningGrinding, PackedDirectClaim, PackedDirectClaimRef,
+                PcsParams, ligerito::LigeritoProfile, open_batch_merged,
+                verify_batch_merged_weighted,
+            },
+            zerocheck::PaddingSpec,
+        };
+        let mut rng = Rng::new(0xC010_0303);
+        let q = rng.f128_vec(1 << 15);
+        let params = PcsParams {
+            m: 22,
+            log_inv_rate: 1,
+            log_batch_size: 6,
+            profile: LigeritoProfile::Fast,
+            num_lanes: None,
+            merkle_hash: Default::default(),
+        };
+        let (cm, data) = pcs::commit(&q, &params);
+        let mut left = rng.f128_vec(16);
+        left[0] = F128::ZERO; // Legacy dummy.
+        left[1] = F128::ZERO; // Lowest actual row coordinate.
+        let mut right = left.clone();
+        right[1] = F128::ONE;
+        let points = [left, right];
+        let point_refs: Vec<_> = points.iter().map(Vec::as_slice).collect();
+        let columns = [rng.f128_vec(128), rng.f128_vec(128)];
+        let column_refs: Vec<_> = columns.iter().map(Vec::as_slice).collect();
+        let values: Vec<_> = points
+            .iter()
+            .zip(&columns)
+            .map(|(p, c)| {
+                ring_switch::claim_check(
+                    c,
+                    &ring_switch::fold_1b_rows_naive(&q, &build_eq_table(&p[1..])),
+                )
+            })
+            .collect();
+        let mut direct_points = [
+            rng.f128_vec(15),
+            rng.f128_vec(15),
+            rng.f128_vec(15),
+            vec![F128::ONE; 15],
+        ];
+        direct_points[2][11..].fill(F128::ZERO);
+        direct_points[3][0] = rng.f128();
+        let direct: Vec<_> = direct_points
+            .into_iter()
+            .map(|point| {
+                let value = q
+                    .iter()
+                    .zip(build_eq_table(&point))
+                    .fold(F128::ZERO, |s, (&v, e)| s + v * e);
+                PackedDirectClaim {
+                    value,
+                    eq_ind: DirectEqInd::EqPoint(point.clone()),
+                    point,
+                }
+            })
+            .collect();
+        let direct_refs: Vec<_> = direct
+            .iter()
+            .map(|c| PackedDirectClaimRef {
+                point: &c.point,
+                value: c.value,
+            })
+            .collect();
+        let start = || {
+            let mut ch = FsChallenger::new(b"mikros-single-column-options-native");
+            ch.observe_bytes(&bincode::serialize(&cm).unwrap());
+            for point in &points {
+                ch.observe_f128_slice(point);
+            }
+            for column in &columns {
+                ch.observe_f128_slice(column);
+            }
+            ch
+        };
+        let check = |proof: &pcs::MergedOpenProof| {
+            let mut ch = start();
+            verify_batch_merged_weighted(
+                &cm,
+                &values,
+                &column_refs,
+                &point_refs,
+                &direct_refs,
+                &[1 << 15],
+                15,
+                proof,
+                &params.ligerito_verifier_config().unwrap(),
+                OpeningGrinding::disabled(),
+                &mut ch,
+            )?;
+            Ok::<_, pcs::PcsOpenError>(ch.sample_f128_vec(4))
+        };
+        let run = |low, unit| {
+            with_mikros_single_column_options(low, unit, || {
+                let mut ch = start();
+                let proof = open_batch_merged(
+                    q.clone(),
+                    None,
+                    &data,
+                    &cm,
+                    &point_refs,
+                    &[],
+                    &[],
+                    &direct,
+                    &PaddingSpec::dense(22),
+                    &[1 << 15],
+                    15,
+                    &params.ligerito_prover_config().unwrap(),
+                    OpeningGrinding::disabled(),
+                    &mut ch,
+                );
+                let next = ch.sample_f128_vec(4);
+                assert_eq!(next, check(&proof).unwrap());
+                (proof, next)
+            })
+        };
+        let reference = run(false, false);
+        for (low, unit) in [(true, false), (false, true), (true, true)] {
+            let current = run(low, unit);
+            assert_eq!(
+                bincode::serialize(&reference.0).unwrap(),
+                bincode::serialize(&current.0).unwrap()
+            );
+            assert_eq!(reference.1, current.1);
+        }
+        let mut wrong = reference.0;
+        wrong.q_eval += F128::ONE;
+        assert!(check(&wrong).is_err());
+    }
+
+    #[test]
+    fn sparse_scaled_eq_matches_reference_across_shapes() {
+        let mut rng = Rng::new(0x5CA1_ED01);
+        for n in [0usize, 1, 4, 9, 13, 15] {
+            for shape in 0..3 {
+                let mut point = rng.f128_vec(n);
+                if shape == 1 {
+                    point.fill(F128::ZERO);
+                } else if shape == 2 {
+                    for (i, value) in point.iter_mut().enumerate() {
+                        if i % 2 == 0 {
+                            *value = F128::ONE;
+                        }
+                    }
+                }
+                let eq = build_eq_table(&point);
+                for seed in [F128::ZERO, F128::ONE, rng.f128()] {
+                    let got = super::sparse_scalar_eq(&point, seed);
+                    assert_eq!(got, eq.iter().map(|&x| x * seed).collect::<Vec<_>>());
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn sparse_scaled_eq_native_proof_and_transcript_match_both_modes() {
+        // This fixture includes single-column packed-direct Scalar groups,
+        // ring-switched maps, different fixed prefixes and an all-Boolean
+        // point. In each mode it compares to the unchanged dense W builder
+        // and verifies the complete native PCS proof and tamper rejection.
+        for enabled in [false, true] {
+            super::with_sparse_scaled_eq(enabled, || {
+                sparse_prefix_weights_native_pcs_preserves_proof_bytes_and_transcript();
+            });
+        }
+    }
+
+    #[test]
+    fn sparse_prefix_weights_support_matches_full_equality() {
+        use super::boolean_high_support;
+        let mut rng = Rng::new(0x5A_A25E_01);
+        for n in 0..10 {
+            for free in 0..=n {
+                for pattern in 0..4 {
+                    let mut point = rng.f128_vec(n);
+                    // Keep the highest intended free coordinate non-Boolean.
+                    if free > 0 {
+                        point[free - 1] = F128::new(7, 3);
+                        if free > 1 {
+                            point[0] = F128::ZERO;
+                        }
+                    }
+                    for (i, x) in point.iter_mut().enumerate().skip(free) {
+                        let one = match pattern {
+                            0 => false,
+                            1 => true,
+                            2 => i & 1 == 0,
+                            _ => rng.f128().lo & 1 != 0,
+                        };
+                        *x = if one { F128::ONE } else { F128::ZERO };
+                    }
+                    let (offset, found_free) = boolean_high_support(&point);
+                    assert_eq!(found_free, free);
+                    let small = build_eq_table(&point[..free]);
+                    let dense = build_eq_table(&point);
+                    for (i, &expected) in dense.iter().enumerate() {
+                        let actual = i
+                            .checked_sub(offset)
+                            .and_then(|j| small.get(j))
+                            .copied()
+                            .unwrap_or(F128::ZERO);
+                        assert_eq!(actual, expected);
+                    }
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn sparse_prefix_weights_and_prime_preserve_jagged_and_empty_support() {
+        use super::{MergedWeightClaim, build_merged_weight_and_prime, with_sparse_prefix_weights};
+        let mut rng = Rng::new(0x5A_A25E_02);
+        for (n, m, heights) in [
+            (0, 1, vec![1, 1]),
+            (1, 1, vec![1, 1]),
+            (6, 7, vec![64, 64]),
+            (6, 6, vec![32, 32]),
+            (7, 8, vec![17, 0, 89, 3]),
+            (15, 16, vec![32768, 32768]),
+        ] {
+            let params = JaggedParams::from_heights(&heights, n, m);
+            let mut q = rng.f128_vec(1 << m);
+            q[params.area() as usize..].fill(F128::ZERO);
+            let mut points = vec![
+                rng.f128_vec(n),
+                rng.f128_vec(n),
+                vec![F128::ONE; n],
+                vec![F128::ZERO; n],
+                rng.f128_vec(n),
+            ];
+            if n > 0 {
+                points[0][n - 1] = F128::ONE;
+                points[1][n - 1] = F128::ZERO;
+            }
+            let col_points = [rng.f128_vec(params.k), vec![F128::ONE; params.k]];
+            let maps: Vec<_> = (0..2)
+                .map(|_| ring_switch::build_fold_byte_table(&rng.f128_vec(128)))
+                .collect();
+            let scalar = rng.f128_vec(heights.len());
+            let zero_scalar = vec![F128::ZERO; heights.len()];
+            let claims = [
+                MergedWeightClaim::Folded {
+                    z_row: &points[0],
+                    z_col: &col_points[0],
+                    table: &maps[0],
+                },
+                MergedWeightClaim::Scalar {
+                    z_row: &points[1],
+                    cols: &scalar,
+                },
+                MergedWeightClaim::Folded {
+                    z_row: &points[2],
+                    z_col: &col_points[1],
+                    table: &maps[1],
+                },
+                MergedWeightClaim::Scalar {
+                    z_row: &points[3],
+                    cols: &zero_scalar,
+                },
+                MergedWeightClaim::Scalar {
+                    z_row: &points[4],
+                    cols: &scalar,
+                },
+            ];
+            let run = |enabled| {
+                crate::scratch::give_f128(vec![F128::ONE; 1 << m]);
+                with_sparse_prefix_weights(enabled, || {
+                    build_merged_weight_and_prime(&params, &claims, &q)
+                })
+            };
+            let (old, prime_old) = run(false);
+            let (new, prime_new) = run(true);
+            assert_eq!(
+                &old[..params.area() as usize],
+                &new[..params.area() as usize]
+            );
+            assert_eq!(prime_old, prime_new);
+            // Every selected row is outside both half-height columns. The
+            // complete live W must be zero, including dirty pooled chunks.
+            if n == 6 && m == 6 {
+                let empty = [MergedWeightClaim::Scalar {
+                    z_row: &points[2],
+                    cols: &scalar,
+                }];
+                let (w, prime) = with_sparse_prefix_weights(true, || {
+                    build_merged_weight_and_prime(&params, &empty, &q)
+                });
+                assert!(w.iter().all(|x| x.is_zero()));
+                assert_eq!(prime, (F128::ZERO, F128::ZERO));
+            }
+        }
+    }
+
+    #[test]
+    fn sparse_prefix_weights_native_pcs_preserves_proof_bytes_and_transcript() {
+        use super::with_sparse_prefix_weights;
+        use crate::{
+            challenger::FsChallenger,
+            pcs::{
+                self, DirectEqInd, OpeningGrinding, PackedDirectClaim, PackedDirectClaimRef,
+                PcsParams, ligerito::LigeritoProfile, open_batch_merged,
+                verify_batch_merged_weighted,
+            },
+            zerocheck::PaddingSpec,
+        };
+        let mut rng = Rng::new(0x5A_A25E_03);
+        let q = rng.f128_vec(1 << 15);
+        let params = PcsParams {
+            m: 22,
+            log_inv_rate: 1,
+            log_batch_size: 6,
+            profile: LigeritoProfile::Fast,
+            num_lanes: None,
+            merkle_hash: Default::default(),
+        };
+        let (cm, data) = pcs::commit(&q, &params);
+        let mut points = [rng.f128_vec(16), rng.f128_vec(16)];
+        points[0][13..].copy_from_slice(&[F128::ZERO, F128::ONE, F128::ZERO]);
+        points[1][12..].copy_from_slice(&[F128::ONE, F128::ZERO, F128::ONE, F128::ONE]);
+        let columns = [rng.f128_vec(128), rng.f128_vec(128)];
+        let values: Vec<_> = points
+            .iter()
+            .zip(&columns)
+            .map(|(point, columns)| {
+                ring_switch::claim_check(
+                    columns,
+                    &ring_switch::fold_1b_rows_naive(&q, &build_eq_table(&point[1..])),
+                )
+            })
+            .collect();
+        let point_refs: Vec<_> = points.iter().map(Vec::as_slice).collect();
+        let column_refs: Vec<_> = columns.iter().map(Vec::as_slice).collect();
+        let mut direct_points = [rng.f128_vec(15), vec![F128::ZERO; 15]];
+        direct_points[0][11..].copy_from_slice(&[F128::ONE, F128::ZERO, F128::ZERO, F128::ONE]);
+        let direct: Vec<_> = direct_points
+            .into_iter()
+            .map(|point| {
+                let value = q
+                    .iter()
+                    .zip(build_eq_table(&point))
+                    .fold(F128::ZERO, |s, (&v, e)| s + v * e);
+                PackedDirectClaim {
+                    value,
+                    eq_ind: DirectEqInd::EqPoint(point.clone()),
+                    point,
+                }
+            })
+            .collect();
+        let direct_refs: Vec<_> = direct
+            .iter()
+            .map(|c| PackedDirectClaimRef {
+                point: &c.point,
+                value: c.value,
+            })
+            .collect();
+        let start = || {
+            let mut ch = FsChallenger::new(b"sparse-prefix-weights-native-pcs-v1");
+            ch.observe_bytes(&bincode::serialize(&cm).unwrap());
+            for point in &points {
+                ch.observe_f128_slice(point);
+            }
+            for column in &columns {
+                ch.observe_f128_slice(column);
+            }
+            ch
+        };
+        let check = |proof: &pcs::MergedOpenProof| {
+            let mut ch = start();
+            verify_batch_merged_weighted(
+                &cm,
+                &values,
+                &column_refs,
+                &point_refs,
+                &direct_refs,
+                &[1 << 15],
+                15,
+                proof,
+                &params.ligerito_verifier_config().unwrap(),
+                OpeningGrinding::disabled(),
+                &mut ch,
+            )?;
+            Ok::<_, pcs::PcsOpenError>(ch.sample_f128())
+        };
+        let run = |enabled| {
+            with_sparse_prefix_weights(enabled, || {
+                let mut ch = start();
+                let proof = open_batch_merged(
+                    q.clone(),
+                    None,
+                    &data,
+                    &cm,
+                    &point_refs,
+                    &[],
+                    &[],
+                    &direct,
+                    &PaddingSpec::dense(22),
+                    &[1 << 15],
+                    15,
+                    &params.ligerito_prover_config().unwrap(),
+                    OpeningGrinding::disabled(),
+                    &mut ch,
+                );
+                let next = ch.sample_f128();
+                assert_eq!(next, check(&proof).unwrap());
+                (proof, next)
+            })
+        };
+        let (old, old_next) = run(false);
+        let (new, new_next) = run(true);
+        assert_eq!(
+            bincode::serialize(&old).unwrap(),
+            bincode::serialize(&new).unwrap()
+        );
+        assert_eq!(old_next, new_next);
+        let mut bad = new;
+        bad.q_eval += F128::ONE;
+        assert!(check(&bad).is_err());
     }
 
     #[test]

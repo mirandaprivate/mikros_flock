@@ -1,0 +1,91 @@
+{
+  "stage": "profile",
+  "modes": {
+    "baseline": {
+      "MIKROS_PUBLIC_CSC_SINGLE": "0",
+      "MIKROS_PCS_LOW_BIT_SUPPORT": "0",
+      "MIKROS_PCS_REUSE_UNIT_TABLE": "0",
+      "MIKROS_HADAMARD_WIDE_PACK": "0",
+      "MIKROS_HADAMARD_GROUP_TILES": "0",
+      "MIKROS_IP_BATCH_PARALLEL": "0",
+      "MIKROS_IMAGE_BLOCKED_WEIGHTS": "0",
+      "MIKROS_SERIAL_DEINTERLEAVE": "0",
+      "MIKROS_HADAMARD_GFNI_QUOTIENT": "0",
+      "MIKROS_HADAMARD_TILE_ROWS": "1024"
+    },
+    "csc": {
+      "MIKROS_PUBLIC_CSC_SINGLE": "1",
+      "MIKROS_PCS_LOW_BIT_SUPPORT": "0",
+      "MIKROS_PCS_REUSE_UNIT_TABLE": "0",
+      "MIKROS_HADAMARD_WIDE_PACK": "0",
+      "MIKROS_HADAMARD_GROUP_TILES": "0",
+      "MIKROS_IP_BATCH_PARALLEL": "0",
+      "MIKROS_IMAGE_BLOCKED_WEIGHTS": "0",
+      "MIKROS_SERIAL_DEINTERLEAVE": "0",
+      "MIKROS_HADAMARD_GFNI_QUOTIENT": "0",
+      "MIKROS_HADAMARD_TILE_ROWS": "1024"
+    },
+    "selected": {
+      "MIKROS_PUBLIC_CSC_SINGLE": "1",
+      "MIKROS_PCS_LOW_BIT_SUPPORT": "0",
+      "MIKROS_PCS_REUSE_UNIT_TABLE": "0",
+      "MIKROS_HADAMARD_WIDE_PACK": "0",
+      "MIKROS_HADAMARD_GROUP_TILES": "1",
+      "MIKROS_IP_BATCH_PARALLEL": "0",
+      "MIKROS_IMAGE_BLOCKED_WEIGHTS": "1",
+      "MIKROS_SERIAL_DEINTERLEAVE": "1",
+      "MIKROS_HADAMARD_GFNI_QUOTIENT": "1",
+      "MIKROS_HADAMARD_TILE_ROWS": "2048"
+    }
+  },
+  "order": [
+    [
+      "baseline",
+      "csc",
+      "selected"
+    ],
+    [
+      "csc",
+      "selected",
+      "baseline"
+    ],
+    [
+      "selected",
+      "baseline",
+      "csc"
+    ]
+  ],
+  "validation_modes": {
+    "baseline": {
+      "MIKROS_PUBLIC_CSC_SINGLE": "0",
+      "MIKROS_PCS_LOW_BIT_SUPPORT": "0",
+      "MIKROS_PCS_REUSE_UNIT_TABLE": "0",
+      "MIKROS_HADAMARD_WIDE_PACK": "0",
+      "MIKROS_HADAMARD_GROUP_TILES": "0",
+      "MIKROS_IP_BATCH_PARALLEL": "0",
+      "MIKROS_IMAGE_BLOCKED_WEIGHTS": "0",
+      "MIKROS_SERIAL_DEINTERLEAVE": "0",
+      "MIKROS_HADAMARD_GFNI_QUOTIENT": "0",
+      "MIKROS_HADAMARD_TILE_ROWS": "1024"
+    },
+    "selected": {
+      "MIKROS_PUBLIC_CSC_SINGLE": "1",
+      "MIKROS_PCS_LOW_BIT_SUPPORT": "0",
+      "MIKROS_PCS_REUSE_UNIT_TABLE": "0",
+      "MIKROS_HADAMARD_WIDE_PACK": "0",
+      "MIKROS_HADAMARD_GROUP_TILES": "1",
+      "MIKROS_IP_BATCH_PARALLEL": "0",
+      "MIKROS_IMAGE_BLOCKED_WEIGHTS": "1",
+      "MIKROS_SERIAL_DEINTERLEAVE": "1",
+      "MIKROS_HADAMARD_GFNI_QUOTIENT": "1",
+      "MIKROS_HADAMARD_TILE_ROWS": "2048"
+    }
+  },
+  "reps": 3,
+  "warmups": 1,
+  "batches": 3,
+  "profiling_enabled": true,
+  "source_files": 401,
+  "source_manifest_sha256": "fae389d490307a44a6511854be4fd120f6ba190a2024c36e1e9577e37c293e4a",
+  "selected_json_sha256": "5f62fb17f71c5239be48e6c49c3de25bd87b34405ba7b23f1b47fe2d7e3f8c3b"
+}

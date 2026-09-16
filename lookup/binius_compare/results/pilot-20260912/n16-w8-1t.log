@@ -1,4 +1,0 @@
-n=16 w=8 run=0/1 Mikros: prove=139.97ms verify=6.84ms bytes=370156
-n=16 w=8 run=0/1 Flock: prove=32.46ms verify=4.56ms bytes=362300
-n=16 w=8 run=1/1 Flock: prove=33.14ms verify=4.66ms bytes=362300
-n=16 w=8 run=1/1 Mikros: prove=88.50ms verify=8.04ms bytes=370156

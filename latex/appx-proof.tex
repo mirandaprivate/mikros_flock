@@ -151,8 +151,9 @@ Fact~\ref{fact:ip} contributes at most
       +\frac{2\log_2N}{|\ExtensionField|}.
 \]
 The first inequality bounds Algorithm~\ref{alg:hadamard};
-the second gives the stated bound. Terminal packed openings
-are accounted for separately.
+the second gives the stated bound. The argument conditions on
+correct terminal evaluations, whose authentication is handled
+by the calling protocol.
 The argument applies unchanged when the interpolation nodes
 lie in \(\mathbb K\subseteq\ExtensionField\).
 
@@ -366,8 +367,17 @@ The shared powers of \(\ext z\) require
 \(O(\kappa)\,\ee\) once.
 Forming the vectors for the short weighted sumchecks costs
 \(O(N)\,\be+O(m)\,\ee\) per coefficient level.
-Their total sumcheck length, together with the
-extension-field tree, is \(O(m)\).
+Indeed, the algorithm contracts the coefficient matrices first:
+\[
+    \bm g_\tau(\ext z,\ext x)
+       =\sum_{\nu=0}^{2^\tau}
+          \bigl([Z^\nu]\bm C_\tau(Z)\bigr)
+          \ext{\bm\rho}(\ext x)\,\ext z^\nu.
+\]
+There are \(O(N)\) base-field coefficients to contract and
+\(O(m)\) resulting extension-field coefficients to evaluate.
+The short sumchecks and the extension-field tree have total
+length \(O(m)\).
 Interpolation and public queries contribute
 \(O(\kappa^3)\,\bb\) per level.
 Using \(m\geq\kappa\), the total is:
@@ -858,23 +868,37 @@ Unlabeled time and memory remainders count base-field operations
 and base-field elements, respectively.
 \end{proof}
 
+\subsection{Proof of Lemma~\ref{lemma:packedPlonk}}
+\label{appx:proof-packed-plonk}
+
+\begin{proof}
+Let \(\bm R\in\Field^{N\times\kappa}\) contain the gate
+residuals of the \(\kappa\) instances as columns.
+The left-hand side of Eq.~\eqref{eq:together-multiple-gates}
+is \(\bm R\ext{\bm\beta}\): the product term uses
+\((\bm W_L\circ\bm W_R)\ext{\bm\beta}\), and the constant
+term is \(\bm q_C\bm1_\kappa^\top\ext{\bm\beta}\).
+Linear independence of the basis implies
+\(\bm R\ext{\bm\beta}=\bm0\) if and only if \(\bm R=\bm0\).
+
+The shared permutation acts on the rows of \(\bm W\), so:
+\[
+    \sigma(\ext{\bm w})-\ext{\bm w}
+       =\bigl(\sigma(\bm W)-\bm W\bigr)\ext{\bm\beta}.
+\]
+The same injectivity makes this vector zero if and only if
+every column satisfies its copy constraint.
+The copy equivalence includes the public-I/O rows, proving the lemma.
+\end{proof}
+
 \subsection{Proof of Theorem~\ref{theorem:multiple-instance-packing}}
 \label{appx:proof-multiple-instance}
 
 \begin{proof}
 \noindent\textbf{Completeness.}
-Let \(\bm R\in\Field^{N\times\kappa}\) contain the gate
-residuals of the \(\kappa\) instances as columns.
-The left-hand side of Eq.~\eqref{eq:together-multiple-gates}
-is \(\bm R\ext{\bm\beta}\), including the term
-\(\bm q_C\bm1_\kappa^\top\ext{\bm\beta}\).
-Linear independence of the basis gives
-\(\bm R\ext{\bm\beta}=\bm0_N\) if and only if
-\(\bm R=\bm0_{N\times\kappa}\).
-Similarly, packing commutes with the common row permutation,
-so \(\sigma(\ext{\bm w})=\ext{\bm w}\) is equivalent to
-the copy constraints in every instance.
-This equivalence includes the packed public I/O.
+Lemma~\ref{lemma:packedPlonk}, proved in
+Appendix~\ref{appx:proof-packed-plonk}, identifies the packed
+gate and copy constraints with those of all \(\kappa\) instances.
 Eq.~\eqref{eq:together-multiple-product-opening} authenticates
 the virtual product vector from
 Eq.~\eqref{eq:together-multiple-wires}.

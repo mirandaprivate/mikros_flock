@@ -1,0 +1,21 @@
+[
+  "/usr/bin/time",
+  "-v",
+  "-o",
+  "/home/mscong1/mikros-experiments/20260912T-native64/v30-sha128-20260916/column-projection-v1/source/supplemental-column-validation/resource.txt",
+  "taskset",
+  "-c",
+  "0-47,48-55,72-79",
+  "/home/mscong1/mikros-experiments/20260912T-native64/v14-packed-aggregate-20260914/source/target/release/examples/e2e_sha256_paired",
+  "--threads",
+  "64",
+  "--reduction",
+  "column",
+  "--opening",
+  "both",
+  "--warmups",
+  "0",
+  "--reps",
+  "1",
+  "--tamper"
+]

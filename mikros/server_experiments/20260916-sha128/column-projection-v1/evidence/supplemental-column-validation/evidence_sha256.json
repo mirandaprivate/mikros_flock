@@ -1,0 +1,8 @@
+{
+  "resource.txt": "24c1473506fd95677853e4aa4c7c22928e26aedef5b1fa51a0bbdc23be464e51",
+  "stdout.jsonl": "70f0475f1979a4d1ff4db3e2d9f769473c795c8ba239da52781c20eb4fd3db7b",
+  "stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "validation.json": "b365c07d133997b822508f0c426d5e2542e7c811e76530bc842d05eaed5dbeab",
+  "preflight.json": "667079b3d66042a3f043862c8088e0853ef13b0346b24fa38bfdd4f7e8cf5a49",
+  "command.json": "d36be695a9f681b4a423bc29b17a20c9cbccff8db6372bd9e1599069c44eb52f"
+}

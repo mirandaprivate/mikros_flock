@@ -1,0 +1,9 @@
+{
+  "RUSTFLAGS": "-C target-cpu=native",
+  "RAYON_NUM_THREADS": "64",
+  "FLOCK_PCS_PACKED_DIRECT": "1",
+  "FLOCK_WP_UNINIT": "1",
+  "MIKROS_PROFILE": "1",
+  "PCS_TRACE": "1",
+  "engineering_switches": "all unset; source defaults"
+}

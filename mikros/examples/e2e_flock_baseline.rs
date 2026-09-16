@@ -7,6 +7,7 @@
 //! and the PCS opening. Its total is reported together, not as pure online time.
 //! No source-witness check substitutes for the complete proof verifier.
 
+#![recursion_limit = "256"]
 mod e2e_common;
 
 use std::{
@@ -19,46 +20,64 @@ use std::{
 use e2e_common::{DOMAIN, FIXTURE_SEED, TreeFixture};
 use flock_core::{
     challenger::{Challenger, FsChallenger},
+    field::F128,
     pcs::ligerito::{LigeritoProfile, embedded_security_config},
-    verifier::verify_ligerito_union_circuit,
+    proof::R1csProofCircuitMerged,
+    verifier::verify_ligerito_union_circuit_with_skip,
 };
-use flock_prover::prover::{UnionSlotProverInput, prove_fast_ligerito_union_circuit};
+use flock_prover::prover::{UnionSlotProverInput, prove_fast_ligerito_union_circuit_with_skip};
 use serde_json::json;
 
 struct Options {
     log_leaves: usize,
+    compressions: Option<usize>,
     threads: usize,
     reps: usize,
     warmups: usize,
     profile: LigeritoProfile,
+    skip: usize,
+    tamper: bool,
 }
 
 fn options() -> Result<Options, String> {
     let mut options = Options {
         log_leaves: 3,
+        compressions: None,
         threads: 1,
         reps: 3,
         warmups: 1,
         profile: LigeritoProfile::Fast,
+        skip: 7,
+        tamper: false,
     };
     let mut args = env::args().skip(1);
+    let mut explicit_leaves = false;
     while let Some(flag) = args.next() {
         if flag == "--help" {
             println!(
-                "--log-leaves N --threads N --reps N --warmups N --profile fast|fast100|slim|slim100|secure"
+                "--log-leaves N | --compressions N; --threads N --reps N --warmups N --profile fast|fast100|slim|slim100|secure --skip 6|7 (default 7) --tamper"
             );
             std::process::exit(0);
+        }
+        if flag == "--tamper" {
+            options.tamper = true;
+            continue;
         }
         let value = args
             .next()
             .ok_or_else(|| format!("missing value for {flag}"))?;
         match flag.as_str() {
             "--log-leaves" => {
-                options.log_leaves = value.parse().map_err(|_| "invalid --log-leaves")?
+                options.log_leaves = value.parse().map_err(|_| "invalid --log-leaves")?;
+                explicit_leaves = true;
+            }
+            "--compressions" => {
+                options.compressions = Some(value.parse().map_err(|_| "invalid --compressions")?)
             }
             "--threads" => options.threads = value.parse().map_err(|_| "invalid --threads")?,
             "--reps" => options.reps = value.parse().map_err(|_| "invalid --reps")?,
             "--warmups" => options.warmups = value.parse().map_err(|_| "invalid --warmups")?,
+            "--skip" => options.skip = value.parse().map_err(|_| "invalid --skip")?,
             "--profile" => {
                 options.profile = match value.as_str() {
                     "fast" => LigeritoProfile::Fast,
@@ -72,8 +91,18 @@ fn options() -> Result<Options, String> {
             _ => return Err(format!("unknown argument {flag}")),
         }
     }
-    if options.threads == 0 || options.reps == 0 || options.log_leaves > 19 {
+    if options.threads == 0
+        || options.reps == 0
+        || options.log_leaves > 19
+        || options.compressions.is_some_and(|n| n == 0 || n > 1 << 19)
+    {
         return Err("threads/reps must be positive; log-leaves must be at most 19".into());
+    }
+    if explicit_leaves && options.compressions.is_some() {
+        return Err("--compressions and --log-leaves are mutually exclusive".into());
+    }
+    if !matches!(options.skip, 6 | 7) {
+        return Err("--skip must be 6 or 7".into());
     }
     Ok(options)
 }
@@ -93,7 +122,10 @@ fn main() -> Result<(), Box<dyn Error>> {
         );
     }
     let t = Instant::now();
-    let fixture = TreeFixture::new(options.log_leaves);
+    let fixture = match options.compressions {
+        Some(count) => TreeFixture::independent_compressions(count),
+        None => TreeFixture::new(options.log_leaves),
+    };
     let view = fixture.verifier();
     let union = view.union();
     let pcs = fixture.pcs_params(options.profile);
@@ -124,12 +156,23 @@ fn main() -> Result<(), Box<dyn Error>> {
         "{}",
         json!({
             "record": "metadata", "schema_version": 1, "system": "flock-circuit-e2e",
-            "fixture": "sha256-binary-tree", "seed": FIXTURE_SEED, "fixture_digest_blake3": fixture_digest,
-            "circuit_digest_blake3": hex(&fixture.circuit.digest()), "log_leaves": fixture.log_leaves,
-            "leaves": 1usize << fixture.log_leaves, "gate_count": fixture.compressions.len(),
+            "fixture": fixture.fixture_name(), "seed": FIXTURE_SEED, "fixture_digest_blake3": fixture_digest,
+            "sha_input_semantics": "fixed standard IV; 512-bit unpadded compression blocks; not complete SHA-256 hashes",
+            "independent_compressions": fixture.independent,
+            "public_output_count": if fixture.independent {fixture.compressions.len()} else {1},
+            "circuit_digest_blake3": hex(&fixture.circuit.digest()),
+            "r1cs_digest_blake3": hex(&fixture.r1cs.statement_digest()),
+            "r1cs_c_identity": fixture.r1cs.c0_is_identity(), "r1cs_k_log": fixture.r1cs.k_log, "native_k_skip": fixture.r1cs.k_skip,
+            "baseline_skip": options.skip, "univariate_skip": options.skip,
+            "prepared_witness_blake3": blake3::hash(&bincode::serialize(&prepared)?).to_hex().to_string(),
+            "matrix_authentication": "public CSC; complete verifier discharges matrix assertions",
+            "log_leaves": if fixture.independent {None} else {Some(fixture.log_leaves)},
+            "leaves": if fixture.independent {None} else {Some(1usize << fixture.log_leaves)},
+            "gate_count": fixture.compressions.len(), "sha_compressions": fixture.compressions.len(),
             "row_log": view.nu, "padded_m": union.m_total(), "dense_m": union.dense_m(),
             "cell_log": fixture.circuit.cells().mu(), "public_words": fixture.public.len(),
-            "native_root_u32": fixture.root, "threads": rayon::current_num_threads(),
+            "native_root_u32": if fixture.independent {None} else {Some(fixture.root)},
+            "native_last_output_u32": fixture.root, "threads": rayon::current_num_threads(),
             "all_core_threads": flock_parallel::all_core_pool().current_num_threads(),
             "reps": options.reps, "warmups": options.warmups, "pcs_params": pcs,
             "pcs_config_blake3": config_digest, "pcs_queries": prover_config.queries,
@@ -154,10 +197,11 @@ fn main() -> Result<(), Box<dyn Error>> {
         let slot = UnionSlotProverInput::new(witness, lc);
         let mut prover_ch = FsChallenger::new(DOMAIN);
         let t = Instant::now();
-        let (proof, commitment, _) = prove_fast_ligerito_union_circuit(
+        let (proof, commitment, _) = prove_fast_ligerito_union_circuit_with_skip(
             &union,
             view.circuit,
             view.public,
+            options.skip,
             &pcs,
             vec![slot],
             vec![],
@@ -169,13 +213,14 @@ fn main() -> Result<(), Box<dyn Error>> {
             .to_string();
         let mut verifier_ch = FsChallenger::new(DOMAIN);
         let t = Instant::now();
-        verify_ligerito_union_circuit(
+        verify_ligerito_union_circuit_with_skip(
             &union,
             view.circuit,
             view.public,
             &[lc],
             &commitment,
             &proof,
+            options.skip,
             &pcs,
             &mut verifier_ch,
         )
@@ -208,6 +253,128 @@ fn main() -> Result<(), Box<dyn Error>> {
             })
         )?;
         output.flush()?;
+        if options.tamper && iteration == 0 {
+            let reject = |p: &R1csProofCircuitMerged, public: &[F128], skip: usize| {
+                let mut ch = FsChallenger::new(DOMAIN);
+                if verify_ligerito_union_circuit_with_skip(
+                    &union,
+                    view.circuit,
+                    public,
+                    &[lc],
+                    &commitment,
+                    p,
+                    skip,
+                    &pcs,
+                    &mut ch,
+                )
+                .is_ok()
+                {
+                    Err(io::Error::other(
+                        "tampered native circuit proof was accepted",
+                    ))
+                } else {
+                    Ok(())
+                }
+            };
+            let mut cases = Vec::new();
+            // Mutate actual verifier inputs. The matrix_evals entries are
+            // deferred-verifier hints; this full verifier recomputes the public
+            // CSC relation directly and deliberately does not trust those hints.
+            for case in 0..16 {
+                let mut bad = proof.clone();
+                let b = bad.boolean.as_mut().expect("SHA has a boolean proof");
+                let name = match case {
+                    0 => {
+                        b.zerocheck.round1_ab[0] += F128::ONE;
+                        "zc_round1_ab"
+                    }
+                    1 => {
+                        b.zerocheck.round1_c[0] += F128::ONE;
+                        "zc_round1_c"
+                    }
+                    2 => {
+                        b.zerocheck.multilinear_rounds[0].0 += F128::ONE;
+                        "zc_tail"
+                    }
+                    3 => {
+                        b.zerocheck.final_a_eval += F128::ONE;
+                        "zc_a"
+                    }
+                    4 => {
+                        b.zerocheck.final_b_eval += F128::ONE;
+                        "zc_b"
+                    }
+                    5 => {
+                        b.zerocheck.final_c_eval += F128::ONE;
+                        "zc_c"
+                    }
+                    6 => {
+                        b.lincheck.rounds[0].0 += F128::ONE;
+                        "lc_round"
+                    }
+                    7 => {
+                        b.lincheck.z_partial[0] += F128::ONE;
+                        "lc_partial"
+                    }
+                    8 => {
+                        b.lincheck.rounds.last_mut().unwrap().1 += F128::ONE;
+                        "lc_terminal_round"
+                    }
+                    9 => {
+                        bad.pcs_open.ring_switches[0].s_hat_v[0] += F128::ONE;
+                        "pcs_ring_column"
+                    }
+                    10 => {
+                        b.lincheck.z_partial.pop();
+                        "lc_shape"
+                    }
+                    11 => {
+                        bad.wiring.gather[0] += F128::ONE;
+                        "wiring_gather"
+                    }
+                    12 => {
+                        bad.pcs_open.q_eval += F128::ONE;
+                        "pcs_evaluation"
+                    }
+                    13 => {
+                        bad.pcs_open.merged_rounds[0].0 += F128::ONE;
+                        "pcs_sumcheck"
+                    }
+                    14 => {
+                        bad.pcs_open.ring_switches.pop();
+                        "pcs_claim_count"
+                    }
+                    15 => {
+                        b.zerocheck.round1_ab.pop();
+                        "zc_shape"
+                    }
+                    _ => unreachable!(),
+                };
+                reject(&bad, view.public, options.skip)
+                    .map_err(|e| io::Error::other(format!("{name}: {e}")))?;
+                cases.push(name);
+            }
+            for (index, name) in [
+                (2, "public_input"),
+                (view.public.len() - 1, "public_output"),
+            ] {
+                let mut public = view.public.to_vec();
+                public[index] += F128::ONE;
+                reject(&proof, &public, options.skip)?;
+                cases.push(name);
+            }
+            reject(&proof, view.public, 13 - options.skip)?;
+            cases.push("cross_skip");
+            reject(&proof, view.public, 8)?;
+            cases.push("invalid_skip");
+            writeln!(
+                output,
+                "{}",
+                json!({"record":"negative_tests", "skip":options.skip,
+                "rejected":cases.len(), "cases":cases})
+            )?;
+            output.flush()?;
+        }
     }
     Ok(())
 }

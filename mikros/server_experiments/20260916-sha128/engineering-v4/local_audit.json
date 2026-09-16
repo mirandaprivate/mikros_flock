@@ -1,0 +1,111 @@
+{
+  "passed": true,
+  "scope": "Downloaded records and source/evidence consistency; no cryptographic proof replay, no binary execution.",
+  "source_archive_sha256": "3f5c882f324f6aefb1338a107394638ed82266c58185b9fd7486a97a4f339f32",
+  "source_files_verified": 401,
+  "evidence_archive_sha256": "c07aed56fb6e9e51ed514efcf07d374e6a8d4340dd104e9326160a9408c833d4",
+  "archive_files_verified": 344,
+  "actual_elf_sha256": {
+    "e2e_sha256_paired": "1d25464e563ead0d7feb5bc2a83e9b0c9ea169a58193b971de92edbc1e589282",
+    "e2e_flock_baseline": "5ea11179d7ea410430fd1844326b9780d965c52b275a325dc3968d3819b3ef69"
+  },
+  "binary_receipt_sha256": {
+    "/home/mscong1/mikros-experiments/20260912T-native64/v14-packed-aggregate-20260914/source/target/release/examples/e2e_sha256_paired": "1d25464e563ead0d7feb5bc2a83e9b0c9ea169a58193b971de92edbc1e589282",
+    "/home/mscong1/mikros-experiments/20260912T-native64/v14-packed-aggregate-20260914/source/target/release/examples/e2e_flock_baseline": "5ea11179d7ea410430fd1844326b9780d965c52b275a325dc3968d3819b3ef69"
+  },
+  "actual_binary_limitation": null,
+  "stages": {
+    "results-engineering-formal-core": {
+      "evidence_files_hashed": 73,
+      "formal_samples": 54,
+      "warmup_samples": 9,
+      "validation_samples": 2,
+      "negative_rejections": {
+        "baseline": 36,
+        "selected": 36
+      },
+      "median_prover_ms": {
+        "baseline": 90.308689,
+        "selected": 82.8969465,
+        "flock": 111.2159085
+      },
+      "full_summary_equal": true,
+      "raw_records_environments_commands_verified": true
+    },
+    "results-engineering-formal-pcs": {
+      "evidence_files_hashed": 73,
+      "formal_samples": 54,
+      "warmup_samples": 9,
+      "validation_samples": 2,
+      "negative_rejections": {
+        "baseline": 36,
+        "selected": 36
+      },
+      "median_prover_ms": {
+        "baseline": 91.68649450000001,
+        "selected": 79.000876,
+        "flock": 112.025604
+      },
+      "full_summary_equal": true,
+      "raw_records_environments_commands_verified": true
+    },
+    "results-engineering-profile": {
+      "evidence_files_hashed": 73,
+      "formal_samples": 27,
+      "warmup_samples": 9,
+      "validation_samples": 2,
+      "negative_rejections": {
+        "baseline": 36,
+        "selected": 36
+      },
+      "median_prover_ms": {
+        "baseline": 97.37998300000001,
+        "csc": 90.862408,
+        "selected": 86.654232
+      },
+      "full_summary_equal": true,
+      "raw_records_environments_commands_verified": true
+    },
+    "results-engineering-refinement": {
+      "evidence_files_hashed": 112,
+      "formal_samples": 90,
+      "warmup_samples": 15,
+      "validation_samples": 2,
+      "negative_rejections": {
+        "baseline": 36,
+        "selected": 36
+      },
+      "median_prover_ms": {
+        "selected": 88.19939149999999,
+        "blocked": 87.91770299999999,
+        "serial": 83.35640950000001,
+        "gfni": 81.84315649999999,
+        "flock": 110.84850750000001
+      },
+      "full_summary_equal": true,
+      "raw_records_environments_commands_verified": true
+    }
+  },
+  "tests": {
+    "mikros.log": [
+      {
+        "passed": 151,
+        "failed": 0,
+        "ignored": 2
+      }
+    ],
+    "sha.log": [
+      {
+        "passed": 17,
+        "failed": 0,
+        "ignored": 0
+      }
+    ]
+  },
+  "shared_statement_digests": {
+    "fixture_digest_blake3": "604926042d63f082df458903107ff12b56a7a5d84dfc57ce5bdab0cd5691d008",
+    "circuit_digest_blake3": "e7cafab73734c50363f00ebdc291321bbd3b73fa2977aaa4432a5c6eff34074f",
+    "r1cs_digest_blake3": "b631344bd10c178e3db11ca685b5bdaccb1c0e776095c8877ae5636a7811016a",
+    "prepared_witness_blake3": "06998276e848ac9a31387a7816e695ae165506ef875ee3ea1a9ef9222125a7ce"
+  }
+}
