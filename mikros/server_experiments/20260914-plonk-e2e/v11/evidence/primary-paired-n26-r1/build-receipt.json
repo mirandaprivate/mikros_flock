@@ -1,7 +1,0 @@
-{
-  "source_manifest_sha256": "e558c4c3e9f3c1a905a2e161465821d49c660d540645d9926a964f925581d3d9",
-  "binary_sha256": "a96282cb32a7f3fe0ef8ad24e646fa98099221bcf8a398ac31e1f31664574e1b",
-  "binary": "/home/mscong1/mikros-experiments/20260912T-native64/v14-packed-aggregate-20260914/source/target/release/examples/e2e_plonk_compare",
-  "toolchain": "+nightly-2026-03-21",
-  "rustflags": "-C target-cpu=native"
-}

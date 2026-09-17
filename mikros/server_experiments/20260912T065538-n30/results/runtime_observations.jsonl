@@ -1,2 +1,0 @@
-{"utc": "2026-09-12T07:10:02Z", "stage": "comparison-1t", "pid": 3482658, "loadavg": [1.009765625, 0.552734375, 0.21630859375], "status": {"State": "R (running)", "VmHWM": "1723948 kB", "VmRSS": "1723948 kB", "Threads": "3", "Cpus_allowed_list": "0", "Mems_allowed_list": "0-1"}}
-{"utc": "2026-09-12T07:16:38Z", "stage": "comparison-24t", "pid": 3484101, "loadavg": [3.109375, 1.6201171875, 0.78564453125], "status": {"State": "R (running)", "VmHWM": "1719744 kB", "VmRSS": "1320476 kB", "Threads": "49", "Cpus_allowed_list": "0-23", "Mems_allowed_list": "0-1"}}

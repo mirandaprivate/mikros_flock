@@ -1,6 +1,5 @@
 // Transposed forward additive-NTT — the GPU fast path for induce_sumcheck_poly
-// (the user's insight: the transpose that parallelizes poorly on a 32-thread CPU
-// is ideal on a GPU). Port of src/pcs/ligerito.rs::transpose_forward_ntt:
+// Port of src/pcs/ligerito.rs::transpose_forward_ntt:
 // the induced basis = G^T·c, where c is the sparse query-weight vector scattered
 // over the codeword domain and G is the forward additive NTT. O(n·log n) +
 // bandwidth-bound vs the dense O(n·n_queries).

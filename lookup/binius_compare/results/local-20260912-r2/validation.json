@@ -1,8 +1,0 @@
-{
-  "proofs_checked": 100,
-  "measured_samples": 80,
-  "paired_commitments": true,
-  "cross_thread_proof_identity": true,
-  "all_verified": true,
-  "groups": 20
-}

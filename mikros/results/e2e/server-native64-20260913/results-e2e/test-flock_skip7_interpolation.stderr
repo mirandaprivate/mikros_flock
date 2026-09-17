@@ -1,3 +1,0 @@
-   Compiling mikros v0.1.0 (/home/mscong1/mikros-experiments/20260912T-native64/e2e-bit-v1/v1/mikros)
-    Finished `release` profile [optimized] target(s) in 0.29s
-     Running tests/flock_skip7_interpolation.rs (target/release/deps/flock_skip7_interpolation-7595324c513462e6)

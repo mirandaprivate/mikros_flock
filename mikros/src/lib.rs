@@ -1,10 +1,9 @@
-//! Binary univariate Hadamard reduction over GF(256), from `latex/4-block.tex`.
+//! Binary univariate Hadamard reduction over GF(256).
 //!
-//! [`verify`] checks the PIOP and returns three deferred matrix evaluations.
-//! A caller must authenticate **all three** against the inputs/commitments.
-//! [`check_claims`] is a linear-time source oracle for tests and benchmarks,
-//! not a polynomial commitment scheme. Bind the public statement or commitment
-//! roots into the challenger before calling either [`prove`] or [`verify`].
+//! Bind the public statement and input commitments to the challenger before
+//! [`prove`] or [`verify`]. Verification returns three matrix evaluations for
+//! PCS authentication. [`check_claims`] evaluates them directly on the inputs
+//! in linear time for tests and benchmarks.
 
 pub mod e2e_lincheck;
 pub mod extension_product;

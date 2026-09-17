@@ -1,0 +1,33 @@
+[package]
+name = "binius-switchover-hadamard"
+version = "0.1.0"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+publish = false
+
+[workspace]
+exclude = ["upstream"]
+
+[features]
+default = []
+polyval = []
+aes32 = []
+aes-bytesliced = []
+
+[dependencies]
+binius_core = { path = "upstream/crates/core", features = ["rayon"] }
+binius_fast_compute = { path = "upstream/crates/fast_compute" }
+binius_field = { path = "upstream/crates/field" }
+binius_hal = { path = "upstream/crates/hal" }
+binius_hash = { path = "upstream/crates/hash" }
+binius_math = { path = "upstream/crates/math" }
+blake3 = "1.8"
+bytemuck = "1.18"
+rayon = "1.10"
+serde_json = "1.0"
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1
+debug = 1

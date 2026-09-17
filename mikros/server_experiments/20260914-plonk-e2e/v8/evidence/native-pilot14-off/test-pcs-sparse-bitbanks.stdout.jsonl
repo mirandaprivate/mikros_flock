@@ -1,7 +1,0 @@
-
-running 2 tests
-test pcs::tests::sparse_bitbanks_block_messages_need_high_column_cross_terms ... ok
-test pcs::tests::sparse_bitbanks_masks_pairs_and_unions_preserve_required_columns ... ok
-
-test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 487 filtered out; finished in 0.11s
-

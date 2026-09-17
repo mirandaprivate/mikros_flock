@@ -6,8 +6,8 @@
 //! are indexed in their original physical order. A parent of a length-2h
 //! layer is `parent[i] = child[i] * child[h+i]` (high-bit pairing). Sumcheck
 //! binds low bits first, and returned points use that same low-bit-first order.
-//! Both returned leaf claims MUST be authenticated after the caller expands
-//! its affine leaf expression; this module is a PIOP, not a PCS.
+//! The caller expands its affine leaf expression and authenticates both returned
+//! leaf claims with the PCS.
 //!
 //! Only one internal tree is active. For log_len<=28 a per-proof pool may keep
 //! consumed layers' capacities for reuse; it releases them before returning.

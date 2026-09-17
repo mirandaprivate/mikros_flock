@@ -5,8 +5,7 @@ edition = "2024"
 license = "MIT OR Apache-2.0"
 description = "Bitwidth-aware permutation and permutation-based indexed Lasso over F128"
 
-# Keep this task's lockfile, targets and configuration local. Path dependencies
-# continue using their original workspace's inherited dependency definitions.
+# Standalone workspace with its own lockfile and build directory.
 [workspace]
 exclude = ["vendor/whir"]
 

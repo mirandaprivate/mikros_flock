@@ -1,8 +1,7 @@
 # Challenge degrees of this implementation
 
-These are bounds for the actual independent cubic product-tree protocol in this
-crate. They are not a claim that an unground F128 protocol has overall 128-bit
-soundness, or that adding a fixed number of PoW bits establishes such a claim.
+The following degree bounds apply to the independent cubic product-tree
+reduction, before PCS openings and any application-level grinding.
 
 Let `N = padded_len(rows)` and `mu = log2(N)`. The committed protocol samples:
 

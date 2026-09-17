@@ -1,7 +1,0 @@
-
-running 2 tests
-test pcs::tests::column_bitbank_split_matches_scalar_across_shapes ... ok
-test pcs::tests::column_bitbanks_reuse_exact_row_points_and_borrow_supplied ... ok
-
-test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 493 filtered out; finished in 0.02s
-

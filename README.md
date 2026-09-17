@@ -1,148 +1,150 @@
-# Flock
+# Mikros
 
-A Rust implementation of the **Flock** proving system: a prover and verifier for
-R1CS-over-GF(2) statements, built on a zerocheck + lincheck PIOP with a
-multilinear PCS (Ligerito) over the binary field F₂₁₂₈. Tuned for
-Apple silicon (M-series) and AVX-512-capable x86-64 CPUs.
+Supplementary code for the **Mikros** paper, including the Mikros implementation
+and experiments comparing it with **FLOCK (skip = 7)**.
+The Hadamard experiment also compares the original Binius sumcheck with delayed
+extension-field folding (`switchover`).
 
-It ships end-to-end provers for batched hash statements (BLAKE3 and SHA-256
-compressions) and a recursion tower that folds proofs into proofs.
+## Repository structure
 
-## Layout
-
-The workspace contains these crates:
-
-- **`crates/flock-field`** — binary field types and architecture-specific field kernels.
-- **`crates/flock-hash`** — shared hash types and compression primitives.
-- **`crates/flock-transcript`** — Fiat-Shamir challengers and transcript recording.
-- **`crates/flock-merkle`** — generic Merkle construction and optimized hash kernels.
-- **`crates/flock-multilinear`** — field-generic multilinear evaluation,
-  equality tables, and folds. Index order is an explicit API parameter.
-- **`crates/flock-parallel`** — the shared all-core rayon pool.
-- **`crates/flock-core`** — the protocol library and verifier.
-  It contains the NTT, PIOPs, PCS, and R1CS machinery.
-- **`crates/flock-prover`** — the end-to-end prover: prove orchestration, the
-  hash R1CS encoders, the Merkle-path statements, and the recursion tower.
-  Depends on `flock-core` and re-exports it.
-- **`crates/flock-cuda-ffi`** — the optional interface to CUDA prover kernels.
-
-Architecture-specific field and Merkle kernels live in their owning crates.
-Other protocol kernels remain in `flock-core`. Portable fallbacks support other targets.
+| Path | Contents |
+|---|---|
+| `mikros/src/` | Packed Hadamard, inner-product, and multiple-instance reductions. |
+| `mikros/permutation/` | Packed permutation proof. |
+| `mikros/examples/e2e_hash_compare.rs` | End-to-end SHA-256, Keccak, and BLAKE3 comparisons. |
+| `mikros/examples/e2e_common/` | Shared circuit, witness, reduction, and PCS integration code. |
+| `mikros/benches/univariate_vs_flock.rs` | Binary Hadamard comparison. |
+| `mikros/binius_switchover_hadamard/` | Original Binius Hadamard comparison with a pinned upstream version. |
+| `crates/flock-*/` | FLOCK implementation, Ligerito PCS, and shared field and parallel kernels. |
 
 ## Build
 
-```sh
-cargo build --release
-cargo test --release
+Run the following commands from the repository root in a Linux Bash shell.
+The experiments use 64 threads and native CPU kernels; the recorded server runs
+used an Intel Xeon Gold 6342 with GFNI, AVX-512, and VPCLMULQDQ.
+Install Rust through rustup, a C/C++ build toolchain, and GNU time.
+
+```bash
+rustup toolchain install nightly-2026-03-21 --profile minimal
+export RUSTFLAGS="-C target-cpu=native"
+export RAYON_NUM_THREADS=64
+export FLOCK_PCS_PACKED_DIRECT=1 FLOCK_WP_UNINIT=1
+export CARGO_TARGET_DIR="$PWD/target"
+mkdir -p target/paper-results
+cargo +nightly-2026-03-21 build --release --locked -p mikros --example e2e_hash_compare
 ```
 
-Requires a recent stable Rust toolchain (edition 2024). Optimized kernels target
-ARM64 NEON and x86-64 AVX-512/VPCLMULQDQ, with portable fallbacks for other
-targets.
+## Experiments
 
-## Benchmarks
+The timing commands below use one warmup and six measured proofs.
+The three end-to-end experiments each prove 256 independent instances, using
+FLOCK's native Ligerito Fast PCS. Mikros packs instances in groups of 128.
+Run the experiments sequentially.
 
-Hash proving throughput on an **AMD Ryzen Threadripper 7970X** (32 physical
-cores / 64 hardware threads, 256 GB RAM), measured on Linux x86-64 on
-2026-07-17. The build uses `-C target-cpu=native`; the active optimized path is
-**AVX-512 + VPCLMULQDQ** (the CPU also supports AVX and AVX2). Multi-threaded
-runs use the 32 physical cores, without SMT.
+### 1. SHA-256 compression
 
-Throughput in thousands of hashes per second (`k hashes/s`; higher is better):
-
-| Hash | Batch | 1T | 32T |
-|---|---:|---:|---:|
-| SHA-256 | 1024 | 30.2 | 85.0 |
-| SHA-256 | 4096 | 33.5 | 145.1 |
-| SHA-256 | 16384 | 32.3 | 240.3 |
-| SHA-256 | 65536 | 32.0 | 271.3 |
-| SHA-256 | 262144 | 31.0 | 305.3 |
-| BLAKE3 | 1024 | 34.1 | 109.0 |
-| BLAKE3 | 4096 | 54.0 | 227.1 |
-| BLAKE3 | 16384 | 62.7 | 411.7 |
-| BLAKE3 | 65536 | 64.8 | 540.4 |
-| BLAKE3 | 262144 | 64.8 | 629.8 |
-
-The figures measure the full default Ligerito `prove_fast` path, including
-witness generation and proof construction. SHA-256 and BLAKE3 count compression
-functions. “Batch” is the number of
-independent hash operations proved together. Each value is the best of three
-measured proofs after one untimed warm-up; the warm-up proof is also verified.
-The SHA-256 and
-BLAKE3 encoders have shrunk substantially since this table was measured
-(2026-08-14 zk.golf-derived fused adders), so current numbers run higher —
-regenerate before quoting.
-
-Regenerate the complete table with:
-
-```sh
-benchmarks/bench_hash_throughput.sh
+```bash
+for system in mikros flock; do
+  /usr/bin/time -v -o "target/paper-results/sha256-${system}.rss.txt" \
+    target/release/examples/e2e_hash_compare \
+    --hash sha256 --system "$system" --instances 256 --skip 7 \
+    --threads 64 --reps 6 --warmups 1 \
+    > "target/paper-results/sha256-${system}.jsonl"
+done
 ```
 
-Override `LOG2S`, `RUNS`, or `MT_THREADS` to change the batches, trial count,
-or multi-threaded pool size. There are no Criterion harnesses; each Rust bench
-is a no-harness binary that prints its own results. Run an individual bench
-with:
+### 2. Keccak-f[1600] permutation
 
-```sh
-cargo bench --bench blake3_proof
-cargo bench --bench e2e_zerocheck
+```bash
+for system in mikros flock; do
+  /usr/bin/time -v -o "target/paper-results/keccak-${system}.rss.txt" \
+    target/release/examples/e2e_hash_compare \
+    --hash keccak --system "$system" --instances 256 --skip 7 \
+    --threads 64 --reps 6 --warmups 1 \
+    > "target/paper-results/keccak-${system}.jsonl"
+done
 ```
 
-Always run benches **one at a time** — concurrent benches contend for cache,
-memory bandwidth, and thermal headroom on a single chip. See
-[`benchmarks/BENCHMARKS.md`](benchmarks/BENCHMARKS.md) for the full set and the
-competitor comparisons.
+### 3. BLAKE3 compression
 
-## Acknowledgments and third-party code
+```bash
+for system in mikros flock; do
+  /usr/bin/time -v -o "target/paper-results/blake3-${system}.rss.txt" \
+    target/release/examples/e2e_hash_compare \
+    --hash blake3 --system "$system" --instances 256 --skip 7 \
+    --threads 64 --reps 6 --warmups 1 \
+    > "target/paper-results/blake3-${system}.jsonl"
+done
+```
 
-Flock incorporates code from the projects below; see the individual file
-headers for the exact upstream paths and copyright notices. Both projects are
-dual-licensed under Apache-2.0 OR MIT, matching Flock's own license.
+The JSONL output records `prover_ms`, `verify_ms`, and `proof_bytes` for each
+proof. GNU time records whole-process peak RAM in the corresponding `.rss.txt`
+file. Prover time includes online conversion, commitment, reduction, and PCS
+opening; offline witness preparation is reported separately. Every proof is
+verified.
 
-**[binius64](https://github.com/binius-zk/binius64)** — Irreducible's
-binary-tower field framework; the basis for our F₁₂₈ / ring-switch design.
-Dual-licensed Apache-2.0 OR MIT; Copyright 2025 The Binius Developers and
-Irreducible, Inc. Derived files:
+### 4. Binary Hadamard with 2^30 constraints
 
-- `crates/flock-field/src/phi8.rs` — `PHI_8_TABLE`, a verbatim copy from
-  `crates/field/src/ghash.rs`.
-- `crates/flock-field/src/gf2_128.rs` — the default `Mul`
-  (`ghash_mul_binius`) ports `mul_clmul` from
-  `crates/field/src/arch/shared/ghash.rs`.
-- `crates/flock-field/src/gf2_8.rs` — the NEON 16-wide multiplier
-  (`gf8_mul_vec16` / `gf8_reduce_vec16`) ports `packed_aes_16x8b_multiply` from
-  `crates/field/src/arch/aarch64/simd_arithmetic.rs`.
-- `crates/flock-core/src/ntt/additive_ntt_f128.rs` — algorithm skeleton
-  (iterative LCH NTT, neighbors-last ordering) derived from
-  `NeighborsLastReference` in `crates/math/src/ntt/reference.rs`; the
-  interleaved SoA layout, fused 2-layer butterfly, and parallelization are
-  original to Flock.
-- `crates/flock-core/src/pcs/tensor_algebra.rs` — port of
-  `crates/math/src/tensor_algebra.rs`, specialized to `F = F_2`, `FE = F_{2^128}`.
-- `crates/flock-core/src/pcs/ring_switch.rs` — the verifier's polylog
-  `eval_rs_eq` helper ports `crates/verifier/src/ring_switch.rs`; the rest of
-  the module is original to Flock.
+```bash
+cargo +nightly-2026-03-21 bench --locked -p mikros --bench univariate_vs_flock -- \
+  --logs 30 --runs 6 --threads 64 --systems pairreuse,flock128 \
+  --output target/paper-results/hadamard_2_30.json
+```
 
-**[bolt-rs](https://github.com/bcc-research/bolt-rs)** — BCC Research's Ligerito
-implementation; reference for our integrated Ligerito PCS backend.
-Dual-licensed MIT OR Apache-2.0; Copyright (c) 2026 Bain Capital Crypto, LP and
-Ron Rothblum. Derived files:
+`pairreuse` selects Mikros's optimized univariate kernel with scratch reuse;
+`flock128` selects FLOCK skip = 7. This experiment measures the Hadamard PIOP.
+It records prover time, verifier replay time, and proof size, with input-claim
+checks timed separately. To measure RAM in a fresh process for each system:
 
-- `crates/flock-core/src/pcs/ligerito.rs` — port of `ligerito_recursive.rs` onto
-  Flock primitives.
+```bash
+for system in pairreuse flock128; do
+  cargo +nightly-2026-03-21 bench --locked -p mikros --bench univariate_vs_flock -- \
+    --logs 30 --runs 1 --threads 64 --systems "$system" --rss \
+    --output "target/paper-results/hadamard_2_30-${system}-rss.json"
+done
+```
 
-## License
+Run the original Binius baseline on the same binary inputs:
 
-Licensed under either of
+```bash
+python3 mikros/binius_switchover_hadamard/setup.py
+cargo +nightly-2026-03-21 run --release --locked \
+  --manifest-path mikros/binius_switchover_hadamard/Cargo.toml --features aes32 -- \
+  --log-n 30 --switchover 6 --runs 6 --threads 64 \
+  --order high --composition native --first-round-zero yes \
+  --output target/paper-results/hadamard_2_30-binius.json
+```
 
-- Apache License, Version 2.0 ([LICENSE-APACHE](LICENSE-APACHE) or <http://www.apache.org/licenses/LICENSE-2.0>)
-- MIT license ([LICENSE-MIT](LICENSE-MIT) or <http://opensource.org/licenses/MIT>)
+Binius uses binary witness storage, native AES byte-sliced field arithmetic,
+and its equality-weighted sumcheck. The configuration above was selected by
+native composition benchmarks at 2^24 and field/order benchmarks at 2^30.
+`--switchover s` materializes the extension-field witness after round `s + 1`.
+The comparison uses seven early rounds (`s = 6`), reducing the witness to `N/128`.
+All 30 sumcheck message rounds remain in the original Binius protocol.
+The timer includes equality-weight construction and all proof rounds. Use
+`--runs 1 --rss` for a fresh-process RAM measurement.
 
-at your option.
+## Recorded results
 
-### Contribution
+The hash results use three measurement batches (18 measured proofs per system).
+The three-system Hadamard comparison uses six measured proofs per system and
+three separate cold-process RAM measurements on the 64-thread server. The log
+also retains the earlier 18-proof Mikros/FLOCK comparison. Each log contains
+the configuration, samples, and summary statistics.
 
-Unless you explicitly state otherwise, any contribution intentionally submitted
-for inclusion in the work by you, as defined in the Apache-2.0 license, shall be
-dual licensed as above, without any additional terms or conditions.
+| Experiment | Results |
+|---|---|
+| SHA-256 | [e2e_flock_sha256.log](e2e_flock_sha256.log) |
+| Keccak | [e2e_flock_keccak.log](e2e_flock_keccak.log) |
+| BLAKE3 | [e2e_flock_blake3.log](e2e_flock_blake3.log) |
+| Binary Hadamard, 2^30 | [compare_hadamard_2_30.log](compare_hadamard_2_30.log) |
+
+## Acknowledgments and license
+
+This implementation builds on FLOCK. It also includes code derived from
+[binius64](https://github.com/binius-zk/binius64) (Copyright 2025 The Binius
+Developers and Irreducible, Inc.) and
+[bolt-rs](https://github.com/bcc-research/bolt-rs) (Copyright 2026 Bain Capital
+Crypto, LP and Ron Rothblum). See the source-file headers for attribution.
+
+Licensed under [Apache-2.0](LICENSE-APACHE) or [MIT](LICENSE-MIT), at your option.

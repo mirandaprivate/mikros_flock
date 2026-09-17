@@ -8,8 +8,8 @@
 //!
 //! Bind the application statement and both input commitments into the challenger
 //! before entry. [`verify`] returns two deferred matrix claims; both must be
-//! authenticated by the caller. [`check_claims`] is a full-input test oracle,
-//! not a PCS. The protocol includes no zero-knowledge masking or grinding.
+//! authenticated by the caller. [`check_claims`] evaluates them directly on the
+//! inputs for tests. Zero-knowledge masking and grinding are application choices.
 
 use flock_field::{F128, F256Unreduced};
 use flock_transcript::challenger::Challenger;
@@ -274,7 +274,7 @@ pub fn verify<C: Challenger>(
     Ok(claims(proof, point, inverse, &row_point))
 }
 
-/// Full-input reference authentication for tests, not a succinct verifier.
+/// Linear-time source evaluation for tests.
 pub fn check_claims(a: &[u8], b: &[u8], log_n: usize, claims: &Claims) -> Result<(), Error> {
     let shape = check_inputs(a, b, log_n)?;
     for (name, input, query) in [("a", a, &claims.a), ("b", b, &claims.b)] {

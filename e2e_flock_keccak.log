@@ -2052,7 +2052,7 @@
     "evidence_manifest_sha256": "942e37090bb7484699b090e0b20ebb981a7dd741f20dd744f3276d4ff899baab",
     "executed_elf_sha256": "3ae54d4bda37dfe0ce866aaa2eb1426992afbf70156af70c1d5141736b674ded"
   },
-  "evidence_directory": "C:\\Users\\miranda\\git\\mikros_flock\\mikros\\server_experiments\\20260917-hashes\\v1\\evidence\\results-hashes",
+  "evidence_directory": "mikros\\server_experiments\\20260917-hashes\\v1\\evidence\\results-hashes",
   "local_audit": {
     "source_files": 408,
     "evidence_files_hashed": 156,

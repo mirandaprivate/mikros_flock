@@ -1,8 +1,0 @@
-{
-  "passed": true,
-  "elapsed_seconds": 45.66556850000052,
-  "samples": 252,
-  "independent_oracle_checks": 80060,
-  "python_irreducibility_passed": true,
-  "process_snapshot_after": "your 131072x1 screen size is bogus. expect trouble\n  PID COMMAND         %CPU\n16115 python3          0.6\n    1 init             0.0\n   11 init             0.0\n   12 init             0.0\n   13 zsh              0.0\n16113 init             0.0\n16114 init             0.0\n16133 init <defunct>   0.0\n16336 ps               0.0"
-}

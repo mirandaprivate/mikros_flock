@@ -1,4 +1,4 @@
-//! Full Flock circuit proof of a SHA-256 binary tree, with honest timing labels.
+//! FLOCK circuit proof of a SHA-256 binary tree with phase timings.
 //!
 //! cargo run --release -p mikros --example e2e_flock_baseline --
 //!     --log-leaves 3 --threads 4 --reps 3 --warmups 1 --profile fast

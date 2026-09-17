@@ -1,8 +1,7 @@
 //! Independent input-opening checks for Flock's packed binary zerocheck.
 //!
-//! The zerocheck verifier checks the reduction transcript and returns claims;
-//! it does not itself authenticate those claims against the input columns.
-//! This module is an untimed correctness oracle, not a polynomial commitment.
+//! Evaluates the zerocheck verifier's terminal claims directly on the input
+//! columns. Benchmarks report this linear-time source check separately.
 
 use flock_core::zerocheck::multilinear::lagrange_weights_naive;
 use flock_core::zerocheck::{K_SKIP, ZerocheckClaim};

@@ -1,14 +1,9 @@
 # Mikros permutation using the root Flock field
 
-The E2E entry point now defaults to the revised packed permutation with fused
-GFNI aggregation. See [PACKED.md](PACKED.md) for the current implementation and
-[server results](../results/permutation-packed-20260914/OPTIMIZED.md). The APIs
-described below remain available for explicit legacy comparisons.
-
-This crate ports the optimized `lookup/flock_compare/binary_v5` permutation
-implementation without modifying its frozen experiment sources. Dependencies
-use the root Flock field and transcript types, so PCS composition does not
-cross snapshot type boundaries.
+The E2E entry point uses packed permutation with fused GFNI aggregation.
+See [PACKED.md](PACKED.md) for the protocol and [the repository README](../../README.md)
+for experiments. The crate shares FLOCK's field, transcript, and PCS types.
+The `permutation` module also provides the legacy reduction for comparisons.
 
 `permutation::{Statement, prove, prove_profiled, verify}` preserves the standalone
 digest-bound protocol. Its returned source claims still require a PCS.
@@ -16,9 +11,8 @@ digest-bound protocol. Its returned source claims still require a PCS.
 For composition, `permutation::prepare` performs offline shape checks and takes
 ownership of the two packed bit oracles. `prove_committed` and `verify_committed`
 bind a distinct protocol label and the oracle shape, without rescanning the
-source to hash it. **The caller must bind the actual PCS commitment and public
-statement before either call, and authenticate both returned linear queries.**
-This API does not claim that a digest or a full-source checker is a PCS.
+source to hash it. Bind the PCS commitment and public statement before either
+call, then authenticate both returned linear queries.
 
 `wiring::WordWiringStatement::new` validates and hashes a public word permutation
 offline. `wiring::prepare` expands every packed `F128` word into all 128 bits,
@@ -38,12 +32,9 @@ The public sigma tags are pre-encoded offline (16 bytes per bit address, in
 addition to the `usize` sigma vector). Their challenge-dependent evaluation stays
 online and is included in `Timings::source_reduction_ms`.
 
-The current PIOP limit is 2^30 bit cells, hence 2^23 original packed words.
-No high bits are truncated. The word permutation must preserve witness values;
-permutations of unequal words correctly reject. Fixed dummy/public cells and
-the mapping from circuit cells to the committed witness remain the caller's
-responsibility. In particular, the generic adapter is not a replacement for
-the circuit's public-cell recombination checks.
+The PIOP supports up to 2^30 bit cells, or 2^23 packed words. The word
+permutation must preserve witness values. The enclosing circuit proof checks
+fixed public cells and the mapping from circuit cells to the committed witness.
 
 For a strict offline/online boundary, call
 `permutation::prepare_tree_coefficients(&sources, options)` or
@@ -65,7 +56,5 @@ and both query reductions remain inside the online call. The old
 and static coefficient generation and should not be labeled strict online.
 Both routes have identical proof messages and challenges under the same binding.
 
-The direct public sigma evaluation is linear-time verifier work. This adapter
-does not silently replace it with an unauthenticated prover-supplied scalar;
-a deployment requiring sublinear verification of a fixed large circuit must
-add an authenticated public-table evaluation mechanism.
+Public sigma evaluation takes linear verifier time. Sublinear verification
+requires an authenticated evaluation of the public table.

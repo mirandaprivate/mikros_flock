@@ -8,8 +8,8 @@
 //!
 //! The caller must bind the public circuit, counts, statement and full padded Z
 //! commitment before Hadamard/lincheck, and authenticate every returned claim.
-//! `LincheckCircuit` is public verifier data, never supplied by the proof. This
-//! module does not check copy constraints or public I/O and is not a whole SNARK.
+//! `LincheckCircuit` is public verifier data. The enclosing circuit proof handles
+//! copy constraints and public I/O.
 
 use flock_core::{
     lincheck::{LincheckCircuit, eq_prefix_sum},

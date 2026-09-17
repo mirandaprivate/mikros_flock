@@ -190,8 +190,8 @@ pub struct Claims {
     pub evaluations: Vec<OracleClaim>,
 }
 impl Claims {
-    /// Linear-time reference authentication, NOT a PCS verifier. All returned
-    /// oracles and claims must be authenticated, including auxiliary witnesses.
+    /// Evaluate all claims directly on their source oracles in linear time,
+    /// including auxiliary witnesses.
     pub fn check(&self, sources: &[(Source, &PackedBits)]) -> Result<(), Error> {
         for (source, spec) in &self.oracles {
             let bits = sources

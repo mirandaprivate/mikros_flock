@@ -1,10 +1,8 @@
 //! Dao--Thaler Algorithms 2/3, with explicit canonical-tower/GHASH conversion.
 //!
-//! Adapted from the user-supplied local `~/git/mikros/baseline/src/lib.rs`
-//! (tower embedding and reverse recurrence) and
-//! `~/git/mikros/mikros/native-binius/src/dao_thaler.rs` (Algorithm 3 word kernel).
-//! GHASH bits are polynomial coefficients, not canonical tower coefficients.
-//! Basis conversions are deliberately included in this backend's online work.
+//! Tower embedding, reverse recurrence, and the Algorithm 3 word kernel.
+//! GHASH bits represent polynomial coefficients; the online computation includes
+//! conversion to and from the canonical tower basis.
 
 use std::sync::LazyLock;
 

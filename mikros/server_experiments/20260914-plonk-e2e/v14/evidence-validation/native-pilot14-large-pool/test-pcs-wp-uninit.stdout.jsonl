@@ -1,8 +1,0 @@
-
-running 3 tests
-test pcs::tests::wp_uninit_chunks_initialize_exact_values_and_unwind_safely ... ok
-test pcs::tests::wp_uninit_full_native_proof_and_challenge_all_routes ... ok
-test pcs::tests::wp_uninit_phase_matches_initialized_with_both_direct_paths ... ok
-
-test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 492 filtered out; finished in 2.47s
-

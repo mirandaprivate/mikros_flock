@@ -1,6 +1,0 @@
-{
-  "RUSTFLAGS": "-C target-cpu=native",
-  "RAYON_NUM_THREADS": "64",
-  "CARGO_TARGET_DIR": "/home/mscong1/mikros-experiments/20260912T-native64/v14-packed-aggregate-20260914/source/target",
-  "LC_ALL": "C"
-}

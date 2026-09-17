@@ -6,7 +6,7 @@ license = "MIT OR Apache-2.0"
 publish = false
 description = "Binary Dao-Thaler and small-field-first Hadamard zerocheck baselines"
 
-# An independent workspace keeps the running Mikros/Flock experiment frozen.
+# Standalone workspace for the optional Hadamard baselines.
 [workspace]
 resolver = "2"
 

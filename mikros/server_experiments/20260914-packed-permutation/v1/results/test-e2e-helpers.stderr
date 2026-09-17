@@ -1,3 +1,0 @@
-   Compiling mikros v0.1.0 (/home/mscong1/mikros-experiments/20260912T-native64/v11-packed-permutation-20260914/source/mikros)
-    Finished `release` profile [optimized] target(s) in 1.57s
-     Running unittests examples/e2e_bit_compare.rs (target/release/examples/e2e_bit_compare-3db5da4adbf237da)

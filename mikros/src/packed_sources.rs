@@ -6,10 +6,9 @@
 //! The public layout converts that claim to the existing native FLOCK tensor
 //! functional without reading any committed values on the verifier side.
 //!
-//! This is the commitment transport, not a sparse-matrix lookup proof by itself.
-//! The enclosing protocol must bind the public layout and commitment before its
-//! reduction, derive the queries from that reduction, and authenticate all of
-//! them. Public matrix commitments belong in the preprocessing verification key.
+//! The enclosing lookup protocol binds the public layout and commitment before
+//! reduction and authenticates the resulting queries. Public matrix commitments
+//! are stored in the preprocessing verification key.
 
 use flock_core::{
     challenger::Challenger,

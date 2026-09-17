@@ -1,7 +1,6 @@
 //! Binary sparse-matrix evaluation with indexed offline memory checking.
 //!
-//! This is the sparse-evaluation PIOP, not a polynomial commitment. Circuit
-//! preprocessing fixes and authenticates every static column, including the
+//! Circuit preprocessing fixes and authenticates every static column, including the
 //! integer read/write/final timestamps and the binary value/padding column.
 //! After x and y are known, the prover forms and commits the two gathered
 //! equality tables BEFORE calling `prove`. The caller binds all commitments
@@ -1347,7 +1346,7 @@ pub fn verify<C: Challenger>(
     Ok(claims)
 }
 
-/// Linear-time source oracle for tests. This is NOT a PCS verifier.
+/// Linear-time source evaluation for tests.
 pub fn check_claims(
     prepared: &Prepared,
     reads: &ReadData,

@@ -36,7 +36,6 @@
 # By default the bench is pinned to the performance-core count (see below),
 # mirroring Flock's init_perf_thread_pool so the two are compared at the same
 # thread count; set RAYON_NUM_THREADS to override.
-# See ../CLAUDE.md "binius64/ (Binius64)" for the full comparison.
 
 set -euo pipefail
 

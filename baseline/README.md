@@ -64,5 +64,3 @@ python3 baseline/summarize.py
 `--output` 相对 `baseline/`。Flock 要求 `log_n >= 13`。所有方法共用 global Rayon 线程池、编译目标和每轮输入。每方法预热一次；三系统六次测量覆盖六种排列，保留全部样本。输入生成、输入标识、序列化和源核验在计时外。原生 verifier 中 O(log N) 的证明封装 clone 计入 verify 时间。
 
 Plonky3 与 Flock 的扩域同构，但表示、域后端、工作域及 transcript 不同，差值不能仅归因于协议。原生测试核验优化/对照和单/多线程证明一致性、非法关系、消息篡改、三个源声明、坐标方向及 GHASH 同构下的独立求值。
-
-新结果见 [PLONKY3_BENCHMARKS.md](PLONKY3_BENCHMARKS.md) 与 [results/plonky3/](results/plonky3/)。[BENCHMARKS.md](BENCHMARKS.md) 和 results 顶层 JSON 保留历史 GHASH 数据：其中旧名字 `small_field_first` 对应现在的 `ghash_small_field_first`，不能作为原生 Plonky3 结果引用。

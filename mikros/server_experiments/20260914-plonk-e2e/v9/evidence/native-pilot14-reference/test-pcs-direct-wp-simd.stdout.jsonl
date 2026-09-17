@@ -1,8 +1,0 @@
-
-running 3 tests
-test pcs::tests::direct_wp_simd_full_native_mixed_proof ... ok
-test pcs::tests::direct_wp_simd_phase_matches_reference ... ok
-test pcs::tests::direct_wp_simd_segments_match_scalar ... ok
-
-test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 489 filtered out; finished in 0.45s
-

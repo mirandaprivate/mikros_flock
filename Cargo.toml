@@ -36,17 +36,7 @@ bincode = "1.3"
 toml = "0.8"
 serde_json = "1"
 
-# Clippy lints that fire pervasively on the hand-tuned numeric kernels, where the
-# flagged form is the deliberate one. Applied workspace-wide (covers benches and
-# examples, which are separate crates that wouldn't inherit a crate-level allow):
-#   - indexed loops over packed buffers read clearer than iterator chains
-#     (needless_range_loop, explicit_counter_loop);
-#   - the wide prove/open entry points genuinely take many parameters
-#     (too_many_arguments);
-#   - the packed F128 / codeword types are irreducibly compound (type_complexity);
-#   - the unrolled NEON table lookups and lane gathers keep the symmetric
-#     `(0 ^ BH, 1 ^ BH, …)` / `[0 * stride + i, 1 * stride + i, …]` index form for
-#     readability (identity_op, erasing_op).
+# Workspace lints for indexed numeric kernels and packed-field interfaces.
 [workspace.lints.clippy]
 needless_range_loop = "allow"
 explicit_counter_loop = "allow"
@@ -54,14 +44,10 @@ too_many_arguments = "allow"
 type_complexity = "allow"
 identity_op = "allow"
 erasing_op = "allow"
-# Deliberate house style in the hash encoders and layout tests: explicit
-# lane-gather copy loops keep the bit layout legible (manual_memcpy), and tests
-# guard the packed layout constants with static assertions (assertions_on_constants).
+# Explicit lane copies and layout assertions.
 manual_memcpy = "allow"
 assertions_on_constants = "allow"
-# Pure-style lints that conflict with deliberate house formatting: doc comments
-# use aligned multi-line list continuations (which render fine), and some test
-# seeds use mnemonic hex groupings (e.g. 0xC0FFEE_42).
+# Documentation layout and hexadecimal test seeds.
 doc_lazy_continuation = "allow"
 doc_overindented_list_items = "allow"
 unusual_byte_groupings = "allow"

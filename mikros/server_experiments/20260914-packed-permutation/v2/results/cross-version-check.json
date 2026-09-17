@@ -1,8 +1,0 @@
-{
-  "standalone_legacy_and_packed_proof_bytes_unchanged": true,
-  "e2e_all_three_proof_bytes_unchanged": true,
-  "source_snapshots": [
-    "2b808eecf24c2f0fca6df20589590f8b58e0184fd6d81b56b098357298a10e53",
-    "a7134a07b0c9b68b46308a9ea5a7ebc69228a9d9ebabd8fefd1a551ba2b229c2"
-  ]
-}

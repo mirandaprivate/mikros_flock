@@ -45,7 +45,7 @@
 # naming a prover re-runs it fresh. USE_CACHE=1 reuses even with args; NO_CACHE=1
 # forces fresh runs (still caching). Knobs: HASH_LOG2S (flock/binius64 MT sweep,
 # default "10 11 12 13 14 16"), ST_LOG2S, SPARTAN_SIZES, NN_SIZES, FLOCK_MAX_LOG2,
-# B64_MAX_LOG2, RAYON_NUM_THREADS. See ../CLAUDE.md "External Benchmarks".
+# B64_MAX_LOG2, RAYON_NUM_THREADS.
 
 set -euo pipefail
 

@@ -1,5 +1,0 @@
-{
-  "scope": "local correctness only, 4 threads, N14",
-  "all_four_verified": true,
-  "same_commitments_and_pcs": true
-}

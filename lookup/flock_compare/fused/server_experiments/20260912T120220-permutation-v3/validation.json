@@ -1,9 +1,0 @@
-{
-  "validated_proofs": 96,
-  "cross_version_v2_proofs": 124,
-  "distinct_statement_protocol_pairs": 32,
-  "accepted_server_cases": 10,
-  "excluded_attempts": [
-    "main-n30-24t-attempt1"
-  ]
-}

@@ -1,10 +1,7 @@
 # Gruen / univariate-skip zerocheck experiments
 
-**服务器 N=2^30、64 线程对比已完成：**见 [实验报告](server64/results/server-20260913-n30/RESULTS.md)。Goldilocks / KoalaBear 的 Mikros 优化版 prover 中位数为 6.701 / 4.770 秒，相对各域较快的 Gruen 对照耗时降低 9.54% / 22.29%。这是共同标量域后端上的并行 Hadamard PIOP 对比，不含 PCS。
-
-独立 Rust crate，位于原有 `gruen/` 目录（Windows 路径大小写不敏感）。不需要第三方 Rust 依赖；不会修改父 workspace 的 Cargo.toml、Cargo.lock 或构建目录。
-
-新增的 **Goldilocks / KoalaBear 扩域 Gruen–Mikros 对照**见 [MIKROS_COMPARISON.md](MIKROS_COMPARISON.md)：共同标量后端、固定 kappa、完整 Hadamard 归约，以及 Mikros Lagrange 插值优化前后的同消息对照。使用独立 `gruen-mikros-bench`，保留下面原四域实验的命令和历史结果。
+Standalone scalar Hadamard reductions over prime fields and their extensions.
+The parallel Goldilocks / KoalaBear comparison is in [server64/](server64/README.md).
 
 ## 来源与实现范围
 
@@ -48,7 +45,7 @@ Q(X) = G(X)/Psi_H(X),                 deg Q <= B-2.
 
 `kappa_skip_rounds` 从扩域 trait 的 `DEGREE` 计算 k，检查 kappa 为二的幂。要求 `N>=kappa`，不满足时明确报错，不截断为 n。每种扩域元素都是 16 bytes。two-adicity 决定是否能使用 FFT，而不再决定实验跳几轮。API 为 FFT 路径设置 k<=16 的分配上限；一般节点路径设置 B<=256 且 2B<=p，四个固定 profile 均满足条件。
 
-扩域是递归二次扩张，基域系数分别使用 u8/u16/u32/u64 原生大小。关系来自本机 `C:\Users\miranda\git\mikros\baseline\src\odd_prime.rs` 中已命名的 profiles，本实现重新用静态类型表达，并重新测试 Euler 不可约性判据：
+扩域是递归二次扩张，基域系数分别使用 u8/u16/u32/u64 原生大小。各扩域使用静态类型表示，测试通过 Euler 判据检查不可约性：
 
 - F251：`u0^2=-1, u1^2=1+u0, u2^2=u1, u3^2=u2`。
 - F65521：`u0^2=17, u1^2=u0, u2^2=u1`。
@@ -70,7 +67,7 @@ Q(X) = G(X)/Psi_H(X),                 deg Q <= B-2.
 在 WSL Ubuntu 中执行，使用本机已验证存在的工具链：
 
 ```bash
-cd /mnt/c/Users/miranda/git/mikros_flock/gruen
+cd gruen
 cargo +nightly-2026-03-21 fmt -- --check
 cargo +nightly-2026-03-21 test --offline
 cargo +nightly-2026-03-21 clippy --offline --all-targets -- -D warnings
@@ -81,5 +78,3 @@ taskset -c 2 ./target/release/gruen-bench --n 12,16,20 --reps 5 --out results/re
 测试/构建与测量分开执行。计时是单线程、逐项串行运行，每种方法预热一次，正式重复时轮转执行顺序。见证与挑战生成不计入 prover；equality tables、domain setup、商多项式、初始折叠、普通轮、后续折叠与分配计入。每次生成的 proof 都验证；独立 oracle 求值按 n/k 预先计算并单独计时，未混入 prover。
 
 CSV 保存每次原始样本和中位数/最小值/最大值、分阶段耗时、归约验证耗时、oracle 耗时与域元素数量，并显式记录 kappa、实际 block_size 和 interpolation_domain。分阶段独立取中位数，所以相加未必严格等于总时间中位数。输出文件通过 create_new 创建，拒绝覆盖已有测量。默认结果目录相对本 crate 的编译时路径，不依赖启动 cwd。
-
-当前主实验统一采用按 kappa 固定跳轮的规则，见 [RESULTS.md](RESULTS.md)。先前按 FFT 支持范围扫描并选择最佳 k 的结果保留在 [RESULTS_SWEEP.md](RESULTS_SWEEP.md) 及原始 CSV 中，不作为当前固定 kappa 对比的结论；新版 CLI 已移除 `--max-skip` 参数。

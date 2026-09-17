@@ -1,7 +1,7 @@
 //! Matched old/new bit-address permutation PIOPs. Offline preparation is
 //! reported separately; all challenge-dependent source conversion is online.
-//! The standalone source check is an untimed oracle, not a PCS. E2E uses the
-//! production PCS in e2e_bit_compare --permutation both.
+//! Direct source checking is timed separately. The E2E comparison composes the
+//! reduction with PCS: e2e_bit_compare --permutation both.
 use flock_core::challenger::{Challenger, FsChallenger};
 use flock_field::{F128, F256Unreduced};
 use mikros_permutation::{permutation::Options, profile::Engine, wiring as mw};

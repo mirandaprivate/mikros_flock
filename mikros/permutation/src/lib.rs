@@ -1,6 +1,6 @@
 //! Permutation/Lasso PIOP reductions over F128. Source evaluations returned by
-//! the verifier require authentication by the caller's PCS. Digest binding and
-//! the direct input checker provided here are not a polynomial commitment.
+//! the verifier require authentication by the caller's PCS. Tests use a
+//! linear-time checker to evaluate these claims directly on the inputs.
 #![doc = include_str!("../README.md")]
 
 pub mod bits;

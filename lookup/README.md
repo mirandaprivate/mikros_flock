@@ -2,7 +2,7 @@
 
 固定证明域 `E = GF(2^128)`（Flock 的 GHASH `F128`），实现 permutation PIOP、显式表 indexed Lasso，以及默认启用的 **WHIR PCS 完整认证组合**。所有文件和构建产物位于独立的 `lookup/` Cargo workspace，依赖现有 Flock 算术、transcript 和 Mikros binary Hadamard。
 
-原 PIOP 对照数据见 [RESULTS.md](RESULTS.md)。WHIR 接入依据、协议顺序、限制和运行方式见 [WHIR.md](WHIR.md)。
+WHIR 的参数、接口和运行方式见 [WHIR.md](WHIR.md)。
 
 ## 已实现的两种容量回退
 
@@ -73,25 +73,30 @@ claims.check(&output.auxiliary.sources(&values, &addresses))?;
 
 Permutation 使用 `permutation::{Statement::new, prove, verify}`；源认证为 `claims.check(&[(Source::Left,&left),(Source::Right,&right)])`。`Strategy::FullExtension` 是相同语句、相同 transcript、相同 verifier 的全 F128 树基线。
 
-在 Windows PowerShell 从仓库根目录运行：
+从仓库根目录进入 `lookup/`，在 Bash 中运行：
 
-```powershell
-wsl -d Ubuntu --cd /mnt/c/Users/miranda/git/mikros_flock/lookup --exec bash -lc 'CARGO_TERM_WIDTH=200 RAYON_NUM_THREADS=2 cargo +nightly-2026-03-21 test --offline -p mikros-lookup --message-format=short -j 2'
-wsl -d Ubuntu --cd /mnt/c/Users/miranda/git/mikros_flock/lookup --exec bash -lc 'CARGO_TERM_WIDTH=200 RAYON_NUM_THREADS=1 cargo +nightly-2026-03-21 run --release --offline -p mikros-lookup --message-format=short -j 2 --example whir_lookup -- 64 8'
-wsl -d Ubuntu --cd /mnt/c/Users/miranda/git/mikros_flock/lookup --exec bash -lc 'RAYON_NUM_THREADS=1 cargo +nightly-2026-03-21 run --release --offline -j 2 --example compare -- 10 8 64 5'
+```bash
+cd lookup
+CARGO_TERM_WIDTH=200 RAYON_NUM_THREADS=2 cargo +nightly-2026-03-21 test --offline -p mikros-lookup --message-format=short -j 2
+CARGO_TERM_WIDTH=200 RAYON_NUM_THREADS=1 cargo +nightly-2026-03-21 run --release --offline -p mikros-lookup --message-format=short -j 2 --example whir_lookup -- 64 8
+RAYON_NUM_THREADS=1 cargo +nightly-2026-03-21 run --release --offline -j 2 --example compare -- 10 8 64 5
 ```
 
 `compare` 的参数为 `log_n value_bits table_rows repeats`。两种实现交替运行，预热一次，逐样本检查全部源声明、transcript 同步和证明相等；输出 JSON 包括所有时间样本、消息大小和树存储字节。计时包含 prover 内部源哈希与辅助 witness 构造；输入生成在外，线性 source checker 单独列出。首次子域基生成在预热中完成，是公开、与 witness 无关的初始化。
 
-## 验证边界与性能口径
+## 参数与计时
 
-- 低层 `permutation::verify` / `lasso::verify` 仍返回待认证声明，`Claims::check` 仍只是线性参考检查器。`authenticated` 使用真实 WHIR 承诺认证全部终端声明，并证明每个源的 Booleanity 和零 padding。WHIR 源向量目前每 bit 占一个 E 元素，最多 `2^20` 个元素；public covector 构造/最终检查仍为线性时间，不宣称完整 verifier 为对数时间或 PCS 已实现 bit packing。
-- 本版没有零知识掩码或 grinding，不宣称严格 128 bit soundness。固定无损编码下，错误 permutation 的 fingerprint 概率至多约 `(L-1)/|E|`；此外还有 degree-three sumcheck、随机合并及超宽 tuple 聚合的误差。L 为补齐后的叶数。超宽聚合额外引入随机线性压缩误差，不能忽略。
-- **位宽优化目前作用于树构造和保存的层；GKR sumcheck 仍在 E 中执行。** 读取紧凑层时会求值并分配临时 E 向量。因此 `compact_bytes+extension_bytes` 只是已保存树层大小，不是进程峰值 RSS。不能据此声称实现了论文全部 small-field proof 算术复杂度。
-- 系数卷积采用标量参考内核，1 bit 使用 XOR carryless 特化；尚未实现更广的 SIMD、跨层融合或通用 packed polynomial Hadamard。`compare` 衡量这一版本和同语句全扩域基线，不是 Flock 完整 lookup 或单次 degree-two zerocheck 的比值。
+低层 `verify` 返回待认证声明；`Claims::check` 直接扫描输入，在 O(N)
+时间内计算这些声明。`authenticated` 使用 WHIR 认证各源，并检查 Booleanity
+和零 padding；参数见 [WHIR.md](WHIR.md)。
 
-## 依据
+紧凑乘积树按基域位宽存储各层，GKR sumcheck 在 F128 中运行。
+`compact_bytes + extension_bytes` 记录树层存储量，进程峰值内存需单独测量。
+基准包括源哈希和辅助 witness 构造，输入生成与直接源检查单独计时。
 
-Mikros 构造依据本仓库 `latex/mikros/4-block.tex` 的 Packed Permutation Proof、`alg/alg-permutation.tex` 和 `appx-proof.tex` 的 permutation 分析。代码采用系数树及随机求值的思路，并用通用 GKR 连接各层；不声称逐行实现论文的全部系数层 packed reduction。
+协议使用无损元组编码。长度 L 的错误 permutation 的 fingerprint 误差至多
+`(L - 1) / |E|`；组合误差还包括 sumcheck、随机合并和超宽元组压缩。
+当前实现为非零知识协议，未使用 grinding。
 
-当前这份 LaTeX 正文没有 Lasso 构造。离线读写集合和计数器的组合依据作者的 [Jolt 论文附录 B.3](https://people.cs.georgetown.edu/jthaler/Jolt-paper.pdf) 及 [Lasso 原论文](https://eprint.iacr.org/2023/1216)；本目录在此基础上增加 bitwidth-aware 编码、容量回退和 binary 进位证明。
+离线读写集合采用 [Jolt 附录 B.3](https://people.cs.georgetown.edu/jthaler/Jolt-paper.pdf)
+及 [Lasso](https://eprint.iacr.org/2023/1216) 的构造。

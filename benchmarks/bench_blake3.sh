@@ -29,8 +29,7 @@
 # A plain `./bench_blake3.sh` reuses cached rows and only runs what's missing;
 # naming a prover re-runs it fresh. USE_CACHE=1 reuses even with args; NO_CACHE=1
 # forces fresh runs (still caching). Knobs: per-prover {FLOCK,B64,P3}_{MT,ST}_SIZES
-# size lists, DO_ST=0 to skip the single-threaded pass, RAYON_NUM_THREADS. See
-# ../CLAUDE.md "External Benchmarks".
+# size lists, DO_ST=0 to skip the single-threaded pass, RAYON_NUM_THREADS.
 
 set -euo pipefail
 

@@ -1,6 +1,6 @@
 //! Bitwidth-aware permutation/Lasso over F128, with optional WHIR composition.
 //! `authenticated` verifies all bit oracles without a witness. The low-level
-//! PIOP APIs still return deferred claims; their direct checker is not a PCS.
+//! PIOP APIs return claims for PCS authentication or direct evaluation in tests.
 #![doc = include_str!("../README.md")]
 
 #[cfg(feature = "whir")]

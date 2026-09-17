@@ -1,8 +1,7 @@
-//! Univariate Hadamard proof from `latex/4-block.tex` (2026-09-12).
+//! Univariate Hadamard reduction with terminal packed-opening claims.
 //!
-//! This stops at the section's direct packed-opening interface. The additional
-//! column-to-tensor aggregation in alg-hadamard and PCS are not included.
-//! Inputs are packed bits; residual degree <=254, quotient degree <=126.
+//! Inputs are packed bits. The residual has degree at most 254 and its quotient
+//! has degree at most 126. The caller authenticates the returned claims with PCS.
 
 use crate::{
     inner_product::{self, InnerProductProof},

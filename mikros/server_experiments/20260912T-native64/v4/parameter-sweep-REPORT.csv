@@ -1,3 +1,0 @@
-log_n,system,compression,prover_median_ms,prover_min_ms,prover_max_ms,ratio_to_flock128,verifier_median_ms,payload_bytes,bincode_bytes,cold_rss_mib,wins_vs_flock128,median_paired_ratio
-30,flock,64,114.51602749999999,90.774162,142.11979599999998,0.9833355297144432,0.379519,2864,2896,1167.80859375,2,1.057028081131617
-30,flock128,128,116.456717,92.587718,126.965274,1.0,0.624717,4880,4912,791.70703125,,1.0

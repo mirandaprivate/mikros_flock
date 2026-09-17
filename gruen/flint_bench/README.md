@@ -3,8 +3,6 @@
 Standalone C harness for FLINT's public `fq_nmod` API. This experiment does not
 change the existing Rust field implementation or any Cargo workspace files.
 
-Completed measurements and observed variability: [RESULTS.md](RESULTS.md).
-
 | Base field | Prime | Extension degree | Defining polynomial | log2(field order) |
 |---|---:|---:|---|---:|
 | F241 | 241 | 16 | X^16 - 7 | 126.606229380 |
@@ -25,7 +23,7 @@ The binomials are fixed explicitly, without timing-based polynomial selection.
 ## Reproduce on this Ubuntu 22.04 x86_64 WSL environment
 
 ```sh
-cd /mnt/c/Users/miranda/git/mikros_flock/gruen/flint_bench
+cd gruen/flint_bench
 bash setup.sh
 python3 run.py --sanitize --reps 1 --ms 10 --out results/sanitizer-reproduction
 python3 run.py --reps 9 --ms 150 --cpu 2 --out results/reproduction

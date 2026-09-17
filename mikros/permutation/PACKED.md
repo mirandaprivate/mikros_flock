@@ -1,14 +1,8 @@
 # Revised packed permutation
 
-The `packed` module implements the polynomial-tree / packed-Hadamard reduction
-in the current body of `latex/4-block.tex`, Section “Packed Permutation Proof”.
-The manuscript's permutation pseudocode and appendix still describe the previous
-reduction. The previous implementation remains available through `permutation`
-and the existing wiring functions for comparison.
-
-This is a protocol change: old and new proof messages and transcripts are not
-expected to match. Each version must independently replay and authenticate its
-terminal source functional.
+The `packed` module implements the polynomial-tree and packed-Hadamard
+permutation reduction. The `permutation` module provides the legacy protocol,
+which has a separate proof format and transcript domain.
 
 ## Layout and protocol
 

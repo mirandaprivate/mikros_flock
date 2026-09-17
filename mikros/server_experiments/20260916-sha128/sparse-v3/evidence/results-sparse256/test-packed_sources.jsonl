@@ -1,8 +1,0 @@
-
-running 3 tests
-test packed_sources::tests::malformed_columns_and_queries_are_rejected ... ok
-test packed_sources::tests::packed_sparse_columns_native_pcs_roundtrip_and_tamper_rejection ... ok
-test packed_sources::tests::packed_widths_offsets_and_numeric_mles_match ... ok
-
-test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 126 filtered out; finished in 0.12s
-

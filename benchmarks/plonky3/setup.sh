@@ -17,7 +17,6 @@
 # Closest Flock comparison (independent permutations, 3-wide encoder):
 #   cargo bench --bench keccak3_proof
 # (the single-permutation keccak_proof bench was retired 2026-08-14)
-# See ../CLAUDE.md "plonky3/ (Plonky3)" for the full comparison.
 
 set -euo pipefail
 

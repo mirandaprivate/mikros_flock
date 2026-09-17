@@ -1,8 +1,0 @@
-
-running 3 tests
-test multiple_image::tests::columns_rounds_endpoints_and_source_tampering_rejected ... ok
-test multiple_image::tests::nonidentity_roundtrip_all_endpoints_and_low_first_points ... ok
-test multiple_image::tests::public_frobenius_recursion_matches_direct_coordinate_projection ... ok
-
-test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 126 filtered out; finished in 0.05s
-

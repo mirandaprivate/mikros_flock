@@ -393,8 +393,8 @@ pub fn prove_public<C: Challenger>(
 }
 
 /// Verify the projection and IP, then evaluate its public terminal using the
-/// caller's bound circuit. This API intentionally scans that public circuit;
-/// it does not claim succinct matrix authentication or discharge the PCS claim.
+/// caller's bound circuit. Verification scans the public circuit and returns
+/// a witness claim for PCS authentication.
 pub fn verify_public<C: Challenger>(
     circuit: &dyn LincheckCircuit,
     left: bool,

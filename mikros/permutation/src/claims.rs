@@ -136,8 +136,8 @@ pub struct Claims {
     pub evaluations: Vec<OracleClaim>,
 }
 impl Claims {
-    /// Authenticate every source and claim, using split equality tables for
-    /// row queries. This remains a full-source checker, not a PCS verifier.
+    /// Check every source and claim directly in linear time, using split
+    /// equality tables for row queries.
     pub fn check_parallel(&self, sources: &[(Source, &PackedBits)]) -> Result<(), Error> {
         for (source, spec) in &self.oracles {
             let bits = sources
