@@ -43,6 +43,10 @@ name = "e2e_blake3"
 harness = false
 
 [[bench]]
+name = "single_hash_compare"
+harness = false
+
+[[bench]]
 name = "binary_hadamard"
 harness = false
 

@@ -8,6 +8,8 @@ pub mod fixture;
 pub mod gates;
 #[path = "grinding.rs"]
 mod grinding;
+#[path = "../e2e_single_plonk/public_wiring.rs"]
+pub mod public_wiring;
 #[path = "../e2e_plonk/queries.rs"]
 mod queries;
 
@@ -45,14 +47,26 @@ pub struct Setup {
     pub public_params: PcsParams,
     pub public_commitment: Commitment,
     pub offline_copy_setup_ms: f64,
+    pub public_wiring: bool,
     public_data: ProverData,
-    copy_preprocessing: copy::Preprocessing,
+    copy_preprocessing: Option<copy::Preprocessing>,
 }
 
 impl Setup {
     pub fn new(f: &HashFixture, prepared: &PreparedWitness) -> Result<Self, String> {
+        Self::new_with_wiring(f, prepared, false)
+    }
+    pub fn new_with_wiring(
+        f: &HashFixture,
+        prepared: &PreparedWitness,
+        public_wiring: bool,
+    ) -> Result<Self, String> {
         let (circuit, witness) = fixture::compile(f, prepared)?;
-        let public = circuit.public();
+        let public = if public_wiring {
+            circuit.gate_public()
+        } else {
+            circuit.public()
+        };
         let block_log = circuit.wire_words().ilog2() as usize;
         let witness_registry = fixture::registry(witness.len().ilog2() as usize, block_log);
         let public_registry = fixture::registry(public.len().ilog2() as usize, block_log);
@@ -66,7 +80,12 @@ impl Setup {
             .map_err(|e| format!("public PCS config: {e:?}"))?;
         let (public_commitment, public_data) = pcs::commit(&public, &public_params);
         let start = Instant::now();
-        let copy_preprocessing = copy::preprocess(&circuit)?;
+        let copy_preprocessing = if public_wiring {
+            public_wiring::validate_circuit(&circuit)?;
+            None
+        } else {
+            Some(copy::preprocess(&circuit)?)
+        };
         let offline_copy_setup_ms = ms(start);
         Ok(Self {
             circuit,
@@ -78,6 +97,7 @@ impl Setup {
             public_params,
             public_commitment,
             offline_copy_setup_ms,
+            public_wiring,
             public_data,
             copy_preprocessing,
         })
@@ -89,7 +109,9 @@ impl Setup {
             "copy_positions":self.circuit.live_len(),"copy_padded_positions":self.circuit.copy_len(),
             "copy_base_field_bits":(self.circuit.h()+1).next_power_of_two(),
             "copy_packing_width":128/(self.circuit.h()+1).next_power_of_two(),
-            "gate_hadamard_invocations":5,"permutation_proof":true,
+            "gate_hadamard_invocations":5,"permutation_proof":!self.public_wiring,
+            "copy_argument":if self.public_wiring {"public sparse sigma matrix + inner product"} else {"packed permutation"},
+            "sigma_authentication":if self.public_wiring {"direct verifier sparse MLE; no sigma commitment"} else {"public PCS"},
             "witness_words":self.witness.len(),"public_table_words":self.public.len(),
             "witness_pcs_params":self.witness_params,"public_pcs_params":self.public_params,
             "public_commitment_blake3":digest(&self.public_commitment),
@@ -97,17 +119,17 @@ impl Setup {
             "scalar_projection":if std::env::var_os("MIKROS_SINGLE_GATE_REFERENCE").is_some_and(|v|v=="1"){ "materialized reference" }else{ "fused subset-XOR" },
             "opening_projection":if std::env::var_os("MIKROS_OPENING_REFERENCE").is_some_and(|v|v=="1"){ "dense reference" }else{ "restricted source blocks and fused native IP" },
             "pcs_data_policy":if std::env::var_os("MIKROS_SINGLE_PCS_REFERENCE").is_some_and(|v|v=="1"){ "reference online recommit" }else{ "retain witness data; reuse preprocessed public data" },
-            "copy_preprocessing_bytes":self.copy_preprocessing.resident_bytes(),
-            "copy_preparation_kernel":if std::env::var_os("MIKROS_SINGLE_COPY_REFERENCE").is_some_and(|v|v=="1"){ "v6 bit-sliced source and SWAR decode" }else{ "direct rows and preprocessed public label interpolation" },
-            "copy_preparation_scope":"fixed circuit label interpolation offline; current witness and public I/O bits and their coefficient layers online"})
+            "copy_preprocessing_bytes":self.copy_preprocessing.as_ref().map_or(0,|p|p.resident_bytes()),
+            "copy_preparation_kernel":if self.public_wiring {"sparse column projection and native inner product"}else if std::env::var_os("MIKROS_SINGLE_COPY_REFERENCE").is_some_and(|v|v=="1"){ "v6 bit-sliced source and SWAR decode" }else{ "direct rows and preprocessed public label interpolation" },
+            "copy_preparation_scope":if self.public_wiring {"public permutation validation offline; challenge-dependent projection, witness expansion and sparse verifier MLE online"}else{"fixed circuit label interpolation offline; current witness and public I/O bits and their coefficient layers online"}})
     }
 }
 
 #[derive(Clone, Serialize, Deserialize)]
-pub struct Proof {
+pub struct Proof<W = copy::SingleProof> {
     pub commitment: Commitment,
     pub gate: gates::SingleProof,
-    pub copy: copy::SingleProof,
+    pub copy: W,
     pub gate_nonces: Vec<u64>,
     pub copy_nonces: Vec<u64>,
     pub opening: mikros::packed_opening::Proof,
@@ -121,8 +143,13 @@ fn bind(
     c: &fixture::Circuit,
     cm: &Commitment,
     public_cm: &Commitment,
+    public_wiring: bool,
 ) -> FsChallenger {
-    let mut ch = FsChallenger::new(b"mikros-single-native-hash-plonk-v1");
+    let mut ch = FsChallenger::new(if public_wiring {
+        b"mikros-single-public-wiring-v1"
+    } else {
+        b"mikros-single-native-hash-plonk-v1"
+    });
     ch.observe_label(kind.as_str().as_bytes());
     ch.observe_bytes(&c.digest());
     ch.observe_bytes(&bincode::serialize(cm).unwrap());
@@ -135,14 +162,92 @@ pub fn prove(
     s: &Setup,
     owned: Vec<F128>,
 ) -> Result<(Proof, Value, FsChallenger), String> {
+    prove_impl(kind, s, owned, false, |s, z, cc| {
+        let t = Instant::now();
+        let (prepared, preparation) = copy::prepare_online(
+            &s.circuit,
+            z,
+            s.copy_preprocessing
+                .as_ref()
+                .ok_or("missing packed copy preprocessing")?,
+        )?;
+        let prepare_ms = ms(t);
+        let t = Instant::now();
+        let mut ch = GrindingChallenger::prover(cc)
+            .packed_permutation(s.circuit.h(), 128 / (s.circuit.h() + 1).next_power_of_two());
+        let (proof, claims) = copy::single_prove(&s.circuit, z, &s.public, &prepared, &mut ch)?;
+        let grinding = ch.grinding_ms();
+        let initial = ch.initial_fingerprint_grinding_ms();
+        let (ch, nonces) = ch.finish()?;
+        drop(prepared);
+        Ok(CopyOutput {
+            proof,
+            claims,
+            ch,
+            nonces,
+            times: [
+                prepare_ms,
+                ms(t),
+                preparation.input_ms,
+                preparation.layers_ms,
+                preparation.samples_ms,
+                grinding,
+                initial,
+            ],
+        })
+    })
+}
+
+pub fn prove_public_wiring(
+    kind: HashKind,
+    s: &Setup,
+    owned: Vec<F128>,
+) -> Result<(Proof<public_wiring::SingleProof>, Value, FsChallenger), String> {
+    prove_impl(kind, s, owned, true, |s, z, cc| {
+        let t = Instant::now();
+        let mut ch = GrindingChallenger::prover(cc);
+        let (proof, claims) = public_wiring::single_prove(&s.circuit, z, &mut ch)?;
+        let grinding = ch.grinding_ms();
+        let (ch, nonces) = ch.finish()?;
+        Ok(CopyOutput {
+            proof,
+            claims,
+            ch,
+            nonces,
+            times: [0.0, ms(t), 0.0, 0.0, 0.0, grinding, 0.0],
+        })
+    })
+}
+
+struct CopyOutput<W> {
+    proof: W,
+    claims: gates::Claims,
+    ch: FsChallenger,
+    nonces: Vec<u64>,
+    times: [f64; 7],
+}
+
+fn prove_impl<W: Serialize>(
+    kind: HashKind,
+    s: &Setup,
+    owned: Vec<F128>,
+    public_wiring: bool,
+    prove_copy: impl FnOnce(&Setup, &[F128], FsChallenger) -> Result<CopyOutput<W>, String>,
+) -> Result<(Proof<W>, Value, FsChallenger), String> {
     let begin = Instant::now();
-    if owned.len() != s.witness.len() {
+    if owned.len() != s.witness.len() || s.public_wiring != public_wiring {
         return Err("PLONK witness shape".into());
     }
     let t = Instant::now();
     let (commitment, data) = pcs::commit(&owned, &s.witness_params);
     let commit_ms = ms(t);
-    let mut parent = bind(kind, &s.circuit, &commitment, &s.public_commitment);
+    let mut parent = bind(
+        kind,
+        &s.circuit,
+        &commitment,
+        &s.public_commitment,
+        public_wiring,
+    );
     let gc = parent.fork(b"gates");
     let cc = parent.fork(b"copy");
     let t = Instant::now();
@@ -151,19 +256,22 @@ pub fn prove(
     let gate_grinding_ms = g.grinding_ms();
     let (gc, gate_nonces) = g.finish()?;
     let gates_ms = ms(t);
-    let t = Instant::now();
-    let (prepared, copy_preparation) =
-        copy::prepare_online(&s.circuit, &owned, &s.copy_preprocessing)?;
-    let copy_prepare_ms = ms(t);
-    let t = Instant::now();
-    let mut cch = GrindingChallenger::prover(cc)
-        .packed_permutation(s.circuit.h(), 128 / (s.circuit.h() + 1).next_power_of_two());
-    let (copy, cclaims) = copy::single_prove(&s.circuit, &owned, &s.public, &prepared, &mut cch)?;
-    let copy_grinding_ms = cch.grinding_ms();
-    let copy_initial_grinding_ms = cch.initial_fingerprint_grinding_ms();
-    let (cc, copy_nonces) = cch.finish()?;
-    drop(prepared);
-    let copy_ms = ms(t);
+    let CopyOutput {
+        proof: copy,
+        claims: cclaims,
+        ch: cc,
+        nonces: copy_nonces,
+        times,
+    } = prove_copy(s, &owned, cc)?;
+    let [
+        copy_prepare_ms,
+        copy_ms,
+        copy_input_ms,
+        copy_layers_ms,
+        copy_samples_ms,
+        copy_grinding_ms,
+        copy_initial_grinding_ms,
+    ] = times;
     claims.witness.extend(cclaims.witness);
     claims.public.extend(cclaims.public);
     parent.merge_child(gc);
@@ -217,7 +325,7 @@ pub fn prove(
     .map_err(|e| format!("PLONK public PCS: {e:?}"))?;
     let public_pcs_ms = ms(t);
     let times = json!({"commit_ms":commit_ms,"gates_ms":gates_ms,"copy_prepare_ms":copy_prepare_ms,"copy_ms":copy_ms,"recommit_ms":recommit_ms,
-        "copy_input_ms":copy_preparation.input_ms,"copy_layers_ms":copy_preparation.layers_ms,"copy_samples_ms":copy_preparation.samples_ms,
+        "copy_input_ms":copy_input_ms,"copy_layers_ms":copy_layers_ms,"copy_samples_ms":copy_samples_ms,
         "gate_grinding_ms":gate_grinding_ms,"copy_grinding_ms":copy_grinding_ms,"copy_initial_grinding_ms":copy_initial_grinding_ms,"opening_grinding_ms":opening_grinding_ms,
         "packed_opening_ms":packed_opening_ms,"witness_pcs_open_ms":witness_pcs_ms,"public_pcs_open_ms":public_pcs_ms,"pcs_open_ms":witness_pcs_ms+public_pcs_ms,
         "native_pcs_claims":2,
@@ -266,8 +374,43 @@ pub fn verify_with_timings(
     public_cm: &Commitment,
     p: &Proof,
 ) -> Result<(FsChallenger, VerificationTimings), String> {
+    verify_impl(kind, c, public_cm, p, false, |c, log_z, log_p, p, ch| {
+        copy::single_verify(c, log_z, log_p, p, ch)
+    })
+}
+
+pub fn verify_public_wiring_with_timings(
+    kind: HashKind,
+    c: &fixture::Circuit,
+    public_cm: &Commitment,
+    p: &Proof<public_wiring::SingleProof>,
+) -> Result<(FsChallenger, VerificationTimings), String> {
+    verify_impl(kind, c, public_cm, p, true, |c, _, _, p, ch| {
+        public_wiring::single_verify(c, p, ch)
+    })
+}
+
+fn verify_impl<W>(
+    kind: HashKind,
+    c: &fixture::Circuit,
+    public_cm: &Commitment,
+    p: &Proof<W>,
+    public_wiring: bool,
+    verify_copy: impl FnOnce(
+        &fixture::Circuit,
+        usize,
+        usize,
+        &W,
+        &mut GrindingChallenger,
+    ) -> Result<gates::Claims, String>,
+) -> Result<(FsChallenger, VerificationTimings), String> {
     let log_z = c.witness_words().ilog2() as usize;
-    let log_p = c.public_words().ilog2() as usize;
+    let log_p = (if public_wiring {
+        c.gate_public_words()
+    } else {
+        c.public_words()
+    })
+    .ilog2() as usize;
     let block_log = c.wire_words().ilog2() as usize;
     let wr = fixture::registry(log_z, block_log);
     let pr = fixture::registry(log_p, block_log);
@@ -278,7 +421,7 @@ pub fn verify_with_timings(
     {
         return Err("PLONK PCS params".into());
     }
-    let mut parent = bind(kind, c, &p.commitment, public_cm);
+    let mut parent = bind(kind, c, &p.commitment, public_cm, public_wiring);
     let gc = parent.fork(b"gates");
     let cc = parent.fork(b"copy");
     let start = Instant::now();
@@ -287,9 +430,11 @@ pub fn verify_with_timings(
     let (gc, _) = g.finish()?;
     let gate_ms = ms(start);
     let start = Instant::now();
-    let mut cch = GrindingChallenger::verifier(cc, &p.copy_nonces)
-        .packed_permutation(c.h(), 128 / (c.h() + 1).next_power_of_two());
-    let cclaims = copy::single_verify(c, log_z, log_p, &p.copy, &mut cch)?;
+    let mut cch = GrindingChallenger::verifier(cc, &p.copy_nonces);
+    if !public_wiring {
+        cch = cch.packed_permutation(c.h(), 128 / (c.h() + 1).next_power_of_two());
+    }
+    let cclaims = verify_copy(c, log_z, log_p, &p.copy, &mut cch)?;
     let (cc, _) = cch.finish()?;
     let copy_ms = ms(start);
     claims.witness.extend(cclaims.witness);
@@ -319,7 +464,7 @@ pub fn verify_with_timings(
 
 /// Exact bincode component sizes, including their vector headers and nonces.
 /// Bincode serializes this struct as consecutive fields, without a struct tag.
-pub fn proof_sizes(p: &Proof) -> Result<[u64; 3], bincode::Error> {
+pub fn proof_sizes<W: Serialize>(p: &Proof<W>) -> Result<[u64; 3], bincode::Error> {
     Ok([
         bincode::serialized_size(&(&p.gate, &p.gate_nonces))?,
         bincode::serialized_size(&(&p.copy, &p.copy_nonces))?,
@@ -417,5 +562,115 @@ pub fn tamper(kind: HashKind, s: &Setup, p: &Proof) -> Result<Vec<String>, Strin
         }
         cases.push(format!("public_bit_{i}"));
     }
+    Ok(cases)
+}
+
+pub fn tamper_public_wiring(
+    kind: HashKind,
+    s: &Setup,
+    p: &Proof<public_wiring::SingleProof>,
+) -> Result<Vec<String>, String> {
+    let mut cases = Vec::new();
+    let verify = |c: &fixture::Circuit, p: &Proof<public_wiring::SingleProof>| {
+        verify_public_wiring_with_timings(kind, c, &s.public_commitment, p)
+    };
+    for k in 0..18 {
+        let mut bad = p.clone();
+        let name = match k {
+            0 => {
+                bad.gate.scalars[0] += F128::ONE;
+                "gate_scalar"
+            }
+            1 => {
+                bad.gate.hadamards.pop();
+                "missing_gate_reduction"
+            }
+            2 => {
+                bad.copy.ip.rounds[0][0] += F128::ONE;
+                "wiring_ip_round"
+            }
+            3 => {
+                bad.copy.ip.final_a += F128::ONE;
+                "wiring_witness_terminal"
+            }
+            4 => {
+                bad.copy.ip.final_b += F128::ONE;
+                "wiring_matrix_terminal"
+            }
+            5 => {
+                bad.copy.wire_values[0] += F128::ONE;
+                "wiring_wire_value"
+            }
+            6 => {
+                bad.copy.ip.rounds.pop();
+                "wiring_round_count"
+            }
+            7 => {
+                bad.witness_pcs.component_values[0] += F128::ONE;
+                "witness_pcs_value"
+            }
+            8 => {
+                bad.public_pcs.component_values[0] += F128::ONE;
+                "public_pcs_value"
+            }
+            9 => {
+                bad.witness_pcs.merged = None;
+                "missing_witness_pcs"
+            }
+            10 => {
+                bad.public_pcs.merged = None;
+                "missing_public_pcs"
+            }
+            11 => {
+                bad.copy_nonces.pop();
+                "wiring_grinding_shape"
+            }
+            12 => {
+                bad.gate_nonces.pop();
+                "gate_grinding_shape"
+            }
+            13 => {
+                bad.opening.columns[0][0] += F128::ONE;
+                "opening_column"
+            }
+            14 => {
+                bad.opening.ips[0].final_a += F128::ONE;
+                "opening_ip_terminal"
+            }
+            15 => {
+                bad.opening.ips.pop();
+                "missing_opening_group"
+            }
+            16 => {
+                bad.copy.wire_values[0] += F128::ONE;
+                bad.copy.wire_values[1] += F128::ONE;
+                "balanced_wiring_values_require_pcs"
+            }
+            _ => {
+                bad.opening_nonces.pop();
+                "opening_grinding_shape"
+            }
+        };
+        if verify(&s.circuit, &bad).is_ok() {
+            return Err(format!("accepted {name}"));
+        }
+        cases.push(name.to_owned());
+    }
+    for i in (0..s.circuit.io.len()).filter(|&i| i % 128 == 0 || i + 1 == s.circuit.io.len()) {
+        let mut bad = s.circuit.clone();
+        bad.io[i] ^= true;
+        if verify(&bad, p).is_ok() {
+            return Err("accepted changed public I/O".into());
+        }
+        cases.push(format!("public_bit_{i}"));
+    }
+    // Leave the cached digest unchanged: the actual sparse MLE check must
+    // reject a changed public matrix even independently of transcript binding.
+    let mut bad = s.circuit.clone();
+    bad.sigma.swap(0, 1);
+    if verify(&bad, p).is_ok() {
+        return Err("accepted changed public sigma matrix".into());
+    }
+    cases.push("public_sigma_mle".into());
     Ok(cases)
 }

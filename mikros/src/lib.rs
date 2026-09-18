@@ -9,7 +9,8 @@ pub mod e2e_lincheck;
 pub mod extension_product;
 pub mod flock_baseline;
 pub mod hadamard;
-mod inner_product;
+/// Degree-two IP reduction; callers authenticate its terminal evaluations.
+pub mod inner_product;
 pub mod layout;
 pub mod lookup;
 pub mod mixed_tensor;

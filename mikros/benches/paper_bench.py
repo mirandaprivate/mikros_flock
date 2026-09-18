@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Comparison orchestration for the four Cargo bench paper entry points.
+"""Comparison orchestration for the Cargo bench paper entry points.
 
 Workers contain the existing Rust proofs and timers. Each measurement process
 is isolated; this driver only prepares commands, checks results and reports.
@@ -24,6 +24,7 @@ import time
 ROOT = Path(__file__).resolve().parents[2]
 NAMES = {"pairreuse": "mikros", "flock128": "flock", "binius_switchover": "binius"}
 LABELS = {"mikros": "Mikros", "flock": "FLOCK skip-7", "binius": "Binius SFF"}
+HASHES = ("sha256", "keccak", "blake3")
 SHARED_DIGESTS = ("fixture_digest_blake3", "circuit_digest_blake3", "r1cs_digest_blake3",
                   "prepared_witness_blake3", "public_digest_blake3")
 # Canonical JSON receipt produced by setup.py for the pinned upstream archive.
@@ -124,6 +125,10 @@ def render_report(doc):
              "Times are medians; proof size is serialized bytes / 1024.", "",
              f"{'System':<16} {'Prover (ms)':>13} {'Verifier (ms)':>15} {'Proof (KiB)':>13} {'RAM (MiB)':>12} {'Samples':>9}",
              "-" * 83]
+    if doc.get("mikros_wiring") == "public":
+        lines.insert(1, "Mikros public wiring: sparse sigma MLE checked directly by the verifier (online cost included).")
+    elif doc.get("mikros_wiring") == "packed":
+        lines.insert(1, "Mikros uses the original packed permutation argument for copy constraints.")
     for system, row in doc["systems"].items():
         lines.append(f"{LABELS[system]:<16} {row['prover_ms']['median']:>13.3f} "
                      f"{row['verify_ms']['median']:>15.3f} {row['proof_bytes']/1024:>13.3f} "
@@ -135,10 +140,11 @@ def render_report(doc):
             continue
         lines += [f"{LABELS[system]} single-instance components",
                   f"{'Component':<20} {'Prover (ms)':>13} {'Verifier (ms)':>15} {'Proof (KiB)':>13}", "-" * 64]
-        for part, label in (("gate", "Gate constraint"), ("copy", "Copy constraint"), ("shared", "Shared PCS/other")):
+        copy_label = "Permutation argument" if doc.get("mikros_wiring") == "packed" else "Copy constraint"
+        for part, label in (("gate", "Gate constraint"), ("copy", copy_label), ("shared", "Shared PCS/other")):
             p = row["constraint_breakdown"][part]
             lines.append(f"{label:<20} {p['prover_ms']['median']:>13.3f} {p['verify_ms']['median']:>15.3f} {p['proof_bytes']/1024:>13.3f}")
-        lines += ["Copy includes witness-dependent preparation; component proofs include their grinding nonces.",
+        lines += [f"{copy_label} includes online witness-dependent preparation; component proofs include their grinding nonces.",
                   "Shared PCS/other is counted once. Per-sample components sum to E2E; component medians may not.", ""]
     lines += [f"{name.capitalize()}: {scope}" for name, scope in doc["measurement_scope"].items()]
     if doc.get("cpu_affinity") is not None:
@@ -152,14 +158,16 @@ def render_report(doc):
 
 def parse_options(argv):
     p = argparse.ArgumentParser(description="Compare Mikros and FLOCK; print a table and save a .log plus raw .json.")
-    p.add_argument("--experiment", choices=("sha256", "keccak", "blake3", "hadamard"), required=True, help=argparse.SUPPRESS)
+    p.add_argument("--experiment", choices=(*HASHES, "hadamard", "single"), required=True, help=argparse.SUPPRESS)
     p.add_argument("--worker-bin", type=Path, required=True, help=argparse.SUPPRESS)
     p.add_argument("--threads", type=int, default=1)
-    p.add_argument("--instances", type=int, choices=(1, 256), default=256)
+    p.add_argument("--instances", type=int, choices=(1, 256), help="default: single suite 1, other entries 256")
+    p.add_argument("--wiring", choices=("packed", "public"),
+                   help="Mikros single-instance copy argument; FLOCK stays native")
     p.add_argument("--log-n", type=int, default=30)
-    p.add_argument("--reps", type=int, help="measured proofs per process: Hadamard Mikros/FLOCK 10, E2E 6; Binius always 1")
+    p.add_argument("--reps", type=int, default=10, help="Mikros/FLOCK measured proofs per process (default: 10); Binius always 1")
     p.add_argument("--warmups", type=int, default=1)
-    p.add_argument("--batches", type=int, default=3, help="E2E fresh measurement processes per system")
+    p.add_argument("--batches", type=int, default=1, help="E2E fresh measurement processes per system (default: 1; total samples = reps * batches)")
     p.add_argument("--rss-runs", type=int, default=3, help="Hadamard Mikros/FLOCK fresh RAM processes; Binius reuses its sole proof")
     p.add_argument("--cpu", type=int, help="bind all worker threads to this logical CPU (requires --threads 1)")
     p.add_argument("--output", type=Path, help="readable log; detailed JSON uses the same stem")
@@ -168,8 +176,12 @@ def parse_options(argv):
     p.add_argument("--validate", action="store_true", help="run separate E2E tamper-validation processes")
     p.add_argument("--time-bin", type=Path, default=Path(shutil.which("gtime") or "/usr/bin/time"), help="GNU time executable")
     o = p.parse_args([a for a in argv if a != "--bench"])
-    if o.reps is None:
-        o.reps = 10 if o.experiment == "hadamard" else 6
+    if o.instances is None:
+        o.instances = 1 if o.experiment == "single" else 256
+    if o.wiring is None:
+        o.wiring = "packed"
+    if o.experiment == "single" and o.instances != 1:
+        p.error("single_hash_compare requires --instances 1")
     if min(o.threads, o.reps, o.batches, o.rss_runs) <= 0 or o.warmups < 0:
         p.error("threads, reps, batches and rss-runs must be positive; warmups must be nonnegative")
     if not 14 <= o.log_n <= 30:
@@ -182,9 +194,15 @@ def parse_options(argv):
         p.error("--validate is an E2E tamper-check option")
     if o.experiment != "hadamard" and (o.without_binius or o.binius_bin):
         p.error("Binius options apply only to binary_hadamard")
+    if o.wiring == "public" and (o.experiment == "hadamard" or o.instances != 1):
+        p.error("--wiring public requires a single-instance hash experiment")
     if o.output is None:
         filename = f"compare_hadamard_2_{o.log_n}.log" if o.experiment == "hadamard" else (
             f"e2e_flock_{o.experiment}.log" if o.instances == 256 else f"single_hash_{o.experiment}_compare.log")
+        if o.wiring == "public":
+            filename = f"single_hash_{o.experiment}_public_wiring_compare.log"
+        if o.experiment == "single":
+            filename = "single_hash_compare.log" if o.wiring == "packed" else "single_hash_public_wiring_compare.log"
         o.output = ROOT / filename
     elif not o.output.is_absolute():
         o.output = ROOT / o.output
@@ -307,6 +325,8 @@ class Runner:
         command = [o.worker_bin, "--worker", "--hash", o.experiment, "--system", system,
                    "--instances", o.instances, "--skip", 7, "--threads", o.threads,
                    "--reps", reps, "--warmups", warmups] + (["--tamper"] if validate else [])
+        if system == "mikros" and o.instances == 1:
+            command += ["--wiring", o.wiring]
         stdout, peak = self.run(name, command)
         records = [json.loads(line) for line in stdout.read_text().splitlines() if line.strip()]
         require(records and records[0]["record"] == "metadata", "missing E2E metadata")
@@ -314,6 +334,8 @@ class Runner:
         require(meta["system"] == system and meta["hash"] == o.experiment and meta["instances"] == o.instances
                 and meta["threads"] == meta["all_core_threads"] == o.threads
                 and meta["baseline_skip"] == meta["univariate_skip"] == 7, "E2E parameter mismatch")
+        if system == "mikros" and o.instances == 1:
+            require(meta.get("mikros_wiring") == o.wiring, "Mikros wiring mode mismatch")
         rows = [r for r in records if r["record"] == "sample"]
         negative = [r for r in records if r["record"] == "negative_tests"]
         require(len(records) == 1 + len(rows) + len(negative) and len(rows) == reps + warmups,
@@ -383,8 +405,7 @@ def binius_binary(o):
     return target / "release/binius-switchover-hadamard"
 
 
-def main(argv=None):
-    o = parse_options(sys.argv[1:] if argv is None else argv)
+def collect_experiment(o):
     runner = Runner(o)
     try:
         formal, cold, validations = [], [], []
@@ -438,6 +459,7 @@ def main(argv=None):
                                     "fresh_ram_proofs": 0, "ram_reuses_measured_proof": True}
                                 for s in ("mikros", "flock")}
         doc = {"schema_version": 2, "experiment": o.experiment, "threads": o.threads, "instances": o.instances,
+               "mikros_wiring": o.wiring if o.instances == 1 and o.experiment != "hadamard" else None,
                "log_n": o.log_n, "flock_skip": 7, "mikros_kappa": 128, "reps": o.reps, "warmups": o.warmups,
                "batches": o.batches, "rss_runs": o.rss_runs, "cpu_affinity": runner.cpu,
                "measurement_scope": scopes, "measurement_plan": measurement_plan,
@@ -447,23 +469,77 @@ def main(argv=None):
                "environment": {k: runner.env[k] for k in ("RAYON_NUM_THREADS", "FLOCK_VERIFY_THREADS", "FLOCK_PCS_PACKED_DIRECT", "FLOCK_WP_UNINIT")},
                **result, "raw_reports": formal, "cold_ram_reports": cold, "validation_reports": validations,
                "validation": {"rejected_mutations": sum(n["rejected"] for r in validations for n in r["negative_tests"])} if validations else None}
-        text = render_report(doc)
-        # Publish only after every process and check succeeds. Keep the previous
-        # published files in the run directory before replacing either format.
-        o.output.parent.mkdir(parents=True, exist_ok=True)
-        for dst in (o.output, o.output.with_suffix(".json")):
-            if dst.exists():
-                shutil.copy2(dst, runner.folder / ("previous" + dst.suffix))
-        staged_json = o.output.with_suffix(".json.tmp")
-        staged_log = o.output.with_suffix(".log.tmp")
-        save(staged_json, doc); staged_log.write_text(text, encoding="utf-8")
-        os.replace(staged_json, o.output.with_suffix(".json")); os.replace(staged_log, o.output)
-        save(runner.folder / "status.json", {"state": "complete", "log": str(o.output), "raw_data": doc["raw_data"]})
-        print(text, end="", flush=True)
-        print(f"Log: {o.output}", file=sys.stderr)
+        return doc, runner
     except BaseException as error:
         save(runner.folder / "status.json", {"state": "failed", "error": str(error)})
         raise
+
+
+def publish_report(doc, output, folder, text):
+    # Keep the previous published files in the run directory. The caller only
+    # reaches this point after all measurements for this report have succeeded.
+    try:
+        output.parent.mkdir(parents=True, exist_ok=True)
+        for dst in (output, output.with_suffix(".json")):
+            if dst.exists():
+                shutil.copy2(dst, folder / ("previous" + dst.suffix))
+        staged_json = output.with_suffix(".json.tmp")
+        staged_log = output.with_suffix(".log.tmp")
+        save(staged_json, doc); staged_log.write_text(text, encoding="utf-8")
+        os.replace(staged_json, output.with_suffix(".json")); os.replace(staged_log, output)
+        save(folder / "status.json", {"state": "complete", "log": str(output), "raw_data": doc["raw_data"]})
+    except BaseException as error:
+        save(folder / "status.json", {"state": "failed", "error": str(error)})
+        raise
+
+
+def collect_single_suite(o):
+    runner = Runner(o)
+    try:
+        reports = {}
+        argument = "packed permutation argument" if o.wiring == "packed" else "public wiring"
+        for index, name in enumerate(HASHES, 1):
+            print(f"[single] hash {index}/{len(HASHES)}: {name}; Mikros {argument} vs FLOCK skip-7",
+                  file=sys.stderr, flush=True)
+            child = argparse.Namespace(**vars(o))
+            child.experiment = name
+            child.output = runner.folder / f"{name}.log"
+            # Use the same selected CPU and executable for every hash. Each
+            # system still runs in fresh measurement processes as usual.
+            child.cpu = runner.cpu
+            doc, child_runner = collect_experiment(child)
+            publish_report(doc, child.output, child_runner.folder, render_report(doc))
+            reports[name] = doc
+        return {"schema_version": 1, "experiment": "single", "instances": 1,
+                "threads": o.threads, "mikros_wiring": o.wiring, "flock_skip": 7,
+                "reps": o.reps, "warmups": o.warmups, "batches": o.batches,
+                "cpu_affinity": runner.cpu, "created_utc": datetime.now(timezone.utc).isoformat(),
+                "raw_data": str(o.output.with_suffix(".json")), "raw_directory": str(runner.folder),
+                "hashes": reports}, runner
+    except BaseException as error:
+        save(runner.folder / "status.json", {"state": "failed", "error": str(error)})
+        raise
+
+
+def render_single_report(doc):
+    argument = "packed permutation argument" if doc["mikros_wiring"] == "packed" else "public wiring"
+    heading = (f"Single-instance hash comparison | {doc['threads']} thread(s) | "
+               f"Mikros {argument} vs FLOCK skip-7\n"
+               f"Combined raw data: {doc['raw_data']}\n\n")
+    return heading + "\n".join(render_report(doc["hashes"][name]) for name in HASHES)
+
+
+def main(argv=None):
+    o = parse_options(sys.argv[1:] if argv is None else argv)
+    if o.experiment == "single":
+        doc, runner = collect_single_suite(o)
+        text = render_single_report(doc)
+    else:
+        doc, runner = collect_experiment(o)
+        text = render_report(doc)
+    publish_report(doc, o.output, runner.folder, text)
+    print(text, end="", flush=True)
+    print(f"Log: {o.output}", file=sys.stderr)
 
 
 if __name__ == "__main__":

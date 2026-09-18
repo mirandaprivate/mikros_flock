@@ -66,6 +66,19 @@ impl Circuit {
     pub fn public_words(&self) -> usize {
         ((5 + 3 * self.h()).next_power_of_two() * self.wire_words()).max(1 << 15)
     }
+    pub fn gate_public_words(&self) -> usize {
+        (8 * self.wire_words()).max(1 << 15)
+    }
+    /// Public-wiring mode authenticates selectors only; sigma is evaluated
+    /// directly from the public circuit by the verifier.
+    pub fn gate_public(&self) -> Vec<F128> {
+        let m = self.wire_words();
+        let mut q = vec![F128::ZERO; self.gate_public_words()];
+        for (k, selector) in self.selectors.iter().enumerate() {
+            bytes_mut(&mut q[k * m..(k + 1) * m]).copy_from_slice(selector);
+        }
+        q
+    }
     pub fn sigma(&self, i: usize) -> usize {
         self.sigma[i]
     }

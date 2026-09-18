@@ -502,10 +502,22 @@ fn fold_and_message_native(
     sums.map(F256Unreduced::reduce)
 }
 
-/// Native field kernels with caller-owned scratch. `initial_message` may be
-/// supplied by the fused packing pass. It must equal the ordinary first round
-/// message for `scratch.a` and `scratch.b`; it is unused for one-element inputs.
-/// No challenge is sampled early, and all observations match [`prove`].
+/// Owned inputs with the native fused field kernels. Terminal evaluations
+/// still require authentication by the caller; the transcript matches [`prove`].
+pub fn prove_native_owned<C: Challenger>(
+    a: Vec<F128>,
+    b: Vec<F128>,
+    challenger: &mut C,
+) -> (InnerProductProof, Vec<F128>) {
+    let mut scratch = ProverScratch {
+        a,
+        b,
+        ..ProverScratch::default()
+    };
+    prove_native(&mut scratch, None, challenger)
+}
+
+/// Internal scratch-reusing form; a supplied first message must match the inputs.
 pub(crate) fn prove_native<C: Challenger>(
     scratch: &mut ProverScratch,
     initial_message: Option<[F128; 2]>,
@@ -760,6 +772,23 @@ pub fn verify<C: Challenger>(
 mod batch_parallel_tests {
     use super::*;
     use flock_transcript::challenger::FsChallenger;
+
+    #[test]
+    fn owned_native_matches_packed_reference() {
+        for log in [0, 1, 5, 12, 15] {
+            let a: Vec<_> = (0..1usize << log)
+                .map(|i| F128::new(i as u64 * 37 + 13, i as u64 * 43 + 11))
+                .collect();
+            let b: Vec<_> = (0..a.len())
+                .map(|i| F128::new(i as u64 * 7 + 19, (1 << 33) ^ i as u64))
+                .collect();
+            let mut pc = FsChallenger::new(b"owned-native-ip");
+            let expected = prove_packed(a.clone(), b.clone(), &mut pc);
+            let mut nc = FsChallenger::new(b"owned-native-ip");
+            assert_eq!(prove_native_owned(a, b, &mut nc), expected);
+            assert_eq!(pc.sample_f128(), nc.sample_f128());
+        }
+    }
 
     #[test]
     fn batch_parallel_geometric_zero_one_matches_legacy() {

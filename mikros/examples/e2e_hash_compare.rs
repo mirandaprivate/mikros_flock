@@ -40,6 +40,7 @@ struct Options {
     reps: usize,
     warmups: usize,
     tamper: bool,
+    wiring: String,
 }
 fn options(args: Vec<String>) -> Result<Options, String> {
     let mut o = Options {
@@ -51,6 +52,7 @@ fn options(args: Vec<String>) -> Result<Options, String> {
         reps: 6,
         warmups: 1,
         tamper: false,
+        wiring: "packed".into(),
     };
     let mut args = args.into_iter();
     while let Some(flag) = args.next() {
@@ -60,7 +62,7 @@ fn options(args: Vec<String>) -> Result<Options, String> {
         }
         if flag == "--help" {
             println!(
-                "--hash sha256|keccak|blake3 --system mikros|flock --instances 1|256 --skip 7 --threads N --reps N --warmups N --tamper"
+                "--hash sha256|keccak|blake3 --system mikros|flock --instances 1|256 --skip 7 --threads N --reps N --warmups N --wiring packed|public --tamper"
             );
             std::process::exit(0);
         }
@@ -75,6 +77,7 @@ fn options(args: Vec<String>) -> Result<Options, String> {
             "--threads" => o.threads = v.parse().map_err(|_| "invalid threads")?,
             "--reps" => o.reps = v.parse().map_err(|_| "invalid reps")?,
             "--warmups" => o.warmups = v.parse().map_err(|_| "invalid warmups")?,
+            "--wiring" => o.wiring = v,
             _ => return Err(format!("unknown argument {flag}")),
         }
     }
@@ -83,6 +86,8 @@ fn options(args: Vec<String>) -> Result<Options, String> {
         || o.threads == 0
         || o.reps == 0
         || !matches!(o.system.as_str(), "mikros" | "flock")
+        || !matches!(o.wiring.as_str(), "packed" | "public")
+        || (o.wiring == "public" && (o.instances != 1 || o.system != "mikros"))
     {
         return Err(
             "requires 1 or 256 instances, skip7, positive threads/reps, and mikros|flock".into(),
@@ -382,7 +387,7 @@ pub(crate) fn run_with_args(args: Vec<String>) -> Result<(), Box<dyn Error>> {
     };
     let single_plonk = if o.system == "mikros" && o.instances == 1 {
         let t = Instant::now();
-        let setup = hash_single_plonk::Setup::new(&f, &prepared)?;
+        let setup = hash_single_plonk::Setup::new_with_wiring(&f, &prepared, o.wiring == "public")?;
         public_setup_ms = ms(t);
         Some(setup)
     } else {
@@ -418,12 +423,13 @@ pub(crate) fn run_with_args(args: Vec<String>) -> Result<(), Box<dyn Error>> {
             "reps":o.reps,"warmups":o.warmups,"baseline_skip":o.skip,"univariate_skip":o.skip,"mikros_kappa":128,
             "instance_groups":if o.instances==256 {Some(2)} else {None},
             "instance_mode":if o.instances==1 {"single"}else{"multiple"},
+            "mikros_wiring":if o.system=="mikros" && o.instances==1 {Some(o.wiring.as_str())}else{None},
             "mikros_packing_axis":if o.instances==1 {"gate_bits"}else{"instances"},
             "native_instance_capacity":1usize<<f.nu,"r1cs_m":f.r1cs.m,
             "live_constraint_bits":o.instances*f.r1cs.useful_bits,
             "padding_policy":if single_plonk.is_some(){"one PLONK hash execution; selectors zero on padded gates, padding wires anchored by copy permutation; native PCS minimum domain zero padding"}else{"one active row per requested call; inactive native PCS capacity is zero-filled"},
             "r1cs_k_log":f.r1cs.k_log,"r1cs_c_identity":f.r1cs.c0_is_identity(),
-            "native_k_skip":f.r1cs.k_skip,"matrix_authentication":if single_plonk.is_some(){"PLONK selectors and sigma digit tables authenticated by preprocessed public PCS commitment"}else{f.matrix_authentication()},
+            "native_k_skip":f.r1cs.k_skip,"matrix_authentication":if single_plonk.is_some(){if o.wiring=="public" {"public sparse sigma MLE evaluated by verifier; selectors authenticated by preprocessed PCS"}else{"PLONK selectors and sigma digit tables authenticated by preprocessed public PCS commitment"}}else{f.matrix_authentication()},
             "matrix_representation":if o.kind==HashKind::Keccak{"native_compact_walker"}else{"public_csc"},
             "program_id":program_id,
             "matrix_digest_scope":if o.kind==HashKind::Keccak{"R1CS descriptor only: A/B semantics are the trusted native Keccak walker bound by hash kind/program; full source SHA256 in experiment manifest"}else{"explicit public A/B/C matrices and native R1CS descriptor"},
@@ -441,7 +447,7 @@ pub(crate) fn run_with_args(args: Vec<String>) -> Result<(), Box<dyn Error>> {
             "public_io_blocks":io.as_ref().map(|io|io.blocks.iter().map(|b|json!({"first_bit":b.first_bit,"log_bits":b.log_bits})).collect::<Vec<_>>()),
             "single_plonk":single_plonk.as_ref().map(|s|s.metadata()),
             "arithmetization":if single_plonk.is_some(){"binary PLONK"}else{"native R1CS"},
-            "permutation_proof":if single_plonk.is_some(){"Mikros packed intermediate-field permutation"}else if o.system=="flock"{"native FLOCK Product-GKR"}else{"public word cover"},
+            "permutation_proof":if single_plonk.is_some(){if o.wiring=="public" {"Mikros public sparse wiring inner product"}else{"Mikros packed intermediate-field permutation"}}else if o.system=="flock"{"native FLOCK Product-GKR"}else{"public word cover"},
             "timing_scope":"prepared input clone excluded; online conversion, commitment, reduction, configured grinding, public I/O/wiring and native PCS included; verifier separate",
             "ram_scope":"external GNU time peak RSS of whole process including offline setup, warmup, prover and verifier",
             "proof_encoding":if o.system=="mikros"{"bincode full Mikros proof including commitment and PCS"}else{"bincode (Commitment, R1csProofCircuitMerged)"}
@@ -532,13 +538,16 @@ pub(crate) fn run_with_args(args: Vec<String>) -> Result<(), Box<dyn Error>> {
                 cases,
             )
         } else if let Some(s) = &single_plonk {
+            // Both proof types use exactly the same E2E timing and accounting.
+            macro_rules! sample_single {
+                ($prove:path, $verify:path, $tamper:path) => {{
             let owned = s.witness.clone();
             let t = Instant::now();
-            let (proof, mut timings, mut pch) = hash_single_plonk::prove(o.kind, s, owned)?;
+            let (proof, mut timings, mut pch) = $prove(o.kind, s, owned)?;
             let prover_ms = ms(t);
             let t = Instant::now();
             let (mut vch, verification) = verifier_pool.as_ref().unwrap().install(|| {
-                hash_single_plonk::verify_with_timings(
+                $verify(
                     o.kind,
                     &s.circuit,
                     &s.public_commitment,
@@ -551,7 +560,7 @@ pub(crate) fn run_with_args(args: Vec<String>) -> Result<(), Box<dyn Error>> {
             }
             let mut cases = Vec::new();
             if o.tamper && iteration == 0 {
-                cases = hash_single_plonk::tamper(o.kind, s, &proof)?;
+                cases = $tamper(o.kind, s, &proof)?;
             }
             // Component accounting is outside both online timers. Shared PCS
             // authenticates gate and copy claims together and is counted once.
@@ -581,6 +590,21 @@ pub(crate) fn run_with_args(args: Vec<String>) -> Result<(), Box<dyn Error>> {
                 timings,
                 cases,
             )
+                }};
+            }
+            if s.public_wiring {
+                sample_single!(
+                    hash_single_plonk::prove_public_wiring,
+                    hash_single_plonk::verify_public_wiring_with_timings,
+                    hash_single_plonk::tamper_public_wiring
+                )
+            } else {
+                sample_single!(
+                    hash_single_plonk::prove,
+                    hash_single_plonk::verify_with_timings,
+                    hash_single_plonk::tamper
+                )
+            }
         } else {
             let union = f.union();
             let owned = prepared.clone();
@@ -641,7 +665,7 @@ pub(crate) fn run_with_args(args: Vec<String>) -> Result<(), Box<dyn Error>> {
         if let Some(parts) = timings.get("constraint_breakdown") {
             for (key, label) in [
                 ("gate", "gate constraint"),
-                ("copy", "copy constraint"),
+                ("copy", if o.wiring == "packed" { "permutation argument" } else { "copy constraint" }),
                 ("shared", "shared PCS/other"),
             ] {
                 eprintln!(

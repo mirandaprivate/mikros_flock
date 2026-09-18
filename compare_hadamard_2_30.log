@@ -3,11 +3,11 @@ Times are medians; proof size is serialized bytes / 1024.
 
 System             Prover (ms)   Verifier (ms)   Proof (KiB)    RAM (MiB)   Samples
 -----------------------------------------------------------------------------------
-Mikros                7783.449           0.029         4.773       908.58        10
-FLOCK skip-7          2099.715           0.326         4.797       778.57        10
-Binius SFF          702839.899           0.077         1.469     12674.69         1
+Mikros                 684.480           0.034         4.773       906.98        10
+FLOCK skip-7           995.227           0.396         4.797       778.69        10
+Binius SFF          106331.527           0.039         1.469     12674.52         1
 
-FLOCK/Mikros prover time: 0.270x
+FLOCK/Mikros prover time: 1.454x
 
 Prover: PIOP reduction only; input preparation, serialization, source checks and PCS excluded.
 Verifier: Reduction replay only; no PCS. Binius switchover=6 uses seven small-field folds, no skipped messages.
@@ -15,4 +15,4 @@ Ram: Mikros/FLOCK: median of 3 fresh-process VmHWM readings immediately after pr
 Sampling: Mikros/FLOCK: 10 measured proofs each after one excluded warmup. Binius: one cold measured proof, with no warmup.
 Worker CPU affinity: 0
 Every measured proof was verified; warmups are excluded from timing statistics.
-Raw data: /mnt/c/Users/miranda/git/mikros_flock/compare_hadamard_2_30.json
+Raw data: /home/mscong1/git/mikros_flock/compare_hadamard_2_30.json

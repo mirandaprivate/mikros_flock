@@ -270,7 +270,10 @@ pub fn single_prove<C: Challenger>(
     public: &[F128],
     ch: &mut C,
 ) -> Result<(SingleProof, Claims), String> {
-    if c.log_gates < 7 || z.len() != c.witness_words() || public.len() != c.public_words() {
+    if c.log_gates < 7
+        || z.len() != c.witness_words()
+        || ![c.public_words(), c.gate_public_words()].contains(&public.len())
+    {
         return Err("single gate source shape".into());
     }
     let reference = match std::env::var("MIKROS_SINGLE_GATE_REFERENCE") {
@@ -331,7 +334,8 @@ pub fn single_verify<C: Challenger>(
     ch: &mut C,
 ) -> Result<Claims, String> {
     if 1usize.checked_shl(log_z as u32) != Some(c.witness_words())
-        || 1usize.checked_shl(log_pub as u32) != Some(c.public_words())
+        || ![Some(c.public_words()), Some(c.gate_public_words())]
+            .contains(&1usize.checked_shl(log_pub as u32))
     {
         return Err("single gate commitment shape".into());
     }

@@ -22,12 +22,12 @@ sys.modules[SPEC.name] = bench
 SPEC.loader.exec_module(bench)
 
 
-def e2e_report(system, values, peak_rss_kib, batch=0):
+def e2e_report(system, values, peak_rss_kib, batch=0, warmups=1):
     rows = []
-    for iteration, value in enumerate([999.0, *values]):
+    for iteration, value in enumerate([999.0] * warmups + list(values)):
         rows.append({
             "record": "sample", "system": system, "hash": "sha256",
-            "iteration": iteration, "warmup": iteration == 0,
+            "iteration": iteration, "warmup": iteration < warmups,
             "prover_ms": value, "verify_ms": value / 10,
             "proof_bytes": 8192 if system == "mikros" else 4096,
             "verified": True, "transcript_match": True,
@@ -73,12 +73,86 @@ def hadamard_fixture():
 
 
 class PaperBenchTests(unittest.TestCase):
+    def test_single_suite_defaults_to_permutation_with_separate_public_log(self):
+        args = ["--experiment", "single", "--worker-bin", "worker"]
+        options = bench.parse_options(args)
+        self.assertEqual((options.instances, options.threads, options.wiring), (1, 1, "packed"))
+        self.assertEqual((options.reps, options.warmups, options.batches), (10, 1, 1))
+        self.assertEqual(options.output.name, "single_hash_compare.log")
+        packed = bench.parse_options(args + ["--wiring", "packed"])
+        self.assertEqual(packed.output, options.output)
+        public = bench.parse_options(args + ["--wiring", "public"])
+        self.assertEqual(public.output.name, "single_hash_public_wiring_compare.log")
+        with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
+            bench.parse_options(args + ["--instances", "256"])
+
+    def test_single_suite_publishes_three_hashes_and_preserves_output_on_later_failure(self):
+        for fail_hash, wiring in ((None, "packed"), (None, "public"), ("keccak", "packed")):
+            with self.subTest(fail_hash=fail_hash, wiring=wiring), tempfile.TemporaryDirectory() as directory:
+                base = Path(directory)
+                output = base / "suite.log"
+                output.write_text("previous suite\n", encoding="utf-8")
+                output.with_suffix(".json").write_text('{"previous": true}\n', encoding="utf-8")
+                worker = base / "worker"
+                worker.write_bytes(b"synthetic worker")
+                calls = []
+
+                def new_runner(options):
+                    folder = base / options.experiment
+                    folder.mkdir()
+                    self.assertEqual((options.instances, options.threads, options.wiring), (1, 1, wiring))
+                    self.assertEqual((options.reps, options.warmups, options.batches), (2, 1, 1))
+                    if options.experiment != "single":
+                        self.assertEqual(options.cpu, 2)
+
+                    def measured(system, batch):
+                        calls.append((options.experiment, system))
+                        if options.experiment == fail_hash:
+                            raise RuntimeError("later hash failed")
+                        report = e2e_report(system, [2.0, 6.0], 2048, batch)
+                        report["metadata"].update({key: options.experiment for key in bench.SHARED_DIGESTS})
+                        report["metadata"].update(hash=options.experiment, instances=1, mikros_wiring=wiring)
+                        return report
+
+                    return SimpleNamespace(folder=folder, e2e=measured, cpu=2, commands=[], env=bench.environment(1))
+
+                stdout = io.StringIO()
+                with mock.patch.object(bench, "Runner", side_effect=new_runner), \
+                     contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(io.StringIO()):
+                    args = ["--experiment", "single", "--worker-bin", str(worker),
+                            "--output", str(output), "--reps", "2", "--batches", "1"]
+                    if wiring == "public":
+                        args += ["--wiring", wiring]
+                    if fail_hash:
+                        with self.assertRaisesRegex(RuntimeError, "later hash failed"):
+                            bench.main(args)
+                    else:
+                        bench.main(args)
+                if fail_hash:
+                    self.assertEqual(output.read_text(encoding="utf-8"), "previous suite\n")
+                    self.assertEqual(bench.load(output.with_suffix(".json")), {"previous": True})
+                    self.assertEqual(stdout.getvalue(), "")
+                    self.assertEqual(bench.load(base / "single/status.json")["state"], "failed")
+                    self.assertNotIn(("blake3", "mikros"), calls)
+                else:
+                    self.assertEqual(calls, [(h, s) for h in bench.HASHES for s in ("mikros", "flock")])
+                    self.assertEqual(stdout.getvalue(), output.read_text(encoding="utf-8"))
+                    self.assertEqual((base / "single/previous.log").read_text(encoding="utf-8"), "previous suite\n")
+                    doc = bench.load(output.with_suffix(".json"))
+                    self.assertEqual(tuple(doc["hashes"]), bench.HASHES)
+                    for name, report in doc["hashes"].items():
+                        self.assertEqual(report["mikros_wiring"], wiring)
+                        self.assertEqual(report["systems"]["mikros"]["prover_ms"]["median"], 4.0)
+                        self.assertTrue(Path(report["raw_data"]).is_file())
+                        self.assertIn(name.upper() + " end-to-end", stdout.getvalue())
+                    self.assertEqual(bench.load(base / "single/status.json")["state"], "complete")
+
     def test_cli_preserves_paper_defaults_and_accepts_overrides(self):
         options = bench.parse_options([
             "--experiment", "sha256", "--worker-bin", "worker",
         ])
         for name, expected in {"threads": 1, "instances": 256, "log_n": 30,
-                               "reps": 6, "warmups": 1, "batches": 3,
+                               "reps": 10, "warmups": 1, "batches": 1,
                                "rss_runs": 3}.items():
             self.assertEqual(getattr(options, name), expected)
         hadamard = bench.parse_options([
@@ -99,6 +173,63 @@ class PaperBenchTests(unittest.TestCase):
         self.assertEqual(options.output.name, "out.log")
         self.assertTrue(options.without_binius)
         self.assertFalse(options.validate)
+
+    def test_hash_schedule_counts_ten_samples_per_system_and_honors_overrides(self):
+        scenarios = [((), 10, 1, 1),
+                     (("--reps", "3", "--batches", "2", "--warmups", "0"), 3, 2, 0)]
+        for experiment in (*bench.HASHES, "single"):
+            for extra, reps, batches, warmups in scenarios:
+                with self.subTest(experiment=experiment, extra=extra), tempfile.TemporaryDirectory() as directory:
+                    base = Path(directory)
+                    worker = base / "worker"
+                    worker.write_bytes(b"synthetic worker")
+                    output = base / "report.log"
+                    calls = []
+
+                    def new_runner(options):
+                        folder = base / options.experiment
+                        folder.mkdir()
+                        self.assertEqual((options.reps, options.batches, options.warmups),
+                                         (reps, batches, warmups))
+
+                        def measured(system, batch):
+                            calls.append((options.experiment, system, batch))
+                            values = range(batch * options.reps + 1, (batch + 1) * options.reps + 1)
+                            report = e2e_report(system, values, 2048, batch, options.warmups)
+                            report["metadata"].update({key: options.experiment for key in bench.SHARED_DIGESTS})
+                            report["metadata"].update(hash=options.experiment, instances=options.instances)
+                            for row in report["samples"]:
+                                row["hash"] = options.experiment
+                            return report
+
+                        return SimpleNamespace(folder=folder, e2e=measured, cpu=None,
+                                               commands=[], env=bench.environment(1))
+
+                    with mock.patch.object(bench, "Runner", side_effect=new_runner), \
+                            contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+                        bench.main(["--experiment", experiment, "--worker-bin", str(worker),
+                                    "--output", str(output), *extra])
+                    doc = bench.load(output.with_suffix(".json"))
+                    reports = doc["hashes"] if experiment == "single" else {experiment: doc}
+                    expected_hashes = bench.HASHES if experiment == "single" else (experiment,)
+                    self.assertEqual(tuple(reports), expected_hashes)
+                    self.assertEqual(len(calls), len(expected_hashes) * 2 * batches)
+                    for name, report in reports.items():
+                        for system in ("mikros", "flock"):
+                            self.assertEqual([batch for hash_name, worker_system, batch in calls
+                                              if (hash_name, worker_system) == (name, system)],
+                                             list(range(batches)))
+                            rows = [row for raw in report["raw_reports"]
+                                    if raw["metadata"]["system"] == system for row in raw["samples"]]
+                            self.assertEqual(sum(not row["warmup"] for row in rows), reps * batches)
+                            self.assertEqual(sum(row["warmup"] for row in rows), warmups * batches)
+                            summary = report["systems"][system]
+                            self.assertEqual(summary["prover_ms"]["count"], reps * batches)
+                            self.assertEqual(summary["verify_ms"]["count"], reps * batches)
+                            self.assertEqual(summary["prover_ms"]["max"], reps * batches)
+                            self.assertEqual(summary["warmup_samples"], warmups * batches)
+                            self.assertEqual(report["measurement_plan"][system]["measured_proofs"], reps * batches)
+                            self.assertEqual(report["measurement_plan"][system]["excluded_warmups"], warmups * batches)
 
     def test_hadamard_schedule_reuses_the_only_binius_proof_for_ram(self):
         scenarios = [((), 10, 3, True),
