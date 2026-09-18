@@ -13,7 +13,9 @@ extension-field folding (`switchover`).
 | `mikros/permutation/` | Packed permutation proof. |
 | `mikros/examples/e2e_hash_compare.rs` | End-to-end SHA-256, Keccak, and BLAKE3 comparisons. |
 | `mikros/examples/e2e_common/` | Shared circuit, witness, reduction, and PCS integration code. |
-| `mikros/benches/univariate_vs_flock.rs` | Binary Hadamard comparison. |
+| `mikros/benches/e2e_*.rs`, `binary_hadamard.rs` | The four `cargo bench` experiment entry points. |
+| `mikros/benches/paper_bench.py` | Process orchestration, measurement checks, and console/log reports. |
+| `mikros/benches/univariate_vs_flock.rs` | Binary Hadamard measurement worker. |
 | `mikros/binius_switchover_hadamard/` | Original Binius Hadamard comparison with a pinned upstream version. |
 | `crates/flock-*/` | FLOCK implementation, Ligerito PCS, and shared field and parallel kernels. |
 
@@ -23,157 +25,156 @@ Run the following commands from the repository root in a Linux Bash shell.
 The four paper experiments use one thread pinned to one CPU and native CPU
 kernels. The recorded server runs used an Intel Xeon Gold 6342 with GFNI,
 AVX-512, and VPCLMULQDQ; CPU 16 was used for the one-thread runs.
-Install Rust through rustup, a C/C++ build toolchain, and GNU time.
+Install Rust through rustup, a C/C++ build toolchain, Python 3.10 or newer, and GNU time.
+Native CPU code generation is enabled in `.cargo/config.toml`.
 
 ```bash
 rustup toolchain install nightly-2026-03-21 --profile minimal
 export RUSTFLAGS="-C target-cpu=native"
-export RAYON_NUM_THREADS=1 FLOCK_VERIFY_THREADS=1
-export FLOCK_PCS_PACKED_DIRECT=1 FLOCK_WP_UNINIT=1
-export BENCH_CPU="${BENCH_CPU:-16}"
-export CARGO_TARGET_DIR="$PWD/target"
-mkdir -p target/paper-results
-cargo +nightly-2026-03-21 build --release --locked -p mikros --example e2e_hash_compare
 ```
 
 ## Experiments
 
-The timing commands below use one warmup and six measured proofs.
-The three end-to-end experiments each prove 256 independent instances, using
-FLOCK's native Ligerito Fast PCS. Mikros packs instances in groups of 128.
-Run the experiments sequentially. Set `BENCH_CPU` to an available idle CPU on
-your machine and keep its SMT sibling idle during measurement.
+Each experiment uses `cargo bench` to build and run its complete comparison.
+Defaults are one thread,
+256 instances for E2E, and `N = 2^30` for Hadamard. The E2E comparisons use
+FLOCK's native Ligerito Fast PCS; Mikros packs instances in groups of 128.
+Run the experiments sequentially. On Linux, a one-thread run selects the first
+allowed CPU automatically. Append `-- --cpu 16` to select a specific CPU, and
+keep its SMT sibling idle.
 
 ### 1. SHA-256 compression
 
 ```bash
-for system in mikros flock; do
-  /usr/bin/time -v -o "target/paper-results/sha256-${system}.rss.txt" \
-    taskset -c "$BENCH_CPU" target/release/examples/e2e_hash_compare \
-    --hash sha256 --system "$system" --instances 256 --skip 7 \
-    --threads 1 --reps 6 --warmups 1 \
-    > "target/paper-results/sha256-${system}.jsonl"
-done
+cargo +nightly-2026-03-21 bench --locked -p mikros --bench e2e_sha256
 ```
 
 ### 2. Keccak-f[1600] permutation
 
 ```bash
-for system in mikros flock; do
-  /usr/bin/time -v -o "target/paper-results/keccak-${system}.rss.txt" \
-    taskset -c "$BENCH_CPU" target/release/examples/e2e_hash_compare \
-    --hash keccak --system "$system" --instances 256 --skip 7 \
-    --threads 1 --reps 6 --warmups 1 \
-    > "target/paper-results/keccak-${system}.jsonl"
-done
+cargo +nightly-2026-03-21 bench --locked -p mikros --bench e2e_keccak
 ```
 
 ### 3. BLAKE3 compression
 
 ```bash
-for system in mikros flock; do
-  /usr/bin/time -v -o "target/paper-results/blake3-${system}.rss.txt" \
-    taskset -c "$BENCH_CPU" target/release/examples/e2e_hash_compare \
-    --hash blake3 --system "$system" --instances 256 --skip 7 \
-    --threads 1 --reps 6 --warmups 1 \
-    > "target/paper-results/blake3-${system}.jsonl"
-done
+cargo +nightly-2026-03-21 bench --locked -p mikros --bench e2e_blake3
 ```
-
-The JSONL output records `prover_ms`, `verify_ms`, and `proof_bytes` for each
-proof. GNU time records whole-process peak RAM in the corresponding `.rss.txt`
-file. Prover time includes online conversion, commitment, reduction, and PCS
-opening; offline witness preparation is reported separately. Every proof is
-verified.
-
-For the single-instance comparison, run one native call of each hash:
-
-```bash
-for hash in sha256 keccak blake3; do
-  for system in mikros flock; do
-    RAYON_NUM_THREADS=64 /usr/bin/time -v -o "target/paper-results/single-${hash}-${system}.rss.txt" \
-      target/release/examples/e2e_hash_compare \
-      --hash "$hash" --system "$system" --instances 1 --skip 7 \
-      --threads 64 --reps 6 --warmups 1 \
-      > "target/paper-results/single-${hash}-${system}.jsonl"
-  done
-done
-```
-
-The single-instance comparison uses Mikros's binary PLONK construction and
-FLOCK's native R1CS construction, with 64 prover workers and one verifier worker.
-Mikros includes five weighted Hadamard reductions, the packed copy permutation,
-and two grouped packed openings for the witness and preprocessed public tables.
-Both use FLOCK's native Ligerito Fast PCS, sized for their respective vectors.
-Each proof covers one active hash call. Online conversion and opening costs are
-timed; circuit and public commitment preprocessing are reported separately.
-Copy preprocessing caches fixed position-label interpolation. Current witness
-and public I/O values, their polynomial coefficients, and copy proving remain
-in the online measurement. `offline_copy_setup_ms` reports public cache setup;
-the RAM measurement includes the retained cache.
-Results are in [single_hash_compare.log](single_hash_compare.log).
-The separate one-thread rerun is in
-[single_hash_compare_1thread.log](single_hash_compare_1thread.log).
 
 ### 4. Binary Hadamard with 2^30 constraints
 
 ```bash
-taskset -c "$BENCH_CPU" cargo +nightly-2026-03-21 bench --locked -p mikros --bench univariate_vs_flock -- \
-  --logs 30 --runs 6 --threads 1 --systems pairreuse,flock128 \
-  --output target/paper-results/hadamard_2_30.json
+cargo +nightly-2026-03-21 bench --locked -p mikros --bench binary_hadamard
 ```
 
-`pairreuse` selects Mikros's optimized univariate kernel with scratch reuse;
-`flock128` selects FLOCK skip = 7. This experiment measures the Hadamard PIOP.
-It records prover time, verifier replay time, and proof size, with input-claim
-checks timed separately. To measure RAM in a fresh process for each system:
+This compares Mikros's `pairreuse` kernel, FLOCK skip-7, and original Binius SFF.
+The pinned Binius source is fetched if needed and built in a separate workspace
+before measurement. A prebuilt worker can be supplied with `--binius-bin PATH`;
+`--without-binius` explicitly selects a two-system comparison.
+Binius uses native AES byte-sliced arithmetic and high-to-low evaluation.
+Its `switchover = 6` performs seven small-field folds before materializing the
+extension-field witness; all 30 sumcheck message rounds remain.
+
+### Output and measurement
+
+Each entry point prints an aligned table to standard output with prover time
+(ms), verifier time (ms), serialized proof size (KiB), RAM (MiB), and sample count,
+followed by the FLOCK/Mikros prover-time ratio. The same text is saved to the
+corresponding root `.log` listed below; no shell redirection is needed.
+Metadata and all samples are saved in the adjacent `.json` with the same stem
+(for example, `e2e_flock_sha256.log` and `e2e_flock_sha256.json`).
+Per-process output and diagnostics are retained under `target/paper-results/`.
+While workers run, standard error shows the system, current run, and phase.
+Every completed run reports its prover time, verifier time, and serialized
+proof size; warmup and RAM-only runs are labelled separately. These lines are
+also retained in the per-process diagnostics, with all samples in the JSON.
+During a silent phase, an elapsed-time update appears every 15 seconds.
+Results are published only after all measurements and checks succeed; previous
+output files are copied into the new run directory.
+
+E2E uses three fresh processes per system, each with one warmup and six measured
+proofs: 18 measured proofs per system. Prover time includes online conversion,
+commitment, reductions, grinding, and PCS opening; offline preparation is
+excluded. Verifier time covers full verification. RAM is the maximum
+whole-process GNU time peak across the three measurement processes.
+
+Hadamard runs **10 measured proofs each for Mikros and FLOCK**, after one excluded
+warmup each, plus three separate RAM processes per system. **Binius runs once in
+total**, without a warmup; that cold proof supplies both its timing and RAM.
+The report labels these sampling differences. Hadamard measures the PIOP
+reduction and verifier replay, without commitments or PCS. Independent
+input-claim checks are outside the timers. RAM is measured immediately after
+proving, before verification and source checks: the median of three fresh runs
+for Mikros/FLOCK, and the single reading for Binius. Every measured proof is
+verified.
+
+Pass experiment options after `--`:
+
+| Option | Default | Purpose |
+|---|---|---|
+| `--threads N` | `1` | Number of worker threads. |
+| `--cpu N` | First allowed CPU | Select a CPU for a one-thread run. |
+| `--instances N` | `256` | E2E instance count: `1` or `256`. |
+| `--log-n N` | `30` | Hadamard size `2^N`, with `14 <= N <= 30`. |
+| `--reps N` | Hadamard: `10`; E2E: `6` | Mikros/FLOCK measured proofs per process; Binius always runs once. |
+| `--batches N` | `3` | E2E measurement processes per system. |
+| `--rss-runs N` | `3` | Separate Mikros/FLOCK Hadamard RAM measurements; Binius reuses its sole proof. |
+| `--output PATH.log` | Root log below | Set the report path and matching JSON sidecar. |
+| `--validate` | Off | Run additional E2E tamper checks outside measurements. |
+
+For a short check without replacing the paper logs:
 
 ```bash
-for system in pairreuse flock128; do
-  taskset -c "$BENCH_CPU" cargo +nightly-2026-03-21 bench --locked -p mikros --bench univariate_vs_flock -- \
-    --logs 30 --runs 1 --threads 1 --systems "$system" --rss \
-    --output "target/paper-results/hadamard_2_30-${system}-rss.json"
+cargo +nightly-2026-03-21 bench --locked -p mikros --bench e2e_sha256 -- \
+  --reps 1 --batches 1 --output target/paper-results/sha256-smoke.log
+cargo +nightly-2026-03-21 bench --locked -p mikros --bench binary_hadamard -- \
+  --log-n 14 --reps 1 --rss-runs 1 --output target/paper-results/hadamard-smoke.log
+```
+
+### Single-instance hashes
+
+The same entry points accept `--instances 1`:
+
+```bash
+for hash in sha256 keccak blake3; do
+  cargo +nightly-2026-03-21 bench --locked -p mikros --bench "e2e_${hash}" -- \
+    --instances 1 --output "target/paper-results/single-${hash}.log"
 done
 ```
 
-Run the original Binius baseline on the same binary inputs:
-
-```bash
-python3 mikros/binius_switchover_hadamard/setup.py
-taskset -c "$BENCH_CPU" cargo +nightly-2026-03-21 run --release --locked \
-  --manifest-path mikros/binius_switchover_hadamard/Cargo.toml --features aes32 -- \
-  --log-n 30 --switchover 6 --runs 6 --threads 1 \
-  --order high --composition native --first-round-zero yes \
-  --output target/paper-results/hadamard_2_30-binius.json
-```
-
-Binius uses binary witness storage, native AES byte-sliced field arithmetic,
-and its equality-weighted sumcheck. The configuration above was selected by
-native composition benchmarks at 2^24 and field/order benchmarks at 2^30.
-These protocol and kernel settings are unchanged and were not rescreened for
-one thread.
-`--switchover s` materializes the extension-field witness after round `s + 1`.
-The comparison uses seven early rounds (`s = 6`), reducing the witness to `N/128`.
-All 30 sumcheck message rounds remain in the original Binius protocol.
-The timer includes equality-weight construction and all proof rounds. Use
-`--runs 1 --rss` for a fresh-process RAM measurement.
+This compares Mikros's binary PLONK construction, including its packed copy
+permutation, with FLOCK's native R1CS construction. Both use FLOCK's native
+Ligerito Fast PCS sized for their respective vectors. Public circuit and copy
+preprocessing are offline; witness-dependent copy proving remains online.
+Single-instance reports also split Mikros's prover time, verifier time, and
+serialized proof size into gate constraints, copy constraints, and shared
+PCS/other costs. Copy time includes online witness-dependent preparation;
+gate/copy proof sizes include their grinding nonces. Shared commitments and
+openings are counted once. The main table compares complete E2E totals with
+FLOCK; its R1CS/wiring stages are not relabeled as PLONK gate/copy components.
+Previously recorded results are in
+[single_hash_compare.log](single_hash_compare.log) (64 prover workers) and
+[single_hash_compare_1thread.log](single_hash_compare_1thread.log) (one worker).
 
 ## Recorded results
 
 The four logs below record one-thread runs pinned to one CPU. The hash results
 use 256 instances and three measurement batches (18 measured proofs per system).
-The three-system Hadamard comparison uses six measured proofs per system and
-three separate cold-process RAM measurements. Each log contains the
-configuration, samples, and summary statistics. The earlier 64-thread logs,
+The recorded three-system Hadamard comparison used six measured proofs per
+system and three separate cold-process RAM measurements. New runs use the
+10/10/1 sampling described above. Each existing log contains the
+configuration, samples, and summary statistics in its historical JSON format;
+rerunning a command publishes the readable report and JSON sidecar described
+above. The earlier 64-thread logs,
 including the earlier 18-proof Mikros/FLOCK Hadamard comparison, are archived in
 [previous64](mikros/server_experiments/20260918-paper-single-thread/previous64/).
 
-| Experiment | Results |
-|---|---|
-| SHA-256 | [e2e_flock_sha256.log](e2e_flock_sha256.log) |
-| Keccak | [e2e_flock_keccak.log](e2e_flock_keccak.log) |
-| BLAKE3 | [e2e_flock_blake3.log](e2e_flock_blake3.log) |
-| Binary Hadamard, 2^30 | [compare_hadamard_2_30.log](compare_hadamard_2_30.log) |
+| Experiment | Cargo bench target | Default log / recorded results | Threads |
+|---|---|---|---|
+| SHA-256 | `e2e_sha256` | [e2e_flock_sha256.log](e2e_flock_sha256.log) | 1 |
+| Keccak | `e2e_keccak` | [e2e_flock_keccak.log](e2e_flock_keccak.log) | 1 |
+| BLAKE3 | `e2e_blake3` | [e2e_flock_blake3.log](e2e_flock_blake3.log) | 1 |
+| Binary Hadamard, 2^30 | `binary_hadamard` | [compare_hadamard_2_30.log](compare_hadamard_2_30.log) | 1 |
 
 ## Acknowledgments and license
 

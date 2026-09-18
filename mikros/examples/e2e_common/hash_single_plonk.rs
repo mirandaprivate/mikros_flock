@@ -249,6 +249,23 @@ pub fn verify(
     public_cm: &Commitment,
     p: &Proof,
 ) -> Result<FsChallenger, String> {
+    verify_with_timings(kind, c, public_cm, p).map(|(challenger, _)| challenger)
+}
+
+/// Timers contain only the two constraint reductions, including nonce checks.
+/// Commitment/statement checks and the shared openings remain in E2E time.
+#[derive(Default)]
+pub struct VerificationTimings {
+    pub gate_ms: f64,
+    pub copy_ms: f64,
+}
+
+pub fn verify_with_timings(
+    kind: HashKind,
+    c: &fixture::Circuit,
+    public_cm: &Commitment,
+    p: &Proof,
+) -> Result<(FsChallenger, VerificationTimings), String> {
     let log_z = c.witness_words().ilog2() as usize;
     let log_p = c.public_words().ilog2() as usize;
     let block_log = c.wire_words().ilog2() as usize;
@@ -264,13 +281,17 @@ pub fn verify(
     let mut parent = bind(kind, c, &p.commitment, public_cm);
     let gc = parent.fork(b"gates");
     let cc = parent.fork(b"copy");
+    let start = Instant::now();
     let mut g = GrindingChallenger::verifier(gc, &p.gate_nonces);
     let mut claims = gates::single_verify(c, log_z, log_p, &p.gate, &mut g)?;
     let (gc, _) = g.finish()?;
+    let gate_ms = ms(start);
+    let start = Instant::now();
     let mut cch = GrindingChallenger::verifier(cc, &p.copy_nonces)
         .packed_permutation(c.h(), 128 / (c.h() + 1).next_power_of_two());
     let cclaims = copy::single_verify(c, log_z, log_p, &p.copy, &mut cch)?;
     let (cc, _) = cch.finish()?;
+    let copy_ms = ms(start);
     claims.witness.extend(cclaims.witness);
     claims.public.extend(cclaims.public);
     parent.merge_child(gc);
@@ -293,7 +314,23 @@ pub fn verify(
     .map_err(|e| format!("PLONK witness PCS replay: {e:?}"))?;
     merged_tensor::verify(public_cm, &terminal[1..], &p.public_pcs, &pu, &mut parent)
         .map_err(|e| format!("PLONK public PCS replay: {e:?}"))?;
-    Ok(parent)
+    Ok((parent, VerificationTimings { gate_ms, copy_ms }))
+}
+
+/// Exact bincode component sizes, including their vector headers and nonces.
+/// Bincode serializes this struct as consecutive fields, without a struct tag.
+pub fn proof_sizes(p: &Proof) -> Result<[u64; 3], bincode::Error> {
+    Ok([
+        bincode::serialized_size(&(&p.gate, &p.gate_nonces))?,
+        bincode::serialized_size(&(&p.copy, &p.copy_nonces))?,
+        bincode::serialized_size(&(
+            &p.commitment,
+            &p.opening,
+            &p.opening_nonces,
+            &p.witness_pcs,
+            &p.public_pcs,
+        ))?,
+    ])
 }
 
 pub fn tamper(kind: HashKind, s: &Setup, p: &Proof) -> Result<Vec<String>, String> {

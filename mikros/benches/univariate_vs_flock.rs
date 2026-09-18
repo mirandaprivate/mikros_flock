@@ -14,12 +14,12 @@ use std::{
 };
 
 fn main() {
-    if let Err(error) = run() {
+    if let Err(error) = run_with_args(env::args().skip(1).collect()) {
         eprintln!("benchmark failed: {error}");
         std::process::exit(1);
     }
 }
-fn run() -> Result<(), String> {
+pub(crate) fn run_with_args(args: Vec<String>) -> Result<(), String> {
     let mut logs = vec![16, 20];
     let mut systems = vec!["pairreuse".to_string(), "flock128".to_string()];
     let mut runs = 6usize;
@@ -28,7 +28,7 @@ fn run() -> Result<(), String> {
     let mut profile = false;
     let mut rss = false;
     let mut reuse_source_checks = false;
-    let mut args = env::args().skip(1);
+    let mut args = args.into_iter();
     while let Some(arg) = args.next() {
         match arg.as_str() {
             "--bench" => (),
@@ -178,6 +178,17 @@ fn run() -> Result<(), String> {
             for order in 0..systems.len() {
                 let system_index = (run + order) % systems.len();
                 let system = &systems[system_index];
+                let system_label = if system == "flock128" { "FLOCK" } else { "Mikros" };
+                let (stage, display_run, total) = if warmup {
+                    ("warmup", 1, 1)
+                } else if rss {
+                    ("RSS", 1, runs)
+                } else {
+                    ("measured", run, runs)
+                };
+                eprintln!(
+                    "[hadamard] {system_label}/{system} {stage} run {display_run}/{total} start (log_n={log})"
+                );
                 let sample = sample(
                     system,
                     log,
@@ -203,11 +214,11 @@ fn run() -> Result<(), String> {
                         identity = Some(proof_digest.to_owned());
                     }
                 }
-                println!(
-                    "n={log} run={run} {system}: {:.3} ms, {} bytes{}",
+                eprintln!(
+                    "[hadamard] {system_label}/{system} {stage} run {display_run}/{total} finished: prover={:.3} ms verifier={:.3} ms proof={} bytes (log_n={log})",
                     sample["prover_ms"].as_f64().unwrap(),
-                    sample["payload_field_bytes"],
-                    if warmup { " (warmup)" } else { "" }
+                    sample["verifier_ms"].as_f64().unwrap(),
+                    sample["bincode_bytes"]
                 );
                 report[if warmup { "warmups" } else { "samples" }]
                     .as_array_mut()

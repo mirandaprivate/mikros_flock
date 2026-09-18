@@ -2,13 +2,14 @@
 //! Run each hash/system in a separate process to measure peak RSS with GNU time.
 #![recursion_limit = "256"]
 #![allow(dead_code)]
-mod e2e_common;
+#[path = "e2e_common/mod.rs"]
+pub(crate) mod e2e_common;
 #[path = "e2e_common/hash_fixture.rs"]
-mod hash_fixture;
+pub(crate) mod hash_fixture;
 #[path = "e2e_common/hash_mikros.rs"]
-mod hash_mikros;
+pub(crate) mod hash_mikros;
 #[path = "e2e_common/hash_single_plonk.rs"]
-mod hash_single_plonk;
+pub(crate) mod hash_single_plonk;
 
 use e2e_common::{PreparedWitness, TreeVerifier, batched_boolean};
 use flock_core::{
@@ -40,7 +41,7 @@ struct Options {
     warmups: usize,
     tamper: bool,
 }
-fn options() -> Result<Options, String> {
+fn options(args: Vec<String>) -> Result<Options, String> {
     let mut o = Options {
         kind: HashKind::Sha256,
         system: "mikros".into(),
@@ -51,7 +52,7 @@ fn options() -> Result<Options, String> {
         warmups: 1,
         tamper: false,
     };
-    let mut args = env::args().skip(1);
+    let mut args = args.into_iter();
     while let Some(flag) = args.next() {
         if flag == "--tamper" {
             o.tamper = true;
@@ -325,7 +326,11 @@ fn public_mutations(f: &HashFixture) -> Vec<(String, Vec<F128>)> {
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let o = options().map_err(io::Error::other)?;
+    run_with_args(env::args().skip(1).collect())
+}
+
+pub(crate) fn run_with_args(args: Vec<String>) -> Result<(), Box<dyn Error>> {
+    let o = options(args).map_err(io::Error::other)?;
     if env::var_os("FLOCK_NO_GRIND").is_some() {
         return Err("FLOCK_NO_GRIND is forbidden for full verified proofs".into());
     }
@@ -445,6 +450,17 @@ fn main() -> Result<(), Box<dyn Error>> {
     out.flush()?;
     let mut first = None;
     for iteration in 0..o.warmups + o.reps {
+        let (stage, run, total) = if iteration < o.warmups {
+            ("warmup", iteration + 1, o.warmups)
+        } else {
+            ("measured", iteration - o.warmups + 1, o.reps)
+        };
+        eprintln!(
+            "[{}] {} {stage} run {run}/{total} start (instances={})",
+            o.kind.as_str(),
+            o.system,
+            o.instances
+        );
         let (encoded, cm_digest, prover_ms, verify_ms, timings, cases) = if let Some(w) =
             &transposed
         {
@@ -518,11 +534,16 @@ fn main() -> Result<(), Box<dyn Error>> {
         } else if let Some(s) = &single_plonk {
             let owned = s.witness.clone();
             let t = Instant::now();
-            let (proof, timings, mut pch) = hash_single_plonk::prove(o.kind, s, owned)?;
+            let (proof, mut timings, mut pch) = hash_single_plonk::prove(o.kind, s, owned)?;
             let prover_ms = ms(t);
             let t = Instant::now();
-            let mut vch = verifier_pool.as_ref().unwrap().install(|| {
-                hash_single_plonk::verify(o.kind, &s.circuit, &s.public_commitment, &proof)
+            let (mut vch, verification) = verifier_pool.as_ref().unwrap().install(|| {
+                hash_single_plonk::verify_with_timings(
+                    o.kind,
+                    &s.circuit,
+                    &s.public_commitment,
+                    &proof,
+                )
             })?;
             let verify_ms = ms(t);
             if pch.sample_f128() != vch.sample_f128() {
@@ -532,8 +553,28 @@ fn main() -> Result<(), Box<dyn Error>> {
             if o.tamper && iteration == 0 {
                 cases = hash_single_plonk::tamper(o.kind, s, &proof)?;
             }
+            // Component accounting is outside both online timers. Shared PCS
+            // authenticates gate and copy claims together and is counted once.
+            let encoded = bincode::serialize(&proof)?;
+            let [gate_bytes, copy_bytes, shared_bytes] = hash_single_plonk::proof_sizes(&proof)?;
+            if gate_bytes + copy_bytes + shared_bytes != encoded.len() as u64 {
+                return Err("single PLONK proof component sizes do not sum to full proof".into());
+            }
+            let gate_prover_ms = timings["gates_ms"].as_f64().unwrap();
+            let copy_prover_ms =
+                timings["copy_prepare_ms"].as_f64().unwrap() + timings["copy_ms"].as_f64().unwrap();
+            let shared_prover_ms = prover_ms - gate_prover_ms - copy_prover_ms;
+            let shared_verifier_ms = verify_ms - verification.gate_ms - verification.copy_ms;
+            if shared_prover_ms < 0.0 || shared_verifier_ms < 0.0 {
+                return Err("single PLONK constraint timers exceed E2E time".into());
+            }
+            timings["constraint_breakdown"] = json!({
+                "gate": {"prover_ms":gate_prover_ms,"verifier_ms":verification.gate_ms,"proof_bytes":gate_bytes},
+                "copy": {"prover_ms":copy_prover_ms,"verifier_ms":verification.copy_ms,"proof_bytes":copy_bytes},
+                "shared": {"prover_ms":shared_prover_ms,"verifier_ms":shared_verifier_ms,"proof_bytes":shared_bytes}
+            });
             (
-                bincode::serialize(&proof)?,
+                encoded,
                 digest(&proof.commitment),
                 prover_ms,
                 verify_ms,
@@ -589,6 +630,27 @@ fn main() -> Result<(), Box<dyn Error>> {
         let hash = blake3::hash(&encoded).to_hex().to_string();
         if first.replace(hash.clone()).is_some_and(|h| h != hash) {
             return Err("unstable proof bytes".into());
+        }
+        eprintln!(
+            "[{}] {} {stage} run {run}/{total} finished: prover={prover_ms:.3} ms verifier={verify_ms:.3} ms proof={} bytes (instances={})",
+            o.kind.as_str(),
+            o.system,
+            encoded.len(),
+            o.instances
+        );
+        if let Some(parts) = timings.get("constraint_breakdown") {
+            for (key, label) in [
+                ("gate", "gate constraint"),
+                ("copy", "copy constraint"),
+                ("shared", "shared PCS/other"),
+            ] {
+                eprintln!(
+                    "  {label}: prover={:.3} ms verifier={:.3} ms proof={} bytes",
+                    parts[key]["prover_ms"].as_f64().unwrap(),
+                    parts[key]["verifier_ms"].as_f64().unwrap(),
+                    parts[key]["proof_bytes"]
+                );
+            }
         }
         writeln!(
             out,

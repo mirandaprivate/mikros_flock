@@ -14,9 +14,11 @@ use binius_core::{
     transcript::{ProverTranscript, VerifierTranscript},
 };
 use binius_field::{
-    BinaryField1b, BinaryField8b, BinaryField128b, Field, PackedField,
+    BinaryField1b, Field, PackedField,
     arch::OptimalUnderlier, as_packed_field::PackedType,
 };
+#[cfg(not(any(feature = "polyval", feature = "aes32", feature = "aes-bytesliced")))]
+use binius_field::{BinaryField8b, BinaryField128b};
 use binius_hal::make_portable_backend;
 use binius_hash::groestl::Groestl256;
 use binius_math::{
@@ -184,10 +186,15 @@ fn run() -> Result<(), String> {
     }
     for index in 0..config.runs + usize::from(!config.rss) {
         let warmup = !config.rss && index == 0;
+        let (stage, run, total) = if warmup { ("warmup", 1, 1) }
+            else if config.rss { ("RSS", 1, config.runs) }
+            else { ("measured", index, config.runs) };
+        eprintln!("[hadamard] {SYSTEM} {stage} run {run}/{total} start (log_n={}, switchover={})",
+            config.log_n, config.switchover);
         let item = sample_with(config.log_n, index, config.rss, config.switchover, config.engine)?;
-        println!("n={} run={} switchover={} {}: {:.3} ms, {} bytes{}", config.log_n,
-            index, config.switchover, SYSTEM, item["prover_ms"].as_f64().unwrap(),
-            item["proof_bytes"], if warmup { " (warmup)" } else { "" });
+        eprintln!("[hadamard] {SYSTEM} {stage} run {run}/{total} finished: prover={:.3} ms verifier={:.3} ms proof={} bytes (log_n={}, switchover={})",
+            item["prover_ms"].as_f64().unwrap(), item["verifier_ms"].as_f64().unwrap(),
+            item["proof_bytes"], config.log_n, config.switchover);
         report[if warmup { "warmups" } else { "samples" }].as_array_mut().unwrap().push(item);
         write_if_requested(config.output.as_deref(), &report)?;
     }
@@ -285,6 +292,7 @@ fn bind_eq(log_n: usize, weights: &[F], output: Claim) -> Result<Claim, String> 
     }
     Ok(output)
 }
+#[cfg(test)]
 fn prove(log_n: usize, switchover: usize, inputs: Inputs, tape: &mut ProverTape) -> Result<Claim, String> {
     prove_with(log_n, switchover, inputs, tape, Options::default(), &mut NativeProfile::default())
 }
@@ -339,6 +347,7 @@ fn prove_with(log_n: usize, switchover: usize, inputs: Inputs,
     timings.sumcheck_ms = elapsed_ms(start);
     bind_eq(log_n, &weights, output)
 }
+#[cfg(test)]
 fn verify(log_n: usize, tape: &mut VerifierTape) -> Result<Claim, String> {
     verify_with(log_n, tape, Options::default())
 }
@@ -352,26 +361,32 @@ fn verify_with(log_n: usize, tape: &mut VerifierTape, options: Options) -> Resul
     bind_eq(log_n, &weights, output)
 }
 
+#[cfg(test)]
 fn sample(log_n: usize, run: usize, rss: bool, switchover: usize) -> Result<Value, String> {
     sample_with(log_n, run, rss, switchover, Options::default())
 }
 fn sample_with(log_n: usize, run: usize, rss: bool, switchover: usize, options: Options) -> Result<Value, String> {
+    eprintln!("[hadamard] {SYSTEM}: input preparation started");
     let start = Instant::now();
     let (inputs, digest) = witness(log_n, run);
     let input_generation_ms = elapsed_ms(start);
+    eprintln!("[hadamard] {SYSTEM}: input preparation finished");
     let mut prover = prover_tape(&digest);
     let before = rss.then(|| status_kib("VmRSS:")).flatten();
     let mut timings = NativeProfile::default();
+    eprintln!("[hadamard] {SYSTEM}: proving started");
     let start = Instant::now();
     let claim = prove_with(log_n, switchover, inputs, &mut prover, options, &mut timings)?;
     let prover_ms = elapsed_ms(start);
     let peak = rss.then(|| status_kib("VmHWM:")).flatten();
+    eprintln!("[hadamard] {SYSTEM}: proving finished ({prover_ms:.3} ms)");
     let next_prover: F = prover.sample();
     let start = Instant::now();
     let proof = prover.finalize();
     let proof_finalize_ms = elapsed_ms(start);
     let fields = 3 * log_n + 4;
     if proof.len() != fields * 16 { return Err(format!("native proof shape changed: {} != {}", proof.len(), fields * 16)); }
+    eprintln!("[hadamard] {SYSTEM}: verification started");
     let start = Instant::now();
     let mut verifier = verifier_tape(&digest, proof.clone());
     let verifier_prepare_ms = elapsed_ms(start);
@@ -384,6 +399,8 @@ fn sample_with(log_n: usize, run: usize, rss: bool, switchover: usize, options: 
         || claim.multilinear_evals != checked.multilinear_evals {
         return Err("Fiat-Shamir state or terminal claims mismatch".into());
     }
+    eprintln!("[hadamard] {SYSTEM}: verification finished ({verifier_ms:.3} ms)");
+    eprintln!("[hadamard] {SYSTEM}: independent source checks started (including input regeneration)");
     let start = Instant::now();
     let (source, source_digest) = witness(log_n, run);
     let input_regeneration_ms = elapsed_ms(start);
@@ -391,6 +408,7 @@ fn sample_with(log_n: usize, run: usize, rss: bool, switchover: usize, options: 
     let start = Instant::now();
     check_source(&source, &checked)?;
     let input_claim_check_ms = elapsed_ms(start);
+    eprintln!("[hadamard] {SYSTEM}: independent source checks finished");
     Ok(json!({
         "system": SYSTEM, "log_n": log_n, "run": run, "switchover": switchover,
         "field_variant": FIELD_VARIANT,
@@ -496,6 +514,7 @@ fn input_digest(log_n: usize, inputs: &Inputs) -> [u8; 32] {
     *hash.finalize().as_bytes()
 }
 
+#[cfg(test)]
 fn tamper_checks(switchover: usize) -> Result<Vec<Value>, String> {
     tamper_checks_with(switchover, Options::default())
 }
