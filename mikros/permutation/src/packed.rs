@@ -3,12 +3,14 @@
 //! The public index convention is A[row, column] = source[kappa * row + column].
 //! We pair adjacent rows, rather than manuscript upper/lower halves. These are
 //! fixed index permutations; source values and their field embedding are intact.
-//! All coefficient construction is offline. Every challenge-dependent table,
-//! contraction, weighted aggregation, tree and proof message is computed online.
+//! Coefficient construction is challenge-independent, but depends on source
+//! values and is charged online by copy-proof callers. CopyPreparationPlan
+//! moves only fixed public label geometry and linear tables to setup. Every
+//! challenge-dependent contraction, aggregation and proof message stays online.
 
 use crate::{
     Error,
-    bits::PackedBits,
+    bits::{PackedBits, decode_eight},
     field::{FastField, PolynomialEvaluation, SmallField, evaluate_linear, linear_tables},
     permutation::{CommittedStatement, PreparedPermutation},
     product_tree::Tree,
@@ -29,8 +31,10 @@ use std::{
 mod aggregate_gfni;
 mod aggregate_kernel;
 mod aggregate_tower;
+mod copy_preparation;
 mod domain;
 mod projection_kernel;
+pub use copy_preparation::{CopyPreparationPlan, CopyPreparationTimings};
 use domain::Domain;
 
 /// A deferred source query after removal of the public grand-product shift.
@@ -113,6 +117,7 @@ struct PreparedTree {
 
 /// Fixed-width, monic polynomials. The leading one is implicit; all other
 /// coefficients use the actual field width, including packed single-bit fields.
+#[derive(Clone)]
 struct Polys {
     count: usize,
     degree: usize,
@@ -122,11 +127,16 @@ struct Polys {
 }
 
 pub fn prepare(source: &PreparedPermutation) -> Result<Prepared, Error> {
+    let reference = std::env::var_os("MIKROS_COPY_PREP_REFERENCE").is_some_and(|v| v == "1");
+    prepare_impl(source, reference)
+}
+
+fn prepare_impl(source: &PreparedPermutation, reference: bool) -> Result<Prepared, Error> {
     let (kappa, _) = shape(source.statement())?;
     let domain = domain(source.statement().width)?;
     let trees = [
-        prepare_tree(source.left(), kappa, &domain),
-        prepare_tree(source.right(), kappa, &domain),
+        prepare_tree(source.left(), kappa, &domain, reference),
+        prepare_tree(source.right(), kappa, &domain, reference),
     ];
     Ok(Prepared {
         statement: *source.statement(),
@@ -158,32 +168,87 @@ fn domain(width: usize) -> Result<Arc<Domain>, Error> {
 }
 
 impl Polys {
+    /// Convert eight bit-sliced source rows together into the initial monic
+    /// linear polynomials. The common SWAR transpose replaces a separate
+    /// width-bit scan for every row; padded rows remain canonical zero.
+    fn leaves(source: &PackedBits, count: usize, bits: usize, reference: bool) -> Self {
+        if reference {
+            return Self::generate(count, 1, bits, |i, out| {
+                out[0] = if i < source.rows() { source.row(i) } else { 0 };
+            });
+        }
+        let stride = bits.div_ceil(8);
+        let mut bytes = vec![0u8; (count * bits).div_ceil(8)];
+        // Eight field elements occupy exactly `bits` bytes, even for the
+        // 1-, 2- and 4-bit subfields. Each worker owns disjoint output bytes.
+        bytes
+            .par_chunks_mut(bits)
+            .enumerate()
+            .with_min_len(256)
+            .for_each(|(group, dst)| {
+                if group * 8 >= source.rows() {
+                    return;
+                }
+                let values = decode_eight(source, group);
+                if bits < 8 {
+                    for (row, &value) in values.iter().enumerate().take(dst.len() * 8 / bits) {
+                        let offset = row * bits;
+                        dst[offset / 8] |= (value as u8) << (offset % 8);
+                    }
+                } else {
+                    for (out, value) in dst.chunks_mut(stride).zip(values) {
+                        out.copy_from_slice(&value.to_le_bytes()[..stride]);
+                    }
+                }
+            });
+        Self {
+            count,
+            degree: 1,
+            bits,
+            stride,
+            bytes,
+        }
+    }
+
     fn generate<F>(count: usize, degree: usize, bits: usize, f: F) -> Self
     where
         F: Fn(usize, &mut [u128]) + Sync + Send,
     {
+        Self::generate_prefix(count, count, degree, bits, f)
+    }
+
+    /// Materialize an active prefix while preserving the full zero-padded
+    /// polynomial layout. Public geometry, never witness values, chooses it.
+    fn generate_prefix<F>(count: usize, active: usize, degree: usize, bits: usize, f: F) -> Self
+    where
+        F: Fn(usize, &mut [u128]) + Sync + Send,
+    {
+        assert!(active <= count);
         let width = degree * bits;
         let stride = width.div_ceil(8);
         let mut bytes = vec![0u8; (count * width).div_ceil(8)];
         if width < 8 {
             let per_byte = 8 / width;
-            bytes.par_iter_mut().enumerate().for_each_init(
-                || vec![0; degree],
-                |coeff, (block, dst)| {
-                    let mut word = 0u8;
-                    for r in 0..per_byte.min(count - block * per_byte) {
-                        f(block * per_byte + r, coeff);
-                        let value = coeff
-                            .iter()
-                            .enumerate()
-                            .fold(0u8, |v, (j, &a)| v | ((a as u8) << (j * bits)));
-                        word |= value << (r * width);
-                    }
-                    *dst = word;
-                },
-            );
+            bytes[..(active * width).div_ceil(8)]
+                .par_iter_mut()
+                .enumerate()
+                .for_each_init(
+                    || vec![0; degree],
+                    |coeff, (block, dst)| {
+                        let mut word = 0u8;
+                        for r in 0..per_byte.min(active - block * per_byte) {
+                            f(block * per_byte + r, coeff);
+                            let value = coeff
+                                .iter()
+                                .enumerate()
+                                .fold(0u8, |v, (j, &a)| v | ((a as u8) << (j * bits)));
+                            word |= value << (r * width);
+                        }
+                        *dst = word;
+                    },
+                );
         } else {
-            bytes
+            bytes[..active * stride]
                 .par_chunks_mut(stride)
                 .enumerate()
                 .with_min_len(256)
@@ -238,17 +303,44 @@ impl Polys {
     }
 }
 
-fn prepare_tree(bits: &PackedBits, kappa: usize, domain: &Domain) -> PreparedTree {
+fn prepare_tree(bits: &PackedBits, kappa: usize, domain: &Domain, reference: bool) -> PreparedTree {
     let len = crate::padded_len(bits.rows()).unwrap();
-    let mut layers = vec![Polys::generate(len, 1, domain.base.base.bits, |i, out| {
-        out[0] = if i < bits.rows() { bits.row(i) } else { 0 };
-    })];
+    let mut layers = vec![Polys::leaves(bits, len, domain.base.base.bits, reference)];
     let mut samples = Vec::with_capacity(kappa.ilog2() as usize);
     for _ in 0..kappa.ilog2() {
         let prev = layers.last().unwrap();
-        let d = prev.degree;
-        let rows = prev.count / kappa / 2;
-        let next = Polys::generate(rows * kappa, 2 * d, prev.bits, |node, out| {
+        let next = prepare_parent_layer(prev, kappa, domain);
+        let eta = prepare_parent_samples(prev, kappa, domain);
+        layers.push(next);
+        samples.push(eta);
+    }
+    PreparedTree { layers, samples }
+}
+
+fn prepare_parent_layer(prev: &Polys, kappa: usize, domain: &Domain) -> Polys {
+    prepare_parent_layer_prefix(prev, kappa, domain, prev.count)
+}
+
+/// Children are adjacent kappa-column rows. A partial first child activates
+/// its columns; any part of the second child still fits that same prefix.
+fn active_parent_nodes(active: usize, kappa: usize) -> usize {
+    active / (2 * kappa) * kappa + (active % (2 * kappa)).min(kappa)
+}
+
+fn prepare_parent_layer_prefix(
+    prev: &Polys,
+    kappa: usize,
+    domain: &Domain,
+    active: usize,
+) -> Polys {
+    let d = prev.degree;
+    let rows = prev.count / kappa / 2;
+    Polys::generate_prefix(
+        rows * kappa,
+        active_parent_nodes(active, kappa),
+        2 * d,
+        prev.bits,
+        |node, out| {
             out.fill(0);
             let row = node / kappa;
             let column = node % kappa;
@@ -261,42 +353,54 @@ fn prepare_tree(bits: &PackedBits, kappa: usize, domain: &Domain) -> PreparedTre
                     out[i + j] ^= domain.base.multiply(ai, prev.coefficient(b, j));
                 }
             }
-        });
-        let eta = Polys::generate(
-            rows * (kappa - 1),
-            2 * d,
-            domain.field.base.bits,
-            |node, out| {
-                let row = node / (kappa - 1);
-                let sample = node % (kappa - 1);
-                let mut a = [0u128; 64];
-                let mut b = [0u128; 64];
-                for j in 0..kappa {
-                    let weight = domain.off_weights[sample][j];
-                    for nu in 0..d {
-                        a[nu] ^= domain.field.multiply(
-                            weight,
-                            domain.lift(prev.coefficient(2 * row * kappa + j, nu)),
-                        );
-                        b[nu] ^= domain.field.multiply(
-                            weight,
-                            domain.lift(prev.coefficient((2 * row + 1) * kappa + j, nu)),
-                        );
-                    }
+        },
+    )
+}
+
+fn prepare_parent_samples(prev: &Polys, kappa: usize, domain: &Domain) -> Polys {
+    prepare_parent_samples_prefix(prev, kappa, domain, prev.count)
+}
+
+fn prepare_parent_samples_prefix(
+    prev: &Polys,
+    kappa: usize,
+    domain: &Domain,
+    active: usize,
+) -> Polys {
+    let d = prev.degree;
+    let rows = prev.count / kappa / 2;
+    Polys::generate_prefix(
+        rows * (kappa - 1),
+        active.div_ceil(2 * kappa) * (kappa - 1),
+        2 * d,
+        domain.field.base.bits,
+        |node, out| {
+            let row = node / (kappa - 1);
+            let sample = node % (kappa - 1);
+            let mut a = [0u128; 64];
+            let mut b = [0u128; 64];
+            for j in 0..kappa {
+                let weight = domain.off_weights[sample][j];
+                for nu in 0..d {
+                    a[nu] ^= domain.field.multiply(
+                        weight,
+                        domain.lift(prev.coefficient(2 * row * kappa + j, nu)),
+                    );
+                    b[nu] ^= domain.field.multiply(
+                        weight,
+                        domain.lift(prev.coefficient((2 * row + 1) * kappa + j, nu)),
+                    );
                 }
-                out.fill(0);
-                for i in 0..d {
-                    out[i + d] ^= a[i] ^ b[i];
-                    for j in 0..d {
-                        out[i + j] ^= domain.field.multiply(a[i], b[j]);
-                    }
+            }
+            out.fill(0);
+            for i in 0..d {
+                out[i + d] ^= a[i] ^ b[i];
+                for j in 0..d {
+                    out[i + j] ^= domain.field.multiply(a[i], b[j]);
                 }
-            },
-        );
-        layers.push(next);
-        samples.push(eta);
-    }
-    PreparedTree { layers, samples }
+            }
+        },
+    )
 }
 
 struct DenseTree {
@@ -737,4 +841,163 @@ pub fn verify<C: Challenger>(
         column_weights: rho.clone(),
         value: v + z,
     }))
+}
+
+#[cfg(test)]
+mod preparation_tests {
+    use super::*;
+    use crate::{claims::row_weight, permutation};
+    use flock_field::test_rng::Rng;
+    use flock_transcript::challenger::FsChallenger;
+
+    fn values(rows: usize, width: usize, rng: &mut Rng) -> Vec<u128> {
+        let mask = (1u128 << width) - 1;
+        (0..rows).map(|_| (rng.next_u64() as u128) & mask).collect()
+    }
+
+    fn assert_polys_equal(a: &Polys, b: &Polys) {
+        assert_eq!(
+            (a.count, a.degree, a.bits, a.stride),
+            (b.count, b.degree, b.bits, b.stride)
+        );
+        assert_eq!(a.bytes, b.bytes);
+    }
+
+    #[test]
+    fn active_prefix_subbyte_coefficients_match_bit_oracle() {
+        use std::sync::atomic::{AtomicUsize, Ordering};
+
+        for bits in [1usize, 2, 4] {
+            // Covers degree*bits below eight, at eight, and above eight.
+            for degree in [1usize, 2, 4, 8] {
+                for count in [1usize, 3, 7, 8, 9, 17] {
+                    for active in 0..=count {
+                        let mask = (1u128 << bits) - 1;
+                        let coefficient =
+                            |row: usize, j: usize| ((row * 5 + j * 3 + row / 2 + 1) as u128) & mask;
+                        let calls: Vec<_> = (0..count).map(|_| AtomicUsize::new(0)).collect();
+                        let polys =
+                            Polys::generate_prefix(count, active, degree, bits, |i, out| {
+                                assert!(i < active);
+                                calls[i].fetch_add(1, Ordering::Relaxed);
+                                for (j, value) in out.iter_mut().enumerate() {
+                                    *value = coefficient(i, j);
+                                }
+                            });
+                        let mut expected = vec![0u8; (count * degree * bits).div_ceil(8)];
+                        for row in 0..count {
+                            assert_eq!(
+                                calls[row].load(Ordering::Relaxed),
+                                usize::from(row < active)
+                            );
+                            for j in 0..degree {
+                                let value = if row < active { coefficient(row, j) } else { 0 };
+                                assert_eq!(polys.coefficient(row, j), value);
+                                for bit in 0..bits {
+                                    let position = (row * degree + j) * bits + bit;
+                                    expected[position / 8] |=
+                                        (((value >> bit) & 1) as u8) << (position % 8);
+                                }
+                            }
+                        }
+                        assert_eq!(
+                            polys.bytes, expected,
+                            "bits={bits}, degree={degree}, count={count}, active={active}"
+                        );
+                    }
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn eight_row_leaf_decode_preserves_field_width_partial_groups_and_zero_padding() {
+        let mut rng = Rng::new(0x83A7_1391);
+        for width in [1usize, 2, 4, 7, 8, 13, 16, 31, 32, 63, 64] {
+            for rows in [1usize, 3, 8, 16, 19, 24, 129, 1 << 16] {
+                let raw = values(rows, width, &mut rng);
+                let source = PackedBits::from_rows(&raw, width).unwrap();
+                let count = rows.next_power_of_two();
+                let bits = width.next_power_of_two();
+                let expected = Polys::leaves(&source, count, bits, true);
+                let optimized = Polys::leaves(&source, count, bits, false);
+                assert_polys_equal(&optimized, &expected);
+                for row in 0..count {
+                    assert_eq!(
+                        optimized.coefficient(row, 0),
+                        raw.get(row).copied().unwrap_or(0)
+                    );
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn decoded_preparation_preserves_all_coefficients_proof_bytes_and_source_claims() {
+        let mut rng = Rng::new(0xCAB1_64A2);
+        for width in [8usize, 16, 32, 64] {
+            let kappa = 128 / width;
+            let minimum = kappa * kappa;
+            // Full input, byte-aligned input requiring power-of-two padding,
+            // and an input whose column-major byte boundaries are unaligned.
+            for rows in [minimum, minimum + 8, minimum + 3] {
+                let raw = values(rows, width, &mut rng);
+                let mut permuted = raw.clone();
+                permuted.reverse();
+                let source = permutation::prepare(
+                    PackedBits::from_rows(&raw, width).unwrap(),
+                    PackedBits::from_rows(&permuted, width).unwrap(),
+                )
+                .unwrap();
+                let reference = prepare_impl(&source, true).unwrap();
+                let optimized = prepare_impl(&source, false).unwrap();
+                assert_eq!(reference.statement(), optimized.statement());
+                assert_eq!(reference.kappa(), optimized.kappa());
+                for (a, b) in reference.trees.iter().zip(&optimized.trees) {
+                    assert_eq!(a.layers.len(), b.layers.len());
+                    assert_eq!(a.samples.len(), b.samples.len());
+                    for (a, b) in a
+                        .layers
+                        .iter()
+                        .chain(&a.samples)
+                        .zip(b.layers.iter().chain(&b.samples))
+                    {
+                        assert_polys_equal(a, b);
+                    }
+                }
+                let mut rc = FsChallenger::new(b"packed-preparation-eight-rows");
+                let mut pc = FsChallenger::new(b"packed-preparation-eight-rows");
+                let (reference_proof, reference_claims, _) = prove(&reference, &mut rc).unwrap();
+                let (proof, claims, _) = prove(&optimized, &mut pc).unwrap();
+                assert_eq!(
+                    bincode::serialize(&reference_proof).unwrap(),
+                    bincode::serialize(&proof).unwrap()
+                );
+                assert_eq!(reference_claims, claims);
+                let mut vc = FsChallenger::new(b"packed-preparation-eight-rows");
+                assert_eq!(verify(source.statement(), &proof, &mut vc).unwrap(), claims);
+                let next = pc.sample_f128();
+                assert_eq!(next, rc.sample_f128());
+                assert_eq!(next, vc.sample_f128());
+                for (bits, claim) in [source.left(), source.right()].into_iter().zip(&claims) {
+                    let field = SmallField::for_width(width).unwrap();
+                    let actual = (0..rows).fold(F128::ZERO, |sum, row| {
+                        // Original source bits and the fixed field embedding,
+                        // independent of the optimized decoder and coefficients.
+                        let value = (0..width).fold(F128::ZERO, |value, bit| {
+                            if bits.bit(bit * rows + row) {
+                                value + field.basis()[bit]
+                            } else {
+                                value
+                            }
+                        });
+                        sum + value
+                            * claim.column_weights[row % kappa]
+                            * row_weight(&claim.row_point, row / kappa)
+                    });
+                    assert_eq!(actual, claim.value);
+                }
+            }
+        }
+    }
 }

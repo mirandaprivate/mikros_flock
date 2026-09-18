@@ -18,6 +18,8 @@
 !/e2e_flock_keccak.log
 !/e2e_flock_blake3.log
 !/compare_hadamard_2_30.log
+!/single_hash_compare.log
+!/single_hash_compare_1thread.log
 *.aux
 *.out
 texput.*

@@ -1,4 +1,4 @@
-//! Matched native hash workloads: 256 independent calls, two packed groups.
+//! Matched native hash workloads: one call or 256 independent calls.
 //! Run each hash/system in a separate process to measure peak RSS with GNU time.
 #![recursion_limit = "256"]
 #![allow(dead_code)]
@@ -7,6 +7,8 @@ mod e2e_common;
 mod hash_fixture;
 #[path = "e2e_common/hash_mikros.rs"]
 mod hash_mikros;
+#[path = "e2e_common/hash_single_plonk.rs"]
+mod hash_single_plonk;
 
 use e2e_common::{PreparedWitness, TreeVerifier, batched_boolean};
 use flock_core::{
@@ -57,7 +59,7 @@ fn options() -> Result<Options, String> {
         }
         if flag == "--help" {
             println!(
-                "--hash sha256|keccak|blake3 --system mikros|flock --instances 256 --skip 7 --threads N --reps N --warmups N --tamper"
+                "--hash sha256|keccak|blake3 --system mikros|flock --instances 1|256 --skip 7 --threads N --reps N --warmups N --tamper"
             );
             std::process::exit(0);
         }
@@ -75,14 +77,14 @@ fn options() -> Result<Options, String> {
             _ => return Err(format!("unknown argument {flag}")),
         }
     }
-    if o.instances != 256
+    if !matches!(o.instances, 1 | 256)
         || o.skip != 7
         || o.threads == 0
         || o.reps == 0
         || !matches!(o.system.as_str(), "mikros" | "flock")
     {
         return Err(
-            "requires 256 instances, skip7, positive threads/reps, and mikros|flock".into(),
+            "requires 1 or 256 instances, skip7, positive threads/reps, and mikros|flock".into(),
         );
     }
     Ok(o)
@@ -299,7 +301,7 @@ fn native_tamper(
 fn public_mutations(f: &HashFixture) -> Vec<(String, Vec<F128>)> {
     let schema = &f.registry.types()[0].io_schema;
     let mut out = Vec::new();
-    for row in [0, 127, 128, 255] {
+    for row in [0, 127, 128, 255].into_iter().filter(|&r| r < f.count()) {
         for word in schema {
             let b = f
                 .public_bindings
@@ -334,6 +336,18 @@ fn main() -> Result<(), Box<dyn Error>> {
     if !flock_parallel::init_all_core_pool(o.threads) {
         return Err("all-core pool already initialized".into());
     }
+    // The native FLOCK verifier uses a single-thread pool. Match that policy
+    // for both single-instance systems without changing the multiple runs.
+    let verifier_pool = if o.instances == 1 {
+        Some(
+            rayon::ThreadPoolBuilder::new()
+                .num_threads(1)
+                .stack_size(8 << 20)
+                .build()?,
+        )
+    } else {
+        None
+    };
     let t = Instant::now();
     let f = HashFixture::new(o.kind, o.instances);
     let view = f.verifier();
@@ -345,7 +359,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let prepared_digest = digest(&prepared);
     let mut transpose_ms = 0.0;
     let mut public_setup_ms = 0.0;
-    let transposed = if o.system == "mikros" {
+    let transposed = if o.system == "mikros" && o.instances == 256 {
         let t = Instant::now();
         let w = batched_boolean::prepare(&prepared, f.nu, f.r1cs.k_log)?;
         transpose_ms = ms(t);
@@ -353,7 +367,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     } else {
         None
     };
-    let io = if o.system == "mikros" {
+    let io = if o.system == "mikros" && o.instances == 256 {
         let t = Instant::now();
         let io = hash_mikros::public_io(&view, &f.io_word_columns, &f.public_bindings)?;
         public_setup_ms = ms(t);
@@ -361,11 +375,21 @@ fn main() -> Result<(), Box<dyn Error>> {
     } else {
         None
     };
+    let single_plonk = if o.system == "mikros" && o.instances == 1 {
+        let t = Instant::now();
+        let setup = hash_single_plonk::Setup::new(&f, &prepared)?;
+        public_setup_ms = ms(t);
+        Some(setup)
+    } else {
+        None
+    };
     let carrier = transposed.as_ref().map(|w| {
         let log = w.z.len().ilog2() as usize;
         hash_mikros::container::registry(log, log)
     });
-    let params = if let Some(r) = &carrier {
+    let params = if let Some(s) = &single_plonk {
+        s.witness_params.clone()
+    } else if let Some(r) = &carrier {
         let mut p = hash_mikros::container::parameters(&hash_mikros::container::union(r));
         p.num_lanes = None;
         p
@@ -385,9 +409,16 @@ fn main() -> Result<(), Box<dyn Error>> {
         json!({"record":"metadata","schema_version":1,"hash":o.kind.as_str(),"system":o.system,
             "instances":o.instances,"unit":o.kind.unit(),"input_bits":o.kind.input_bits(),"output_bits":o.kind.output_bits(),
             "threads":rayon::current_num_threads(),"all_core_threads":flock_parallel::all_core_pool().current_num_threads(),
+            "verifier_threads":if o.instances==1 {Some(1)}else{None},
             "reps":o.reps,"warmups":o.warmups,"baseline_skip":o.skip,"univariate_skip":o.skip,"mikros_kappa":128,
-            "instance_groups":2,"r1cs_k_log":f.r1cs.k_log,"r1cs_c_identity":f.r1cs.c0_is_identity(),
-            "native_k_skip":f.r1cs.k_skip,"matrix_authentication":f.matrix_authentication(),
+            "instance_groups":if o.instances==256 {Some(2)} else {None},
+            "instance_mode":if o.instances==1 {"single"}else{"multiple"},
+            "mikros_packing_axis":if o.instances==1 {"gate_bits"}else{"instances"},
+            "native_instance_capacity":1usize<<f.nu,"r1cs_m":f.r1cs.m,
+            "live_constraint_bits":o.instances*f.r1cs.useful_bits,
+            "padding_policy":if single_plonk.is_some(){"one PLONK hash execution; selectors zero on padded gates, padding wires anchored by copy permutation; native PCS minimum domain zero padding"}else{"one active row per requested call; inactive native PCS capacity is zero-filled"},
+            "r1cs_k_log":f.r1cs.k_log,"r1cs_c_identity":f.r1cs.c0_is_identity(),
+            "native_k_skip":f.r1cs.k_skip,"matrix_authentication":if single_plonk.is_some(){"PLONK selectors and sigma digit tables authenticated by preprocessed public PCS commitment"}else{f.matrix_authentication()},
             "matrix_representation":if o.kind==HashKind::Keccak{"native_compact_walker"}else{"public_csc"},
             "program_id":program_id,
             "matrix_digest_scope":if o.kind==HashKind::Keccak{"R1CS descriptor only: A/B semantics are the trusted native Keccak walker bound by hash kind/program; full source SHA256 in experiment manifest"}else{"explicit public A/B/C matrices and native R1CS descriptor"},
@@ -396,11 +427,16 @@ fn main() -> Result<(), Box<dyn Error>> {
             "packed_direct":env::var("FLOCK_PCS_PACKED_DIRECT").unwrap_or_default(),
             "zero_knowledge_claim":false,"verification":"complete non-deferred verifier; no witness input; matrix and sigma obligations discharged",
             "fixture_digest_blake3":f.fixture_digest_blake3(),"circuit_digest_blake3":hex(&f.circuit.digest()),
+            "public_digest_blake3":digest(&f.public),
             "r1cs_digest_blake3":hex(&f.r1cs.statement_digest()),"prepared_witness_blake3":prepared_digest,
             "offline_fixture_ms":offline_fixture_ms,"offline_witness_ms":offline_witness_ms,
             "offline_transpose_ms":transpose_ms,"offline_public_setup_ms":public_setup_ms,
+            "offline_copy_setup_ms":single_plonk.as_ref().map_or(0.0,|s|s.offline_copy_setup_ms),
             "public_word_columns":f.io_word_columns,"public_words":f.public.len(),
             "public_io_blocks":io.as_ref().map(|io|io.blocks.iter().map(|b|json!({"first_bit":b.first_bit,"log_bits":b.log_bits})).collect::<Vec<_>>()),
+            "single_plonk":single_plonk.as_ref().map(|s|s.metadata()),
+            "arithmetization":if single_plonk.is_some(){"binary PLONK"}else{"native R1CS"},
+            "permutation_proof":if single_plonk.is_some(){"Mikros packed intermediate-field permutation"}else if o.system=="flock"{"native FLOCK Product-GKR"}else{"public word cover"},
             "timing_scope":"prepared input clone excluded; online conversion, commitment, reduction, configured grinding, public I/O/wiring and native PCS included; verifier separate",
             "ram_scope":"external GNU time peak RSS of whole process including offline setup, warmup, prover and verifier",
             "proof_encoding":if o.system=="mikros"{"bincode full Mikros proof including commitment and PCS"}else{"bincode (Commitment, R1csProofCircuitMerged)"}
@@ -479,6 +515,31 @@ fn main() -> Result<(), Box<dyn Error>> {
                 timings,
                 cases,
             )
+        } else if let Some(s) = &single_plonk {
+            let owned = s.witness.clone();
+            let t = Instant::now();
+            let (proof, timings, mut pch) = hash_single_plonk::prove(o.kind, s, owned)?;
+            let prover_ms = ms(t);
+            let t = Instant::now();
+            let mut vch = verifier_pool.as_ref().unwrap().install(|| {
+                hash_single_plonk::verify(o.kind, &s.circuit, &s.public_commitment, &proof)
+            })?;
+            let verify_ms = ms(t);
+            if pch.sample_f128() != vch.sample_f128() {
+                return Err("single Mikros FS mismatch".into());
+            }
+            let mut cases = Vec::new();
+            if o.tamper && iteration == 0 {
+                cases = hash_single_plonk::tamper(o.kind, s, &proof)?;
+            }
+            (
+                bincode::serialize(&proof)?,
+                digest(&proof.commitment),
+                prover_ms,
+                verify_ms,
+                timings,
+                cases,
+            )
         } else {
             let union = f.union();
             let owned = prepared.clone();
@@ -497,7 +558,11 @@ fn main() -> Result<(), Box<dyn Error>> {
             );
             let prover_ms = ms(t);
             let t = Instant::now();
-            let mut vch = flock_verify(&f, &f.public, matrix, &cm, &p, 7, &params)?;
+            let mut vch = if let Some(pool) = &verifier_pool {
+                pool.install(|| flock_verify(&f, &f.public, matrix, &cm, &p, 7, &params))?
+            } else {
+                flock_verify(&f, &f.public, matrix, &cm, &p, 7, &params)?
+            };
             let verify_ms = ms(t);
             if pch.sample_f128() != vch.sample_f128() {
                 return Err("FLOCK FS mismatch".into());

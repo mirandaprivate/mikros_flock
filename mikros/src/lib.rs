@@ -16,6 +16,7 @@ pub mod mixed_tensor;
 pub mod multiple_gate;
 pub mod multiple_image;
 pub mod packed_sources;
+pub mod packed_opening;
 pub mod sparse_lookup;
 pub mod packed_ip;
 pub mod tensor;
