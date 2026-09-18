@@ -47,7 +47,15 @@ name = "single_hash_compare"
 harness = false
 
 [[bench]]
+name = "single_instance"
+harness = false
+
+[[bench]]
 name = "binary_hadamard"
+harness = false
+
+[[bench]]
+name = "e2e_single_constraints"
 harness = false
 
 [lints]

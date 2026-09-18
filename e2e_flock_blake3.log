@@ -13,4 +13,3 @@ Verifier: Complete non-deferred verification, including matrix and PCS checks; p
 Ram: Maximum of 1 measurement-process GNU time peaks per system; includes setup, warmup, proving, verification and allocator retention.
 Worker CPU affinity: 0
 Every measured proof was verified; warmups are excluded from timing statistics.
-Raw data: /home/mscong1/git/mikros_flock/e2e_flock_blake3.json

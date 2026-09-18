@@ -145,9 +145,9 @@ pub use crate::lincheck::kernels::{
 pub use crate::lincheck::union::{
     MatrixAssertion, UnionLincheckSlot, eq_prefix_sum, eq_prefix_weight, prove_union_capture_z_vec,
     prove_union_capture_z_vec_with_grinding, prove_union_capture_z_vec_with_skip_and_grinding,
-    union_bitbank_fold, union_comb_partial, verify_union,
-    verify_union_deferred, verify_union_deferred_with_grinding,
-    verify_union_deferred_with_skip_and_grinding, verify_union_with_grinding,
+    union_bitbank_fold, union_comb_partial, verify_union, verify_union_deferred,
+    verify_union_deferred_with_grinding, verify_union_deferred_with_skip_and_grinding,
+    verify_union_with_grinding,
 };
 use crate::{
     all_core_pool, alloc_uninit_vec,
@@ -842,6 +842,9 @@ pub fn partial_fold_packed_z(
     let n_outer = 1usize << n_log;
     assert_eq!(z_packed.len(), (1usize << m) / 8);
     assert_eq!(eq_outer.len(), n_outer);
+    if n_log == 0 {
+        return partial_fold_single_instance(z_packed, k, k, eq_outer[0]);
+    }
     assert!(n_log >= 3, "need n_outer ≥ 8 for byte stripes");
     let n_stripes = n_outer / 8;
 
@@ -1022,6 +1025,10 @@ pub fn partial_fold_packed_z_best(
     useful_bits: usize,
     eq_outer: &[F128],
 ) -> Vec<F128> {
+    if m == k_log {
+        assert_eq!(eq_outer.len(), 1);
+        return partial_fold_single_instance(z_packed, 1usize << k_log, useful_bits, eq_outer[0]);
+    }
     if n_log_ok_for_tile(m, k_log, NEON_TILE_T) {
         #[cfg(target_arch = "aarch64")]
         {
@@ -1066,6 +1073,88 @@ pub fn partial_fold_packed_z_best(
         }
     } else {
         partial_fold_packed_z_fast_padded(z_packed, m, k_log, useful_bits, eq_outer)
+    }
+}
+
+/// The zero-dimensional outer tensor has one weight. Keep the witness in
+/// ordinary bit-packed order for this case; byte stripes require eight rows.
+fn partial_fold_single_instance(
+    packed: &[u8],
+    columns: usize,
+    useful_bits: usize,
+    weight: F128,
+) -> Vec<F128> {
+    assert_eq!(packed.len(), columns / 8);
+    assert!(useful_bits <= columns);
+    let mut result = vec![F128::ZERO; columns];
+    result[..useful_bits]
+        .par_iter_mut()
+        .enumerate()
+        .for_each(|(i, dst)| {
+            if (packed[i / 8] >> (i & 7)) & 1 != 0 {
+                *dst = weight;
+            }
+        });
+    result
+}
+
+#[cfg(test)]
+mod single_instance_fold_tests {
+    use super::*;
+
+    #[test]
+    fn zero_outer_dimension_matches_direct_bit_evaluation() {
+        for log_columns in [7usize, 9, 15] {
+            let columns = 1usize << log_columns;
+            let words: Vec<_> = (0..columns / 128)
+                .map(|i| {
+                    let x = (i as u64 + 1).wrapping_mul(0x9e3779b97f4a7c15);
+                    F128::new(x, x.rotate_left(27))
+                })
+                .collect();
+            let packed = pack_z_lincheck_from_packed(&words, log_columns, log_columns);
+            for weight in [F128::ZERO, F128::ONE, F128::new(0x12345, 0x98765)] {
+                let expected: Vec<_> = (0..columns)
+                    .map(|i| {
+                        let word = words[i / 128];
+                        let limb = if i % 128 < 64 { word.lo } else { word.hi };
+                        if (limb >> (i % 64)) & 1 == 0 {
+                            F128::ZERO
+                        } else {
+                            weight
+                        }
+                    })
+                    .collect();
+                assert_eq!(
+                    partial_fold_packed_z(&packed, log_columns, log_columns, &[weight]),
+                    expected
+                );
+                assert_eq!(
+                    partial_fold_packed_z_best(
+                        &packed,
+                        log_columns,
+                        log_columns,
+                        columns,
+                        &[weight]
+                    ),
+                    expected
+                );
+                for useful in [0, 3, columns - 5, columns] {
+                    let mut padded = expected.clone();
+                    padded[useful..].fill(F128::ZERO);
+                    assert_eq!(
+                        partial_fold_packed_z_best(
+                            &packed,
+                            log_columns,
+                            log_columns,
+                            useful,
+                            &[weight]
+                        ),
+                        padded
+                    );
+                }
+            }
+        }
     }
 }
 
@@ -1184,6 +1273,17 @@ pub fn pack_z_lincheck_from_packed(z_packed_f128: &[F128], m: usize, k_log: usiz
     let n_total = 1usize << m;
     assert_eq!(z_packed_f128.len(), n_total / 128);
     let n_outer = n_total / k;
+    if n_outer == 1 {
+        return z_packed_f128
+            .iter()
+            .flat_map(|word| {
+                word.lo
+                    .to_le_bytes()
+                    .into_iter()
+                    .chain(word.hi.to_le_bytes())
+            })
+            .collect();
+    }
     assert_eq!(n_outer % 8, 0, "need n_outer ≥ 8 for byte stripes");
 
     // Uninit alloc — the par_chunks_mut loop below writes every byte of

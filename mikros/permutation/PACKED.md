@@ -88,12 +88,10 @@ untimed source oracle must not be described as a succinct opening. The E2E
 comparison includes commitment, online PIOPs and conversions, gathering, PCS
 opening, and the configured transcript grinding.
 
-Use `server_experiments/run_packed_permutation_64.py` from a frozen source
-snapshot for the server run. It records source and binary hashes, native CPU
-features, fixed 64-CPU affinity, raw timings, verification results, and separate
-old/new medians. Prepared coefficient storage includes off-domain polynomial
-products and can be larger in the new version; that cost is reported even though
-the agreed online timing excludes its construction.
+For the paper's single-instance hash comparison, run
+`cargo bench -p mikros --bench single_hash_compare` from the repository root.
+Prepared coefficient storage includes off-domain polynomial products;
+the standalone benchmark reports this storage separately from online proving.
 
 The hardware implementation uses four-row VPCLMUL accumulators for coefficient
 aggregation. For the GF(2^32), kappa-four compact layers, a GFNI affine transform
@@ -120,5 +118,5 @@ accumulates raw 32-bit polynomial products before reducing and recomposing them.
 It retains exactly the same GHASH field and source coefficient basis. It was
 comparable to GFNI in the native probes, so it remains opt-in. Both alternatives
 use four VPCLMUL instructions per four rows per coefficient; they do not halve
-the carryless multiplication count. Run `run_packed_aggregate_probe.py` for the
-isolated, verified kernel comparison, including online weight conversion costs.
+the carryless multiplication count. Online weight conversion costs remain part
+of proving time when comparing the kernels.

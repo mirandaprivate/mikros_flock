@@ -318,13 +318,22 @@ impl<C: Challenger> Challenger for NonzeroFirst<'_, C> {
 }
 
 pub fn prepare_single(c: &Circuit, z: &[F128]) -> Result<packed::Prepared, String> {
+    let source = prepare_single_source(c, z)?;
+    packed::prepare(&source).map_err(|e| format!("single packed preparation: {e}"))
+}
+
+pub fn prepare_single_bounded(c: &Circuit, z: &[F128]) -> Result<packed::BoundedPrepared, String> {
+    let source = prepare_single_source(c, z)?;
+    packed::prepare_bounded(&source).map_err(|e| format!("single bounded packed preparation: {e}"))
+}
+
+fn prepare_single_source(c: &Circuit, z: &[F128]) -> Result<permutation::PreparedPermutation, String> {
     check_circuit(c)?;
     if c.mode != Mode::Single || z.len() != (4 * c.wire_words()).max(1 << 15) {
         return Err("single copy preparation shape".into());
     }
-    let source = permutation::prepare(c.single_copy_source(z, 0), c.single_copy_source(z, 1))
-        .map_err(|e| format!("single copy source: {e}"))?;
-    packed::prepare(&source).map_err(|e| format!("single packed preparation: {e}"))
+    permutation::prepare(c.single_copy_source(z, 0), c.single_copy_source(z, 1))
+        .map_err(|e| format!("single copy source: {e}"))
 }
 
 fn single_expand(
@@ -383,16 +392,36 @@ pub fn single_prove<C: Challenger>(
     prepared: &packed::Prepared,
     ch: &mut C,
 ) -> Result<(SingleProof, Claims), String> {
+    single_prove_impl(c, z, public, *prepared.statement(), |ch| packed::prove(prepared, ch), ch)
+}
+
+pub fn single_prove_bounded<C: Challenger>(
+    c: &Circuit,
+    z: &[F128],
+    public: &[F128],
+    prepared: packed::BoundedPrepared,
+    ch: &mut C,
+) -> Result<(SingleProof, Claims), String> {
+    single_prove_impl(c, z, public, *prepared.statement(), |ch| packed::prove_bounded(prepared, ch), ch)
+}
+
+fn single_prove_impl<C: Challenger>(
+    c: &Circuit,
+    z: &[F128],
+    public: &[F128],
+    prepared_statement: CommittedStatement,
+    prove: impl FnOnce(&mut NonzeroFirst<'_, C>) -> Result<(packed::Proof, [packed::Claim; 2], mikros_permutation::profile::Timings), mikros_permutation::Error>,
+    ch: &mut C,
+) -> Result<(SingleProof, Claims), String> {
     let (log_z, log_public) = input_layout(c, z, public)?;
     let statement = CommittedStatement::new(c.copy_len(), (c.h() + 1).next_power_of_two())
         .map_err(|e| e.to_string())?;
-    if c.mode != Mode::Single || prepared.statement() != &statement {
+    if c.mode != Mode::Single || prepared_statement != statement {
         return Err("single prepared copy shape".into());
     }
     let mut trace = CopyTrace::new("mikros-single");
     ch.observe_label(b"mikros-plonk-single-copy-v1");
-    let (permutation, terminals, tree_timings) = packed::prove(
-        prepared,
+    let (permutation, terminals, tree_timings) = prove(
         &mut NonzeroFirst {
             inner: ch,
             first: true,
@@ -788,8 +817,9 @@ pub fn multiple_verify<C: Challenger>(
     multiple_expand(c, log_z, log_public, proof, &terminals, y, z)
 }
 
-/// Native Flock's single-execution input conversion, performed offline. Its
-/// multiple-execution path borrows the original packed witness instead.
+/// Native Flock's single-execution input conversion. This reads the current
+/// witness and belongs in online prover time. The multiple-execution path
+/// borrows the original packed witness instead.
 pub fn prepare_flock_single(c: &Circuit, z: &[F128]) -> Result<Vec<F128>, String> {
     check_circuit(c)?;
     if c.mode != Mode::Single || z.len() != (4 * c.wire_words()).max(1 << 15) {
@@ -912,7 +942,7 @@ fn flock_prove_with_evaluation<C: Challenger>(
     ch.observe_label(b"flock-plonk-copy-native-v1");
     let live = mask(c);
     let (product, terminal) = if c.mode == Mode::Single {
-        let values = single_values.ok_or("missing Flock single offline conversion")?;
+        let values = single_values.ok_or("missing Flock single witness conversion")?;
         if values.len() != c.copy_len() {
             return Err("Flock single conversion length".into());
         }

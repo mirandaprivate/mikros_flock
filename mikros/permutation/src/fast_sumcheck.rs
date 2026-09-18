@@ -503,7 +503,7 @@ pub(crate) fn prove<C: Challenger>(
     p: &mut Timings,
     stream: bool,
 ) -> (TreeProof, LeafClaim) {
-    let ([proof], [claim]) = prove_impl::<false, 1, C>([tree], c, p, stream);
+    let ([proof], [claim]) = prove_impl::<false, 1, C>([tree], c, p, stream, true);
     (proof, claim)
 }
 
@@ -513,7 +513,7 @@ pub(crate) fn prove_register<C: Challenger>(
     p: &mut Timings,
     stream: bool,
 ) -> (TreeProof, LeafClaim) {
-    let ([proof], [claim]) = prove_impl::<true, 1, C>([tree], c, p, stream);
+    let ([proof], [claim]) = prove_impl::<true, 1, C>([tree], c, p, stream, true);
     (proof, claim)
 }
 
@@ -529,10 +529,21 @@ pub(crate) fn prove_pair<C: Challenger>(
     register: bool,
 ) -> ([TreeProof; 2], [LeafClaim; 2]) {
     if register {
-        prove_impl::<true, 2, C>([left, right], c, p, stream)
+        prove_impl::<true, 2, C>([left, right], c, p, stream, true)
     } else {
-        prove_impl::<false, 2, C>([left, right], c, p, stream)
+        prove_impl::<false, 2, C>([left, right], c, p, stream, true)
     }
+}
+
+/// Identical messages and folding kernels; release checked-out scratch rather
+/// than retaining it after the tree phase of a consuming packed proof.
+pub(crate) fn prove_pair_bounded<C: Challenger>(
+    left: &mut impl Tree,
+    right: &mut impl Tree,
+    c: &mut C,
+    p: &mut Timings,
+) -> ([TreeProof; 2], [LeafClaim; 2]) {
+    prove_impl::<true, 2, C>([left, right], c, p, true, false)
 }
 
 fn prove_impl<const REGISTER_FOLD: bool, const N: usize, C: Challenger>(
@@ -540,6 +551,7 @@ fn prove_impl<const REGISTER_FOLD: bool, const N: usize, C: Challenger>(
     c: &mut C,
     p: &mut Timings,
     stream: bool,
+    recycle: bool,
 ) -> ([TreeProof; N], [LeafClaim; N]) {
     let log_len = trees[0].log_len();
     assert!(trees.iter().all(|tree| tree.log_len() == log_len));
@@ -672,7 +684,9 @@ fn prove_impl<const REGISTER_FOLD: bool, const N: usize, C: Challenger>(
         p.layer_release_ms += elapsed(t);
     }
     for buffer in cur.into_iter().chain(next).flatten() {
-        flock_core::scratch::give_f128(buffer);
+        if recycle {
+            flock_core::scratch::give_f128(buffer);
+        }
     }
     (
         layers.map(|layers| TreeProof { layers }),
@@ -690,9 +704,21 @@ pub(crate) fn prove_weighted_pair<C: Challenger>(
     a: [&[F128]; 2],
     b: [&[F128]; 2],
     point: &[F128],
+    claims: [F128; 2],
+    c: &mut C,
+    p: &mut Timings,
+) -> ([LayerProof; 2], Vec<F128>, [F128; 2]) {
+    prove_weighted_pair_with_recycling(a, b, point, claims, c, p, true)
+}
+
+pub(crate) fn prove_weighted_pair_with_recycling<C: Challenger>(
+    a: [&[F128]; 2],
+    b: [&[F128]; 2],
+    point: &[F128],
     mut claims: [F128; 2],
     c: &mut C,
     p: &mut Timings,
+    recycle: bool,
 ) -> ([LayerProof; 2], Vec<F128>, [F128; 2]) {
     let h = 1usize << point.len();
     assert!(a.iter().chain(&b).all(|x| x.len() == h));
@@ -788,7 +814,9 @@ pub(crate) fn prove_weighted_pair<C: Challenger>(
     }
     q.insert(0, rho);
     for buffer in cur.into_iter().chain(next).flatten() {
-        flock_core::scratch::give_f128(buffer);
+        if recycle {
+            flock_core::scratch::give_f128(buffer);
+        }
     }
     (
         rounds

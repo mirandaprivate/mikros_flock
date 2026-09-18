@@ -15,4 +15,3 @@ Ram: Mikros/FLOCK: median of 3 fresh-process VmHWM readings immediately after pr
 Sampling: Mikros/FLOCK: 10 measured proofs each after one excluded warmup. Binius: one cold measured proof, with no warmup.
 Worker CPU affinity: 0
 Every measured proof was verified; warmups are excluded from timing statistics.
-Raw data: /home/mscong1/git/mikros_flock/compare_hadamard_2_30.json

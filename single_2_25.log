@@ -1,0 +1,50 @@
+Single-instance binary AND/XOR circuit | N = 2^25 | 1 thread
+Same AND/XOR circuit and public I/O; native FLOCK Ligerito Fast PCS; FLOCK skip = 7.
+Mikros: binary PLONK with packed permutation. FLOCK: native R1CS with public CSC matrices.
+Circuit: 33554432 genuine AND/XOR gates. FLOCK: 134217728 R1CS rows after input/constant identities and padding.
+Mikros: 33554432 gate equations; 134217728 positions in its copy domain.
+Times are medians; proof size is serialized bytes / 1024.
+
+System             Prover (ms)   Verifier (ms)   Proof (KiB)    RAM (MiB)   Samples
+-----------------------------------------------------------------------------------
+Mikros               86557.474          24.432      1169.234      6804.87         1
+FLOCK skip-7         10120.848        4316.565       426.494     12356.35         1
+
+FLOCK/Mikros prover time: 0.117x
+
+Mikros single-instance components
+Component                  Prover (ms)   Verifier (ms)   Proof (KiB)
+--------------------------------------------------------------------
+Gate constraint                336.796           0.589        23.855
+Permutation argument         79834.731           2.657       541.325
+Shared PCS/other              6385.947          21.187       604.054
+Permutation argument includes online copy preparation, permutation proof and the entire public PCS opening.
+The public opening also authenticates shared selector data; it is assigned here once, without a proportional split.
+Shared PCS/other includes the combined packed-opening reduction, witness PCS and remaining online work.
+
+Online phase (median ms)                Mikros         FLOCK
+------------------------------------------------------------
+commit_ms                               78.977        77.799
+copy_ms                              51331.411             -
+copy_prepare_ms                      24359.934             -
+gates_ms                               336.796       168.032
+lincheck_input_ms                            -        23.240
+lincheck_ms                                  -      7231.100
+matrix_apply_ms                              -       362.819
+packed_opening_ms                     6069.965             -
+public_pcs_open_ms                    4143.386             -
+public_recommit_ms                       0.000             -
+recommit_ms                              0.000             -
+release_ms                              90.530             -
+serialization_ms                         0.800         0.154
+witness_pcs_open_ms                    145.574      2248.987
+
+Phase medians are separate statistics and need not sum to the total median.
+Prover: complete online proof, including witness commitment, witness-dependent copy preparation,
+reductions, grinding, PCS openings, online recomputation and serialization.
+Fixed circuit/public preprocessing is offline. See each sample's memory_policy for retained/recomputed PCS data.
+Verifier: decoding and full proof verification, including public-matrix checks and PCS; transcript agreement is checked separately.
+RAM: whole-process GNU time maximum RSS, including offline preparation, warmup, proving and verification.
+Sampling: 0 excluded warmup(s), then 1 measured proofs per system.
+CPU affinity: 0. Every sample was verified.
+Raw data: single_hash_compare.json

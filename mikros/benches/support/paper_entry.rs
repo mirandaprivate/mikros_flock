@@ -3,6 +3,14 @@
 use std::{env, ffi::OsString, fmt::Display, path::PathBuf, process::Command};
 
 pub fn run<E: Display>(experiment: &str, worker: impl FnOnce(Vec<String>) -> Result<(), E>) {
+    run_driver("paper_bench.py", experiment, worker);
+}
+
+pub fn run_driver<E: Display>(
+    script: &str,
+    experiment: &str,
+    worker: impl FnOnce(Vec<String>) -> Result<(), E>,
+) {
     // Cargo passes this flag even for a custom benchmark harness.
     let mut args: Vec<String> = env::args().skip(1).filter(|arg| arg != "--bench").collect();
     if args.first().is_some_and(|arg| arg == "--worker") {
@@ -19,7 +27,7 @@ pub fn run<E: Display>(experiment: &str, worker: impl FnOnce(Vec<String>) -> Res
             .unwrap_or_else(|| OsString::from(if cfg!(windows) { "python" } else { "python3" }));
         let script = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .join("benches")
-            .join("paper_bench.py");
+            .join(script);
         Command::new(python)
             .arg(script)
             .arg("--experiment")

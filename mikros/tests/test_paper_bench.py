@@ -524,6 +524,31 @@ class PaperBenchTests(unittest.TestCase):
             self.assertEqual(raw.read_text(encoding="utf-8"), '{"original": true}\n')
             self.assertEqual(bench.load(folder / "status.json")["state"], "failed")
 
+    def test_published_report_paths_omit_local_account_directories(self):
+        systems = bench.build_e2e_summary([
+            e2e_report("mikros", [2.0], 1024),
+            e2e_report("flock", [4.0], 2048),
+        ])["systems"]
+        with tempfile.TemporaryDirectory() as directory:
+            private = Path(directory) / "private-account"
+            root = private / "checkout"
+            doc = {"experiment": "sha256", "threads": 1, "instances": 1,
+                   "systems": systems, "measurement_scope": {},
+                   "raw_data": str(root / "target/paper-results/run/sha256.json")}
+            suite = {"threads": 1, "mikros_wiring": "packed",
+                     "raw_data": str(private / "exports/single_hash_compare.json"),
+                     "hashes": {name: dict(doc, experiment=name) for name in bench.HASHES}}
+            with mock.patch.object(bench, "ROOT", root.resolve()):
+                text = bench.render_single_report(suite)
+                self.assertIn("Combined raw data: single_hash_compare.json", text)
+                self.assertIn("Raw data: target/paper-results/run/sha256.json", text)
+                self.assertEqual(bench.report_path("target/paper-results/run/sha256.json"),
+                                 "target/paper-results/run/sha256.json")
+                self.assertEqual(bench.report_path("../exports/external.log"), "external.log")
+            self.assertNotIn("private-account", text)
+            self.assertNotIn(str(Path(directory)), text)
+            self.assertEqual(doc["raw_data"], str(root / "target/paper-results/run/sha256.json"))
+
     def test_success_prints_exact_log_and_archives_previous_results(self):
         with tempfile.TemporaryDirectory() as directory:
             base = Path(directory)

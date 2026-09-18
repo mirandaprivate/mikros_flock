@@ -1,7 +1,7 @@
 # Mikros implementation
 
 The crate implements packed Hadamard, inner-product, and multiple-instance
-reductions over binary fields. Build instructions and the four paper experiments
+reductions over binary fields. Build instructions and the five paper experiments
 are in the [repository README](../README.md).
 
 ## Structure

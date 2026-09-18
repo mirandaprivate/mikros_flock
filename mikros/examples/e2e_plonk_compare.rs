@@ -5,6 +5,8 @@
 mod copy;
 #[path = "e2e_plonk/fixture.rs"]
 mod fixture;
+#[path = "e2e_plonk/flock_r1cs.rs"]
+mod flock_r1cs;
 #[path = "e2e_plonk/gates.rs"]
 mod gates;
 #[path = "e2e_common/grinding.rs"]
@@ -15,10 +17,12 @@ mod queries;
 use fixture::{Circuit, Mode};
 use flock_core::{
     challenger::{Challenger, FsChallenger},
-    pcs::{self, Commitment, merged_tensor},
+    pcs::{self, Commitment, PcsParams, ProverData, merged_tensor},
     product_gkr::BatchedGrinding,
+    schedule::Registry,
     scratch,
 };
+use flock_field::F128;
 use grinding::GrindingChallenger;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
@@ -62,6 +66,8 @@ struct Proof {
     copy: CopyProof,
     gate_nonces: Vec<u64>,
     copy_nonces: Vec<u64>,
+    opening: Option<mikros::packed_opening::Proof>,
+    opening_nonces: Vec<u64>,
     witness_pcs: merged_tensor::Proof,
     public_pcs: merged_tensor::Proof,
 }
@@ -72,6 +78,8 @@ struct Times {
     public_recommit_ms: f64,
     gates_ms: f64,
     copy_ms: f64,
+    copy_prepare_ms: f64,
+    packed_opening_ms: f64,
     release_ms: f64,
     witness_pcs_open_ms: f64,
     public_pcs_open_ms: f64,
@@ -81,6 +89,7 @@ struct Times {
     public_claims: usize,
     witness_ring_claims: usize,
     public_ring_claims: usize,
+    native_pcs_claims: usize,
 }
 fn ms(t: Instant) -> f64 {
     t.elapsed().as_secs_f64() * 1000.0
@@ -117,63 +126,114 @@ fn evidence_hash<T: Serialize + ?Sized>(domain: &str, value: &T) -> Result<Strin
     Ok(hash.finalize().to_hex().to_string())
 }
 
-fn run(c: &Circuit, system: System) -> Result<serde_json::Value, String> {
-    event("offline_witness_public_tables");
-    let offline = Instant::now();
-    let mut z = c.witness();
-    let public = c.public();
-    let log_z = z.len().ilog2() as usize;
-    let log_pub = public.len().ilog2() as usize;
-    let wr = fixture::registry(log_z, c.wire_words().ilog2() as usize);
-    let pr = fixture::registry(
-        log_pub,
-        if c.mode == Mode::Single {
-            c.wire_words().ilog2() as usize
+struct Setup {
+    circuit: Circuit,
+    system: System,
+    witness: Vec<F128>,
+    public: Vec<F128>,
+    witness_registry: Registry,
+    public_registry: Registry,
+    witness_params: PcsParams,
+    public_params: PcsParams,
+    public_commitment: Commitment,
+    public_data: ProverData,
+    sigma: Option<Vec<usize>>,
+    offline_ms: f64,
+    bounded_copy: bool,
+}
+
+impl Setup {
+    fn new(c: Circuit, system: System, bounded_copy: bool) -> Result<Self, String> {
+        event("offline_witness_public_tables");
+        let offline = Instant::now();
+        let z = c.witness();
+        let public = c.public();
+        let log_z = z.len().ilog2() as usize;
+        let log_pub = public.len().ilog2() as usize;
+        let wr = fixture::registry(log_z, c.wire_words().ilog2() as usize);
+        let pr = fixture::registry(
+            log_pub,
+            if c.mode == Mode::Single {
+                c.wire_words().ilog2() as usize
+            } else {
+                c.log_gates
+            },
+        );
+        let wu = fixture::union(&wr);
+        let pu = fixture::union(&pr);
+        let wp = fixture::parameters(&wu);
+        let pp = fixture::parameters(&pu);
+        wp.ligerito_prover_config()
+            .map_err(|e| format!("witness PCS configuration: {e:?}"))?;
+        pp.ligerito_prover_config()
+            .map_err(|e| format!("public PCS configuration: {e:?}"))?;
+        event("offline_public_commitment");
+        let (public_cm, pd) = pcs::commit(&public, &pp);
+        clear_scratch();
+        event("offline_public_wiring");
+        let sigma = if system == System::Flock {
+            Some(c.sigma_table())
         } else {
-            c.log_gates
-        },
-    );
-    let wu = fixture::union(&wr);
-    let pu = fixture::union(&pr);
-    let wp = fixture::parameters(&wu);
-    let pp = fixture::parameters(&pu);
-    wp.ligerito_prover_config()
-        .map_err(|e| format!("witness PCS configuration: {e:?}"))?;
-    pp.ligerito_prover_config()
-        .map_err(|e| format!("public PCS configuration: {e:?}"))?;
-    event("offline_public_commitment");
-    let (public_cm, pd) = pcs::commit(&public, &pp);
-    drop(pd);
-    clear_scratch();
-    event("offline_copy_preparation");
-    let packed = if system == System::Mikros && c.mode == Mode::Single {
-        Some(copy::prepare_single(c, &z)?)
-    } else {
-        None
-    };
-    let single_values = if system == System::Flock && c.mode == Mode::Single {
-        Some(copy::prepare_flock_single(c, &z)?)
-    } else {
-        None
-    };
-    let sigma = if system == System::Flock {
-        Some(c.sigma_table())
-    } else {
-        None
-    };
-    let offline_ms = ms(offline);
-    clear_scratch();
+            None
+        };
+        let offline_ms = ms(offline);
+        clear_scratch();
+        Ok(Self {
+            circuit: c,
+            system,
+            witness: z,
+            public,
+            witness_registry: wr,
+            public_registry: pr,
+            witness_params: wp,
+            public_params: pp,
+            public_commitment: public_cm,
+            public_data: pd,
+            sigma,
+            offline_ms,
+            bounded_copy,
+        })
+    }
+}
+
+enum PreparedCopy {
+    Cached(mikros_permutation::packed::Prepared),
+    Bounded(mikros_permutation::packed::BoundedPrepared),
+}
+
+fn peak_rss_kib() -> Option<u64> {
+    std::fs::read_to_string("/proc/self/status")
+        .ok()?
+        .lines()
+        .find_map(|line| {
+            line.strip_prefix("VmHWM:")?
+                .split_whitespace()
+                .next()?
+                .parse()
+                .ok()
+        })
+}
+
+fn run(s: &Setup) -> Result<serde_json::Value, String> {
+    let c = &s.circuit;
+    let system = s.system;
+    // The proof consumes its input. Prepare that owned input before online
+    // timing, as for the other benchmark fixtures' witness generation.
+    let mut z = s.witness.clone();
+    let public = &s.public;
+    let log_pub = public.len().ilog2() as usize;
+    let wu = fixture::union(&s.witness_registry);
+    let pu = fixture::union(&s.public_registry);
+    let wp = &s.witness_params;
+    let pp = &s.public_params;
+    let public_cm = &s.public_commitment;
     event("online_witness_commitment");
     let begin = Instant::now();
     let mut times = Times::default();
     let t = Instant::now();
-    let (witness_cm, wd) = pcs::commit(&z, &wp);
+    let (witness_cm, wd) = pcs::commit(&z, wp);
     times.commit_ms = ms(t);
-    let t = Instant::now();
-    drop(wd);
-    clear_scratch();
-    times.release_ms += ms(t);
-    let mut parent = bind(c, system, &witness_cm, &public_cm);
+    let mut parent = bind(c, system, &witness_cm, public_cm);
     let gc = parent.fork(b"gates");
     let cc = parent.fork(b"copy");
     event("online_gate_piop");
@@ -184,7 +244,7 @@ fn run(c: &Circuit, system: System) -> Result<serde_json::Value, String> {
             gates::flock_prove(c, &z, &mut g).map(|(p, q)| (GateProof::Flock(p), q))?
         }
         (System::Mikros, Mode::Single) => {
-            gates::single_prove(c, &z, &public, &mut g).map(|(p, q)| (GateProof::Single(p), q))?
+            gates::single_prove(c, &z, public, &mut g).map(|(p, q)| (GateProof::Single(p), q))?
         }
         (System::Mikros, Mode::Multiple) => gates::multiple_prove(c, &z, log_pub, &mut g)
             .map(|(p, q)| (GateProof::Multiple(p), q))?,
@@ -194,6 +254,25 @@ fn run(c: &Circuit, system: System) -> Result<serde_json::Value, String> {
     let t = Instant::now();
     clear_scratch();
     times.release_ms += ms(t);
+    event("online_copy_prepare");
+    let t = Instant::now();
+    // Both conversions read current private witness bits. Public wiring and
+    // its commitment are cached in Setup, but these preparations are online.
+    let mut packed = if system == System::Mikros && c.mode == Mode::Single {
+        Some(if s.bounded_copy {
+            PreparedCopy::Bounded(copy::prepare_single_bounded(c, &z)?)
+        } else {
+            PreparedCopy::Cached(copy::prepare_single(c, &z)?)
+        })
+    } else {
+        None
+    };
+    let single_values = if system == System::Flock && c.mode == Mode::Single {
+        Some(copy::prepare_flock_single(c, &z)?)
+    } else {
+        None
+    };
+    times.copy_prepare_ms = ms(t);
     event("online_copy_piop");
     let t = Instant::now();
     let (copy, cclaims, cc, copy_nonces) = if system == System::Flock {
@@ -203,7 +282,7 @@ fn run(c: &Circuit, system: System) -> Result<serde_json::Value, String> {
             &mut z,
             &public,
             single_values.as_deref(),
-            sigma.as_deref().unwrap(),
+            s.sigma.as_deref().unwrap(),
             BatchedGrinding::per_challenge_128(),
             &mut cc,
         )?;
@@ -216,8 +295,15 @@ fn run(c: &Circuit, system: System) -> Result<serde_json::Value, String> {
             GrindingChallenger::prover(cc).permutation(c.log_gates + 2)
         };
         let (p, q) = if c.mode == Mode::Single {
-            copy::single_prove(c, &z, &public, packed.as_ref().unwrap(), &mut cc)
-                .map(|(p, q)| (CopyProof::Single(p), q))?
+            let result = match packed.take().unwrap() {
+                PreparedCopy::Cached(prepared) => {
+                    copy::single_prove(c, &z, public, &prepared, &mut cc)
+                }
+                PreparedCopy::Bounded(prepared) => {
+                    copy::single_prove_bounded(c, &z, public, prepared, &mut cc)
+                }
+            };
+            result.map(|(p, q)| (CopyProof::Single(p), q))?
         } else {
             copy::multiple_prove(c, &z, &public, &mut cc)
                 .map(|(p, q)| (CopyProof::Multiple(p), q))?
@@ -229,7 +315,6 @@ fn run(c: &Circuit, system: System) -> Result<serde_json::Value, String> {
     let t = Instant::now();
     drop(packed);
     drop(single_values);
-    drop(sigma);
     clear_scratch();
     times.release_ms += ms(t);
     let claims = merge(gclaims, cclaims);
@@ -250,38 +335,51 @@ fn run(c: &Circuit, system: System) -> Result<serde_json::Value, String> {
         &(&claims.witness, &claims.public),
     )?;
     times.serialization_ms += ms(t);
-    event("online_witness_recommit");
+    event("online_opening_reduction");
     let t = Instant::now();
-    let (cm, wd) = pcs::commit(&z, &wp);
-    if bincode::serialize(&cm).unwrap() != bincode::serialize(&witness_cm).unwrap() {
-        return Err("witness changed after original commitment".into());
-    }
-    times.recommit_ms = ms(t);
+    let (opening, opening_nonces, terminals, mut parent) = if system == System::Mikros {
+        let mut och = GrindingChallenger::prover(parent);
+        let (proof, terminal) = mikros::packed_opening::prove(
+            &[(&z, &claims.witness), (public, &claims.public)],
+            &mut och,
+        )?;
+        let (parent, nonces) = och.finish()?;
+        (Some(proof), nonces, Some(terminal), parent)
+    } else {
+        (None, vec![], None, parent)
+    };
+    times.packed_opening_ms = ms(t);
+    let witness_queries = terminals
+        .as_ref()
+        .map_or(claims.witness.as_slice(), |q| &q[..1]);
+    let public_queries = terminals
+        .as_ref()
+        .map_or(claims.public.as_slice(), |q| &q[1..]);
+    times.native_pcs_claims = witness_queries.len() + public_queries.len();
     event("online_witness_pcs_open");
     let t = Instant::now();
     let witness_pcs =
-        merged_tensor::open_identity(z, &wd, &witness_cm, &claims.witness, &wu, &mut parent)
+        merged_tensor::open_identity(z, &wd, &witness_cm, witness_queries, &wu, &mut parent)
             .map_err(|e| format!("witness native PCS open: {e:?}"))?;
     times.witness_pcs_open_ms = ms(t);
     let t = Instant::now();
     drop(wd);
     clear_scratch();
     times.release_ms += ms(t);
-    event("online_public_recommit");
-    let t = Instant::now();
-    let (cm, pd) = pcs::commit(&public, &pp);
-    if bincode::serialize(&cm).unwrap() != bincode::serialize(&public_cm).unwrap() {
-        return Err("public commitment changed".into());
-    }
-    times.public_recommit_ms = ms(t);
     event("online_public_pcs_open");
     let t = Instant::now();
-    let public_pcs =
-        merged_tensor::open_identity(public, &pd, &public_cm, &claims.public, &pu, &mut parent)
-            .map_err(|e| format!("public native PCS open: {e:?}"))?;
+    // Native PCS consumes its source, so the required public copy is online.
+    let public_pcs = merged_tensor::open_identity(
+        public.clone(),
+        &s.public_data,
+        public_cm,
+        public_queries,
+        &pu,
+        &mut parent,
+    )
+    .map_err(|e| format!("public native PCS open: {e:?}"))?;
     times.public_pcs_open_ms = ms(t);
     let t = Instant::now();
-    drop(pd);
     clear_scratch();
     times.release_ms += ms(t);
     times.witness_ring_claims = witness_pcs
@@ -299,6 +397,8 @@ fn run(c: &Circuit, system: System) -> Result<serde_json::Value, String> {
         copy,
         gate_nonces,
         copy_nonces,
+        opening,
+        opening_nonces,
         witness_pcs,
         public_pcs,
     };
@@ -306,16 +406,41 @@ fn run(c: &Circuit, system: System) -> Result<serde_json::Value, String> {
     let encoded = bincode::serialize(&proof).map_err(|e| e.to_string())?;
     times.serialization_ms += ms(t);
     times.prover_ms = ms(begin);
+    let peak_rss_kib = peak_rss_kib();
     event("verify_full_proof");
     let t = Instant::now();
-    let mut v = verify(c, system, &public_cm, &proof)?;
+    let decoded: Proof = bincode::deserialize(&encoded).map_err(|e| e.to_string())?;
+    let (mut v, verify_times) = verify_with_timings(c, system, public_cm, &decoded)?;
     let verify_ms = ms(t);
     let transcript_match = parent.sample_f128() == v.sample_f128();
     if !transcript_match {
         return Err("prover/verifier transcript mismatch".into());
     }
+    // The public opening authenticates both selectors and sigma digits. Charge
+    // that indivisible proof once, to the permutation row; the joint packed
+    // opening reduction and the witness PCS stay in the shared row.
+    let gate_bytes =
+        bincode::serialized_size(&(&proof.gate, &proof.gate_nonces)).map_err(|e| e.to_string())?;
+    let copy_bytes =
+        bincode::serialized_size(&(&proof.copy, &proof.copy_nonces, &proof.public_pcs))
+            .map_err(|e| e.to_string())?;
+    let shared_bytes = (encoded.len() as u64)
+        .checked_sub(gate_bytes + copy_bytes)
+        .ok_or("component proof sizes exceed total")?;
+    let copy_prover_ms = times.copy_prepare_ms + times.copy_ms + times.public_pcs_open_ms;
+    let copy_verifier_ms = verify_times.copy_ms + verify_times.public_pcs_ms;
+    let shared_prover_ms = times.prover_ms - times.gates_ms - copy_prover_ms;
+    let shared_verifier_ms = verify_ms - verify_times.gate_ms - copy_verifier_ms;
+    if shared_prover_ms < 0.0 || shared_verifier_ms < 0.0 {
+        return Err("component timing exceeds end-to-end measurement".into());
+    }
+    let constraint_breakdown = json!({
+        "gate": {"prover_ms":times.gates_ms,"verifier_ms":verify_times.gate_ms,"proof_bytes":gate_bytes},
+        "copy": {"prover_ms":copy_prover_ms,"verifier_ms":copy_verifier_ms,"proof_bytes":copy_bytes},
+        "shared": {"prover_ms":shared_prover_ms,"verifier_ms":shared_verifier_ms,"proof_bytes":shared_bytes}
+    });
     Ok(
-        json!({"type":"sample","mode":c.mode.name(),"system":system.name(),"log_gates":c.log_gates,"gates_per_instance":c.n(),"instances":c.mode.instances(),"total_gates":c.n() as u64*c.mode.instances() as u64,"threads":rayon::current_num_threads(),"seed":c.seed,"offline_ms":offline_ms,"times":times,"verify_ms":verify_ms,"verified":true,"transcript_match":true,"pcs_config_match":true,"proof_bytes":encoded.len(),"proof_blake3":blake3::hash(&encoded).to_hex().to_string(),"piop_blake3":piop_blake3,"terminal_claims_blake3":terminal_claims_blake3,"witness_commitment_blake3":blake3::hash(&bincode::serialize(&proof.witness).unwrap()).to_hex().to_string(),"public_commitment_blake3":blake3::hash(&bincode::serialize(&public_cm).unwrap()).to_hex().to_string(),"pcs_path":"FLOCK native commit + merged_tensor/open_batch_merged + Ligerito Fast","witness_pcs_params":wp,"public_pcs_params":pp,"native_pcs_identity_transport":true,"memory_policy":"discard-and-recommit; all recomputation and online conversions included","piop_grinding":"gate:8 bits/event; copy:degree-dependent initial fingerprint and native/per-event tails; no aggregate 128-bit theorem asserted","circuit":"connected alternating AND/XOR; one public final output; same wiring, 128 independent inputs in multiple"}),
+        json!({"type":"sample","mode":c.mode.name(),"system":system.name(),"log_gates":c.log_gates,"gates_per_instance":c.n(),"instances":c.mode.instances(),"total_gates":c.n() as u64*c.mode.instances() as u64,"threads":rayon::current_num_threads(),"seed":c.seed,"offline_ms":s.offline_ms,"times":times,"constraint_breakdown":constraint_breakdown,"verify_ms":verify_ms,"verified":true,"transcript_match":true,"pcs_config_match":true,"proof_bytes":encoded.len(),"proof_blake3":blake3::hash(&encoded).to_hex().to_string(),"piop_blake3":piop_blake3,"terminal_claims_blake3":terminal_claims_blake3,"witness_commitment_blake3":blake3::hash(&bincode::serialize(&proof.witness).unwrap()).to_hex().to_string(),"public_commitment_blake3":blake3::hash(&bincode::serialize(public_cm).unwrap()).to_hex().to_string(),"pcs_path":"FLOCK native commit + merged_tensor/open_batch_merged + Ligerito Fast","witness_pcs_params":wp,"public_pcs_params":pp,"native_pcs_identity_transport":true,"memory_policy":"retain online witness PCS data and offline public PCS data; witness-dependent copy preparation and required public opening copy included online","peak_rss_kib":peak_rss_kib,"rss_scope":"process VmHWM immediately after proving, before verification; includes cached offline data and prior repetitions","piop_grinding":"gate:8 bits/event; copy:degree-dependent initial fingerprint and native/per-event tails; no aggregate 128-bit theorem asserted","circuit":"connected alternating AND/XOR; one public final output; same wiring, 128 independent inputs in multiple"}),
     )
 }
 
@@ -326,6 +451,22 @@ fn verify(
     public_cm: &Commitment,
     p: &Proof,
 ) -> Result<FsChallenger, String> {
+    verify_with_timings(c, system, public_cm, p).map(|(ch, _)| ch)
+}
+
+#[derive(Default)]
+struct VerificationTimes {
+    gate_ms: f64,
+    copy_ms: f64,
+    public_pcs_ms: f64,
+}
+
+fn verify_with_timings(
+    c: &Circuit,
+    system: System,
+    public_cm: &Commitment,
+    p: &Proof,
+) -> Result<(FsChallenger, VerificationTimes), String> {
     if p.system != system {
         return Err("wrong proof system".into());
     }
@@ -349,6 +490,8 @@ fn verify(
     let mut parent = bind(c, system, &p.witness, public_cm);
     let gc = parent.fork(b"gates");
     let cc = parent.fork(b"copy");
+    let mut times = VerificationTimes::default();
+    let timer = Instant::now();
     let mut g = GrindingChallenger::verifier(gc, &p.gate_nonces);
     let gclaims = match (&p.gate, system, c.mode) {
         (GateProof::Flock(p), System::Flock, _) => gates::flock_verify(c, log_z, p, &mut g)?,
@@ -361,6 +504,8 @@ fn verify(
         _ => return Err("gate proof mode".into()),
     };
     let (gc, _) = g.finish()?;
+    times.gate_ms = ms(timer);
+    let timer = Instant::now();
     let (cclaims, cc) = if let (CopyProof::Flock(fp), System::Flock) = (&p.copy, system) {
         let mut cc = cc;
         let q = copy::flock_verify(
@@ -394,27 +539,57 @@ fn verify(
     if system == System::Flock && !p.copy_nonces.is_empty() {
         return Err("extraneous Flock copy nonces".into());
     }
+    times.copy_ms = ms(timer);
     let claims = merge(gclaims, cclaims);
     parent.merge_child(gc);
     parent.merge_child(cc);
+    let (terminals, mut parent) = if system == System::Mikros {
+        let opening = p.opening.as_ref().ok_or("missing Mikros packed opening")?;
+        let mut och = GrindingChallenger::verifier(parent, &p.opening_nonces);
+        let terminal = mikros::packed_opening::verify(
+            &[log_z, log_pub],
+            &[&claims.witness, &claims.public],
+            opening,
+            &mut och,
+        )?;
+        let (parent, _) = och.finish()?;
+        (Some(terminal), parent)
+    } else {
+        if p.opening.is_some() || !p.opening_nonces.is_empty() {
+            return Err("extraneous FLOCK packed opening".into());
+        }
+        (None, parent)
+    };
+    let witness_queries = terminals
+        .as_ref()
+        .map_or(claims.witness.as_slice(), |q| &q[..1]);
+    let public_queries = terminals
+        .as_ref()
+        .map_or(claims.public.as_slice(), |q| &q[1..]);
     merged_tensor::verify(
         &p.witness,
-        &claims.witness,
+        witness_queries,
         &p.witness_pcs,
         &wu,
         &mut parent,
     )
     .map_err(|e| format!("witness PCS verify: {e:?}"))?;
-    merged_tensor::verify(public_cm, &claims.public, &p.public_pcs, &pu, &mut parent)
+    let timer = Instant::now();
+    merged_tensor::verify(public_cm, public_queries, &p.public_pcs, &pu, &mut parent)
         .map_err(|e| format!("public PCS verify: {e:?}"))?;
-    Ok(parent)
+    times.public_pcs_ms = ms(timer);
+    Ok((parent, times))
 }
 fn main() {
+    run_with_args(env::args().skip(1).collect());
+}
+
+/// Shared worker entry for the Cargo benchmark wrapper and standalone example.
+pub fn run_with_args(args: Vec<String>) {
     assert!(
         env::var_os("FLOCK_NO_GRIND").is_none(),
         "FLOCK_NO_GRIND is not supported"
     );
-    let args = env::args().skip(1).collect::<Vec<_>>();
     let arg = |key: &str, default: &str| {
         args.iter()
             .position(|x| x == key)
@@ -431,9 +606,15 @@ fn main() {
         "flock" => System::Flock,
         x => panic!("invalid system {x}"),
     };
-    let log_gates = arg("--log-gates", "20").parse().unwrap();
-    let threads = arg("--threads", "64").parse().unwrap();
+    let log_gates = arg("--log-gates", "25").parse().unwrap();
+    let threads = arg("--threads", "1").parse().unwrap();
     let repetitions: usize = arg("--repetitions", "1").parse().unwrap();
+    let warmups: usize = arg("--warmups", "0").parse().unwrap();
+    let bounded_copy = match arg("--copy-storage", "bounded").as_str() {
+        "bounded" => true,
+        "cached" => false,
+        x => panic!("invalid copy storage {x}"),
+    };
     let seed = arg("--seed", "97").parse().unwrap();
     rayon::ThreadPoolBuilder::new()
         .num_threads(threads)
@@ -446,15 +627,72 @@ fn main() {
     );
     let all_core_threads = flock_parallel::all_core_pool().current_num_threads();
     assert_eq!(all_core_threads, threads);
+    let circuit = Circuit::new(log_gates, mode, seed);
+    if system == System::Flock && mode == Mode::Single {
+        if let Err(error) = flock_r1cs::run(&circuit, repetitions, warmups) {
+            eprintln!("native FLOCK R1CS benchmark failed: {error}");
+            std::process::exit(1);
+        }
+        return;
+    }
     println!(
         "{}",
-        json!({"type":"metadata","mode":mode.name(),"system":system.name(),"log_gates":log_gates,"instances":mode.instances(),"threads":threads,"all_core_threads":all_core_threads,"seed":seed,"repetitions":repetitions,"target_features":{"gfni":cfg!(target_feature="gfni"),"avx512f":cfg!(target_feature="avx512f"),"avx512bw":cfg!(target_feature="avx512bw"),"vpclmulqdq":cfg!(target_feature="vpclmulqdq")}})
+        json!({"type":"metadata","mode":mode.name(),"system":system.name(),"log_gates":log_gates,"instances":mode.instances(),"threads":threads,"all_core_threads":all_core_threads,"seed":seed,"repetitions":repetitions,"warmups":warmups,"fixture_digest":circuit.digest().iter().map(|b|format!("{b:02x}")).collect::<String>(),"baseline_skip":7,"public_io":[circuit.io.lo,circuit.io.hi],"arithmetization":"binary PLONK","matrix_authentication":"preprocessed public PCS","permutation_proof":true,"genuine_gate_count":circuit.n(),"copy_storage":if system == System::Flock { "native grouped bounded layers" } else if bounded_copy { "consume coefficients; defer samples; release tree and fold buffers" } else { "cached coefficient reference" },"pcs_backend":"FLOCK native Ligerito Fast","pcs_packed_direct":env::var_os("FLOCK_PCS_PACKED_DIRECT").is_some_and(|v|v=="1"),"mikros_packed_opening":system==System::Mikros,"witness_words":(4*circuit.wire_words()).max(1<<15),"public_words":circuit.public_words(),"component_scope":"Permutation argument includes witness-dependent copy preparation, permutation PIOP and entire public PCS opening (sigma plus shared selectors); joint packed-opening reduction and witness PCS counted once in Shared PCS/other","timing_scope":"online witness commitment, gates, witness-dependent copy preparation, copy reduction, opening reduction and PCS openings; cached public commitment and wiring offline; serialization included","target_features":{"gfni":cfg!(target_feature="gfni"),"avx512f":cfg!(target_feature="avx512f"),"avx512bw":cfg!(target_feature="avx512bw"),"vpclmulqdq":cfg!(target_feature="vpclmulqdq")}})
     );
     io::stdout().flush().unwrap();
-    for repetition in 0..repetitions {
-        match run(&Circuit::new(log_gates, mode, seed), system) {
+    let setup = match Setup::new(circuit, system, bounded_copy) {
+        Ok(s) => s,
+        Err(error) => {
+            println!(
+                "{}",
+                json!({"type":"error","system":system.name(),"stage":"setup","error":error})
+            );
+            std::process::exit(1);
+        }
+    };
+    for run_index in 0..warmups + repetitions {
+        let warmup = run_index < warmups;
+        let repetition = if warmup {
+            run_index
+        } else {
+            run_index - warmups
+        };
+        let count = if warmup { warmups } else { repetitions };
+        let kind = if warmup { "warmup" } else { "sample" };
+        eprintln!(
+            "[single constraints] {} {kind} {}/{} start (2^{log_gates} gates)",
+            system.name(),
+            repetition + 1,
+            count
+        );
+        match run(&setup) {
             Ok(mut row) => {
                 row["repetition"] = json!(repetition);
+                row["warmup"] = json!(warmup);
+                eprintln!(
+                    "[single constraints] {} {kind} {}/{} finished: prover={:.3} ms verifier={:.3} ms proof={} bytes",
+                    system.name(),
+                    repetition + 1,
+                    count,
+                    row["times"]["prover_ms"].as_f64().unwrap(),
+                    row["verify_ms"].as_f64().unwrap(),
+                    row["proof_bytes"]
+                );
+                if system == System::Mikros && mode == Mode::Single {
+                    for (key, label) in [
+                        ("gate", "Gate constraint"),
+                        ("copy", "Permutation argument"),
+                        ("shared", "Shared PCS/other"),
+                    ] {
+                        let part = &row["constraint_breakdown"][key];
+                        eprintln!(
+                            "[single constraints] {label}: prover={:.3} ms verifier={:.3} ms proof={} bytes",
+                            part["prover_ms"].as_f64().unwrap(),
+                            part["verifier_ms"].as_f64().unwrap(),
+                            part["proof_bytes"]
+                        );
+                    }
+                }
                 println!("{row}");
                 io::stdout().flush().unwrap();
             }

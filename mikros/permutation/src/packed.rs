@@ -87,6 +87,20 @@ pub struct Prepared {
     trees: [PreparedTree; 2],
 }
 
+/// Consumed by the bounded prover. Off-domain sample polynomials are produced
+/// only when their messages are needed, and coefficient layers are released
+/// after their last use. This changes storage lifetime, not proof messages.
+pub struct BoundedPrepared(Prepared);
+
+impl BoundedPrepared {
+    pub fn statement(&self) -> &CommittedStatement {
+        self.0.statement()
+    }
+    pub fn resident_bytes(&self) -> usize {
+        self.0.resident_bytes()
+    }
+}
+
 impl Prepared {
     pub fn statement(&self) -> &CommittedStatement {
         &self.statement
@@ -129,6 +143,24 @@ struct Polys {
 pub fn prepare(source: &PreparedPermutation) -> Result<Prepared, Error> {
     let reference = std::env::var_os("MIKROS_COPY_PREP_REFERENCE").is_some_and(|v| v == "1");
     prepare_impl(source, reference)
+}
+
+/// Witness-dependent preparation for a one-shot proof with bounded storage.
+/// This and the deferred sample construction both belong in online time.
+pub fn prepare_bounded(source: &PreparedPermutation) -> Result<BoundedPrepared, Error> {
+    let (kappa, _) = shape(source.statement())?;
+    let domain = domain(source.statement().width)?;
+    let reference = std::env::var_os("MIKROS_COPY_PREP_REFERENCE").is_some_and(|v| v == "1");
+    let trees = [
+        prepare_tree_impl(source.left(), kappa, &domain, reference, false),
+        prepare_tree_impl(source.right(), kappa, &domain, reference, false),
+    ];
+    Ok(BoundedPrepared(Prepared {
+        statement: *source.statement(),
+        kappa,
+        domain,
+        trees,
+    }))
 }
 
 fn prepare_impl(source: &PreparedPermutation, reference: bool) -> Result<Prepared, Error> {
@@ -304,15 +336,26 @@ impl Polys {
 }
 
 fn prepare_tree(bits: &PackedBits, kappa: usize, domain: &Domain, reference: bool) -> PreparedTree {
+    prepare_tree_impl(bits, kappa, domain, reference, true)
+}
+
+fn prepare_tree_impl(
+    bits: &PackedBits,
+    kappa: usize,
+    domain: &Domain,
+    reference: bool,
+    cache_samples: bool,
+) -> PreparedTree {
     let len = crate::padded_len(bits.rows()).unwrap();
     let mut layers = vec![Polys::leaves(bits, len, domain.base.base.bits, reference)];
     let mut samples = Vec::with_capacity(kappa.ilog2() as usize);
     for _ in 0..kappa.ilog2() {
         let prev = layers.last().unwrap();
         let next = prepare_parent_layer(prev, kappa, domain);
-        let eta = prepare_parent_samples(prev, kappa, domain);
+        if cache_samples {
+            samples.push(prepare_parent_samples(prev, kappa, domain));
+        }
         layers.push(next);
-        samples.push(eta);
     }
     PreparedTree { layers, samples }
 }
@@ -406,13 +449,14 @@ fn prepare_parent_samples_prefix(
 struct DenseTree {
     layers: Vec<Vec<F128>>,
     log_len: usize,
+    recycle: bool,
 }
 const POOL_SLOT: usize = 2;
 
 impl Drop for DenseTree {
     fn drop(&mut self) {
         for values in &mut self.layers {
-            if !values.is_empty() {
+            if self.recycle && !values.is_empty() {
                 crate::tree_pool::give_f128(POOL_SLOT, std::mem::take(values));
             }
         }
@@ -429,7 +473,10 @@ impl Tree for DenseTree {
         Cow::Borrowed(&self.layers[level])
     }
     fn release_layer(&mut self, level: usize) {
-        crate::tree_pool::give_f128(POOL_SLOT, std::mem::take(&mut self.layers[level]));
+        let values = std::mem::take(&mut self.layers[level]);
+        if self.recycle {
+            crate::tree_pool::give_f128(POOL_SLOT, values);
+        }
     }
 }
 
@@ -438,6 +485,7 @@ fn extension_tree(
     base: &FastField,
     z: F128,
     p: &mut Timings,
+    recycle: bool,
 ) -> DenseTree {
     let start = Instant::now();
     let highest = prepared.layers.last().unwrap();
@@ -484,7 +532,7 @@ fn extension_tree(
         layers.push(unsafe { crate::kernels::initialized_f128(next) });
     }
     p.extension_build_ms += elapsed(start);
-    DenseTree { layers, log_len }
+    DenseTree { layers, log_len, recycle }
 }
 
 /// Aggregate base/intermediate-field coefficients before evaluating at z.
@@ -622,7 +670,45 @@ pub fn prove<C: Challenger>(
     prepared: &Prepared,
     c: &mut C,
 ) -> Result<(Proof, [Claim; 2], Timings), Error> {
-    let (kappa, log_len) = bind(&prepared.statement, c)?;
+    prove_impl(PreparedStorage::Borrowed(prepared), c)
+}
+
+/// The same transcript as `prove`, consuming coefficient storage as soon as
+/// it is no longer needed. Temporary trees and fold buffers bypass the pools.
+pub fn prove_bounded<C: Challenger>(
+    prepared: BoundedPrepared,
+    c: &mut C,
+) -> Result<(Proof, [Claim; 2], Timings), Error> {
+    prove_impl(PreparedStorage::Owned(prepared.0), c)
+}
+
+enum PreparedStorage<'a> {
+    Borrowed(&'a Prepared),
+    Owned(Prepared),
+}
+impl PreparedStorage<'_> {
+    fn get(&self) -> &Prepared {
+        match self {
+            Self::Borrowed(p) => p,
+            Self::Owned(p) => p,
+        }
+    }
+    fn release_layer(&mut self, level: usize) {
+        if let Self::Owned(p) = self {
+            for tree in &mut p.trees {
+                drop(std::mem::take(&mut tree.layers[level].bytes));
+            }
+        }
+    }
+}
+
+fn prove_impl<C: Challenger>(
+    mut storage: PreparedStorage<'_>,
+    c: &mut C,
+) -> Result<(Proof, [Claim; 2], Timings), Error> {
+    let bounded = matches!(&storage, PreparedStorage::Owned(_));
+    let domain = Arc::clone(&storage.get().domain);
+    let (kappa, log_len) = bind(&storage.get().statement, c)?;
     let s = kappa.ilog2() as usize;
     let z = c.sample_f128();
     let mut powers = Vec::with_capacity(kappa + 1);
@@ -631,9 +717,9 @@ pub fn prove<C: Challenger>(
         powers.push(powers[i] * z);
     }
     let mut timings = Timings::default();
-    let [left, right] = prepared.trees.each_ref();
-    let mut a = extension_tree(left, prepared.domain.base, z, &mut timings);
-    let mut b = extension_tree(right, prepared.domain.base, z, &mut timings);
+    let [left, right] = storage.get().trees.each_ref();
+    let mut a = extension_tree(left, domain.base, z, &mut timings, !bounded);
+    let mut b = extension_tree(right, domain.base, z, &mut timings, !bounded);
     let roots = [a.root(), b.root()];
     if roots[0] != roots[1] {
         return Err(Error::ProductMismatch);
@@ -641,8 +727,13 @@ pub fn prove<C: Challenger>(
     c.observe_f128_slice(&roots);
     c.observe_label(b"packed-permutation-extension-tree-v1");
     let extension_gkr_start = Instant::now();
-    let (extension, endpoints) =
-        crate::fast_sumcheck::prove_pair(&mut a, &mut b, c, &mut timings, true, true);
+    let (extension, endpoints) = if bounded {
+        crate::fast_sumcheck::prove_pair_bounded(&mut a, &mut b, c, &mut timings)
+    } else {
+        crate::fast_sumcheck::prove_pair(&mut a, &mut b, c, &mut timings, true, true)
+    };
+    drop(a);
+    drop(b);
     timings.packed_extension_gkr_ms += elapsed(extension_gkr_start);
     debug_assert_eq!(endpoints[0].point, endpoints[1].point);
     debug_assert_eq!(endpoints[0].point.len(), log_len - s);
@@ -654,26 +745,28 @@ pub fn prove<C: Challenger>(
         c.observe_label(b"packed-permutation-polynomial-layer-v1");
         c.observe_bytes(&(level as u64).to_le_bytes());
         let start = Instant::now();
-        let columns = prepared.trees.each_ref().map(|tree| {
+        let columns = storage.get().trees.each_ref().map(|tree| {
             aggregate(
                 &tree.layers[level + 1],
                 kappa,
-                prepared.domain.base,
+                domain.base,
                 &point,
                 &powers,
             )
         });
-        let samples = prepared.trees.each_ref().map(|tree| {
-            aggregate(
-                &tree.samples[level],
-                kappa - 1,
-                prepared.domain.field,
-                &point,
-                &powers,
-            )
+        let samples = storage.get().trees.each_ref().map(|tree| {
+            if bounded {
+                // At most one side's off-domain coefficients is resident.
+                let samples = prepare_parent_samples(&tree.layers[level], kappa, &domain);
+                aggregate(&samples, kappa - 1, domain.field, &point, &powers)
+            } else {
+                aggregate(&tree.samples[level], kappa - 1, domain.field, &point, &powers)
+            }
         });
         let quotients =
-            std::array::from_fn::<_, 2, _>(|j| prepared.domain.quotient(&columns[j], &samples[j]));
+            std::array::from_fn::<_, 2, _>(|j| domain.quotient(&columns[j], &samples[j]));
+        // Parent coefficients have now contributed their final message.
+        storage.release_layer(level + 1);
         let aggregate_ms = elapsed(start);
         timings.messages_ms += aggregate_ms;
         timings.packed_aggregate_ms += aggregate_ms;
@@ -682,31 +775,41 @@ pub fn prove<C: Challenger>(
             c.observe_f128_slice(&columns[j]);
             c.observe_f128_slice(&quotients[j]);
         }
-        let x = column_challenge(&prepared.domain, c);
-        rho = prepared.domain.packing(x);
-        let psi = prepared.domain.vanishing(x);
+        let x = column_challenge(&domain, c);
+        rho = domain.packing(x);
+        let psi = domain.vanishing(x);
         values = std::array::from_fn(|j| {
             dot(&columns[j], &rho) + psi * domain::evaluate_extension(&quotients[j], x)
         });
         let start = Instant::now();
-        let children = prepared
+        let children = storage.get()
             .trees
             .each_ref()
-            .map(|tree| packed_children(&tree.layers[level], &prepared.domain, &rho, &powers));
+            .map(|tree| packed_children(&tree.layers[level], &domain, &rho, &powers));
+        if level == 0 {
+            storage.release_layer(0);
+        }
         let projection_ms = elapsed(start);
         timings.layer_materialize_ms += projection_ms;
         timings.packed_projection_ms += projection_ms;
-        let (layers, next_point, next_values) = crate::fast_sumcheck::prove_weighted_pair(
-            [&children[0][0], &children[1][0]],
-            [&children[0][1], &children[1][1]],
-            &point,
-            values,
-            c,
-            &mut timings,
-        );
+        let (layers, next_point, next_values) = if bounded {
+            crate::fast_sumcheck::prove_weighted_pair_with_recycling(
+                [&children[0][0], &children[1][0]],
+                [&children[0][1], &children[1][1]],
+                &point, values, c, &mut timings, false,
+            )
+        } else {
+            crate::fast_sumcheck::prove_weighted_pair(
+                [&children[0][0], &children[1][0]],
+                [&children[0][1], &children[1][1]],
+                &point, values, c, &mut timings,
+            )
+        };
         let release_start = Instant::now();
         for values in children.into_iter().flatten() {
-            crate::tree_pool::give_f128(POOL_SLOT, values);
+            if !bounded {
+                crate::tree_pool::give_f128(POOL_SLOT, values);
+            }
         }
         timings.layer_release_ms += elapsed(release_start);
         point = next_point;
@@ -861,6 +964,46 @@ mod preparation_tests {
             (b.count, b.degree, b.bits, b.stride)
         );
         assert_eq!(a.bytes, b.bytes);
+    }
+
+    #[test]
+    fn bounded_preparation_preserves_proof_bytes_claims_and_transcript() {
+        let mut rng = Rng::new(0xB0_0DED);
+        for width in [8usize, 16, 32, 64] {
+            let kappa = 128 / width;
+            for rows in [kappa * kappa, kappa * kappa + 3, 1024] {
+                let raw = values(rows, width, &mut rng);
+                let mut permuted = raw.clone();
+                permuted.reverse();
+                let source = permutation::prepare(
+                    PackedBits::from_rows(&raw, width).unwrap(),
+                    PackedBits::from_rows(&permuted, width).unwrap(),
+                ).unwrap();
+                let cached = prepare(&source).unwrap();
+                let bounded = prepare_bounded(&source).unwrap();
+                assert_eq!(bounded.statement(), cached.statement());
+                assert!(bounded.resident_bytes() < cached.resident_bytes());
+                let mut cached_ch = FsChallenger::new(b"packed-bounded-lifetime");
+                let mut bounded_ch = FsChallenger::new(b"packed-bounded-lifetime");
+                let (expected, expected_claims, _) = prove(&cached, &mut cached_ch).unwrap();
+                let (proof, claims, _) = prove_bounded(bounded, &mut bounded_ch).unwrap();
+                assert_eq!(bincode::serialize(&proof).unwrap(), bincode::serialize(&expected).unwrap());
+                assert_eq!(claims, expected_claims);
+                let mut verifier = FsChallenger::new(b"packed-bounded-lifetime");
+                assert_eq!(verify(source.statement(), &proof, &mut verifier).unwrap(), claims);
+                let next = bounded_ch.sample_f128();
+                assert_eq!(next, cached_ch.sample_f128());
+                assert_eq!(next, verifier.sample_f128());
+                for (bits, claim) in [source.left(), source.right()].into_iter().zip(&claims) {
+                    let field = SmallField::for_width(width).unwrap();
+                    let actual = (0..rows).fold(F128::ZERO, |sum, row| {
+                        sum + field.embed(bits.row(row)) * claim.column_weights[row % kappa]
+                            * row_weight(&claim.row_point, row / kappa)
+                    });
+                    assert_eq!(actual, claim.value);
+                }
+            }
+        }
     }
 
     #[test]

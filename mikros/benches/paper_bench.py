@@ -118,6 +118,16 @@ def build_hadamard_summary(formal_reports, cold_reports):
     return {"systems": systems}
 
 
+def report_path(value):
+    """Keep published reports independent of local account and checkout paths."""
+    path = Path(value)
+    absolute = path if path.is_absolute() else ROOT / path
+    try:
+        return absolute.resolve().relative_to(ROOT).as_posix()
+    except ValueError:
+        return path.name
+
+
 def render_report(doc):
     title = "Binary Hadamard" if doc["experiment"] == "hadamard" else doc["experiment"].upper() + " end-to-end"
     size = f"N = 2^{doc['log_n']}" if doc["experiment"] == "hadamard" else f"{doc['instances']} instances"
@@ -152,7 +162,7 @@ def render_report(doc):
     if doc.get("validation"):
         lines.append(f"Separate validation: {doc['validation']['rejected_mutations']} mutations rejected")
     lines += ["Every measured proof was verified; warmups are excluded from timing statistics.",
-              f"Raw data: {doc['raw_data']}"]
+              f"Raw data: {report_path(doc['raw_data'])}"]
     return "\n".join(lines) + "\n"
 
 
@@ -525,7 +535,7 @@ def render_single_report(doc):
     argument = "packed permutation argument" if doc["mikros_wiring"] == "packed" else "public wiring"
     heading = (f"Single-instance hash comparison | {doc['threads']} thread(s) | "
                f"Mikros {argument} vs FLOCK skip-7\n"
-               f"Combined raw data: {doc['raw_data']}\n\n")
+               f"Combined raw data: {report_path(doc['raw_data'])}\n\n")
     return heading + "\n".join(render_report(doc["hashes"][name]) for name in HASHES)
 
 
@@ -539,7 +549,7 @@ def main(argv=None):
         text = render_report(doc)
     publish_report(doc, o.output, runner.folder, text)
     print(text, end="", flush=True)
-    print(f"Log: {o.output}", file=sys.stderr)
+    print(f"Log: {report_path(o.output)}", file=sys.stderr)
 
 
 if __name__ == "__main__":

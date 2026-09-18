@@ -12,14 +12,32 @@
 \#*\#
 .\#*
 
-# LaTeX build output
+# Published experiment results and the retained historical single-hash log.
 *.log
 !/e2e_flock_sha256.log
 !/e2e_flock_keccak.log
 !/e2e_flock_blake3.log
 !/compare_hadamard_2_30.log
 !/single_hash_compare.log
-!/single_hash_compare_1thread.log
+!/single_2_25.log
+
+# Intermediate measurements and machine-local run metadata
+*.json
+*.jsonl
+*.csv
+*.tsv
+*.stderr
+*.stdout
+*.pid
+# Source receipts are required for builds or dependency provenance.
+!/baseline/reference_sources.json
+!/gruen/reference/SHA256.json
+!/gruen/reference/mikros-source.json
+!/gruen/server64/reference_manifest.json
+!/lookup/vendor-source-manifest.json
+!/mikros/binius_switchover_hadamard/upstream-source.json
+
+# LaTeX build output
 *.aux
 *.out
 texput.*
@@ -53,11 +71,14 @@ benchmarks/cache/
 .claude/
 .codex/
 .agents/
+.cursor/
+.aider*
 skills-lock.json
 AGENTS.md
 CLAUDE.md
 CONTEXT.md
 CONTEXT-MAP.md
+GEMINI.md
 
 # LaTeX SyncTeX artifacts, including the transient *.synctex(busy) written
 # mid-compile (the bare *.synctex.gz rules above don't cover it).
@@ -98,6 +119,9 @@ docs/*.toc
 
 # Local checkpoints
 /agents/
+/plans/
+/scratch/
+/tmp/
 
 # Experiment staging, snapshots, and intermediate measurements
 **/server_experiments/
