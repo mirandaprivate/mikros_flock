@@ -396,16 +396,20 @@ pub struct CscCircuit {
 /// Flatten one sparse matrix into CSC arrays: rows with a 1 in column `c` are
 /// `rows_flat[col_ptr[c] as usize .. col_ptr[c+1] as usize]`.
 fn csc_from_rows(m: &SparseBinaryMatrix) -> (Vec<u32>, Vec<u32>) {
-    assert!(m.num_rows <= u32::MAX as usize);
-    assert!(m.num_cols <= u32::MAX as usize);
+    assert!(csc_dimension_fits_u32(m.num_rows));
+    assert!(csc_dimension_fits_u32(m.num_cols));
     let mut col_ptr = vec![0u32; m.num_cols + 1];
     for row in m.rows.iter() {
         for &c in row {
-            col_ptr[c + 1] += 1;
+            col_ptr[c + 1] = col_ptr[c + 1]
+                .checked_add(1)
+                .expect("CSC column has more than u32::MAX entries");
         }
     }
     for c in 0..m.num_cols {
-        col_ptr[c + 1] += col_ptr[c];
+        col_ptr[c + 1] = col_ptr[c + 1]
+            .checked_add(col_ptr[c])
+            .expect("CSC has more than u32::MAX nonzero entries");
     }
     let mut next = col_ptr.clone();
     let mut rows_flat = vec![0u32; *col_ptr.last().unwrap() as usize];
@@ -416,6 +420,11 @@ fn csc_from_rows(m: &SparseBinaryMatrix) -> (Vec<u32>, Vec<u32>) {
         }
     }
     (col_ptr, rows_flat)
+}
+
+/// A dimension of 2^32 still has only u32 row indices: its last is 2^32 - 1.
+fn csc_dimension_fits_u32(dimension: usize) -> bool {
+    dimension == 0 || u32::try_from(dimension - 1).is_ok()
 }
 
 // Compact Debug — the row arrays run to millions of entries.
@@ -430,6 +439,46 @@ impl Debug for CscCircuit {
 }
 
 impl CscCircuit {
+    /// Construct square public matrices from compact column-major arrays.
+    ///
+    /// This avoids materializing a `Vec<Vec<usize>>` row representation when
+    /// the circuit already provides column adjacency. The dimension may be
+    /// 2^32 on a 64-bit host, but each matrix must have at most u32::MAX
+    /// entries because its cumulative column pointers remain u32.
+    pub fn from_csc_parts(
+        n_cols: usize,
+        a_col_ptr: Vec<u32>,
+        a_rows: Vec<u32>,
+        b_col_ptr: Vec<u32>,
+        b_rows: Vec<u32>,
+    ) -> Result<Self, &'static str> {
+        if !csc_dimension_fits_u32(n_cols) {
+            return Err("CSC dimension exceeds the u32 row-index range");
+        }
+        let pointer_count = n_cols.checked_add(1).ok_or("CSC pointer count overflow")?;
+        for (ptr, rows) in [(&a_col_ptr, &a_rows), (&b_col_ptr, &b_rows)] {
+            let entries = u32::try_from(rows.len()).map_err(|_| "CSC nonzero count exceeds u32")?;
+            if ptr.len() != pointer_count || ptr.first() != Some(&0) || ptr.last() != Some(&entries)
+            {
+                return Err("CSC column pointer shape or endpoints");
+            }
+            if !ptr.par_windows(2).all(|pair| pair[0] <= pair[1]) {
+                return Err("CSC column pointers are not monotone");
+            }
+            if !rows.par_iter().all(|&row| (row as usize) < n_cols) {
+                return Err("CSC row index is outside the matrix");
+            }
+        }
+        Ok(Self {
+            n_cols,
+            a_col_ptr,
+            a_rows,
+            b_col_ptr,
+            b_rows,
+            const_pin: None,
+        })
+    }
+
     pub fn from_matrices(a_0: &SparseBinaryMatrix, b_0: &SparseBinaryMatrix) -> Self {
         assert_eq!(a_0.num_rows, b_0.num_rows);
         assert_eq!(a_0.num_cols, b_0.num_cols);
@@ -2386,6 +2435,36 @@ mod tests {
     use std::collections::HashSet;
 
     #[test]
+    fn csc_parts_validate_indices_and_prefixes() {
+        use super::CscCircuit;
+        let build = |ptr, rows| CscCircuit::from_csc_parts(2, ptr, rows, vec![0, 0, 0], vec![]);
+        assert!(build(vec![0, 1, 2], vec![0, 1]).is_ok());
+        assert!(build(vec![1, 1, 2], vec![0, 1]).is_err());
+        assert!(build(vec![0, 1], vec![0]).is_err());
+        assert!(build(vec![0, 2, 1], vec![0]).is_err());
+        assert!(build(vec![0, 1, 2], vec![0, 2]).is_err());
+        assert!(build(vec![0, 1, 1], vec![]).is_err());
+        assert!(CscCircuit::from_csc_parts(0, vec![0], vec![], vec![0], vec![]).is_ok());
+    }
+
+    #[test]
+    #[cfg(target_pointer_width = "64")]
+    fn csc_dimension_boundary_without_large_allocations() {
+        use super::{CscCircuit, csc_dimension_fits_u32};
+        assert!(csc_dimension_fits_u32(1usize << 32));
+        assert!(!csc_dimension_fits_u32((1usize << 32) + 1));
+        assert_eq!(
+            CscCircuit::from_csc_parts(1usize << 32, vec![0], vec![], vec![0], vec![]).unwrap_err(),
+            "CSC column pointer shape or endpoints"
+        );
+        assert_eq!(
+            CscCircuit::from_csc_parts((1usize << 32) + 1, vec![], vec![], vec![], vec![])
+                .unwrap_err(),
+            "CSC dimension exceeds the u32 row-index range"
+        );
+    }
+
+    #[test]
     fn csc_single_side_matches_split_serial_and_parallel() {
         use super::{CscCircuit, LincheckCircuit, SUMCHECK_PAR_THRESHOLD};
         for n in [1, 8, SUMCHECK_PAR_THRESHOLD] {
@@ -2404,11 +2483,27 @@ mod tests {
             );
             let b = SparseBinaryMatrix::new(n, n, (0..n).map(|r| vec![(3 * r) % n]).collect());
             let circuit = CscCircuit::from_matrices(&a, &b);
+            let direct = CscCircuit::from_csc_parts(
+                n,
+                circuit.a_col_ptr.clone(),
+                circuit.a_rows.clone(),
+                circuit.b_col_ptr.clone(),
+                circuit.b_rows.clone(),
+            )
+            .unwrap()
+            .with_const_pin(Some(0));
+            assert_eq!(direct.const_pin_col(), Some(0));
             let mut rng = Rng::new(0x51DE_C5C0);
             let eq: Vec<_> = (0..n).map(|_| rng.f128()).collect();
             let (xa, xb) = circuit.fold_split(&eq);
             assert_eq!(circuit.fold_side(&eq, true), xa);
             assert_eq!(circuit.fold_side(&eq, false), xb);
+            assert_eq!(direct.fold_split(&eq), (xa, xb));
+            let alpha = rng.f128();
+            assert_eq!(
+                direct.fold_alpha_batched(alpha, &eq),
+                circuit.fold_alpha_batched(alpha, &eq)
+            );
         }
     }
 

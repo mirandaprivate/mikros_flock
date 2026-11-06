@@ -24,3 +24,8 @@ codegen-units = 1
 [[bin]]
 name = "compare"
 path = "src/bin/compare.rs"
+
+[[bench]]
+name = "compare"
+path = "benches/compare.rs"
+harness = false

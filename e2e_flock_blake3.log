@@ -1,15 +1,22 @@
 BLAKE3 end-to-end | 256 instances | 1 thread(s)
+PCS: Mikros additive FRI over F2^128; FLOCK native Ligerito Fast.
+Mikros uses two 128-instance packed R1CS groups, public matrix checks, and one merged FRI opening.
 Times are medians; proof size is serialized bytes / 1024.
 
 System             Prover (ms)   Verifier (ms)   Proof (KiB)    RAM (MiB)   Samples
 -----------------------------------------------------------------------------------
-Mikros                  56.128          35.736       355.643       632.25        10
-FLOCK skip-7           103.957          35.142       279.862       633.00        10
+Mikros FRI              69.323          35.211       180.555       634.22        10
+FLOCK skip-7           104.483          35.044       279.862       632.86        10
 
-FLOCK/Mikros prover time: 1.852x
+FLOCK/Mikros prover time: 1.507x
 
-Prover: Online conversion, commitment, reductions, grinding and native FLOCK Ligerito PCS included; offline setup/transpose and prepared-input clone excluded.
+Prover: Online conversion, witness commitment, packed R1CS and public matrix reductions, grinding and all PCS openings included; offline setup/transpose and prepared-input clone excluded. Mikros uses additive FRI; FLOCK uses native Ligerito Fast.
 Verifier: Complete non-deferred verification, including matrix and PCS checks; public-statement preprocessing excluded.
 Ram: Maximum of 1 measurement-process GNU time peaks per system; includes setup, warmup, proving, verification and allocator retention.
+Pcs: The PCS backends differ. FRI uses F2^128, rate 1/2 and 241 queries (100-bit query-phase budget, excluding folding and other protocol errors); see raw metadata for both parameter sets. Neither proof claims zero knowledge.
+Workload: 256 independent instance(s) of BLAKE3 compression with standard IV, counter 0, block length 64 and flags 11; full 512-bit output.
+Sampling: 10 measured proofs after 1 excluded warmups in each of 1 fresh processes per system.
 Worker CPU affinity: 0
+Separate validation: 150 mutations rejected
 Every measured proof was verified; warmups are excluded from timing statistics.
+Raw data: e2e_flock_blake3.json

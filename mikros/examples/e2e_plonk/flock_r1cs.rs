@@ -11,7 +11,6 @@ use flock_core::{
     challenger::{Challenger, FsChallenger},
     lincheck::{self, CscCircuit, LincheckGrinding, LincheckProof, QuirkyPoint, SkipPoint},
     pcs::{self, Commitment, PcsParams, functional::TensorClaim, merged_tensor},
-    r1cs::SparseBinaryMatrix,
     schedule::Registry,
     scratch,
     zerocheck::{self, ZerocheckClaim, ZerocheckProof},
@@ -52,6 +51,20 @@ fn peak_rss_kib() -> Option<u64> {
 /// [1, a_0..a_(N/2-1), b_0..b_(N/2-1), gate_0..gate_(N-1), zeros].
 /// The 2N+1 live variables occupy one 4N-row matrix, not repeated small blocks.
 fn row_columns(c: &Circuit, row: usize, left: bool) -> ([usize; 2], usize) {
+    if c.near_full {
+        if row <= fixture::near_full_circuit::INPUTS {
+            return ([if left { row } else { 0 }, 0], 1);
+        }
+        let gate = row - fixture::near_full_circuit::INPUTS - 1;
+        let [a, b] = fixture::near_full_circuit::gate_operands(c.log_gates, gate);
+        return if gate & 1 == 0 {
+            ([if left { a } else { b }, 0], 1)
+        } else if left {
+            ([a, b], 2)
+        } else {
+            ([0, 0], 1)
+        };
+    }
     let n = c.n();
     if row >= 2 * n + 1 {
         return ([0, 0], 0);
@@ -70,26 +83,179 @@ fn row_columns(c: &Circuit, row: usize, left: bool) -> ([usize; 2], usize) {
     }
 }
 
-fn public_csc(c: &Circuit) -> CscCircuit {
-    let rows = 4 * c.n();
-    let matrix = |left| {
-        SparseBinaryMatrix::new(
-            rows,
-            rows,
-            (0..rows)
-                .into_par_iter()
-                .map(|row| {
-                    let (columns, len) = row_columns(c, row, left);
-                    columns[..len].to_vec()
-                })
-                .collect(),
-        )
-    };
-    let a = matrix(true);
-    let b = matrix(false);
-    // CSC owns its compact transpose; these CSR construction buffers are
-    // released before proving. C=I needs no stored matrix or PCS commitment.
-    CscCircuit::from_matrices(&a, &b).with_const_pin(Some(0))
+fn csc_entry_counts(log_gates: usize) -> Result<(usize, usize, usize), String> {
+    let shift = u32::try_from(log_gates).map_err(|_| "circuit exponent overflow")?;
+    let n = 1usize.checked_shl(shift).ok_or("circuit size overflow")?;
+    let rows = n.checked_mul(4).ok_or("matrix dimension overflow")?;
+    if rows == 0 || u32::try_from(rows - 1).is_err() {
+        return Err("matrix row indices exceed u32".into());
+    }
+    let a = n
+        .checked_mul(2)
+        .and_then(|v| v.checked_add(n / 2 + 1))
+        .ok_or("A nonzero count overflow")?;
+    let b = n
+        .checked_mul(2)
+        .and_then(|v| v.checked_add(1))
+        .ok_or("B nonzero count overflow")?;
+    u32::try_from(a).map_err(|_| "A nonzero count exceeds u32")?;
+    u32::try_from(b).map_err(|_| "B nonzero count exceeds u32")?;
+    Ok((rows, a, b))
+}
+
+fn public_csc(c: &Circuit) -> Result<CscCircuit, String> {
+    if c.near_full {
+        return near_full_public_csc(c);
+    }
+    let n = c.n();
+    let half = n / 2;
+    let (rows, a_count, b_count) = csc_entry_counts(c.log_gates)?;
+    // Column lists are exactly the transpose of row_columns, in increasing
+    // row order. Closed-form prefixes avoid both CSR allocations and atomic
+    // scatter. In particular, the long B constant column is filled in parallel.
+    let a_col_ptr = (0..=rows)
+        .into_par_iter()
+        .map(|column| {
+            let identities = column.min(n + 1);
+            let input_uses = 2 * column.saturating_sub(1).min(half);
+            let output_uses = column.saturating_sub(n + 1).min(n).div_ceil(2);
+            (identities + input_uses + output_uses) as u32
+        })
+        .collect();
+    let b_col_ptr = (0..=rows)
+        .into_par_iter()
+        .map(|column| {
+            if column == 0 {
+                0
+            } else {
+                (n + 1 + half + column.saturating_sub(half + 1).min(half)) as u32
+            }
+        })
+        .collect();
+    let a_rows = (0..a_count)
+        .into_par_iter()
+        .map(|entry| {
+            let row = if entry == 0 {
+                0
+            } else if entry <= 3 * half {
+                let j = (entry - 1) / 3;
+                match (entry - 1) % 3 {
+                    0 => 1 + j,
+                    1 if j == 0 => n + 1,
+                    2 if j == 0 => 2 * n,
+                    1 => n + 2 * j,
+                    _ => n + 1 + 2 * j,
+                }
+            } else if entry <= 4 * half {
+                1 + half + entry - 1 - 3 * half
+            } else {
+                n + 2 + 2 * (entry - 1 - 4 * half)
+            };
+            row as u32
+        })
+        .collect();
+    let b_rows = (0..b_count)
+        .into_par_iter()
+        .map(|entry| {
+            let row = if entry <= n {
+                entry
+            } else if entry <= n + half {
+                n + 2 + 2 * (entry - n - 1)
+            } else {
+                n + 1 + 2 * (entry - n - half - 1)
+            };
+            row as u32
+        })
+        .collect();
+    CscCircuit::from_csc_parts(rows, a_col_ptr, a_rows, b_col_ptr, b_rows)
+        .map(|matrix| matrix.with_const_pin(Some(0)))
+        .map_err(str::to_string)
+}
+
+/// Transpose the chain recipe directly into sorted column lists. Only the 256
+/// input columns require visiting a block permutation; every output is used
+/// once by the following gate. This needs no CSR, sorting, or atomic scatter.
+fn near_full_public_csc(c: &Circuit) -> Result<CscCircuit, String> {
+    use fixture::near_full_circuit::{INPUTS, gate_operands, right_gate_in_block};
+    let rows = c.r1cs_rows();
+    let gates = c.genuine_gate_count();
+    let a_count = rows.checked_add(gates / 2).ok_or("A count overflow")?;
+    u32::try_from(a_count).map_err(|_| "A count exceeds u32")?;
+    u32::try_from(rows).map_err(|_| "B count exceeds u32")?;
+    let blocks = gates.div_ceil(INPUTS);
+    let first_left = gate_operands(c.log_gates, 0)[0];
+    let mut a_col_ptr = Vec::with_capacity(rows + 1);
+    let mut b_col_ptr = Vec::with_capacity(rows + 1);
+    let mut a_rows = Vec::with_capacity(a_count);
+    let mut b_rows = Vec::with_capacity(rows);
+    a_col_ptr.push(0);
+    b_col_ptr.push(0);
+
+    // Column zero: the pinned constant's A identity, and B's identity/XOR rows.
+    a_rows.push(0);
+    b_rows.extend((0..=INPUTS).map(|row| row as u32));
+    b_rows.extend((1..gates).step_by(2).map(|gate| (INPUTS + 1 + gate) as u32));
+    a_col_ptr.push(a_rows.len() as u32);
+    b_col_ptr.push(b_rows.len() as u32);
+
+    for input in 1..=INPUTS {
+        a_rows.push(input as u32);
+        if input == first_left {
+            a_rows.push((INPUTS + 1) as u32);
+        }
+        for block in 0..blocks {
+            let gate = block * INPUTS + right_gate_in_block(input, block);
+            if gate >= gates {
+                continue;
+            }
+            let row = (INPUTS + 1 + gate) as u32;
+            if gate & 1 == 0 {
+                b_rows.push(row);
+            } else {
+                a_rows.push(row);
+            }
+        }
+        a_col_ptr.push(a_rows.len() as u32);
+        b_col_ptr.push(b_rows.len() as u32);
+    }
+    // Outputs 0..G-2 each feed the next gate's left operand. The public final
+    // output has no downstream use; its value is authenticated separately.
+    for output in 0..gates {
+        if output + 1 < gates {
+            a_rows.push((INPUTS + 2 + output) as u32);
+        }
+        a_col_ptr.push(a_rows.len() as u32);
+        b_col_ptr.push(b_rows.len() as u32);
+    }
+    debug_assert_eq!(a_rows.len(), a_count);
+    debug_assert_eq!(b_rows.len(), rows);
+    CscCircuit::from_csc_parts(rows, a_col_ptr, a_rows, b_col_ptr, b_rows)
+        .map(|matrix| matrix.with_const_pin(Some(0)))
+        .map_err(str::to_string)
+}
+
+fn witness_words(c: &Circuit) -> usize {
+    (c.r1cs_rows() / 128).max(1 << 15)
+}
+
+fn matrix_log(c: &Circuit) -> usize {
+    c.r1cs_rows().ilog2() as usize
+}
+
+fn useful_bits(c: &Circuit) -> usize {
+    if c.near_full {
+        c.r1cs_rows()
+    } else {
+        2 * c.n() + 1
+    }
+}
+
+fn output_index(c: &Circuit) -> usize {
+    if c.near_full {
+        c.r1cs_rows() - 1
+    } else {
+        2 * c.n()
+    }
 }
 
 fn packed(rows: usize, value: impl Fn(usize) -> bool + Sync) -> Vec<F128> {
@@ -107,6 +273,11 @@ fn packed(rows: usize, value: impl Fn(usize) -> bool + Sync) -> Vec<F128> {
 }
 
 fn witness(c: &Circuit) -> Vec<F128> {
+    if c.near_full {
+        let mut words = fixture::near_full_circuit::compact_witness(c.log_gates, c.seed);
+        words.resize(witness_words(c), F128::ZERO);
+        return words;
+    }
     let n = c.n();
     let mut z = packed(4 * n, |i| {
         if i == 0 {
@@ -125,9 +296,9 @@ fn witness(c: &Circuit) -> Vec<F128> {
     z
 }
 
-fn matrix_images(c: &Circuit, z: &[F128]) -> [Vec<F128>; 2] {
+pub(super) fn matrix_images(c: &Circuit, z: &[F128]) -> [Vec<F128>; 2] {
     [true, false].map(|left| {
-        packed(4 * c.n(), |row| {
+        packed(c.r1cs_rows(), |row| {
             let (columns, len) = row_columns(c, row, left);
             columns[..len]
                 .iter()
@@ -136,31 +307,33 @@ fn matrix_images(c: &Circuit, z: &[F128]) -> [Vec<F128>; 2] {
     })
 }
 
-struct Setup<'a> {
-    circuit: &'a Circuit,
-    matrix: CscCircuit,
-    witness: Vec<F128>,
-    registry: Registry,
-    params: PcsParams,
-    offline_ms: f64,
+pub(super) struct Setup<'a> {
+    pub(super) circuit: &'a Circuit,
+    pub(super) matrix: CscCircuit,
+    pub(super) witness: Vec<F128>,
+    pub(super) registry: Registry,
+    pub(super) params: PcsParams,
+    pub(super) offline_ms: f64,
+    pub(super) witness_digest: String,
 }
 impl<'a> Setup<'a> {
-    fn new(c: &'a Circuit) -> Result<Self, String> {
-        if c.mode != Mode::Single || c.log_gates > 29 {
+    pub(super) fn new(c: &'a Circuit) -> Result<Self, String> {
+        if c.mode != Mode::Single || c.log_gates > 30 {
             return Err(
-                "single-instance public CSC requires single mode and 4N < 2^32 rows".into(),
+                "single-instance public CSC requires single mode and at most 2^30 gates".into(),
             );
         }
         event("offline_native_r1cs_setup");
         let start = Instant::now();
-        let log_words = (4 * c.wire_words()).max(1 << 15).ilog2() as usize;
+        let log_words = witness_words(c).ilog2() as usize;
         let registry = fixture::registry(log_words, c.wire_words().ilog2() as usize);
         let params = fixture::parameters(&fixture::union(&registry));
         params
             .ligerito_prover_config()
             .map_err(|e| format!("R1CS PCS parameters: {e:?}"))?;
-        let matrix = public_csc(c);
+        let matrix = public_csc(c)?;
         let witness = witness(c);
+        let witness_digest = blake3::hash(fixture::bytes(&witness)).to_hex().to_string();
         Ok(Self {
             circuit: c,
             matrix,
@@ -168,8 +341,24 @@ impl<'a> Setup<'a> {
             registry,
             params,
             offline_ms: ms(start),
+            witness_digest,
         })
     }
+}
+
+/// Identifies the public matrix construction, rather than a private witness
+/// or a materialized matrix byte stream. Both comparison arms use this recipe.
+pub(super) fn matrix_digest(c: &Circuit) -> String {
+    let mut hash = blake3::Hasher::new();
+    hash.update(if c.near_full {
+        b"single-near-full-and-xor-native-r1cs-affine-inputs256-v1-C-identity-constant-col0"
+            .as_slice()
+    } else {
+        b"single-and-xor-native-r1cs-row-columns-v1-C-identity-constant-col0".as_slice()
+    });
+    hash.update(&(c.log_gates as u64).to_le_bytes());
+    hash.update(&(c.r1cs_rows() as u64).to_le_bytes());
+    hash.finalize().to_hex().to_string()
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -184,14 +373,14 @@ struct Proof {
 fn bind(c: &Circuit, witness: &Commitment) -> FsChallenger {
     let mut ch = FsChallenger::new(b"flock-single-connected-and-xor-public-csc-v1");
     ch.observe_bytes(&c.digest());
-    ch.observe_bytes(&((c.log_gates + 2) as u64).to_le_bytes());
+    ch.observe_bytes(&(matrix_log(c) as u64).to_le_bytes());
     ch.observe_label(b"one-full-matrix-C-identity-constant-zero-column-skip7");
     ch.observe_bytes(&bincode::serialize(witness).unwrap());
     ch
 }
 
 fn input_point(c: &Circuit, zc: &ZerocheckClaim) -> Result<QuirkyPoint, String> {
-    if zc.mlv_challenges.len() != c.log_gates + 2 - 7 {
+    if zc.mlv_challenges.len() != matrix_log(c) - 7 {
         return Err("native single-instance zerocheck dimension".into());
     }
     Ok(QuirkyPoint {
@@ -207,7 +396,7 @@ fn claims(
     zc: &ZerocheckClaim,
     lc: &lincheck::LincheckClaim,
 ) -> Vec<TensorClaim> {
-    let index = 2 * c.n(); // Last gate's output in the R1CS witness.
+    let index = output_index(c);
     let mut output_columns = vec![F128::ZERO; 128];
     output_columns[index & 127] = F128::ONE;
     vec![
@@ -247,7 +436,7 @@ fn claims(
 
 fn prove(s: &Setup<'_>, z: Vec<F128>) -> Result<(Proof, Value, FsChallenger), String> {
     let c = s.circuit;
-    let m = c.log_gates + 2;
+    let m = matrix_log(c);
     let logical_words = 1usize << (m - 7);
     let begin = Instant::now();
     event("online_witness_commitment");
@@ -283,7 +472,7 @@ fn prove(s: &Setup<'_>, z: Vec<F128>) -> Result<(Proof, Value, FsChallenger), St
         m,
         m,
         7,
-        2 * c.n() + 1,
+        useful_bits(c),
         &s.matrix,
         &input_point(c, &zc)?,
         LincheckGrinding::disabled(),
@@ -325,6 +514,7 @@ fn prove(s: &Setup<'_>, z: Vec<F128>) -> Result<(Proof, Value, FsChallenger), St
         "gates_ms":gates_ms,"lincheck_input_ms":lincheck_input_ms,"lincheck_ms":lincheck_ms,
         "witness_pcs_open_ms":witness_pcs_open_ms,"native_pcs_claims":queries.len(),
         "witness_claims":queries.len(),"witness_ring_claims":witness_ring_claims,
+        "public_claims":0,"witness_commitments":1,"public_commitments":0,
         "piop_blake3":piop_blake3,"terminal_claims_blake3":terminal_claims_blake3,
         "prover_ms":ms(begin)});
     Ok((proof, times, ch))
@@ -334,13 +524,13 @@ fn prove(s: &Setup<'_>, z: Vec<F128>) -> Result<(Proof, Value, FsChallenger), St
 /// generated A/B vectors are available to this routine. Full public-matrix
 /// folding in native lincheck is included in verifier time.
 fn verify(c: &Circuit, matrix: &CscCircuit, p: &Proof) -> Result<(FsChallenger, Value), String> {
-    let log_words = (4 * c.wire_words()).max(1 << 15).ilog2() as usize;
+    let log_words = witness_words(c).ilog2() as usize;
     let registry = fixture::registry(log_words, c.wire_words().ilog2() as usize);
     let union = fixture::union(&registry);
     if p.witness.params != fixture::parameters(&union) || !p.lincheck.matrix_evals.is_empty() {
         return Err("native single R1CS PCS shape or deferred matrix claims".into());
     }
-    let m = c.log_gates + 2;
+    let m = matrix_log(c);
     let mut ch = GrindingChallenger::verifier(bind(c, &p.witness), &p.nonces);
     let start = Instant::now();
     let zc = zerocheck::verify_skip7(m, &p.zerocheck, &mut ch)
@@ -380,12 +570,18 @@ pub fn run(c: &Circuit, repetitions: usize, warmups: usize) -> Result<(), String
         "log_gates":c.log_gates,"instances":1,"threads":rayon::current_num_threads(),
         "all_core_threads":flock_parallel::all_core_pool().current_num_threads(),"seed":c.seed,
         "repetitions":repetitions,"warmups":warmups,"baseline_skip":7,
+        "compression_kappa":128,"witness_digest":s.witness_digest,"matrix_digest":matrix_digest(c),
+        "matrix_digest_scope":"public row_columns recipe and dimensions; not serialized CSC bytes",
+        "witness_claims":3,"public_claims":0,"witness_commitments":1,"public_commitments":0,
         "fixture_digest":c.digest().iter().map(|b|format!("{b:02x}")).collect::<String>(),
         "arithmetization":"native R1CS","matrix_authentication":"public CSC","permutation_proof":false,
-        "public_io":[c.io.lo,c.io.hi],"genuine_gate_count":c.n(),"r1cs_rows":4*c.n(),
-        "r1cs_outer_blocks":1,"r1cs_matrix_log":c.log_gates+2,"C":"identity",
-        "r1cs_auxiliary_rows":"one pinned constant row, N input identity rows, 2N-1 zero-padding rows",
-        "witness_layout":"constant; N private input bits; N gate outputs; zero padding",
+        "public_io":[c.io.lo,c.io.hi],"genuine_gate_count":c.genuine_gate_count(),"r1cs_rows":c.r1cs_rows(),
+        "circuit_layout":if c.near_full { "near-full" } else { "paired" },
+        "private_input_bits":if c.near_full { fixture::near_full_circuit::INPUTS } else { c.n() },
+        "plonk_domain_size":c.n(),"copy_domain_size":4*c.n(),
+        "r1cs_outer_blocks":1,"r1cs_matrix_log":matrix_log(c),"C":"identity",
+        "r1cs_auxiliary_rows":if c.near_full { "one pinned constant row; 256 private input identity rows; no padding" } else { "one pinned constant row, N input identity rows, 2N-1 zero-padding rows" },
+        "witness_layout":if c.near_full { "constant; 256 private input bits; N-257 gate outputs" } else { "constant; N private input bits; N gate outputs; zero padding" },
         "witness_words":s.witness.len(),"pcs_backend":"FLOCK native Ligerito Fast",
         "pcs_packed_direct":std::env::var_os("FLOCK_PCS_PACKED_DIRECT").is_some_and(|v|v=="1"),
         "native_lincheck_extension":"zero-dimensional outer tensor uses ordinary packed bits",
@@ -403,10 +599,11 @@ pub fn run(c: &Circuit, repetitions: usize, warmups: usize) -> Result<(), String
         let count = if warmup { warmups } else { repetitions };
         let kind = if warmup { "warmup" } else { "sample" };
         eprintln!(
-            "[single constraints] flock {kind} {}/{} start (2^{} gates, public CSC)",
+            "[single constraints] flock {kind} {}/{} start ({} genuine gates, {} public CSC rows)",
             repetition + 1,
             count,
-            c.log_gates
+            c.genuine_gate_count(),
+            c.r1cs_rows()
         );
         let owned = s.witness.clone();
         scratch::clear();
@@ -426,7 +623,7 @@ pub fn run(c: &Circuit, repetitions: usize, warmups: usize) -> Result<(), String
             return Err("native R1CS prover/verifier transcript mismatch".into());
         }
         let row = json!({"type":"sample","mode":"single","system":"flock","log_gates":c.log_gates,
-            "gates_per_instance":c.n(),"instances":1,"total_gates":c.n(),"threads":rayon::current_num_threads(),
+            "gates_per_instance":c.genuine_gate_count(),"instances":1,"total_gates":c.genuine_gate_count(),"threads":rayon::current_num_threads(),
             "seed":c.seed,"repetition":repetition,"warmup":warmup,"times":times,"verifier_times":verifier_times,
             "offline_ms":s.offline_ms,"verify_ms":verify_ms,"proof_bytes":encoded.len(),"proof_blake3":blake3::hash(&encoded).to_hex().to_string(),
             "witness_commitment_blake3":digest(&proof.witness),"witness_pcs_params":s.params,
@@ -453,6 +650,124 @@ pub fn run(c: &Circuit, repetitions: usize, warmups: usize) -> Result<(), String
 mod tests {
     use super::*;
     use flock_core::lincheck::LincheckCircuit;
+    use flock_core::r1cs::SparseBinaryMatrix;
+
+    #[test]
+    #[cfg(target_pointer_width = "64")]
+    fn native_csc_n30_capacity_without_allocating_matrices() {
+        let (rows, a, b) = csc_entry_counts(30).unwrap();
+        assert_eq!(rows, 1usize << 32);
+        assert_eq!(a, (5usize << 29) + 1);
+        assert_eq!(b, (1usize << 31) + 1);
+        assert_eq!(
+            (2 * (rows + 1) + a + b) * size_of::<u32>(),
+            (50usize << 30) + 16
+        );
+        assert!(csc_entry_counts(31).is_err());
+        assert!(csc_entry_counts(usize::MAX).is_err());
+    }
+
+    #[test]
+    fn near_full_csc_matches_independent_row_transpose_and_statement() {
+        for log in [14, 16] {
+            let c = Circuit::new_near_full(log, Mode::Single, 97);
+            let rows = c.r1cs_rows();
+            assert_eq!(rows, 1usize << log);
+            assert_eq!(c.genuine_gate_count(), rows - 257);
+            let z = witness(&c);
+            let [a, b] = matrix_images(&c, &z);
+            for row in 0..rows {
+                assert_eq!(
+                    fixture::bit(&a, row) & fixture::bit(&b, row),
+                    fixture::bit(&z, row),
+                    "log={log} row={row}"
+                );
+            }
+            assert!(fixture::bit(&z, 0));
+            assert_eq!(fixture::bit(&z, rows - 1), c.io == F128::ONE);
+            let row_matrix = |left| {
+                SparseBinaryMatrix::new(
+                    rows,
+                    rows,
+                    (0..rows)
+                        .map(|row| {
+                            let (columns, len) = row_columns(&c, row, left);
+                            columns[..len].to_vec()
+                        })
+                        .collect(),
+                )
+            };
+            let reference = CscCircuit::from_matrices(&row_matrix(true), &row_matrix(false))
+                .with_const_pin(Some(0));
+            let matrix = public_csc(&c).unwrap();
+            let weights: Vec<_> = (0..rows)
+                .map(|i| {
+                    F128::new(
+                        (i as u64 + 31).wrapping_mul(0x9e3779b97f4a7c15),
+                        (i as u64).rotate_left(29),
+                    )
+                })
+                .collect();
+            assert_eq!(matrix.const_pin_col(), Some(0));
+            assert_eq!(matrix.n_cols(), rows);
+            for side in [true, false] {
+                assert_eq!(
+                    matrix.fold_side(&weights, side),
+                    reference.fold_side(&weights, side)
+                );
+            }
+            assert_eq!(
+                matrix.fold_alpha_batched(F128::new(73, 19), &weights),
+                reference.fold_alpha_batched(F128::new(73, 19), &weights)
+            );
+        }
+    }
+
+    #[test]
+    fn near_full_native_roundtrip_rejects_output_matrix_and_pcs_tampering() {
+        let c = Circuit::new_near_full(14, Mode::Single, 97);
+        let setup = Setup::new(&c).unwrap();
+        let (proof, _, mut prover) = prove(&setup, setup.witness.clone()).unwrap();
+        let encoded = bincode::serialize(&proof).unwrap();
+        let proof: Proof = bincode::deserialize(&encoded).unwrap();
+        let (mut verifier, _) = verify(&c, &setup.matrix, &proof).unwrap();
+        assert_eq!(prover.sample_f128(), verifier.sample_f128());
+        let mut wrong_output = c.clone();
+        wrong_output.io += F128::ONE;
+        assert!(verify(&wrong_output, &setup.matrix, &proof).is_err());
+        let mut bad = proof.clone();
+        bad.lincheck.z_partial[0] += F128::ONE;
+        assert!(verify(&c, &setup.matrix, &bad).is_err());
+        let mut bad = proof.clone();
+        bad.nonces.pop();
+        assert!(verify(&c, &setup.matrix, &bad).is_err());
+        let mut bad = proof.clone();
+        bad.witness_pcs.merged = None;
+        assert!(verify(&c, &setup.matrix, &bad).is_err());
+        let rows = c.r1cs_rows();
+        let row_matrix = |left| {
+            SparseBinaryMatrix::new(
+                rows,
+                rows,
+                (0..rows)
+                    .map(|row| {
+                        let (columns, len) = row_columns(&c, row, left);
+                        if left && row == 0 {
+                            vec![]
+                        } else {
+                            columns[..len].to_vec()
+                        }
+                    })
+                    .collect(),
+            )
+        };
+        let wrong = CscCircuit::from_matrices(&row_matrix(true), &row_matrix(false))
+            .with_const_pin(Some(0));
+        assert!(verify(&c, &wrong, &proof).is_err());
+        let legacy = Circuit::new(14, Mode::Single, 97);
+        assert_ne!(matrix_digest(&c), matrix_digest(&legacy));
+        assert_ne!(c.digest(), legacy.digest());
+    }
 
     #[test]
     fn native_r1cs_encodes_the_same_gates_and_full_public_matrices() {
@@ -466,7 +781,22 @@ mod tests {
             );
         }
         assert_eq!(fixture::bit(&z, 2 * c.n()), c.io == F128::ONE);
-        let matrix = public_csc(&c);
+        let matrix = public_csc(&c).unwrap();
+        let row_matrix = |left| {
+            SparseBinaryMatrix::new(
+                4 * c.n(),
+                4 * c.n(),
+                (0..4 * c.n())
+                    .map(|row| {
+                        let (columns, len) = row_columns(&c, row, left);
+                        columns[..len].to_vec()
+                    })
+                    .collect(),
+            )
+        };
+        let reference = CscCircuit::from_matrices(&row_matrix(true), &row_matrix(false))
+            .with_const_pin(Some(0));
+        assert_eq!(matrix.const_pin_col(), reference.const_pin_col());
         let weights: Vec<_> = (0..4 * c.n())
             .map(|i| F128::new(i as u64 + 3, (i as u64).rotate_left(9)))
             .collect();
@@ -480,7 +810,13 @@ mod tests {
                 }
             }
             assert_eq!(actual, expected);
+            assert_eq!(actual, reference.fold_side(&weights, left));
         }
+        let alpha = F128::new(73, 19);
+        assert_eq!(
+            matrix.fold_alpha_batched(alpha, &weights),
+            reference.fold_alpha_batched(alpha, &weights)
+        );
     }
 
     #[test]

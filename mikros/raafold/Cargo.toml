@@ -1,0 +1,28 @@
+[package]
+name = "mikros-raafold"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "Binary RAA SwitchFold PCS with an explicit conditional Blaze distance profile"
+
+[dependencies]
+flock-field = { path = "../../crates/flock-field" }
+ark-std = { version = "0.5", default-features = false, features = ["std"] }
+blake2 = "0.10"
+digest = "0.10"
+bytemuck = "1"
+polyval = "0.6.2"
+rand = "0.10.1"
+rayon = { version = "1.10", optional = true }
+serde = { version = "1", features = ["derive"] }
+binius-field = { git = "https://github.com/binius-zk/binius64", rev = "a41ff589ad23ed6e158e997c0ba85ede777fdce8" }
+binius-iop = { git = "https://github.com/binius-zk/binius64", rev = "a41ff589ad23ed6e158e997c0ba85ede777fdce8" }
+binius-iop-prover = { git = "https://github.com/binius-zk/binius64", rev = "a41ff589ad23ed6e158e997c0ba85ede777fdce8" }
+binius-ip = { git = "https://github.com/binius-zk/binius64", rev = "a41ff589ad23ed6e158e997c0ba85ede777fdce8" }
+binius-ip-prover = { git = "https://github.com/binius-zk/binius64", rev = "a41ff589ad23ed6e158e997c0ba85ede777fdce8" }
+binius-math = { git = "https://github.com/binius-zk/binius64", rev = "a41ff589ad23ed6e158e997c0ba85ede777fdce8" }
+binius-utils = { git = "https://github.com/binius-zk/binius64", rev = "a41ff589ad23ed6e158e997c0ba85ede777fdce8" }
+
+[features]
+default = ["parallel"]
+parallel = ["dep:rayon", "binius-iop-prover/rayon", "binius-ip-prover/rayon", "binius-math/rayon"]

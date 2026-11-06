@@ -17,6 +17,9 @@ use mikros_permutation::bits::PackedBits;
 use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
 
+#[path = "../e2e_common/near_full_circuit.rs"]
+pub mod near_full_circuit;
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Mode {
     Single,
@@ -40,6 +43,8 @@ pub struct Circuit {
     pub mode: Mode,
     pub seed: u64,
     pub io: F128,
+    #[serde(default)]
+    pub near_full: bool,
 }
 impl Circuit {
     pub fn new(log_gates: usize, mode: Mode, seed: u64) -> Self {
@@ -49,6 +54,7 @@ impl Circuit {
             mode,
             seed,
             io: F128::ZERO,
+            near_full: false,
         };
         let out = c.word(2, c.n() - 1);
         c.io = if mode == Mode::Single {
@@ -57,6 +63,52 @@ impl Circuit {
             out
         };
         c
+    }
+    pub fn new_near_full(log_gates: usize, mode: Mode, seed: u64) -> Self {
+        assert!((14..=30).contains(&log_gates));
+        assert_eq!(
+            mode,
+            Mode::Single,
+            "near-full circuit is binary single-instance only"
+        );
+        Self {
+            log_gates,
+            mode,
+            seed,
+            io: F128::new(near_full_circuit::public_output(log_gates, seed) as u64, 0),
+            near_full: true,
+        }
+    }
+    pub fn circuit_name(&self) -> &'static str {
+        if self.near_full {
+            "near-full"
+        } else {
+            "paired"
+        }
+    }
+    pub fn genuine_gate_count(&self) -> usize {
+        if self.near_full {
+            near_full_circuit::gate_count(self.log_gates)
+        } else {
+            self.n()
+        }
+    }
+    pub fn independent_input_count(&self) -> usize {
+        if self.near_full {
+            near_full_circuit::INPUTS
+        } else {
+            self.n()
+        }
+    }
+    pub fn r1cs_rows(&self) -> usize {
+        if self.near_full {
+            self.n()
+        } else {
+            4 * self.n()
+        }
+    }
+    pub fn output_gate(&self) -> usize {
+        self.genuine_gate_count() - 1
     }
     pub fn n(&self) -> usize {
         1usize << self.log_gates
@@ -97,7 +149,17 @@ impl Circuit {
             _ => panic!("selector"),
         }
     }
+    pub fn selector_at(&self, which: usize, gate: usize) -> bool {
+        if self.near_full {
+            near_full_circuit::selector(self.log_gates, which, gate)
+        } else {
+            Self::selector(which, gate)
+        }
+    }
     pub fn sigma(&self, index: usize) -> usize {
+        if self.near_full {
+            return near_full_circuit::sigma(self.log_gates, index);
+        }
         let n = self.n();
         if index >= 3 * n {
             return if index == 3 * n { 3 * n - 1 } else { index };
@@ -120,6 +182,13 @@ impl Circuit {
     }
     /// All 128 independent instance bits at one physical gate position.
     pub fn word(&self, wire: usize, g: usize) -> F128 {
+        if self.near_full {
+            // Scalar reference only. witness() takes the linear packed route.
+            return F128::new(
+                near_full_circuit::reference_wire_value(self.log_gates, self.seed, wire, g) as u64,
+                0,
+            );
+        }
         let j = g / 2;
         let a = self.input(j, 0);
         let b = self.input(j, 0x5A17DA7A);
@@ -146,12 +215,21 @@ impl Circuit {
         h.update(b"connected-alternating-and-xor-plonk-v1");
         h.update(&(self.log_gates as u64).to_le_bytes());
         h.update(&(self.mode.instances() as u64).to_le_bytes());
+        if self.near_full {
+            h.update(near_full_circuit::RECIPE_DOMAIN);
+            h.update(&(self.independent_input_count() as u64).to_le_bytes());
+            h.update(&(self.genuine_gate_count() as u64).to_le_bytes());
+        }
         // Seed identifies reproducible input generation, not a verifier oracle.
         h.update(&self.io.lo.to_le_bytes());
         h.update(&self.io.hi.to_le_bytes());
         *h.finalize().as_bytes()
     }
     pub fn witness(&self) -> Vec<F128> {
+        if self.near_full {
+            assert_eq!(self.mode, Mode::Single);
+            return near_full_circuit::plonk_witness(self.log_gates, self.seed);
+        }
         let m = self.wire_words();
         let mut z = vec![F128::ZERO; (4 * m).max(1 << 15)];
         z[..3 * m]
@@ -194,11 +272,29 @@ impl Circuit {
         } else {
             let m = self.wire_words();
             for selector in 0..5 {
-                let byte = (0..8).fold(0u8, |v, b| v | ((Self::selector(selector, b) as u8) << b));
-                let word = u64::from_le_bytes([byte; 8]);
-                q[selector * m..(selector + 1) * m]
-                    .par_iter_mut()
-                    .for_each(|v| *v = F128::new(word, word));
+                if self.near_full {
+                    q[selector * m..(selector + 1) * m]
+                        .par_iter_mut()
+                        .enumerate()
+                        .for_each(|(word, value)| {
+                            for bit in 0..128 {
+                                if self.selector_at(selector, word * 128 + bit) {
+                                    if bit < 64 {
+                                        value.lo |= 1u64 << bit;
+                                    } else {
+                                        value.hi |= 1u64 << (bit - 64);
+                                    }
+                                }
+                            }
+                        });
+                } else {
+                    let byte =
+                        (0..8).fold(0u8, |v, b| v | ((Self::selector(selector, b) as u8) << b));
+                    let word = u64::from_le_bytes([byte; 8]);
+                    q[selector * m..(selector + 1) * m]
+                        .par_iter_mut()
+                        .for_each(|v| *v = F128::new(word, word));
+                }
             }
             for wire in 0..3 {
                 let bits = PackedBits::from_fn_parallel(self.n(), self.h(), |g| {
@@ -304,6 +400,71 @@ pub fn parameters(u: &UnionInstance<'_>) -> PcsParams {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn near_full_public_padding_and_layout_binding() {
+        let c = Circuit::new_near_full(14, Mode::Single, 97);
+        assert_eq!(c.genuine_gate_count(), c.n() - 257);
+        assert_eq!(c.independent_input_count(), 256);
+        assert_eq!(c.r1cs_rows(), c.n());
+        assert_eq!(c.output_gate(), c.n() - 258);
+        let public = c.public();
+        for gate in 0..c.n() {
+            for selector in 0..5 {
+                assert_eq!(
+                    bit(&public, selector * c.n() + gate),
+                    c.selector_at(selector, gate)
+                );
+                if gate >= c.genuine_gate_count() {
+                    assert_eq!(c.selector_at(selector, gate), selector == 3);
+                }
+            }
+            for wire in 0..3 {
+                let label = (0..c.h()).fold(0usize, |acc, bit_index| {
+                    acc | ((bit(&public, (5 + wire * c.h() + bit_index) * c.n() + gate) as usize)
+                        << bit_index)
+                });
+                assert_eq!(label, c.sigma(wire * c.n() + gate));
+            }
+        }
+        let mut other_seed = c.clone();
+        other_seed.seed ^= 1;
+        assert_eq!(other_seed.public(), public);
+        assert_eq!(other_seed.digest(), c.digest());
+        let mut paired = c.clone();
+        paired.near_full = false;
+        assert_ne!(paired.digest(), c.digest());
+    }
+    #[test]
+    fn billion_gate_layout_preserves_full_width_positions() {
+        // Exercise the 2^32-position boundary without allocating its tables.
+        let c = Circuit::new(30, Mode::Single, 97);
+        assert_eq!(c.n(), 1usize << 30);
+        assert_eq!(c.copy_len(), 1usize << 32);
+        assert_eq!(c.h(), 32);
+        assert_eq!((c.h() + 1).next_power_of_two(), 64);
+        assert_eq!(c.wire_words(), 1usize << 23);
+        assert_eq!(c.public_words(), 1usize << 30);
+        for log_words in [25, 30] {
+            let r = registry(log_words, 23);
+            parameters(&union(&r)).ligerito_prover_config().unwrap();
+        }
+        for i in [
+            0,
+            1,
+            c.n() - 1,
+            c.n(),
+            2 * c.n(),
+            3 * c.n() - 1,
+            3 * c.n(),
+            c.copy_len() - 1,
+        ] {
+            assert!(c.sigma(i) < c.copy_len());
+            assert_eq!(c.sigma(c.sigma(i)), i);
+        }
+        assert_eq!(c.sigma(3 * c.n() - 1), 3 * c.n());
+        assert_eq!(c.sigma(c.copy_len() - 1), u32::MAX as usize);
+    }
+
     #[test]
     fn exact_gates_wiring_and_public_tables() {
         for mode in [Mode::Single, Mode::Multiple] {

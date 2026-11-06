@@ -616,6 +616,15 @@ pub fn run_with_args(args: Vec<String>) {
         x => panic!("invalid copy storage {x}"),
     };
     let seed = arg("--seed", "97").parse().unwrap();
+    let near_full = match arg("--circuit", "paired").as_str() {
+        "paired" => false,
+        "near-full" => true,
+        x => panic!("invalid circuit {x}"),
+    };
+    assert!(
+        !near_full || (mode == Mode::Single && system == System::Flock),
+        "near-full native worker requires --mode single --system flock; use the FRI worker for Mikros"
+    );
     rayon::ThreadPoolBuilder::new()
         .num_threads(threads)
         .stack_size(8 << 20)
@@ -627,7 +636,11 @@ pub fn run_with_args(args: Vec<String>) {
     );
     let all_core_threads = flock_parallel::all_core_pool().current_num_threads();
     assert_eq!(all_core_threads, threads);
-    let circuit = Circuit::new(log_gates, mode, seed);
+    let circuit = if near_full {
+        Circuit::new_near_full(log_gates, mode, seed)
+    } else {
+        Circuit::new(log_gates, mode, seed)
+    };
     if system == System::Flock && mode == Mode::Single {
         if let Err(error) = flock_r1cs::run(&circuit, repetitions, warmups) {
             eprintln!("native FLOCK R1CS benchmark failed: {error}");

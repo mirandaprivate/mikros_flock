@@ -1,0 +1,37 @@
+[package]
+name = "mikros-whir"
+version = "0.1.0"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+description = "Packed GHASH multilinear openings through additive-domain WHIR"
+
+[features]
+default = ["parallel"]
+parallel = ["p3-binary-pcs/parallel", "p3-binary-field/parallel", "p3-whir/parallel"]
+
+[dependencies]
+flock-field = { path = "../../crates/flock-field" }
+p3-binary-dft = "=0.8.0"
+p3-binary-field = "=0.8.0"
+p3-binary-pcs = "=0.8.0"
+p3-challenger = "=0.8.0"
+p3-commit = "=0.8.0"
+p3-field = "=0.8.0"
+p3-matrix = "=0.8.0"
+p3-merkle-tree = "=0.8.0"
+p3-multilinear-util = "=0.8.0"
+p3-sha256 = "=0.8.0"
+p3-sumcheck = "=0.8.0"
+p3-symmetric = "=0.8.0"
+p3-whir = "=0.8.0"
+bincode = "1.3"
+postcard = { version = "1", features = ["alloc"] }
+blake3 = "1.5"
+rayon = "1.10"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[[bench]]
+name = "whir_pipeline"
+harness = false
+

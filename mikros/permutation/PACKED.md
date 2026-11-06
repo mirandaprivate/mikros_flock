@@ -120,3 +120,87 @@ comparable to GFNI in the native probes, so it remains opt-in. Both alternatives
 use four VPCLMUL instructions per four rows per coefficient; they do not halve
 the carryless multiplication count. Online weight conversion costs remain part
 of proving time when comparing the kernels.
+
+## Binary PLONK copy path
+
+The single-instance binary PLONK circuit uses three wire columns and an IO
+slot, padded to `4N` copy cells. At `N = 2^30`, a tagged cell needs 33 bits;
+this path uses GF(2^64) coefficients and `kappa = 2`.
+
+`prepare_bounded_from_fn` writes tagged rows directly into coefficient storage,
+without first constructing and decoding bit-plane vectors. The compact K64
+leaf aggregator generates parent columns and the off-domain product inside
+bounded worker tiles, then immediately accumulates them. Terminal source
+queries share row weights; the two witness queries use a joint packed scan.
+Witness-dependent preparation, challenge-dependent tables and source query
+evaluation all remain online. These changes preserve proof bytes and transcript
+order.
+
+With PCLMUL enabled at compile time, K64 multiplication uses reciprocal
+polynomial reduction in the same field, replacing eight reduction-table reads
+with two additional carryless products. The K64 leaf aggregator handles its
+fixed multiplication by the basis element `x` with a shift and XOR. It aggregates
+five coefficients and reconstructs the off-domain linear coefficient from the
+two parent linear coefficients after weighted summation. This reduces worker
+scratch from 48 to 40 bytes per row; the original materialized aggregate remains
+available for differential checks.
+
+Run the full PLONK proof, including its configured PCS, with:
+
+```sh
+RUSTFLAGS="-C target-cpu=native" cargo bench -p mikros --bench circuit_sat -- \
+  --log-n 30 --threads 64 --system mikros --reps 1 --warmups 0
+```
+
+For stage diagnostics, invoke the worker directly; the comparison driver clears
+diagnostic environment overrides:
+
+```sh
+MIKROS_PERMUTATION_PROFILE=1 RUSTFLAGS="-C target-cpu=native" \
+  cargo bench -p mikros --bench circuit_sat -- \
+  --worker --system mikros --log-gates 30 --threads 64 \
+  --repetitions 1 --warmups 0 --seed 97
+```
+
+Direct workers accept `MIKROS_PERMUTATION_REFERENCE_PREPARATION=1`,
+`MIKROS_PERMUTATION_REFERENCE_AGGREGATE=1` and
+`MIKROS_PERMUTATION_REFERENCE_TERMINALS=1` for the corresponding original paths.
+K64 projection selects GFNI automatically for inputs of at least 64 KiB on
+supported CPUs. `MIKROS_PERMUTATION_GFNI_PROJECTION=0|1` disables or forces it;
+`MIKROS_PERMUTATION_REFERENCE_PROJECTION=1` overrides it. The existing K32 GFNI
+dispatch is unchanged. Native GFNI/AVX-512/VPCLMUL kernels require matching CPU
+features and a native build; other CPUs retain the existing fallback paths.
+
+For K32 tags (`kappa = 4`), the compact prover also consumes off-domain
+coefficients in bounded tiles. Fixed interpolation weights use shared byte
+tables; the already-prepared parent layer is reused. The highest non-leading
+sample coefficient is reconstructed from the weighted parent coefficients,
+leaving three or nine coefficients per sample row for the GFNI accumulator.
+Monic quadratic products use three field multiplications through Karatsuba.
+Native K32 multiplication and delayed product reduction use the reciprocal of
+the existing modulus, with the original table reduction retained for portable
+builds. These changes preserve the field representation, proof messages and
+challenge order. `MIKROS_PERMUTATION_REFERENCE_AGGREGATE=1` retains the
+materialized aggregate for differential measurements.
+
+For the complete single-instance PLONK proof at `2^20` gates, including FRI:
+
+```sh
+RUSTFLAGS="-C target-cpu=native" cargo bench -p mikros --bench bitwidth_instances -- \
+  --worker --case single --bits 8 --log-gates 20 --threads 1 \
+  --repetitions 3 --warmups 1 --seed 97
+```
+
+The K32 core measurement includes online row preparation and permutation
+proving, but excludes PLONK terminal projections and PCS:
+
+```sh
+RUSTFLAGS="-C target-cpu=native" MIKROS_ENGINEERING_INPUT=random \
+  cargo test --release --locked -p mikros-permutation --test engineering_k32 \
+  -- --ignored --nocapture --test-threads=1
+```
+
+It defaults to `2^22` tags, one worker, one warmup and three measurements;
+`MIKROS_ENGINEERING_INPUT=copy` selects binary-value/position tags instead of
+full-width pseudorandom tags. The test verifies every proof and reports proof,
+terminal-claim and transcript identity alongside timings.

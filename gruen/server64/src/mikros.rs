@@ -8,6 +8,7 @@ use crate::{
     poly::{batch_inverse, eq_table, eval},
 };
 use rayon::prelude::*;
+use std::mem::MaybeUninit;
 use std::time::{Duration, Instant};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -53,7 +54,11 @@ pub struct Timings {
     pub helpers: Duration,
     pub packing_weights: Duration,
     pub packing: Duration,
+    /// Reference: every message scan and claim update. Optimized: the first
+    /// message scan and all claim updates; later messages are fused into folds.
     pub rounds: Duration,
+    /// Optimized includes the next message, scratch allocation/reuse and final
+    /// scratch disposal. The fused work is counted here exactly once.
     pub round_fold: Duration,
     pub terminal: Duration,
     pub total: Duration,
@@ -358,6 +363,184 @@ fn pack<B: Prime, E: Extension<B>>(
         .skip(1)
         .fold(E::lift(base), |s, (v, &w)| s + w.scale(v[column] - base))
 }
+
+const COLUMN_BLOCK_LOG: usize = 8;
+
+/// Factor the two column-consistency weights across 256-row blocks. For row
+/// index (h,l), u(h,l)=u_hi(h)*u_lo(l) and z(h,l)=z_hi(h)*z_lo(l).
+/// Accumulate with the shared low weights, then multiply each column sum by
+/// its high weight. This avoids an extension product and a folding-table entry
+/// for every row; the messages and the point at which challenges are used stay
+/// unchanged. In particular, u*z is a product of equality weights, not eq(u*z).
+fn terminal_columns_blocked<B: Prime, E: Extension<B>>(
+    trace: &Trace<B>,
+    tape: &Challenges<E>,
+    k: usize,
+) -> (Vec<E>, Vec<E>) {
+    let kappa = E::DEGREE;
+    let block_rows = 1 << COLUMN_BLOCK_LOG;
+    let (r_lo, r_hi) = tape.rounds[k..].split_at(COLUMN_BLOCK_LOG);
+    let (z_lo, z_hi) = tape.z[k..].split_at(COLUMN_BLOCK_LOG);
+    let low_a = eq_table(r_lo);
+    let mut low_b = eq_table(z_lo);
+    for (v, &u) in low_b.iter_mut().zip(&low_a) {
+        *v = *v * u;
+    }
+    let high_a = eq_table(r_hi);
+    let mut high_b = eq_table(z_hi);
+    for (v, &u) in high_b.iter_mut().zip(&high_a) {
+        *v = *v * u;
+    }
+    let (columns_a, columns_b) = trace
+        .rows
+        .par_chunks_exact(kappa * block_rows)
+        .zip(high_a.par_iter())
+        .zip(high_b.par_iter())
+        .with_min_len(16)
+        .fold(
+            || ([E::ZERO; 16], [E::ZERO; 16]),
+            |mut total, ((block, &u_hi), &v_hi)| {
+                let mut a = [E::ZERO; 16];
+                let mut b = [E::ZERO; 16];
+                for ((row, &u), &v) in block.chunks_exact(kappa).zip(&low_a).zip(&low_b) {
+                    for j in 0..kappa {
+                        a[j] = a[j] + u.scale(row[j][0]);
+                        b[j] = b[j] + v.scale(row[j][1]);
+                    }
+                }
+                for j in 0..kappa {
+                    total.0[j] = total.0[j] + u_hi * a[j];
+                    total.1[j] = total.1[j] + v_hi * b[j];
+                }
+                total
+            },
+        )
+        .reduce(
+            || ([E::ZERO; 16], [E::ZERO; 16]),
+            |mut a, b| {
+                for j in 0..kappa {
+                    a.0[j] = a.0[j] + b.0[j];
+                    a.1[j] = a.1[j] + b.1[j];
+                }
+                a
+            },
+        );
+    (columns_a[..kappa].to_vec(), columns_b[..kappa].to_vec())
+}
+
+const FOLD_OUTPUT_CHUNK: usize = 4096;
+const PARALLEL_INPUT_THRESHOLD: usize = 32768;
+
+fn use_parallel(len: usize) -> bool {
+    len >= PARALLEL_INPUT_THRESHOLD && rayon::current_num_threads() > 1
+}
+
+fn initial_message<E: Field>(a: &[E], b: &[E]) -> [E; 2] {
+    assert_eq!(a.len(), b.len());
+    assert_eq!(a.len() % 2, 0);
+    let chunk = |(aa, bb): (&[E], &[E])| {
+        let mut out = [E::ZERO; 2];
+        for (ap, bp) in aa.chunks_exact(2).zip(bb.chunks_exact(2)) {
+            out[0] = out[0] + ap[0] * bp[0];
+            out[1] = out[1] + (ap[1] - ap[0]) * (bp[1] - bp[0]);
+        }
+        out
+    };
+    if use_parallel(a.len()) {
+        a.par_chunks(2 * FOLD_OUTPUT_CHUNK)
+            .zip(b.par_chunks(2 * FOLD_OUTPUT_CHUNK))
+            .map(chunk)
+            .reduce(|| [E::ZERO; 2], |a, b| [a[0] + b[0], a[1] + b[1]])
+    } else {
+        chunk((a, b))
+    }
+}
+
+/// As in the binary IP kernel, expose spare capacity without zero-filling.
+/// Field is Copy: a panic leaves an empty, valid buffer with nothing to drop.
+fn prepare_output<E: Field>(buffer: &mut Vec<E>, len: usize) -> &mut [MaybeUninit<E>] {
+    buffer.clear();
+    buffer.reserve(len);
+    &mut buffer.spare_capacity_mut()[..len]
+}
+
+fn fold_message_chunk<E: Field>(
+    a: &[E],
+    b: &[E],
+    a_out: &mut [MaybeUninit<E>],
+    b_out: &mut [MaybeUninit<E>],
+    r: E,
+) -> [E; 2] {
+    assert_eq!(a.len(), b.len());
+    assert_eq!(a.len(), 2 * a_out.len());
+    assert_eq!(a_out.len(), b_out.len());
+    assert_eq!(a.len() % 4, 0);
+    let mut sums = [E::ZERO; 2];
+    for (((a, b), a_out), b_out) in a
+        .chunks_exact(4)
+        .zip(b.chunks_exact(4))
+        .zip(a_out.chunks_exact_mut(2))
+        .zip(b_out.chunks_exact_mut(2))
+    {
+        let a0 = a[0] + r * (a[1] - a[0]);
+        let a1 = a[2] + r * (a[3] - a[2]);
+        let b0 = b[0] + r * (b[1] - b[0]);
+        let b1 = b[2] + r * (b[3] - b[2]);
+        a_out[0].write(a0);
+        a_out[1].write(a1);
+        b_out[0].write(b0);
+        b_out[1].write(b1);
+        sums[0] = sums[0] + a0 * b0;
+        sums[1] = sums[1] + (a1 - a0) * (b1 - b0);
+    }
+    sums
+}
+
+/// Consume the current round challenge, fold, and immediately accumulate the
+/// following message. No later challenge is read while producing that message.
+fn fold_and_next_message<E: Field>(
+    a: &[E],
+    b: &[E],
+    a_out: &mut Vec<E>,
+    b_out: &mut Vec<E>,
+    r: E,
+) -> Option<[E; 2]> {
+    assert_eq!(a.len(), b.len());
+    assert!(a.len().is_power_of_two() && a.len() >= 2);
+    let half = a.len() / 2;
+    let a_storage = prepare_output(a_out, half);
+    let b_storage = prepare_output(b_out, half);
+    let next = if half == 1 {
+        a_storage[0].write(a[0] + r * (a[1] - a[0]));
+        b_storage[0].write(b[0] + r * (b[1] - b[0]));
+        None
+    } else if use_parallel(a.len()) {
+        Some(
+            a_storage
+                .par_chunks_mut(FOLD_OUTPUT_CHUNK)
+                .zip(b_storage.par_chunks_mut(FOLD_OUTPUT_CHUNK))
+                .enumerate()
+                .map(|(chunk, (a_out, b_out))| {
+                    let start = 2 * chunk * FOLD_OUTPUT_CHUNK;
+                    let end = start + 2 * a_out.len();
+                    fold_message_chunk(&a[start..end], &b[start..end], a_out, b_out, r)
+                })
+                .reduce(|| [E::ZERO; 2], |a, b| [a[0] + b[0], a[1] + b[1]]),
+        )
+    } else {
+        Some(fold_message_chunk(a, b, a_storage, b_storage, r))
+    };
+    // SAFETY: the one-output case writes both slots explicitly. Otherwise the
+    // asserted power-of-two shape and disjoint even-sized output chunks cover
+    // every slot. All workers joined successfully before committing lengths;
+    // any panic skips this commit and leaves valid empty vectors.
+    unsafe {
+        a_out.set_len(half);
+        b_out.set_len(half);
+    }
+    next
+}
+
 pub fn prove<B: Prime + Extension<B>, E: Extension<B>>(
     trace: &Trace<B>,
     tape: &Challenges<E>,
@@ -394,69 +577,101 @@ pub fn prove<B: Prime + Extension<B>, E: Extension<B>>(
     let mut claim = dot(&column_products, &rho)
         + eval_base(&setup.vanishing, tape.skip) * eval(&quotient, tape.skip);
     let mut rounds = Vec::with_capacity(n - k);
-    for &r in &tape.rounds[k..] {
+    let terminal = if mode == Interpolation::Optimized {
         let t = Instant::now();
-        let [q0, q2] = a
-            .par_chunks(8192)
-            .zip(b.par_chunks(8192))
-            .map(|(aa, bb)| {
-                let mut out = [E::ZERO; 2];
-                for (ap, bp) in aa.chunks_exact(2).zip(bb.chunks_exact(2)) {
-                    out[0] = out[0] + ap[0] * bp[0];
-                    out[1] = out[1] + (ap[1] - ap[0]) * (bp[1] - bp[0]);
-                }
-                out
-            })
-            .reduce(|| [E::ZERO; 2], |a, b| [a[0] + b[0], a[1] + b[1]]);
-        let q1 = claim - q0 - q0 - q2;
-        claim = q0 + r * (q1 + r * q2);
-        rounds.push([q0, q2]);
+        let mut message = (n > k).then(|| initial_message(&a, &b));
         timings.rounds += t.elapsed();
+        let mut a_next = Vec::new();
+        let mut b_next = Vec::new();
+        for &r in &tape.rounds[k..] {
+            let t = Instant::now();
+            let [q0, q2] = message.expect("each nonterminal fold produces the next message");
+            let q1 = claim - q0 - q0 - q2;
+            claim = q0 + r * (q1 + r * q2);
+            rounds.push([q0, q2]);
+            timings.rounds += t.elapsed();
+            let t = Instant::now();
+            message = fold_and_next_message(&a, &b, &mut a_next, &mut b_next, r);
+            std::mem::swap(&mut a, &mut a_next);
+            std::mem::swap(&mut b, &mut b_next);
+            timings.round_fold += t.elapsed();
+        }
+        let terminal = [a[0], b[0]];
         let t = Instant::now();
-        let fold = |v: &[E]| {
-            v.par_chunks_exact(2)
-                .with_min_len(4096)
-                .map(|p| p[0] + r * (p[1] - p[0]))
-                .collect::<Vec<E>>()
-        };
-        (a, b) = rayon::join(|| fold(&a), || fold(&b));
+        // Reused buffers retain their earlier capacity. Dispose of them inside
+        // the measured fold scope, before terminal processing and total timing.
+        drop((a, b, a_next, b_next));
         timings.round_fold += t.elapsed();
-    }
-    if claim != a[0] * b[0] {
+        terminal
+    } else {
+        for &r in &tape.rounds[k..] {
+            let t = Instant::now();
+            let [q0, q2] = a
+                .par_chunks(8192)
+                .zip(b.par_chunks(8192))
+                .map(|(aa, bb)| {
+                    let mut out = [E::ZERO; 2];
+                    for (ap, bp) in aa.chunks_exact(2).zip(bb.chunks_exact(2)) {
+                        out[0] = out[0] + ap[0] * bp[0];
+                        out[1] = out[1] + (ap[1] - ap[0]) * (bp[1] - bp[0]);
+                    }
+                    out
+                })
+                .reduce(|| [E::ZERO; 2], |a, b| [a[0] + b[0], a[1] + b[1]]);
+            let q1 = claim - q0 - q0 - q2;
+            claim = q0 + r * (q1 + r * q2);
+            rounds.push([q0, q2]);
+            timings.rounds += t.elapsed();
+            let t = Instant::now();
+            let fold = |v: &[E]| {
+                v.par_chunks_exact(2)
+                    .with_min_len(4096)
+                    .map(|p| p[0] + r * (p[1] - p[0]))
+                    .collect::<Vec<E>>()
+            };
+            (a, b) = rayon::join(|| fold(&a), || fold(&b));
+            timings.round_fold += t.elapsed();
+        }
+        [a[0], b[0]]
+    };
+    if claim != terminal[0] * terminal[1] {
         return Err("Mikros internal quadratic claim mismatch".into());
     }
-    let terminal = [a[0], b[0]];
     let t = Instant::now();
-    let folding = eq_table(&tape.rounds[k..]);
-    let (columns_a, columns_b) = trace
-        .rows
-        .par_chunks(kappa * 4096)
-        .zip(folding.par_chunks(4096))
-        .zip(row_weights.par_chunks(4096))
-        .map(|((block, us), zs)| {
-            let mut columns_a = vec![E::ZERO; kappa];
-            let mut columns_b = vec![E::ZERO; kappa];
-            for ((row, &u), &original) in block.chunks_exact(kappa).zip(us).zip(zs) {
-                let v = u * original;
-                for j in 0..kappa {
-                    columns_a[j] = columns_a[j] + u.scale(row[j][0]);
-                    columns_b[j] = columns_b[j] + v.scale(row[j][1]);
+    let (columns_a, columns_b) = if mode == Interpolation::Optimized && n - k > COLUMN_BLOCK_LOG {
+        terminal_columns_blocked(trace, tape, k)
+    } else {
+        let folding = eq_table(&tape.rounds[k..]);
+        trace
+            .rows
+            .par_chunks(kappa * 4096)
+            .zip(folding.par_chunks(4096))
+            .zip(row_weights.par_chunks(4096))
+            .map(|((block, us), zs)| {
+                let mut columns_a = vec![E::ZERO; kappa];
+                let mut columns_b = vec![E::ZERO; kappa];
+                for ((row, &u), &original) in block.chunks_exact(kappa).zip(us).zip(zs) {
+                    let v = u * original;
+                    for j in 0..kappa {
+                        columns_a[j] = columns_a[j] + u.scale(row[j][0]);
+                        columns_b[j] = columns_b[j] + v.scale(row[j][1]);
+                    }
                 }
-            }
-            (columns_a, columns_b)
-        })
-        .reduce(
-            || (vec![E::ZERO; kappa], vec![E::ZERO; kappa]),
-            |mut a, b| {
-                for (x, y) in a.0.iter_mut().zip(b.0) {
-                    *x = *x + y;
-                }
-                for (x, y) in a.1.iter_mut().zip(b.1) {
-                    *x = *x + y;
-                }
-                a
-            },
-        );
+                (columns_a, columns_b)
+            })
+            .reduce(
+                || (vec![E::ZERO; kappa], vec![E::ZERO; kappa]),
+                |mut a, b| {
+                    for (x, y) in a.0.iter_mut().zip(b.0) {
+                        *x = *x + y;
+                    }
+                    for (x, y) in a.1.iter_mut().zip(b.1) {
+                        *x = *x + y;
+                    }
+                    a
+                },
+            )
+    };
     timings.terminal = t.elapsed();
     let proof = Proof {
         n,

@@ -80,6 +80,11 @@ macro_rules! compare_field {
     };
 }
 compare_field!(
+    mersenne31_parallel_matches_frozen_serial,
+    Mersenne31,
+    EMersenne31
+);
+compare_field!(
     goldilocks_parallel_matches_frozen_serial,
     Goldilocks,
     EGoldilocks

@@ -500,6 +500,123 @@ mod tests {
     }
 
     #[test]
+    fn packed_dense_degree_two_sf64_matches_legacy_polynomial_evaluation() {
+        if !available() {
+            return;
+        }
+        let field = crate::field::FastField::for_width(64).unwrap();
+        for threads in [1, 4] {
+            rayon::ThreadPoolBuilder::new()
+                .num_threads(threads)
+                .build()
+                .unwrap()
+                .install(|| {
+                    for z in [F128::ZERO, F128::ONE, F128::new(0x2345_6789, 0xabcd_0123)] {
+                        let old = crate::field::PolynomialEvaluation::new(field.base, 128, z);
+                        // The K64 parent is c0 + c1 Z + Z^2, with the
+                        // two coefficients physically stored as adjacent u64s.
+                        let basis: Vec<_> = field
+                            .base
+                            .basis()
+                            .iter()
+                            .copied()
+                            .chain(field.base.basis().iter().map(|&b| b * z))
+                            .collect();
+                        for rows in [0usize, 1, 63, 64, 65, 2047, 2048, 2049] {
+                            for pattern in [0u8, 1, 2] {
+                                let bytes: Vec<_> = (0..rows * 16)
+                                    .map(|i| match pattern {
+                                        0 => 0,
+                                        1 => 255,
+                                        _ => {
+                                            let x =
+                                                (i as u64 + 97).wrapping_mul(0x94d049bb133111eb);
+                                            (x ^ (x >> 29)) as u8
+                                        }
+                                    })
+                                    .collect();
+                                let actual = check_dense(&bytes, 16, &basis, z * z);
+                                for (value, row) in actual.iter().zip(bytes.chunks_exact(16)) {
+                                    let word = u128::from_le_bytes(row.try_into().unwrap());
+                                    let c0 = u64::from_le_bytes(row[..8].try_into().unwrap());
+                                    let c1 = u64::from_le_bytes(row[8..].try_into().unwrap());
+                                    let scalar = field.embed(c0 as u128)
+                                        + field.embed(c1 as u128) * z
+                                        + z * z;
+                                    assert_eq!(
+                                        *value, scalar,
+                                        "threads={threads}, rows={rows}, pattern={pattern}"
+                                    );
+                                    assert_eq!(*value, old.evaluate(word));
+                                }
+                            }
+                        }
+                    }
+                });
+        }
+    }
+
+    #[test]
+    fn packed_projection_two_columns_sf64_matches_scalar_leaf_contraction() {
+        if !available() {
+            return;
+        }
+        let field = crate::field::FastField::for_width(64).unwrap();
+        let domain = super::super::domain::Domain::new(field);
+        assert_eq!(domain.kappa, 2);
+        for threads in [1, 4] {
+            rayon::ThreadPoolBuilder::new()
+                .num_threads(threads)
+                .build()
+                .unwrap()
+                .install(|| {
+                    // x=0/1 select an individual column. These challenges are
+                    // excluded by the protocol, but stress zero matrix halves.
+                    for x in [F128::ZERO, F128::ONE, F128::new(19, 37)] {
+                        let rho = domain.packing(x);
+                        assert_eq!(rho[0] + rho[1], F128::ONE);
+                        let basis: Vec<_> = rho.iter().flat_map(|&weight| {
+                            field.base.basis().iter().map(move |&b| b * weight)
+                        }).collect();
+                        for z in [F128::ZERO, F128::ONE, F128::new(0x7654_3210, 0xfedc_ba98)] {
+                            for pairs in [0usize, 1, 31, 32, 33, 1023, 1024, 1025] {
+                                for pattern in [0u8, 1, 2] {
+                                    let bytes: Vec<_> = (0..2 * pairs * 16).map(|i| match pattern {
+                                        0 => 0,
+                                        1 => 255,
+                                        _ => {
+                                            let x = (i as u64 + 113).wrapping_mul(0xd6e8feb86659fd93);
+                                            (x ^ (x >> 37)) as u8
+                                        }
+                                    }).collect();
+                                    let sentinel = F128::new(0x1234_abcd, 0x9876_5432);
+                                    let mut a = vec![MaybeUninit::new(sentinel); pairs + 2];
+                                    let mut b = vec![MaybeUninit::new(sentinel); pairs + 2];
+                                    assert!(project(&bytes, 16, &basis, z, &mut a[1..pairs + 1], &mut b[1..pairs + 1]));
+                                    // SAFETY: guard elements were initialized, and successful
+                                    // dispatch initializes every interior even/odd output.
+                                    let a = unsafe { crate::kernels::initialized_f128(a) };
+                                    let b = unsafe { crate::kernels::initialized_f128(b) };
+                                    assert_eq!((a[0], a[pairs + 1], b[0], b[pairs + 1]), (sentinel, sentinel, sentinel, sentinel));
+                                    for (row_index, row) in bytes.chunks_exact(16).enumerate() {
+                                        let t0 = u64::from_le_bytes(row[..8].try_into().unwrap());
+                                        let t1 = u64::from_le_bytes(row[8..].try_into().unwrap());
+                                        // Independent scalar oracle keeps the shift inside
+                                        // each column, checking the implicit monic term too.
+                                        let scalar = rho[0] * (field.embed(t0 as u128) + z)
+                                            + rho[1] * (field.embed(t1 as u128) + z);
+                                        let actual = if row_index & 1 == 0 { a[row_index / 2 + 1] } else { b[row_index / 2 + 1] };
+                                        assert_eq!(actual, scalar, "threads={threads}, pairs={pairs}, row={row_index}, pattern={pattern}");
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+        }
+    }
+
+    #[test]
     fn packed_dense_unsupported_shapes_do_not_write_outputs() {
         let sentinel = F128::new(17, 23);
         let mut out = [MaybeUninit::new(sentinel); 4];

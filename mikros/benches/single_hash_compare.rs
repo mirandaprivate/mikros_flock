@@ -4,12 +4,13 @@
 #[path = "support/paper_entry.rs"]
 mod paper_entry;
 #[allow(dead_code)]
-#[path = "../examples/e2e_plonk_compare.rs"]
+#[path = "../examples/e2e_plonk_fri_compare.rs"]
 mod worker;
 
 fn main() {
-    paper_entry::run_driver("single_constraints_bench.py", "single-constraints", |args| {
-        worker::run_with_args(args);
-        Ok::<(), String>(())
-    });
+    paper_entry::run_driver(
+        "fri_flock_compare_bench.py",
+        "single-constraints",
+        worker::run_with_args,
+    );
 }

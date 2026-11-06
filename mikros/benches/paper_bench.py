@@ -27,6 +27,8 @@ LABELS = {"mikros": "Mikros", "flock": "FLOCK skip-7", "binius": "Binius SFF"}
 HASHES = ("sha256", "keccak", "blake3")
 SHARED_DIGESTS = ("fixture_digest_blake3", "circuit_digest_blake3", "r1cs_digest_blake3",
                   "prepared_witness_blake3", "public_digest_blake3")
+FRI_BACKEND = "Additive FRI F128 equality"
+NATIVE_BACKEND = "native Ligerito Fast"
 # Canonical JSON receipt produced by setup.py for the pinned upstream archive.
 BINIUS_RECEIPT_SHA256 = "3f2dff62658fecd2d4f4a6177e950a219915e8220986c3ac7017133a76eb30dc"
 
@@ -139,8 +141,13 @@ def render_report(doc):
         lines.insert(1, "Mikros public wiring: sparse sigma MLE checked directly by the verifier (online cost included).")
     elif doc.get("mikros_wiring") == "packed":
         lines.insert(1, "Mikros uses the original packed permutation argument for copy constraints.")
+    if doc.get("mikros_pcs") == "fri":
+        lines.insert(1, "PCS: Mikros additive FRI over F2^128; FLOCK native Ligerito Fast.")
+        if doc["instances"] == 256:
+            lines.insert(2, "Mikros uses two 128-instance packed R1CS groups, public matrix checks, and one merged FRI opening.")
     for system, row in doc["systems"].items():
-        lines.append(f"{LABELS[system]:<16} {row['prover_ms']['median']:>13.3f} "
+        label = "Mikros FRI" if system == "mikros" and doc.get("mikros_pcs") == "fri" else LABELS[system]
+        lines.append(f"{label:<16} {row['prover_ms']['median']:>13.3f} "
                      f"{row['verify_ms']['median']:>15.3f} {row['proof_bytes']/1024:>13.3f} "
                      f"{row['ram_mib']:>12.2f} {row['prover_ms']['count']:>9}")
     ratio = doc["systems"]["flock"]["prover_ms"]["median"] / doc["systems"]["mikros"]["prover_ms"]["median"]
@@ -156,6 +163,9 @@ def render_report(doc):
             lines.append(f"{label:<20} {p['prover_ms']['median']:>13.3f} {p['verify_ms']['median']:>15.3f} {p['proof_bytes']/1024:>13.3f}")
         lines += [f"{copy_label} includes online witness-dependent preparation; component proofs include their grinding nonces.",
                   "Shared PCS/other is counted once. Per-sample components sum to E2E; component medians may not.", ""]
+        if system == "mikros" and doc.get("mikros_pcs") == "fri":
+            lines.insert(len(lines) - 1,
+                         "Permutation argument also counts the full public PCS opening once; it authenticates gate selectors as well as copy labels.")
     lines += [f"{name.capitalize()}: {scope}" for name, scope in doc["measurement_scope"].items()]
     if doc.get("cpu_affinity") is not None:
         lines.append(f"Worker CPU affinity: {doc['cpu_affinity']}")
@@ -168,12 +178,14 @@ def render_report(doc):
 
 def parse_options(argv):
     p = argparse.ArgumentParser(description="Compare Mikros and FLOCK; print a table and save a .log plus raw .json.")
-    p.add_argument("--experiment", choices=(*HASHES, "hadamard", "single"), required=True, help=argparse.SUPPRESS)
+    p.add_argument("--experiment", choices=(*HASHES, "hadamard", "single", "multiple"), required=True, help=argparse.SUPPRESS)
     p.add_argument("--worker-bin", type=Path, required=True, help=argparse.SUPPRESS)
     p.add_argument("--threads", type=int, default=1)
     p.add_argument("--instances", type=int, choices=(1, 256), help="default: single suite 1, other entries 256")
     p.add_argument("--wiring", choices=("packed", "public"),
                    help="Mikros single-instance copy argument; FLOCK stays native")
+    p.add_argument("--pcs", choices=("native", "fri"), default="native",
+                   help="Mikros PCS (default: native); FLOCK stays native")
     p.add_argument("--log-n", type=int, default=30)
     p.add_argument("--reps", type=int, default=10, help="Mikros/FLOCK measured proofs per process (default: 10); Binius always 1")
     p.add_argument("--warmups", type=int, default=1)
@@ -181,6 +193,8 @@ def parse_options(argv):
     p.add_argument("--rss-runs", type=int, default=3, help="Hadamard Mikros/FLOCK fresh RAM processes; Binius reuses its sole proof")
     p.add_argument("--cpu", type=int, help="bind all worker threads to this logical CPU (requires --threads 1)")
     p.add_argument("--output", type=Path, help="readable log; detailed JSON uses the same stem")
+    p.add_argument("--hash-output-dir", type=Path,
+                   help="multiple suite: per-hash e2e_flock_<hash>.log directory (default: repository root)")
     p.add_argument("--binius-bin", type=Path, help="reuse a prebuilt native AES32 Binius worker")
     p.add_argument("--without-binius", action="store_true", help="explicitly run only Mikros/FLOCK Hadamard")
     p.add_argument("--validate", action="store_true", help="run separate E2E tamper-validation processes")
@@ -192,6 +206,12 @@ def parse_options(argv):
         o.wiring = "packed"
     if o.experiment == "single" and o.instances != 1:
         p.error("single_hash_compare requires --instances 1")
+    if o.experiment == "multiple" and o.instances != 256:
+        p.error("multi_hash_fri_compare requires --instances 256")
+    if o.hash_output_dir is not None and o.experiment != "multiple":
+        p.error("--hash-output-dir requires the multiple-hash suite")
+    if o.experiment == "multiple":
+        o.hash_output_dir = (ROOT / (o.hash_output_dir or ROOT)).resolve()
     if min(o.threads, o.reps, o.batches, o.rss_runs) <= 0 or o.warmups < 0:
         p.error("threads, reps, batches and rss-runs must be positive; warmups must be nonnegative")
     if not 14 <= o.log_n <= 30:
@@ -206,6 +226,8 @@ def parse_options(argv):
         p.error("Binius options apply only to binary_hadamard")
     if o.wiring == "public" and (o.experiment == "hadamard" or o.instances != 1):
         p.error("--wiring public requires a single-instance hash experiment")
+    if o.pcs == "fri" and (o.experiment == "hadamard" or o.wiring != "packed"):
+        p.error("--pcs fri requires a hash experiment with --wiring packed")
     if o.output is None:
         filename = f"compare_hadamard_2_{o.log_n}.log" if o.experiment == "hadamard" else (
             f"e2e_flock_{o.experiment}.log" if o.instances == 256 else f"single_hash_{o.experiment}_compare.log")
@@ -213,12 +235,23 @@ def parse_options(argv):
             filename = f"single_hash_{o.experiment}_public_wiring_compare.log"
         if o.experiment == "single":
             filename = "single_hash_compare.log" if o.wiring == "packed" else "single_hash_public_wiring_compare.log"
-        o.output = ROOT / filename
+        if o.experiment == "multiple":
+            filename = "multiple-hash-fri-vs-flock.log"
+        if o.pcs == "fri" and o.instances == 1:
+            o.output = ROOT / "target/paper-results" / ("single-hash-fri-vs-flock.log" if o.experiment == "single"
+                        else f"single-{o.experiment}-fri-vs-flock.log")
+        elif o.experiment == "multiple":
+            o.output = ROOT / "target/paper-results" / filename
+        else:
+            o.output = ROOT / filename
     elif not o.output.is_absolute():
         o.output = ROOT / o.output
     o.output = o.output.resolve()
     if o.output.suffix != ".log":
         p.error("--output must end in .log (the JSON sidecar has suffix .json)")
+    if o.pcs == "fri" and o.output.parent == ROOT.resolve():
+        if o.instances != 256 or o.experiment not in HASHES or o.output.name != f"e2e_flock_{o.experiment}.log":
+            p.error("Only 256-instance hash comparisons may refresh their matching root e2e_flock_<hash>.log")
     return o
 
 
@@ -241,12 +274,94 @@ def digest(path):
 def environment(threads):
     # Match the production paths; inherited profiling/reference switches must
     # not silently change the comparison or disable protocol grinding.
-    env = {k: v for k, v in os.environ.items() if not k.startswith(("FLOCK_", "MIKROS_", "RAYON_", "LIG_", "E2E_"))
+    env = {k: v for k, v in os.environ.items() if not k.startswith(("FLOCK_", "MIKROS_", "RAYON_", "LIG_", "E2E_", "ADDITIVE_FRI_"))
            and k != "LD_PRELOAD"
            and not k.endswith(("_TRACE", "_PCORES_ONLY", "_CENSUS"))}
     env.update(RAYON_NUM_THREADS=str(threads), FLOCK_VERIFY_THREADS=str(threads),
                FLOCK_PCS_PACKED_DIRECT="1", FLOCK_WP_UNINIT="1", LC_ALL="C")
     return env
+
+
+def validate_pcs_metadata(meta, options, system):
+    """The optional FRI comparison must not accept an old native worker."""
+    if getattr(options, "pcs", "native") != "fri":
+        return
+    expected_mode = "single" if options.instances == 1 else "multiple"
+    require(meta.get("instances") == options.instances and meta.get("instance_mode") == expected_mode
+            and meta.get("verifier_threads") == 1, "FRI comparison requires matching instance metadata and one verifier thread")
+    require(meta.get("pcs_backend") == (FRI_BACKEND if system == "mikros" else NATIVE_BACKEND),
+            "PCS backend mismatch")
+    require(all(isinstance(meta.get(k), str) and re.fullmatch(r"[0-9a-f]{64}", meta[k])
+                for k in SHARED_DIGESTS), "missing canonical statement/witness digests")
+    if system == "mikros":
+        key = "single_plonk" if options.instances == 1 else "multiple_r1cs"
+        protocol = meta.get(key)
+        require(isinstance(protocol, dict) and protocol.get("pcs_backend") == FRI_BACKEND,
+                f"missing {key} FRI metadata")
+        if options.instances == 1:
+            require(meta.get("arithmetization") == "binary PLONK" and meta.get("mikros_wiring") == "packed",
+                    "FRI worker must prove packed binary PLONK")
+            claims = 2
+            oracles = (("witness", "witness_words"), ("public", "public_table_words"))
+        else:
+            require(meta.get("arithmetization") == "binary packed R1CS",
+                    "multiple FRI worker must prove binary packed R1CS")
+            require(protocol.get("instances") == 256 and protocol.get("packed_groups") == 2
+                    and protocol.get("instance_packing_width") == 128
+                    and protocol.get("gate_hadamard_invocations") == 2
+                    and protocol.get("permutation_proof") is False
+                    and meta.get("r1cs_c_identity") is True
+                    and type(meta.get("r1cs_k_log")) is int and 7 <= meta["r1cs_k_log"] <= 24
+                    and protocol.get("witness_words") == (2 << meta["r1cs_k_log"]),
+                    "multiple FRI packing or public R1CS dimensions mismatch")
+            claims = 1
+            oracles = (("witness", "witness_words"),)
+        require(protocol.get("pcs_complete") is True and protocol.get("pcs_claims") == claims,
+                f"FRI must authenticate all {claims} committed oracle(s)")
+        profile = protocol.get("pcs_profile")
+        require(isinstance(profile, dict) and profile.get("field_bits") == profile.get("packed_word_bits") == 128
+                and profile.get("zero_knowledge") is False
+                and profile.get("protocol") == "BaseFold MLE-check + additive FRI",
+                "missing FRI protocol profile")
+        require(type(profile.get("native_queries")) is int and profile["native_queries"] > 0
+                and type(profile.get("query_security_bits")) is int and profile["query_security_bits"] > 0
+                and type(profile.get("log_inv_rate")) is int and 0 <= profile["log_inv_rate"] <= 30
+                and profile.get("rate") == 2.0 ** -profile["log_inv_rate"]
+                and profile.get("query_security_scope") == "FRI query phase only; excludes folding and other protocol errors",
+                "invalid FRI query/rate profile")
+        for prefix, words_key in oracles:
+            params = protocol.get(prefix + "_pcs_params")
+            require(isinstance(params, dict) and type(params.get("words")) is int
+                    and params["words"] > 0 and params["words"] & (params["words"] - 1) == 0
+                    and params["words"] == protocol.get(words_key)
+                    and type(params.get("log_words")) is int and params["log_words"] == params["words"].bit_length() - 1
+                    and params.get("native_queries") == profile["native_queries"]
+                    and params.get("log_inv_rate") == profile["log_inv_rate"],
+                    f"missing or inconsistent {prefix} FRI parameters")
+
+
+def parse_e2e_records(records, options, system, reps, warmups, validate=False):
+    require(records and records[0]["record"] == "metadata", "missing E2E metadata")
+    meta = records[0]
+    require(meta["system"] == system and meta["hash"] == options.experiment and meta["instances"] == options.instances
+            and meta["threads"] == meta["all_core_threads"] == options.threads
+            and meta["baseline_skip"] == meta["univariate_skip"] == 7, "E2E parameter mismatch")
+    if system == "mikros" and options.instances == 1:
+        require(meta.get("mikros_wiring") == options.wiring, "Mikros wiring mode mismatch")
+    validate_pcs_metadata(meta, options, system)
+    rows = [r for r in records if r["record"] == "sample"]
+    negative = [r for r in records if r["record"] == "negative_tests"]
+    require(len(records) == 1 + len(rows) + len(negative) and len(rows) == reps + warmups,
+            "unexpected E2E record count")
+    require([r["iteration"] for r in rows] == list(range(reps + warmups))
+            and [r["warmup"] for r in rows] == [i < warmups for i in range(reps + warmups)], "warmup/sample order mismatch")
+    require(all(r["verified"] is True and r["transcript_match"] is True for r in rows), "verification failed")
+    if getattr(options, "pcs", "native") == "fri":
+        require(all(r.get("system") == system and r.get("hash") == options.experiment for r in rows),
+                "E2E sample identity mismatch")
+    require(len(negative) == int(validate) and all(r["rejected"] == len(r["cases"]) > 0 for r in negative),
+            "tamper validation did not complete")
+    return meta, rows, negative
 
 
 def run_streamed(command, *, cwd, env, stdout, stderr, cpu=None, label="", heartbeat_seconds=15):
@@ -307,7 +422,7 @@ class Runner:
         else:
             require(self.cpu is None, "CPU binding is only supported on Linux")
         self.env = environment(options.threads)
-        if options.instances == 1:
+        if options.instances == 1 or getattr(options, "pcs", "native") == "fri":
             self.env["FLOCK_VERIFY_THREADS"] = "1"
         stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
         self.folder = ROOT / "target/paper-results" / f"{options.experiment}-{stamp}-{time.time_ns()}"
@@ -337,24 +452,11 @@ class Runner:
                    "--reps", reps, "--warmups", warmups] + (["--tamper"] if validate else [])
         if system == "mikros" and o.instances == 1:
             command += ["--wiring", o.wiring]
+        if system == "mikros" and getattr(o, "pcs", "native") == "fri":
+            command += ["--pcs", "fri"]
         stdout, peak = self.run(name, command)
         records = [json.loads(line) for line in stdout.read_text().splitlines() if line.strip()]
-        require(records and records[0]["record"] == "metadata", "missing E2E metadata")
-        meta = records[0]
-        require(meta["system"] == system and meta["hash"] == o.experiment and meta["instances"] == o.instances
-                and meta["threads"] == meta["all_core_threads"] == o.threads
-                and meta["baseline_skip"] == meta["univariate_skip"] == 7, "E2E parameter mismatch")
-        if system == "mikros" and o.instances == 1:
-            require(meta.get("mikros_wiring") == o.wiring, "Mikros wiring mode mismatch")
-        rows = [r for r in records if r["record"] == "sample"]
-        negative = [r for r in records if r["record"] == "negative_tests"]
-        require(len(records) == 1 + len(rows) + len(negative) and len(rows) == reps + warmups,
-                "unexpected E2E record count")
-        require([r["iteration"] for r in rows] == list(range(reps + warmups))
-                and [r["warmup"] for r in rows] == [i < warmups for i in range(reps + warmups)], "warmup/sample order mismatch")
-        require(all(r["verified"] is True and r["transcript_match"] is True for r in rows), "verification failed")
-        require(len(negative) == int(validate) and all(r["rejected"] == len(r["cases"]) > 0 for r in negative),
-                "tamper validation did not complete")
+        meta, rows, negative = parse_e2e_records(records, o, system, reps, warmups, validate)
         return {"metadata": meta, "samples": rows, "peak_rss_kib": peak, "batch": batch, "negative_tests": negative}
 
     def hadamard(self, name, systems, binary=None, rss=False):
@@ -465,11 +567,26 @@ def collect_experiment(o):
             scopes = {"prover": "Online conversion, commitment, reductions, grinding and native FLOCK Ligerito PCS included; offline setup/transpose and prepared-input clone excluded.",
                       "verifier": "Complete non-deferred verification, including matrix and PCS checks; public-statement preprocessing excluded.",
                       "ram": f"Maximum of {o.batches} measurement-process GNU time peaks per system; includes setup, warmup, proving, verification and allocator retention."}
+            if getattr(o, "pcs", "native") == "fri":
+                protocol_key = "single_plonk" if o.instances == 1 else "multiple_r1cs"
+                fri_profile = next(r["metadata"][protocol_key]["pcs_profile"] for r in formal if r["metadata"]["system"] == "mikros")
+                reductions = "gate and copy reductions" if o.instances == 1 else "packed R1CS and public matrix reductions"
+                scopes["prover"] = (f"Online conversion, witness commitment, {reductions}, grinding and all PCS openings included; "
+                                    "offline setup/transpose and prepared-input clone excluded. Mikros uses additive FRI; FLOCK uses native Ligerito Fast.")
+                scopes["pcs"] = (f"The PCS backends differ. FRI uses F2^128, rate 1/{1 << fri_profile['log_inv_rate']} "
+                                 f"and {fri_profile['native_queries']} queries ({fri_profile['query_security_bits']}-bit query-phase budget, "
+                                 "excluding folding and other protocol errors); see raw metadata for both parameter sets. Neither proof claims zero knowledge.")
+                operation = {"sha256": "SHA-256 compression with standard IV, without message padding",
+                             "keccak": "Keccak-f[1600] 24-round permutation, without sponge padding",
+                             "blake3": "BLAKE3 compression with standard IV, counter 0, block length 64 and flags 11; full 512-bit output"}[o.experiment]
+                scopes["workload"] = f"{o.instances} independent instance(s) of {operation}."
+                scopes["sampling"] = f"{o.reps} measured proofs after {o.warmups} excluded warmups in each of {o.batches} fresh processes per system."
             measurement_plan = {s: {"measured_proofs": o.reps * o.batches, "excluded_warmups": o.warmups * o.batches,
                                     "fresh_ram_proofs": 0, "ram_reuses_measured_proof": True}
                                 for s in ("mikros", "flock")}
         doc = {"schema_version": 2, "experiment": o.experiment, "threads": o.threads, "instances": o.instances,
                "mikros_wiring": o.wiring if o.instances == 1 and o.experiment != "hadamard" else None,
+               "mikros_pcs": getattr(o, "pcs", "native"),
                "log_n": o.log_n, "flock_skip": 7, "mikros_kappa": 128, "reps": o.reps, "warmups": o.warmups,
                "batches": o.batches, "rss_runs": o.rss_runs, "cpu_affinity": runner.cpu,
                "measurement_scope": scopes, "measurement_plan": measurement_plan,
@@ -507,9 +624,10 @@ def collect_single_suite(o):
     runner = Runner(o)
     try:
         reports = {}
-        argument = "packed permutation argument" if o.wiring == "packed" else "public wiring"
+        argument = ("packed R1CS" if o.instances == 256 else
+                    "packed permutation argument" if o.wiring == "packed" else "public wiring")
         for index, name in enumerate(HASHES, 1):
-            print(f"[single] hash {index}/{len(HASHES)}: {name}; Mikros {argument} vs FLOCK skip-7",
+            print(f"[{o.experiment}] hash {index}/{len(HASHES)}: {name}; Mikros {argument} vs FLOCK skip-7",
                   file=sys.stderr, flush=True)
             child = argparse.Namespace(**vars(o))
             child.experiment = name
@@ -520,8 +638,9 @@ def collect_single_suite(o):
             doc, child_runner = collect_experiment(child)
             publish_report(doc, child.output, child_runner.folder, render_report(doc))
             reports[name] = doc
-        return {"schema_version": 1, "experiment": "single", "instances": 1,
-                "threads": o.threads, "mikros_wiring": o.wiring, "flock_skip": 7,
+        return {"schema_version": 1, "experiment": o.experiment, "instances": o.instances,
+                "threads": o.threads, "mikros_wiring": o.wiring if o.instances == 1 else None, "flock_skip": 7,
+                "mikros_pcs": getattr(o, "pcs", "native"),
                 "reps": o.reps, "warmups": o.warmups, "batches": o.batches,
                 "cpu_affinity": runner.cpu, "created_utc": datetime.now(timezone.utc).isoformat(),
                 "raw_data": str(o.output.with_suffix(".json")), "raw_directory": str(runner.folder),
@@ -532,17 +651,28 @@ def collect_single_suite(o):
 
 
 def render_single_report(doc):
-    argument = "packed permutation argument" if doc["mikros_wiring"] == "packed" else "public wiring"
-    heading = (f"Single-instance hash comparison | {doc['threads']} thread(s) | "
-               f"Mikros {argument} vs FLOCK skip-7\n"
+    argument = ("packed R1CS" if doc.get("instances", 1) == 256 else
+                "packed permutation argument" if doc["mikros_wiring"] == "packed" else "public wiring")
+    mode = "256-instance" if doc.get("instances", 1) == 256 else "Single-instance"
+    heading = (f"{mode} hash comparison | {doc['threads']} thread(s) | "
+               f"Mikros {'additive FRI, ' if doc.get('mikros_pcs') == 'fri' else ''}{argument} vs FLOCK skip-7\n"
                f"Combined raw data: {report_path(doc['raw_data'])}\n\n")
     return heading + "\n".join(render_report(doc["hashes"][name]) for name in HASHES)
 
 
 def main(argv=None):
     o = parse_options(sys.argv[1:] if argv is None else argv)
-    if o.experiment == "single":
+    if o.experiment in ("single", "multiple"):
         doc, runner = collect_single_suite(o)
+        if o.experiment == "multiple":
+            # All six measurement groups must pass before replacing any of the
+            # three published hash comparisons. Old files are archived by the
+            # existing publisher in each hash's diagnostics directory.
+            for name in HASHES:
+                child = doc["hashes"][name]
+                output = o.hash_output_dir / f"e2e_flock_{name}.log"
+                child["raw_data"] = str(output.with_suffix(".json"))
+                publish_report(child, output, Path(child["raw_directory"]), render_report(child))
         text = render_single_report(doc)
     else:
         doc, runner = collect_experiment(o)

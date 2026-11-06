@@ -8,6 +8,10 @@ pub(crate) mod e2e_common;
 pub(crate) mod hash_fixture;
 #[path = "e2e_common/hash_mikros.rs"]
 pub(crate) mod hash_mikros;
+#[path = "e2e_common/hash_multiple_fri.rs"]
+pub(crate) mod hash_multiple_fri;
+#[path = "e2e_common/hash_single_fri.rs"]
+pub(crate) mod hash_single_fri;
 #[path = "e2e_common/hash_single_plonk.rs"]
 pub(crate) mod hash_single_plonk;
 
@@ -41,6 +45,7 @@ struct Options {
     warmups: usize,
     tamper: bool,
     wiring: String,
+    pcs: String,
 }
 fn options(args: Vec<String>) -> Result<Options, String> {
     let mut o = Options {
@@ -53,6 +58,7 @@ fn options(args: Vec<String>) -> Result<Options, String> {
         warmups: 1,
         tamper: false,
         wiring: "packed".into(),
+        pcs: "native".into(),
     };
     let mut args = args.into_iter();
     while let Some(flag) = args.next() {
@@ -62,7 +68,7 @@ fn options(args: Vec<String>) -> Result<Options, String> {
         }
         if flag == "--help" {
             println!(
-                "--hash sha256|keccak|blake3 --system mikros|flock --instances 1|256 --skip 7 --threads N --reps N --warmups N --wiring packed|public --tamper"
+                "--hash sha256|keccak|blake3 --system mikros|flock --instances 1|256 --skip 7 --threads N --reps N --warmups N --wiring packed|public --pcs native|fri --tamper"
             );
             std::process::exit(0);
         }
@@ -78,6 +84,7 @@ fn options(args: Vec<String>) -> Result<Options, String> {
             "--reps" => o.reps = v.parse().map_err(|_| "invalid reps")?,
             "--warmups" => o.warmups = v.parse().map_err(|_| "invalid warmups")?,
             "--wiring" => o.wiring = v,
+            "--pcs" => o.pcs = v,
             _ => return Err(format!("unknown argument {flag}")),
         }
     }
@@ -88,6 +95,8 @@ fn options(args: Vec<String>) -> Result<Options, String> {
         || !matches!(o.system.as_str(), "mikros" | "flock")
         || !matches!(o.wiring.as_str(), "packed" | "public")
         || (o.wiring == "public" && (o.instances != 1 || o.system != "mikros"))
+        || !matches!(o.pcs.as_str(), "native" | "fri")
+        || (o.pcs == "fri" && (o.system != "mikros" || o.wiring != "packed"))
     {
         return Err(
             "requires 1 or 256 instances, skip7, positive threads/reps, and mikros|flock".into(),
@@ -347,8 +356,8 @@ pub(crate) fn run_with_args(args: Vec<String>) -> Result<(), Box<dyn Error>> {
         return Err("all-core pool already initialized".into());
     }
     // The native FLOCK verifier uses a single-thread pool. Match that policy
-    // for both single-instance systems without changing the multiple runs.
-    let verifier_pool = if o.instances == 1 {
+    // for both single-instance systems and the new multiple-instance FRI path.
+    let verifier_pool = if o.instances == 1 || o.pcs == "fri" {
         Some(
             rayon::ThreadPoolBuilder::new()
                 .num_threads(1)
@@ -385,7 +394,7 @@ pub(crate) fn run_with_args(args: Vec<String>) -> Result<(), Box<dyn Error>> {
     } else {
         None
     };
-    let single_plonk = if o.system == "mikros" && o.instances == 1 {
+    let single_plonk = if o.system == "mikros" && o.instances == 1 && o.pcs == "native" {
         let t = Instant::now();
         let setup = hash_single_plonk::Setup::new_with_wiring(&f, &prepared, o.wiring == "public")?;
         public_setup_ms = ms(t);
@@ -393,6 +402,24 @@ pub(crate) fn run_with_args(args: Vec<String>) -> Result<(), Box<dyn Error>> {
     } else {
         None
     };
+    let mut single_fri = if o.pcs == "fri" && o.instances == 1 {
+        let t = Instant::now();
+        let setup = hash_single_fri::Setup::new(&f, &prepared)?;
+        public_setup_ms = ms(t);
+        Some(setup)
+    } else {
+        None
+    };
+    let mut offline_fri_setup_ms = 0.0;
+    let multiple_fri = if o.pcs == "fri" && o.instances == 256 {
+        let t = Instant::now();
+        let setup = hash_multiple_fri::Setup::new(transposed.as_ref().unwrap().z.len())?;
+        offline_fri_setup_ms = ms(t);
+        Some(setup)
+    } else {
+        None
+    };
+    let is_single_plonk = single_plonk.is_some() || single_fri.is_some();
     let carrier = transposed.as_ref().map(|w| {
         let log = w.z.len().ilog2() as usize;
         hash_mikros::container::registry(log, log)
@@ -419,7 +446,7 @@ pub(crate) fn run_with_args(args: Vec<String>) -> Result<(), Box<dyn Error>> {
         json!({"record":"metadata","schema_version":1,"hash":o.kind.as_str(),"system":o.system,
             "instances":o.instances,"unit":o.kind.unit(),"input_bits":o.kind.input_bits(),"output_bits":o.kind.output_bits(),
             "threads":rayon::current_num_threads(),"all_core_threads":flock_parallel::all_core_pool().current_num_threads(),
-            "verifier_threads":if o.instances==1 {Some(1)}else{None},
+            "verifier_threads":if verifier_pool.is_some() || o.threads==1 {Some(1)}else{None},
             "reps":o.reps,"warmups":o.warmups,"baseline_skip":o.skip,"univariate_skip":o.skip,"mikros_kappa":128,
             "instance_groups":if o.instances==256 {Some(2)} else {None},
             "instance_mode":if o.instances==1 {"single"}else{"multiple"},
@@ -427,14 +454,17 @@ pub(crate) fn run_with_args(args: Vec<String>) -> Result<(), Box<dyn Error>> {
             "mikros_packing_axis":if o.instances==1 {"gate_bits"}else{"instances"},
             "native_instance_capacity":1usize<<f.nu,"r1cs_m":f.r1cs.m,
             "live_constraint_bits":o.instances*f.r1cs.useful_bits,
-            "padding_policy":if single_plonk.is_some(){"one PLONK hash execution; selectors zero on padded gates, padding wires anchored by copy permutation; native PCS minimum domain zero padding"}else{"one active row per requested call; inactive native PCS capacity is zero-filled"},
+            "padding_policy":if is_single_plonk{"one PLONK hash execution; selectors zero on padded gates, padding wires anchored by copy permutation; shared fixture retains native PCS minimum domain zero padding"}else{"one active row per requested call; inactive native PCS capacity is zero-filled"},
             "r1cs_k_log":f.r1cs.k_log,"r1cs_c_identity":f.r1cs.c0_is_identity(),
-            "native_k_skip":f.r1cs.k_skip,"matrix_authentication":if single_plonk.is_some(){if o.wiring=="public" {"public sparse sigma MLE evaluated by verifier; selectors authenticated by preprocessed PCS"}else{"PLONK selectors and sigma digit tables authenticated by preprocessed public PCS commitment"}}else{f.matrix_authentication()},
+            "native_k_skip":f.r1cs.k_skip,"matrix_authentication":if is_single_plonk{if o.wiring=="public" {"public sparse sigma MLE evaluated by verifier; selectors authenticated by preprocessed PCS"}else{"PLONK selectors and sigma digit tables authenticated by preprocessed public PCS commitment"}}else{f.matrix_authentication()},
             "matrix_representation":if o.kind==HashKind::Keccak{"native_compact_walker"}else{"public_csc"},
             "program_id":program_id,
             "matrix_digest_scope":if o.kind==HashKind::Keccak{"R1CS descriptor only: A/B semantics are the trusted native Keccak walker bound by hash kind/program; full source SHA256 in experiment manifest"}else{"explicit public A/B/C matrices and native R1CS descriptor"},
-            "pcs_params":params,"pcs_queries":cfg.queries,"pcs_query_grinding_bits":cfg.grinding_bits,
-            "pcs_fold_grinding_bits":cfg.fold_grinding_bits,"target_features":features(),
+            "pcs_backend":if o.pcs=="fri"{"Additive FRI F128 equality"}else{"native Ligerito Fast"},
+            "pcs_params":if o.pcs=="native"{Some(&params)}else{None},
+            "pcs_queries":if o.pcs=="native"{Some(cfg.queries)}else{None},
+            "pcs_query_grinding_bits":if o.pcs=="native"{Some(cfg.grinding_bits)}else{None},
+            "pcs_fold_grinding_bits":if o.pcs=="native"{Some(cfg.fold_grinding_bits)}else{None},"target_features":features(),
             "packed_direct":env::var("FLOCK_PCS_PACKED_DIRECT").unwrap_or_default(),
             "zero_knowledge_claim":false,"verification":"complete non-deferred verifier; no witness input; matrix and sigma obligations discharged",
             "fixture_digest_blake3":f.fixture_digest_blake3(),"circuit_digest_blake3":hex(&f.circuit.digest()),
@@ -442,13 +472,15 @@ pub(crate) fn run_with_args(args: Vec<String>) -> Result<(), Box<dyn Error>> {
             "r1cs_digest_blake3":hex(&f.r1cs.statement_digest()),"prepared_witness_blake3":prepared_digest,
             "offline_fixture_ms":offline_fixture_ms,"offline_witness_ms":offline_witness_ms,
             "offline_transpose_ms":transpose_ms,"offline_public_setup_ms":public_setup_ms,
-            "offline_copy_setup_ms":single_plonk.as_ref().map_or(0.0,|s|s.offline_copy_setup_ms),
+            "offline_fri_setup_ms":offline_fri_setup_ms,
+            "offline_copy_setup_ms":single_plonk.as_ref().map_or_else(||single_fri.as_ref().map_or(0.0,|s|s.offline_copy_setup_ms),|s|s.offline_copy_setup_ms),
             "public_word_columns":f.io_word_columns,"public_words":f.public.len(),
             "public_io_blocks":io.as_ref().map(|io|io.blocks.iter().map(|b|json!({"first_bit":b.first_bit,"log_bits":b.log_bits})).collect::<Vec<_>>()),
-            "single_plonk":single_plonk.as_ref().map(|s|s.metadata()),
-            "arithmetization":if single_plonk.is_some(){"binary PLONK"}else{"native R1CS"},
-            "permutation_proof":if single_plonk.is_some(){if o.wiring=="public" {"Mikros public sparse wiring inner product"}else{"Mikros packed intermediate-field permutation"}}else if o.system=="flock"{"native FLOCK Product-GKR"}else{"public word cover"},
-            "timing_scope":"prepared input clone excluded; online conversion, commitment, reduction, configured grinding, public I/O/wiring and native PCS included; verifier separate",
+            "single_plonk":single_plonk.as_ref().map(|s|s.metadata()).or_else(||single_fri.as_ref().map(|s|s.metadata())),
+            "multiple_r1cs":multiple_fri.as_ref().map(|s|s.metadata()),
+            "arithmetization":if is_single_plonk{"binary PLONK"}else if multiple_fri.is_some(){"binary packed R1CS"}else{"native R1CS"},
+            "permutation_proof":if is_single_plonk{if o.wiring=="public" {"Mikros public sparse wiring inner product"}else{"Mikros packed intermediate-field permutation"}}else if o.system=="flock"{"native FLOCK Product-GKR"}else{"public word cover"},
+            "timing_scope":"prepared input clone excluded; online conversion, commitment, reduction, configured grinding, public I/O/wiring and selected PCS included; outer serialization/deserialization excluded; verifier separate",
             "ram_scope":"external GNU time peak RSS of whole process including offline setup, warmup, prover and verifier",
             "proof_encoding":if o.system=="mikros"{"bincode full Mikros proof including commitment and PCS"}else{"bincode (Commitment, R1csProofCircuitMerged)"}
         })
@@ -467,9 +499,91 @@ pub(crate) fn run_with_args(args: Vec<String>) -> Result<(), Box<dyn Error>> {
             o.system,
             o.instances
         );
-        let (encoded, cm_digest, prover_ms, verify_ms, timings, cases) = if let Some(w) =
-            &transposed
+        let (encoded, cm_digest, prover_ms, verify_ms, timings, cases) = if let Some(s) =
+            &multiple_fri
         {
+            let w = transposed.as_ref().unwrap();
+            let io = io.as_ref().unwrap();
+            let owned = w.z.clone();
+            let t = Instant::now();
+            let (proof, mut timings, mut pch) =
+                hash_multiple_fri::prove(o.kind, &view, matrix, w, owned, io, s)?;
+            let prover_ms = ms(t);
+            let t = Instant::now();
+            let (mut vch, verification) = verifier_pool.as_ref().unwrap().install(|| {
+                hash_multiple_fri::verify_with_timings(
+                    o.kind,
+                    &view,
+                    matrix,
+                    io,
+                    &s.witness_vk,
+                    &proof,
+                )
+            })?;
+            let verify_ms = ms(t);
+            timings["verifier_breakdown"] = json!({
+                "reduction_ms":verification.reduction_ms,
+                "public_io_ms":verification.public_io_ms,
+                "pairing_ms":verification.pairing_ms,
+                "packed_opening_ms":verification.opening_ms,
+                "witness_pcs_ms":verification.witness_pcs_ms
+            });
+            if pch.sample_f128() != vch.sample_f128() {
+                return Err("multiple Mikros FRI FS mismatch".into());
+            }
+            let mut cases = Vec::new();
+            if o.tamper && iteration == 0 {
+                cases =
+                    hash_multiple_fri::tamper(o.kind, &view, matrix, io, &s.witness_vk, &proof)?;
+                for left in [true, false] {
+                    let wrong = WrongMatrix {
+                        original: matrix,
+                        zero_left: left,
+                    };
+                    if hash_multiple_fri::verify(o.kind, &view, &wrong, io, &s.witness_vk, &proof)
+                        .is_ok()
+                    {
+                        return Err("multiple FRI accepted wrong public matrix".into());
+                    }
+                    cases.push(format!("public_matrix_{}", if left { "a" } else { "b" }));
+                }
+                for (name, public) in public_mutations(&f) {
+                    let bad = TreeVerifier {
+                        public: &public,
+                        ..view
+                    };
+                    let bio = hash_mikros::public_io(&bad, &f.io_word_columns, &f.public_bindings)?;
+                    if hash_multiple_fri::verify(o.kind, &bad, matrix, &bio, &s.witness_vk, &proof)
+                        .is_ok()
+                    {
+                        return Err(format!("multiple FRI accepted {name}").into());
+                    }
+                    cases.push(name);
+                }
+                for i in 0..io.blocks.len() {
+                    let mut blocks = io.blocks.clone();
+                    blocks[i].values[0] += flock_field::F256::ONE;
+                    let bad = hash_mikros::PublicIo {
+                        blocks,
+                        public_bit_count: io.public_bit_count,
+                    };
+                    if hash_multiple_fri::verify(o.kind, &view, matrix, &bad, &s.witness_vk, &proof)
+                        .is_ok()
+                    {
+                        return Err("multiple FRI accepted public interval forgery".into());
+                    }
+                    cases.push(format!("public_interval_{i}"));
+                }
+            }
+            (
+                bincode::serialize(&proof)?,
+                digest(&proof.commitment),
+                prover_ms,
+                verify_ms,
+                timings,
+                cases,
+            )
+        } else if let Some(w) = &transposed {
             let registry = carrier.as_ref().unwrap();
             let io = io.as_ref().unwrap();
             let owned = w.z.clone();
@@ -531,6 +645,63 @@ pub(crate) fn run_with_args(args: Vec<String>) -> Result<(), Box<dyn Error>> {
             }
             (
                 bincode::serialize(&proof)?,
+                digest(&proof.commitment),
+                prover_ms,
+                verify_ms,
+                timings,
+                cases,
+            )
+        } else if let Some(s) = &mut single_fri {
+            // Only fixed public commitment preprocessing is replenished offline.
+            s.prepare_public_cache()?;
+            let owned = s.witness.clone();
+            let t = Instant::now();
+            let (proof, mut timings, mut pch) = hash_single_fri::prove(o.kind, s, owned)?;
+            let prover_ms = ms(t);
+            let t = Instant::now();
+            let (mut vch, verification) = verifier_pool.as_ref().unwrap().install(|| {
+                hash_single_fri::verify_with_timings(
+                    o.kind,
+                    &s.circuit,
+                    &s.public_commitment,
+                    &s.witness_vk,
+                    &s.public_vk,
+                    &proof,
+                )
+            })?;
+            let verify_ms = ms(t);
+            if pch.sample_f128() != vch.sample_f128() {
+                return Err("single Mikros FRI FS mismatch".into());
+            }
+            let cases = if o.tamper && iteration == 0 {
+                hash_single_fri::tamper(o.kind, s, &proof)?
+            } else {
+                Vec::new()
+            };
+            let t = Instant::now();
+            let encoded = bincode::serialize(&proof)?;
+            timings["serialization_ms"] = json!(ms(t));
+            let [gate_bytes, copy_bytes, shared_bytes] = hash_single_fri::proof_sizes(&proof)?;
+            if gate_bytes + copy_bytes + shared_bytes != encoded.len() as u64 {
+                return Err("single FRI proof component sizes do not sum to full proof".into());
+            }
+            let gate_prover_ms = timings["gates_ms"].as_f64().unwrap();
+            let copy_prover_ms = timings["copy_prepare_ms"].as_f64().unwrap()
+                + timings["copy_ms"].as_f64().unwrap()
+                + timings["public_pcs_open_ms"].as_f64().unwrap();
+            let copy_verify_ms = verification.copy_ms + verification.public_pcs_ms;
+            let shared_prover_ms = prover_ms - gate_prover_ms - copy_prover_ms;
+            let shared_verifier_ms = verify_ms - verification.gate_ms - copy_verify_ms;
+            if shared_prover_ms < 0.0 || shared_verifier_ms < 0.0 {
+                return Err("single FRI constraint timers exceed E2E".into());
+            }
+            timings["constraint_breakdown"] = json!({
+                "gate":{"prover_ms":gate_prover_ms,"verifier_ms":verification.gate_ms,"proof_bytes":gate_bytes},
+                "copy":{"prover_ms":copy_prover_ms,"verifier_ms":copy_verify_ms,"proof_bytes":copy_bytes},
+                "shared":{"prover_ms":shared_prover_ms,"verifier_ms":shared_verifier_ms,"proof_bytes":shared_bytes}
+            });
+            (
+                encoded,
                 digest(&proof.commitment),
                 prover_ms,
                 verify_ms,
@@ -665,7 +836,14 @@ pub(crate) fn run_with_args(args: Vec<String>) -> Result<(), Box<dyn Error>> {
         if let Some(parts) = timings.get("constraint_breakdown") {
             for (key, label) in [
                 ("gate", "gate constraint"),
-                ("copy", if o.wiring == "packed" { "permutation argument" } else { "copy constraint" }),
+                (
+                    "copy",
+                    if o.wiring == "packed" {
+                        "permutation argument"
+                    } else {
+                        "copy constraint"
+                    },
+                ),
                 ("shared", "shared PCS/other"),
             ] {
                 eprintln!(

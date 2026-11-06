@@ -24,7 +24,7 @@ fn options() -> Result<Options, String> {
     let mut o = Options {
         ns: vec![12, 16, 20],
         reps: 8,
-        fields: vec!["Goldilocks".into(), "KoalaBear".into()],
+        fields: vec!["Mersenne31".into(), "KoalaBear".into(), "Goldilocks".into()],
         out: PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("results/mikros-comparison"),
         threads: 64,
         systems: vec![0, 1, 2, 3],
@@ -32,9 +32,13 @@ fn options() -> Result<Options, String> {
     };
     let mut args = std::env::args().skip(1);
     while let Some(arg) = args.next() {
+        // Cargo supplies this flag even for benches with harness = false.
+        if arg == "--bench" {
+            continue;
+        }
         if arg == "--help" {
             println!(
-                "compare --n 20,26,30 --reps 8 --threads 64 --fields Goldilocks,KoalaBear --systems 0,1,2,3 --warmups 1 --out NEW_DIRECTORY\nParallel PIOP comparison, same scalar field arithmetic; every proof and source claim checked. Systems: 0 Gruen, 1 Gruen skip-kappa, 2 Mikros reference, 3 Mikros optimized."
+                "compare --n 20,26,30 --reps 8 --threads 64 --fields Mersenne31,KoalaBear,Goldilocks --systems 0,1,2,3 --warmups 1 --out NEW_DIRECTORY\nParallel PIOP comparison, same scalar field arithmetic; every proof and source claim checked. Systems: 0 Gruen, 1 Gruen skip-kappa, 2 Mikros reference, 3 Mikros optimized."
             );
             std::process::exit(0);
         }
@@ -74,7 +78,7 @@ fn options() -> Result<Options, String> {
             .any(|(i, v)| o.systems[..i].contains(v))
         || o.fields
             .iter()
-            .any(|s| !["Goldilocks", "KoalaBear"].contains(&s.as_str()))
+            .any(|s| !["Mersenne31", "KoalaBear", "Goldilocks"].contains(&s.as_str()))
     {
         return Err("require n=2..30, reps=1..100, threads=1..128, distinct systems=0..3, warmups=0..1, known fields".into());
     }
@@ -212,21 +216,42 @@ fn run<B: Prime + Extension<B>, E: Extension<B>>(
     let k = kappa_skip_rounds::<B, E>()?;
     let mut count = 0;
     for &n in &o.ns {
+        eprintln!("[compare] {} n={n} input generation start", B::NAME);
+        let input_start = Instant::now();
         let trace = Trace::<B>::random(n, 0x4d494b524f535f47);
         let tape = Challenges::<E>::deterministic(n, 0x5041495245445f31);
+        eprintln!(
+            "[compare] {} n={n} input generation finished: {:.3} ms",
+            B::NAME,
+            ms(input_start.elapsed())
+        );
         let mut oracles = Vec::new();
-        for variant in 0..3 {
+        for (variant, label) in LABELS.iter().enumerate().take(3) {
+            eprintln!("[compare] {} n={n} {} source oracle start", B::NAME, label);
             let t = Instant::now();
             let trusted = match variant {
                 0 => oracle_evaluations(&trace, &tape, 0)?,
                 1 => oracle_evaluations(&trace, &tape, k)?,
                 _ => mikros::oracle_evaluations(&trace, &tape)?,
             };
-            oracles.push((trusted, ms(t.elapsed())));
+            let elapsed = ms(t.elapsed());
+            oracles.push((trusted, elapsed));
+            eprintln!(
+                "[compare] {} n={n} {} source oracle finished: {elapsed:.3} ms",
+                B::NAME,
+                label
+            );
         }
         // One warmup per variant, including all witness-independent setup.
         for &variant in o.systems.iter().cycle().take(o.systems.len() * o.warmups) {
-            let (p, _) = generate(&trace, &tape, variant)?;
+            eprintln!(
+                "[compare] {} n={n} {} warmup 1/{} start",
+                B::NAME,
+                LABELS[variant],
+                o.warmups
+            );
+            let (p, sample) = generate(&trace, &tape, variant)?;
+            let verify_start = Instant::now();
             check::<B, E>(
                 &p,
                 &tape,
@@ -234,6 +259,16 @@ fn run<B: Prime + Extension<B>, E: Extension<B>>(
                 if variant == 0 { 0 } else { k },
                 oracles[variant.min(2)].0,
             )?;
+            eprintln!(
+                "[compare] {} n={n} {} warmup 1/{} finished: prover={:.3} ms verifier={:.3} ms proof_elements={} proof_element_bytes={} verified=true (excluded from samples)",
+                B::NAME,
+                LABELS[variant],
+                o.warmups,
+                sample.total,
+                ms(verify_start.elapsed()),
+                sample.elements,
+                sample.elements * std::mem::size_of::<E>()
+            );
             black_box(p);
             count += 1;
         }
@@ -242,7 +277,23 @@ fn run<B: Prime + Extension<B>, E: Extension<B>>(
             let mut results: Vec<_> = (0..4).map(|_| None).collect();
             for order in 0..o.systems.len() {
                 let variant = o.systems[(rep + order) % o.systems.len()];
-                results[variant] = Some(generate(&trace, &tape, variant)?);
+                eprintln!(
+                    "[compare] {} n={n} {} sample {}/{} prover start",
+                    B::NAME,
+                    LABELS[variant],
+                    rep + 1,
+                    o.reps
+                );
+                let result = generate(&trace, &tape, variant)?;
+                eprintln!(
+                    "[compare] {} n={n} {} sample {}/{} prover finished: {:.3} ms; verification pending",
+                    B::NAME,
+                    LABELS[variant],
+                    rep + 1,
+                    o.reps,
+                    result.1.total
+                );
+                results[variant] = Some(result);
             }
             // All reduction checks happen AFTER the four timed provers. Dense
             // source checks are precomputed above, never between measurements.
@@ -259,6 +310,17 @@ fn run<B: Prime + Extension<B>, E: Extension<B>>(
                     oracles[variant.min(2)].0,
                 )?;
                 sample.verify = ms(t.elapsed());
+                eprintln!(
+                    "[compare] {} n={n} {} sample {}/{} finished: prover={:.3} ms verifier={:.3} ms proof_elements={} proof_element_bytes={} verified=true",
+                    B::NAME,
+                    LABELS[variant],
+                    rep + 1,
+                    o.reps,
+                    sample.total,
+                    sample.verify,
+                    sample.elements,
+                    sample.elements * std::mem::size_of::<E>()
+                );
                 count += 1;
             }
             if let (Some((Message::Mikros(a), _)), Some((Message::Mikros(b), _))) =
@@ -386,6 +448,15 @@ fn run<B: Prime + Extension<B>, E: Extension<B>>(
 }
 fn main() -> Result<(), String> {
     let o = options()?;
+    eprintln!(
+        "[compare] threads={} samples={} warmups={} sizes={:?} systems={:?} output={}",
+        o.threads,
+        o.reps,
+        o.warmups,
+        o.ns,
+        o.systems,
+        o.out.display()
+    );
     rayon::ThreadPoolBuilder::new()
         .num_threads(o.threads)
         .build_global()
@@ -408,6 +479,7 @@ fn main() -> Result<(), String> {
     let mut count = 0;
     for field in &o.fields {
         count += match field.as_str() {
+            "Mersenne31" => run::<Mersenne31, EMersenne31>(&o, &mut raw, &mut summary)?,
             "Goldilocks" => run::<Goldilocks, EGoldilocks>(&o, &mut raw, &mut summary)?,
             "KoalaBear" => run::<KoalaBear, EKoalaBear>(&o, &mut raw, &mut summary)?,
             _ => unreachable!(),

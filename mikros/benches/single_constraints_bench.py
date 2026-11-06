@@ -21,12 +21,23 @@ LABELS = {"mikros": "Mikros", "flock": "FLOCK skip-7"}
 MATCHED_FIELDS = ("fixture_digest", "public_io", "log_gates", "seed", "pcs_backend")
 
 
+def circuit_geometry(log_n, circuit="paired"):
+    require(circuit in ("paired", "near-full"), "unknown binary circuit layout")
+    domain = 1 << log_n
+    near_full = circuit == "near-full"
+    require(not near_full or domain > 257, "near-full circuit needs more than 257 rows")
+    return {"circuit_layout": circuit, "genuine_gate_count": domain - 257 if near_full else domain,
+            "private_input_bits": 256 if near_full else domain, "plonk_domain_size": domain,
+            "copy_domain_size": 4 * domain, "r1cs_rows": domain if near_full else 4 * domain}
+
+
 def parse_options(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--experiment", choices=("single-constraints",), help=argparse.SUPPRESS)
+    parser.add_argument("--experiment", choices=("single-constraints", "circuit-sat"),
+                        default="single-constraints", help=argparse.SUPPRESS)
     parser.add_argument("--worker-bin", type=Path, required=True, help=argparse.SUPPRESS)
-    parser.add_argument("--log-n", type=int, default=25, help="binary constraints: 2^N")
-    parser.add_argument("--threads", type=int, choices=(1,), default=1)
+    parser.add_argument("--log-n", type=int, help="binary constraints: 2^N")
+    parser.add_argument("--threads", type=int)
     parser.add_argument("--cpu", type=int, help="default: first CPU allowed by the process affinity")
     parser.add_argument("--reps", type=int, default=1)
     parser.add_argument("--warmups", type=int, default=0)
@@ -34,23 +45,29 @@ def parse_options(argv=None):
     parser.add_argument("--time-bin", type=Path, default=Path("/usr/bin/time"))
     parser.add_argument("--output", type=Path)
     options = parser.parse_args(argv)
-    if not 14 <= options.log_n <= 29:
-        parser.error("--log-n must be between 14 and 29: the public CSC uses u32 indices and requires 4N < 2^32 rows")
-    if options.reps < 1 or options.warmups < 0:
-        parser.error("--reps must be positive and --warmups nonnegative")
+    circuit_sat = options.experiment == "circuit-sat"
+    if options.log_n is None:
+        options.log_n = 30 if circuit_sat else 25
+    if options.threads is None:
+        options.threads = 64 if circuit_sat else 1
+    if not 14 <= options.log_n <= 30:
+        parser.error("--log-n must be between 14 and 30")
+    if options.threads < 1 or options.reps < 1 or options.warmups < 0:
+        parser.error("--threads and --reps must be positive and --warmups nonnegative")
     if not 0 <= options.seed < 1 << 64:
         parser.error("--seed must fit an unsigned 64-bit integer")
-    if options.cpu is not None and options.cpu < 0:
-        parser.error("--cpu must be nonnegative")
+    if options.cpu is not None and (options.cpu < 0 or options.threads != 1):
+        parser.error("--cpu requires a nonnegative CPU and --threads 1")
     if options.output is None:
-        options.output = ROOT / "single_2_25.log"
+        options.output = ROOT / (f"target/paper-results/circuit-sat-2-{options.log_n}.log"
+                                 if circuit_sat else "single_2_25.log")
     options.output = (ROOT / options.output).resolve()
     options.worker_bin = options.worker_bin.resolve()
     options.time_bin = options.time_bin.resolve()
     if options.output.suffix != ".log":
         parser.error("--output must end in .log")
-    if options.output.parent == ROOT and options.output.name != "single_2_25.log":
-        parser.error("the root destination for this experiment is single_2_25.log")
+    if options.output.parent == ROOT and (circuit_sat or options.output.name != "single_2_25.log"):
+        parser.error("root paper logs are protected; use a destination under target/paper-results")
     return options
 
 
@@ -60,10 +77,15 @@ def parse_worker(text, options, system, peak_rss_kib):
     metadata = records[0]
     require(metadata.get("system") == system and metadata.get("mode") == "single"
             and metadata.get("instances") == 1 and metadata.get("log_gates") == options.log_n
-            and metadata.get("threads") == metadata.get("all_core_threads") == 1
+            and metadata.get("threads") == metadata.get("all_core_threads") == options.threads
             and metadata.get("seed") == options.seed, "worker configuration mismatch")
-    require(metadata.get("genuine_gate_count") == 1 << options.log_n,
+    geometry = circuit_geometry(options.log_n, getattr(options, "circuit", "paired"))
+    require(metadata.get("genuine_gate_count") == geometry["genuine_gate_count"],
             "genuine AND/XOR gate count mismatch")
+    for key, value in geometry.items():
+        if key in metadata or geometry["circuit_layout"] == "near-full":
+            require(type(metadata.get(key)) is type(value) and metadata[key] == value,
+                    f"binary circuit geometry mismatch: {key}")
     require(metadata.get("baseline_skip") == 7, "FLOCK must use skip 7")
     require(metadata.get("pcs_packed_direct") is True, "packed-direct PCS path must be enabled")
     require(metadata.get("pcs_backend") == "FLOCK native Ligerito Fast", "unexpected PCS backend")
@@ -84,7 +106,11 @@ def parse_worker(text, options, system, peak_rss_kib):
         require(row.get("type") == "sample" and row.get("system") == system
                 and row.get("mode") == "single" and row.get("instances") == 1
                 and row.get("log_gates") == options.log_n and row.get("seed") == options.seed
-                and row.get("threads") == 1, "sample configuration mismatch")
+                and row.get("threads") == options.threads, "sample configuration mismatch")
+        for key in ("gates_per_instance", "total_gates", "genuine_gate_count"):
+            if key in row:
+                require(type(row[key]) is int and row[key] == geometry["genuine_gate_count"],
+                        f"sample gate count mismatch: {key}")
         repetition = index if index < options.warmups else index - options.warmups
         require(row.get("repetition") == repetition and type(row.get("warmup")) is bool
                 and row["warmup"] == (index < options.warmups), "sample order mismatch")
@@ -140,7 +166,7 @@ def build_summary(reports):
 
 
 def render_report(doc):
-    lines = [f"Single-instance binary AND/XOR circuit | N = 2^{doc['log_n']} | 1 thread",
+    lines = [f"Single-instance binary AND/XOR circuit | N = 2^{doc['log_n']} | {doc['threads']} thread(s)",
              "Same AND/XOR circuit and public I/O; native FLOCK Ligerito Fast PCS; FLOCK skip = 7.",
              "Mikros: binary PLONK with packed permutation. FLOCK: native R1CS with public CSC matrices.",
              f"Circuit: {1 << doc['log_n']} genuine AND/XOR gates. FLOCK: {4 << doc['log_n']} R1CS rows after input/constant identities and padding.",
@@ -186,31 +212,34 @@ def run(options):
     require(options.time_bin.is_file(), "GNU time is required")
     version = subprocess.run([str(options.time_bin), "--version"], capture_output=True, text=True)
     require(version.returncode == 0 and "GNU" in version.stdout, "--time-bin must be GNU time")
-    require(hasattr(os, "sched_getaffinity"), "this pinned one-thread comparison requires Linux")
+    require(hasattr(os, "sched_getaffinity"), "this comparison requires Linux CPU affinity support")
     allowed = os.sched_getaffinity(0)
-    cpu = min(allowed) if options.cpu is None else options.cpu
-    require(cpu in allowed, "CPU is outside the allowed affinity")
-    folder = ROOT / "target/paper-results" / f"e2e-single-2-{options.log_n}" / "runs" / (
+    require(options.threads <= len(allowed), "worker count exceeds the allowed CPU affinity")
+    cpu = (min(allowed) if options.cpu is None else options.cpu) if options.threads == 1 else None
+    require(cpu is None or cpu in allowed, "CPU is outside the allowed affinity")
+    prefix = "circuit-sat" if options.experiment == "circuit-sat" else "e2e-single"
+    folder = ROOT / "target/paper-results" / f"{prefix}-2-{options.log_n}" / "runs" / (
         datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ") + f"-{time.time_ns()}")
     folder.mkdir(parents=True)
     reports = []
     for system in SYSTEMS:
         command = [str(options.worker_bin), "--worker", "--mode", "single", "--system", system,
-                   "--log-gates", str(options.log_n), "--threads", "1", "--repetitions", str(options.reps),
+                   "--log-gates", str(options.log_n), "--threads", str(options.threads), "--repetitions", str(options.reps),
                    "--warmups", str(options.warmups), "--seed", str(options.seed)]
         resource = folder / f"{system}.resource.txt"
         with (folder / f"{system}.stdout.txt").open("w", encoding="utf-8") as out, \
              (folder / f"{system}.stderr.txt").open("w", encoding="utf-8") as err:
             result = run_streamed([str(options.time_bin), "-v", "-o", str(resource)] + command,
-                                  cwd=ROOT, env=environment(1), stdout=out, stderr=err, cpu=cpu,
-                                  label=f"single-2-{options.log_n}:{system}")
+                                  cwd=ROOT, env=environment(options.threads), stdout=out, stderr=err, cpu=cpu,
+                                  label=f"{prefix}-2-{options.log_n}:{system}")
         require(result == 0, f"{system} worker failed (exit {result}); diagnostics: {report_path(folder)}")
         match = re.search(r"Maximum resident set size \(kbytes\):\s*(\d+)", resource.read_text())
         require(match is not None, "missing GNU time peak RSS")
         reports.append(parse_worker((folder / f"{system}.stdout.txt").read_text(encoding="utf-8"),
                                     options, system, int(match.group(1))))
-    doc = {"experiment": "single-constraints", "log_n": options.log_n, "instances": 1,
-           "threads": 1, "cpu_affinity": cpu, "seed": options.seed, "reps": options.reps,
+    doc = {"experiment": options.experiment, "log_n": options.log_n, "instances": 1,
+           "threads": options.threads, "cpu_affinity": cpu if cpu is not None else sorted(allowed),
+           "seed": options.seed, "reps": options.reps,
            "warmups": options.warmups, "systems": build_summary(reports), "reports": reports,
            "worker_sha256": digest(options.worker_bin), "raw_directory": report_path(folder),
            "raw_data": report_path(options.output.with_suffix(".json"))}

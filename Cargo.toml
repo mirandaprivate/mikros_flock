@@ -2,6 +2,10 @@
 members = [
     "mikros",
     "mikros/permutation",
+    "mikros/qafold",
+    "mikros/raafold",
+    "mikros/fri",
+    "mikros/whir",
     "crates/flock-core",
     "crates/flock-cuda-ffi",
     "crates/flock-field",

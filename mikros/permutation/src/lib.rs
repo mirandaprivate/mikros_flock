@@ -7,6 +7,7 @@ pub mod bits;
 pub mod claims;
 mod fast_sumcheck;
 pub mod field;
+pub mod indexed_lookup;
 mod kernels;
 pub mod packed;
 pub mod permutation;

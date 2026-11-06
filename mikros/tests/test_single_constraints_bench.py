@@ -16,10 +16,10 @@ bench = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(bench)
 
 
-def records(system, reps=2, warmups=1):
+def records(system, reps=2, warmups=1, threads=1, log_n=14):
     metadata = {"type": "metadata", "system": system, "mode": "single", "instances": 1,
-                "log_gates": 14, "threads": 1, "all_core_threads": 1, "seed": 97,
-                "genuine_gate_count": 1 << 14,
+                "log_gates": log_n, "threads": threads, "all_core_threads": threads, "seed": 97,
+                "genuine_gate_count": 1 << log_n,
                 "baseline_skip": 7, "pcs_packed_direct": True,
                 "pcs_backend": "FLOCK native Ligerito Fast", "fixture_digest": "same-fixture",
                 "repetitions": reps, "warmups": warmups, "public_io": [1, 0],
@@ -30,7 +30,7 @@ def records(system, reps=2, warmups=1):
     for index in range(reps + warmups):
         prover = 999 if index < warmups else 10 * (index - warmups + 1) * (1 if system == "mikros" else 2)
         rows.append({"type": "sample", "system": system, "mode": "single", "instances": 1,
-                     "log_gates": 14, "seed": 97, "threads": 1,
+                     "log_gates": log_n, "seed": 97, "threads": threads,
                      "repetition": index if index < warmups else index - warmups,
                      "warmup": index < warmups, "verified": True, "transcript_match": True,
                      "pcs_config_match": True, "times": {"prover_ms": prover,
@@ -65,9 +65,37 @@ class SingleConstraintsBenchTests(unittest.TestCase):
         with self.assertRaises(SystemExit):
             bench.parse_options(["--worker-bin", __file__, "--output", "e2e_flock_sha256.log"])
 
-    def test_rejects_csc_index_overflow_before_starting_workers(self):
+    def test_circuit_sat_defaults_to_one_billion_gates_and_64_threads(self):
+        args = bench.parse_options(["--worker-bin", __file__, "--experiment", "circuit-sat"])
+        self.assertEqual((args.log_n, args.threads, args.reps, args.warmups), (30, 64, 1, 0))
+        self.assertEqual(args.output, bench.ROOT / "target/paper-results/circuit-sat-2-30.log")
+        for system in bench.SYSTEMS:
+            bench.parse_worker(encoded(records(system, reps=1, warmups=0, threads=64, log_n=30)),
+                               args, system, 2048)
+
+    def test_circuit_sat_does_not_overwrite_any_root_log(self):
+        for destination in ("single_2_25.log", "e2e_flock_sha256.log", "compare_hadamard_2_30.log"):
+            with self.assertRaises(SystemExit):
+                bench.parse_options(["--worker-bin", __file__, "--experiment", "circuit-sat",
+                                     "--output", destination])
+
+    def test_rejects_shapes_above_supported_domain(self):
         with self.assertRaises(SystemExit):
-            bench.parse_options(["--worker-bin", __file__, "--log-n", "30"])
+            bench.parse_options(["--worker-bin", __file__, "--log-n", "31"])
+
+    def test_multithread_cannot_be_pinned_to_one_cpu(self):
+        for flags in (["--threads", "4", "--cpu", "0"], ["--threads", "0"], ["--threads", "-1"]):
+            with self.assertRaises(SystemExit):
+                bench.parse_options(["--worker-bin", __file__, *flags])
+
+    def test_checks_actual_worker_and_all_core_thread_counts(self):
+        args = bench.parse_options(["--worker-bin", __file__, "--log-n", "14", "--threads", "4",
+                                    "--reps", "2", "--warmups", "1"])
+        for index, field in ((0, "threads"), (0, "all_core_threads"), (1, "threads")):
+            rows = records("mikros", threads=4)
+            rows[index][field] = 1
+            with self.assertRaisesRegex(ValueError, "configuration mismatch"):
+                bench.parse_worker(encoded(rows), args, "mikros", 2048)
 
     def test_checks_transcript_skip_and_sample_order(self):
         for mutate in (lambda r: r[0].update(baseline_skip=6),
@@ -171,6 +199,42 @@ class SingleConstraintsBenchTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, "worker failed"):
                     bench.run(args)
             self.assertEqual(output.read_text(), "previous result")
+
+    def test_multithread_run_inherits_affinity_and_configures_both_pools(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            worker = root / "worker"
+            timer = root / "time"
+            worker.write_text("mock executable")
+            timer.write_text("mock GNU time")
+            output = root / "results/circuit.log"
+            args = bench.parse_options(["--worker-bin", str(worker), "--time-bin", str(timer),
+                                        "--experiment", "circuit-sat", "--log-n", "14", "--threads", "4",
+                                        "--reps", "2", "--warmups", "1", "--output", str(output)])
+            calls = []
+
+            def fake_worker(command, **kwargs):
+                self.assertIsNone(kwargs["cpu"])
+                self.assertEqual(kwargs["env"]["RAYON_NUM_THREADS"], "4")
+                self.assertEqual(kwargs["env"]["FLOCK_VERIFY_THREADS"], "4")
+                self.assertEqual(command[command.index("--threads") + 1], "4")
+                system = command[command.index("--system") + 1]
+                calls.append(system)
+                kwargs["stdout"].write(encoded(records(system, threads=4)))
+                Path(command[command.index("-o") + 1]).write_text("Maximum resident set size (kbytes): 2048\n")
+                return 0
+
+            with patch.object(bench.subprocess, "run", return_value=SimpleNamespace(returncode=0, stdout="GNU time")), \
+                 patch.object(bench.os, "sched_getaffinity", return_value={16, 18, 20, 22}, create=True), \
+                 patch.object(bench, "ROOT", root), \
+                 patch.object(bench, "run_streamed", side_effect=fake_worker), \
+                 patch("builtins.print"):
+                doc = bench.run(args)
+            self.assertEqual(calls, ["mikros", "flock"])
+            self.assertEqual(doc["cpu_affinity"], [16, 18, 20, 22])
+            self.assertEqual(doc["threads"], 4)
+            self.assertEqual(doc["experiment"], "circuit-sat")
+            self.assertIn("4 thread(s)", output.read_text(encoding="utf-8"))
 
 
 if __name__ == "__main__":

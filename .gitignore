@@ -36,6 +36,7 @@
 !/gruen/server64/reference_manifest.json
 !/lookup/vendor-source-manifest.json
 !/mikros/binius_switchover_hadamard/upstream-source.json
+!/mikros/qafold/SOURCE_MANIFEST.json
 
 # LaTeX build output
 *.aux

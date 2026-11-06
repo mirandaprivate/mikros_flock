@@ -18,6 +18,10 @@ serde_json = { workspace = true }
 
 [dev-dependencies]
 mikros-permutation = { path = "permutation" }
+mikros-raafold = { path = "raafold" }
+mikros-fri = { path = "fri" }
+mikros-whir = { path = "whir" }
+ark-std = "0.5"
 flock-prover = { path = "../crates/flock-prover" }
 blake3 = { workspace = true }
 bincode = { workspace = true }
@@ -47,6 +51,14 @@ name = "single_hash_compare"
 harness = false
 
 [[bench]]
+name = "single_hash_fri_compare"
+harness = false
+
+[[bench]]
+name = "multi_hash_fri_compare"
+harness = false
+
+[[bench]]
 name = "single_instance"
 harness = false
 
@@ -56,6 +68,42 @@ harness = false
 
 [[bench]]
 name = "e2e_single_constraints"
+harness = false
+
+[[bench]]
+name = "lookup_bitwidth"
+harness = false
+
+[[bench]]
+name = "circuit_sat"
+harness = false
+
+[[bench]]
+name = "circuit_sat_public_matrix"
+harness = false
+
+[[bench]]
+name = "plonk_bitwidth"
+harness = false
+
+[[bench]]
+name = "plonk_bitwidth_sweep"
+harness = false
+
+[[bench]]
+name = "plonk_raafold"
+harness = false
+
+[[bench]]
+name = "plonk_fri"
+harness = false
+
+[[bench]]
+name = "bitwidth_instances"
+harness = false
+
+[[bench]]
+name = "plonk_whir"
 harness = false
 
 [lints]

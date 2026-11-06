@@ -81,7 +81,7 @@ pub(super) fn block(
     basis: &[F128],
     weights: &[F128],
 ) -> Option<Vec<F128>> {
-    if !matches!(coefficients_per_row, 6 | 8 | 12 | 16)
+    if !matches!(coefficients_per_row, 3 | 6 | 8 | 9 | 12 | 16)
         || basis.len() != 32
         || weights
             .len()
@@ -113,8 +113,10 @@ pub(super) fn block(
         // shape checks provide exactly C u32 inputs per row and weight.
         Some(unsafe {
             match coefficients_per_row {
+                3 => native::block::<3>(bytes, basis, maps, weights),
                 6 => native::block::<6>(bytes, basis, maps, weights),
                 8 => native::block::<8>(bytes, basis, maps, weights),
+                9 => native::block::<9>(bytes, basis, maps, weights),
                 12 => native::block::<12>(bytes, basis, maps, weights),
                 16 => native::block::<16>(bytes, basis, maps, weights),
                 _ => unreachable!(),
@@ -350,7 +352,7 @@ mod tests {
             return;
         }
         let basis = FastField::for_width(32).unwrap().base.basis();
-        for count in [6, 8, 12, 16] {
+        for count in [3, 6, 8, 9, 12, 16] {
             // Each one-hot row weight selects every position in both 64-row
             // tiles. Coefficient bits vary with row and column across all 32 bits.
             let mut bytes = vec![0u8; 128 * count * 4];
@@ -377,7 +379,7 @@ mod tests {
             return;
         }
         let basis = FastField::for_width(32).unwrap().base.basis();
-        for count in [6, 8, 12, 16] {
+        for count in [3, 6, 8, 9, 12, 16] {
             for rows in [0usize, 1, 3, 4, 7, 31, 63, 64, 65, 127, 128, 129, 257] {
                 let weights: Vec<_> = (0..rows)
                     .map(|i| {
@@ -412,7 +414,7 @@ mod tests {
     #[test]
     fn packed_aggregate_gfni_rejects_incompatible_shapes() {
         let basis = FastField::for_width(32).unwrap().base.basis();
-        assert!(block(&[0; 12], 3, basis, &[F128::ONE]).is_none());
+        assert!(block(&[0; 20], 5, basis, &[F128::ONE]).is_none());
         assert!(block(&[0; 24], 6, &basis[..31], &[F128::ONE]).is_none());
         assert!(block(&[0; 23], 6, basis, &[F128::ONE]).is_none());
     }

@@ -517,10 +517,114 @@ pub fn prove_native_owned<C: Challenger>(
     prove_native(&mut scratch, None, challenger)
 }
 
+/// The same proof as [`prove_native_owned`] with a binary left input, stored
+/// low bit first. Expand only one cache-sized tile while folding the first
+/// round, rather than allocating one F128 per input bit. The messages, query
+/// point and transcript are identical to the fully expanded implementation.
+/// The right input must have a power-of-two length of at least eight.
+pub fn prove_native_binary_left<C: Challenger>(
+    packed: &[u8],
+    right: Vec<F128>,
+    challenger: &mut C,
+) -> (InnerProductProof, Vec<F128>) {
+    let len = right.len();
+    assert!(len >= 8 && len.is_power_of_two());
+    assert_eq!(packed.len(), len / 8);
+    challenger.observe_label(b"mikros-inner-product-v1");
+    let sum_chunk = |(bits, values): (&[u8], &[F128])| {
+        let mut sums = [F128::ZERO; 2];
+        for (&byte, values) in bits.iter().zip(values.chunks_exact(8)) {
+            for pair in 0..4 {
+                let two = byte >> (2 * pair);
+                let even = values[2 * pair];
+                let difference = even + values[2 * pair + 1];
+                let zero_mask = 0u64.wrapping_sub(u64::from(two & 1));
+                let infinity_mask = 0u64.wrapping_sub(u64::from((two ^ (two >> 1)) & 1));
+                sums[0] += F128::new(even.lo & zero_mask, even.hi & zero_mask);
+                sums[1] += F128::new(difference.lo & infinity_mask, difference.hi & infinity_mask);
+            }
+        }
+        sums
+    };
+    let message = if use_parallel(len) {
+        packed
+            .par_chunks(FOLD_OUTPUT_CHUNK / 4)
+            .zip(right.par_chunks(2 * FOLD_OUTPUT_CHUNK))
+            .map(sum_chunk)
+            .reduce(|| [F128::ZERO; 2], |a, b| [a[0] + b[0], a[1] + b[1]])
+    } else {
+        sum_chunk((packed, &right))
+    };
+    challenger.observe_f128_slice(&message);
+    let challenge = challenger.sample_f128();
+    let mut scratch = ProverScratch::default();
+    let a_storage = prepare_output(&mut scratch.a, len / 2);
+    let b_storage = prepare_output(&mut scratch.b, len / 2);
+    let fold_chunk =
+        |(chunk, (a_out, b_out)): (usize, (&mut [MaybeUninit<F128>], &mut [MaybeUninit<F128>]))| {
+            let start = 2 * chunk * FOLD_OUTPUT_CHUNK;
+            let input_len = 2 * a_out.len();
+            let mut expanded = [F128::ZERO; 2 * FOLD_OUTPUT_CHUNK];
+            for (i, slot) in expanded[..input_len].iter_mut().enumerate() {
+                *slot = F128::new(u64::from((packed[(start + i) / 8] >> (i & 7)) & 1), 0);
+            }
+            fold_chunk_native(
+                &expanded[..input_len],
+                &right[start..start + input_len],
+                a_out,
+                b_out,
+                challenge,
+            )
+        };
+    let next_message = if use_parallel(len) {
+        a_storage
+            .par_chunks_mut(FOLD_OUTPUT_CHUNK)
+            .zip(b_storage.par_chunks_mut(FOLD_OUTPUT_CHUNK))
+            .enumerate()
+            .map(fold_chunk)
+            .reduce(|| [F256Unreduced::ZERO; 2], add_unreduced)
+    } else {
+        a_storage
+            .chunks_mut(FOLD_OUTPUT_CHUNK)
+            .zip(b_storage.chunks_mut(FOLD_OUTPUT_CHUNK))
+            .enumerate()
+            .map(fold_chunk)
+            .fold([F256Unreduced::ZERO; 2], add_unreduced)
+    }
+    .map(F256Unreduced::reduce);
+    // SAFETY: disjoint output tiles cover both half-length buffers, and the
+    // native fold writes each slot before returning. Parallel tasks have joined.
+    unsafe {
+        scratch.a.set_len(len / 2);
+        scratch.b.set_len(len / 2);
+    }
+    drop(right);
+    prove_native_continuation(
+        &mut scratch,
+        Some(next_message),
+        vec![message],
+        vec![challenge],
+        challenger,
+    )
+}
+
 /// Internal scratch-reusing form; a supplied first message must match the inputs.
 pub(crate) fn prove_native<C: Challenger>(
     scratch: &mut ProverScratch,
     initial_message: Option<[F128; 2]>,
+    challenger: &mut C,
+) -> (InnerProductProof, Vec<F128>) {
+    challenger.observe_label(b"mikros-inner-product-v1");
+    let rounds = Vec::with_capacity(scratch.a.len().ilog2() as usize);
+    let point = Vec::with_capacity(rounds.capacity());
+    prove_native_continuation(scratch, initial_message, rounds, point, challenger)
+}
+
+fn prove_native_continuation<C: Challenger>(
+    scratch: &mut ProverScratch,
+    initial_message: Option<[F128; 2]>,
+    mut rounds: Vec<[F128; 2]>,
+    mut point: Vec<F128>,
     challenger: &mut C,
 ) -> (InnerProductProof, Vec<F128>) {
     let ProverScratch {
@@ -532,9 +636,6 @@ pub(crate) fn prove_native<C: Challenger>(
     assert_eq!(a.len(), b.len());
     assert!(a.len().is_power_of_two());
     let mut len = a.len();
-    challenger.observe_label(b"mikros-inner-product-v1");
-    let mut rounds = Vec::with_capacity(len.ilog2() as usize);
-    let mut point = Vec::with_capacity(rounds.capacity());
     if len > 1 {
         let mut message = initial_message.unwrap_or_else(|| round_message_native(a, b));
         loop {
@@ -578,6 +679,23 @@ pub(crate) fn prove_native<C: Challenger>(
 
 /// Independent IP equations with a common terminal point. Every block's
 /// message is fixed before each shared challenge; no equations are combined.
+pub fn prove_native_batch_owned<C: Challenger>(
+    inputs: Vec<(Vec<F128>, Vec<F128>)>,
+    challenger: &mut C,
+) -> (Vec<InnerProductProof>, Vec<F128>) {
+    let mut scratch: Vec<_> = inputs
+        .into_iter()
+        .map(|(a, b)| ProverScratch {
+            a,
+            b,
+            ..ProverScratch::default()
+        })
+        .collect();
+    let messages = vec![None; scratch.len()];
+    prove_native_batch(&mut scratch, &messages, challenger)
+}
+
+/// Scratch-reusing variant of [`prove_native_batch_owned`].
 pub(crate) fn prove_native_batch<C: Challenger>(
     scratch: &mut [ProverScratch],
     initial_messages: &[Option<[F128; 2]>],
@@ -709,7 +827,7 @@ fn fold_batch_and_message_native(
     }
 }
 
-pub(crate) fn verify_batch<C: Challenger>(
+pub fn verify_batch<C: Challenger>(
     proofs: &[InnerProductProof],
     claims: &[F128],
     challenger: &mut C,
@@ -772,6 +890,56 @@ pub fn verify<C: Challenger>(
 mod batch_parallel_tests {
     use super::*;
     use flock_transcript::challenger::FsChallenger;
+
+    #[test]
+    fn binary_left_native_matches_expanded_proof_and_transcript() {
+        for threads in [1, 3] {
+            let pool = rayon::ThreadPoolBuilder::new()
+                .num_threads(threads)
+                .build()
+                .unwrap();
+            pool.install(|| {
+                for log in [3, 7, 12, 15, 16] {
+                    for pattern in [0, 1, 2, 3] {
+                        let len = 1usize << log;
+                        let packed: Vec<u8> = (0..len / 8)
+                            .map(|i| match pattern {
+                                0 => 0,
+                                1 => 255,
+                                2 => 0x55,
+                                _ => (i.wrapping_mul(73) ^ (i >> 3) ^ 0xa6) as u8,
+                            })
+                            .collect();
+                        let expanded: Vec<_> = (0..len)
+                            .map(|i| F128::new(u64::from((packed[i / 8] >> (i & 7)) & 1), 0))
+                            .collect();
+                        let right: Vec<_> = (0..len)
+                            .map(|i| {
+                                F128::new(i as u64 * 19 + 7, (i as u64).rotate_left(47) ^ 0xcafe)
+                            })
+                            .collect();
+                        let claim = expanded
+                            .iter()
+                            .zip(&right)
+                            .fold(F128::ZERO, |s, (&a, &b)| s + a * b);
+                        let mut reference = FsChallenger::new(b"binary-left-native-ip");
+                        let expected = prove_native_owned(expanded, right.clone(), &mut reference);
+                        let mut prover = FsChallenger::new(b"binary-left-native-ip");
+                        let actual = prove_native_binary_left(&packed, right, &mut prover);
+                        assert_eq!(
+                            actual, expected,
+                            "threads={threads} log={log} pattern={pattern}"
+                        );
+                        let mut verifier = FsChallenger::new(b"binary-left-native-ip");
+                        assert_eq!(verify(&actual.0, claim, &mut verifier).unwrap(), actual.1);
+                        let future = prover.sample_f128_vec(4);
+                        assert_eq!(future, reference.sample_f128_vec(4));
+                        assert_eq!(future, verifier.sample_f128_vec(4));
+                    }
+                }
+            });
+        }
+    }
 
     #[test]
     fn owned_native_matches_packed_reference() {

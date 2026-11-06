@@ -1,15 +1,22 @@
 KECCAK end-to-end | 256 instances | 1 thread(s)
+PCS: Mikros additive FRI over F2^128; FLOCK native Ligerito Fast.
+Mikros uses two 128-instance packed R1CS groups, public matrix checks, and one merged FRI opening.
 Times are medians; proof size is serialized bytes / 1024.
 
 System             Prover (ms)   Verifier (ms)   Proof (KiB)    RAM (MiB)   Samples
 -----------------------------------------------------------------------------------
-Mikros                 100.154          19.295       380.307        55.53        10
-FLOCK skip-7           255.265           7.618       289.847        55.53        10
+Mikros FRI             141.003          18.751       248.219        63.82        10
+FLOCK skip-7           255.677           7.859       289.847        55.06        10
 
-FLOCK/Mikros prover time: 2.549x
+FLOCK/Mikros prover time: 1.813x
 
-Prover: Online conversion, commitment, reductions, grinding and native FLOCK Ligerito PCS included; offline setup/transpose and prepared-input clone excluded.
+Prover: Online conversion, witness commitment, packed R1CS and public matrix reductions, grinding and all PCS openings included; offline setup/transpose and prepared-input clone excluded. Mikros uses additive FRI; FLOCK uses native Ligerito Fast.
 Verifier: Complete non-deferred verification, including matrix and PCS checks; public-statement preprocessing excluded.
 Ram: Maximum of 1 measurement-process GNU time peaks per system; includes setup, warmup, proving, verification and allocator retention.
+Pcs: The PCS backends differ. FRI uses F2^128, rate 1/2 and 241 queries (100-bit query-phase budget, excluding folding and other protocol errors); see raw metadata for both parameter sets. Neither proof claims zero knowledge.
+Workload: 256 independent instance(s) of Keccak-f[1600] 24-round permutation, without sponge padding.
+Sampling: 10 measured proofs after 1 excluded warmups in each of 1 fresh processes per system.
 Worker CPU affinity: 0
+Separate validation: 273 mutations rejected
 Every measured proof was verified; warmups are excluded from timing statistics.
+Raw data: e2e_flock_keccak.json
